@@ -1,0 +1,9 @@
+# Optional, isolated .venv-ocr only. Install torch/torchvision from the official
+# https://download.pytorch.org/whl/cu128 index first; see docs/TELEOCR_EXPERIMENT.md.
+torch==2.8.0
+torchvision==0.23.0
+transformers==4.57.1
+pypdfium2==4.30.0
+pillow==13.0.0
+filelock==4.2.4
+setuptools==84.2.1

@@ -1,0 +1,205 @@
+/* Responsive service shell and card composition. */
+@media (min-width: 761px) {
+  .sidebar {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 80px;
+    padding: 0 max(28px, calc((100vw - 1184px) / 2));
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 26px;
+    border-right: 0;
+    border-bottom: 1px solid #303437;
+    background: #1c1e20;
+  }
+  .sidebar > .brand {
+    padding: 0;
+  }
+  .sidebar nav {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    gap: 6px;
+  }
+  .sidebar nav > button,
+  .history-tools > summary {
+    padding: 10px 14px;
+    border-radius: 24px;
+    min-height: 42px;
+    font-size: 13px;
+  }
+  .sidebar nav button.active {
+    background: #35393d;
+    box-shadow: inset 0 1px #ffffff0d;
+  }
+  .history-tools {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .history-tools-menu {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    width: 215px;
+    padding: 8px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: #292d30;
+    box-shadow: 0 15px 30px #0006;
+  }
+  .sidebar nav .history-tools-menu button {
+    width: 100%;
+    padding: 11px 10px;
+  }
+  .workspace-label {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .profile-initial {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #4e5955;
+    border-radius: 50%;
+    background: #323e38;
+    color: #c3dccb;
+  }
+  .workspace {
+    margin-left: 0;
+  }
+  main {
+    max-width: 1240px;
+    padding: 26px 28px 48px;
+  }
+  .history-upload {
+    flex-wrap: nowrap;
+  }
+  .history-upload > div {
+    min-width: 0;
+  }
+  .history-upload .primary {
+    margin-left: 0;
+  }
+}
+@media (min-width: 761px) and (max-width: 960px) {
+  .sidebar {
+    gap: 16px;
+    padding: 0 24px;
+  }
+  .sidebar .workspace-label > span:last-child,
+  .sidebar .brand > span {
+    display: none;
+  }
+  .metric-summary {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .metric-summary h3 {
+    min-height: 61px;
+  }
+  .history-support-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 760px) {
+  main {
+    padding: 80px 16px calc(100px + env(safe-area-inset-bottom));
+  }
+  .mobile-header {
+    background: #1c1e20f5;
+  }
+  .sidebar {
+    background: #202326f5;
+  }
+  .sidebar .history-tools-menu {
+    background: #2a2e31;
+  }
+  .page-header {
+    margin-bottom: 22px;
+  }
+  .consumer-home {
+    gap: 20px;
+  }
+  .history-metrics .home-section-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .history-heading-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .history-upload {
+    padding: 18px;
+    gap: 12px;
+  }
+  .history-upload h2 {
+    font-size: 17px;
+  }
+  .history-upload-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .history-upload > div {
+    min-width: 0;
+  }
+  .history-upload p {
+    font-size: 12px;
+  }
+  .history-upload .primary {
+    margin-left: 0;
+    min-height: 46px;
+  }
+  .history-context {
+    margin: -10px 0 0;
+    gap: 12px;
+  }
+  .history-context > span {
+    font-size: 11px;
+  }
+  .metric-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .metric-summary {
+    padding: 20px 20px 3px;
+    border-radius: 22px;
+  }
+  .metric-summary h3 {
+    min-height: 0;
+    font-size: 16px;
+  }
+  .metric-latest-fact > strong {
+    font-size: 36px;
+  }
+  .history-support-grid {
+    grid-template-columns: 1fr;
+  }
+  .home-records,
+  .home-assistant-secondary .question-panel {
+    padding: 18px;
+  }
+  .question-suggestions button {
+    min-height: 44px;
+  }
+  .history-upload .primary,
+  .question-suggestions button {
+    white-space: normal;
+  }
+  .home-assistant-secondary .question-suggestions button {
+    min-height: 44px;
+  }
+  .metric-selector button {
+    min-height: 44px;
+  }
+}

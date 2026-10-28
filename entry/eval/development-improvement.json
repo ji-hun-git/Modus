@@ -1,0 +1,70 @@
+{
+  "at": "2026-10-27T13:51:28.259360+00:00",
+  "source_id": "66264633e73be902442b76851f83913e295dc503a263595fe984013d0a2752d0",
+  "baseline_source_id": "d421e80e2ed4d3a6bf311e789e82ca7e358be49f38982766054803bc4b9a5772",
+  "scope": "Frozen development cases only; tuned on development feedback",
+  "heldout_accessed": false,
+  "remote_requests": 0,
+  "human_annotation_review": "pending",
+  "results": [
+    {
+      "method": "local_fixed",
+      "baseline_cases_passed": 3,
+      "candidate_cases_passed": 8,
+      "cases": 8,
+      "baseline_attempts_passed": 9,
+      "candidate_attempts_passed": 24,
+      "attempts": 24
+    },
+    {
+      "method": "local_parser",
+      "baseline_cases_passed": 1,
+      "candidate_cases_passed": 2,
+      "cases": 4,
+      "baseline_attempts_passed": 3,
+      "candidate_attempts_passed": 6,
+      "attempts": 12
+    },
+    {
+      "method": "local_hybrid",
+      "baseline_method": "local_parser",
+      "baseline_cases_passed": 1,
+      "candidate_cases_passed": 4,
+      "cases": 4,
+      "baseline_attempts_passed": 3,
+      "candidate_attempts_passed": 12,
+      "attempts": 12
+    }
+  ],
+  "local_inference": {
+    "ocr_document_trials": 6,
+    "inference_attempts": 9,
+    "failed_primary_calls_retained": 3,
+    "input_tokens": 19038,
+    "output_tokens": 2667
+  },
+  "baseline_outputs_regraded": true,
+  "baseline_outcomes_unchanged": true,
+  "older_authored_corpus": {
+    "passed": 8,
+    "total": 8,
+    "real_inference_attempts": 8,
+    "independent_holdout": false
+  },
+  "verification": {
+    "backend_tests_passed": 442,
+    "entry_tests_passed": 362,
+    "both_frontend_builds": "passed",
+    "actual_browser_review_commit": "passed",
+    "scoped_api_checks": 11,
+    "clean_extract_tests_passed": 360,
+    "clean_extract_compatibility_skips": 2,
+    "clean_extract_frontend_build": "passed"
+  },
+  "limitations": [
+    "Small development-tuned synthetic sets; repeats are not independent samples",
+    "No live Meta or independently human-reviewed held-out comparison",
+    "Quality comparison replays preserved baseline outputs; no new baseline latency execution",
+    "Pinned checkpoint use does not reproduce a SOTA leaderboard"
+  ]
+}

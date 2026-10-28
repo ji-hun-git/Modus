@@ -1,0 +1,19 @@
+.answer-scope {
+  margin: 12px 0;
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--inset);
+}
+.answer-block .answer-scope p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+.answer-block .answer-scope .answer-new-record {
+  color: var(--warning);
+  margin-top: 8px;
+}
+.answer-scope .text-button {
+  font-size: 12px;
+}

@@ -1,0 +1,186 @@
+{
+  "checked_at": "2026-10-27T17:32:34.651480+00:00",
+  "status": "passed",
+  "bundle_id": "sha256:9c715e11e9d884adaf21c7aa6c9cd8d8f34ff23e10247e84bafe041a43fccff0",
+  "provider_requests": 0,
+  "scope": "Isolated authored synthetic loopback rehearsal; no private evaluation inputs.",
+  "fixture_sha256": "ee3a06e10034de5b30354a03e48e371668392b6212ffdc933856fe770ab9b05b",
+  "api_checks": [
+    "Isolated service explicitly offline",
+    "Earlier measurement view starts with two documents and six rows",
+    "Question stays in captured view: eGFR \uc218\uce58 \ucc3e\uc544\uc918",
+    "Korean query uses actual scoped retrieval",
+    "Bilingual CSV produces one exact reviewed candidate",
+    "Explicit reviewed commit inserts one record",
+    "Repeated reviewed commit retains its availability and identity",
+    "Late record does not alter earlier scope identity or evidence",
+    "Current availability preserves the additional conflicting value",
+    "Question stays in captured view: Find records from \"workspace-late.csv\"",
+    "Named-source query returns only that source as answer hits",
+    "Answer preserves long decimal and hides technical source ID in prose",
+    "Excluded competing source is still disclosed",
+    "Question stays in captured view: Find records from \"workspace-late.csv\"",
+    "Earlier availability cannot retrieve the late document",
+    "Earlier availability blocks the new original",
+    "Current original retains exact uploaded bytes",
+    "Question stays in captured view: Find direct LDL readings",
+    "Unsupported qualification is not guessed: Find direct LDL readings",
+    "Question stays in captured view: LDL \uacb0\uacfc \uc815\uc0c1\uc778\uac00\uc694?",
+    "Unsupported qualification is not guessed: LDL \uacb0\uacfc \uc815\uc0c1\uc778\uac00\uc694?",
+    "Question stays in captured view: Find eGFR values before 2021",
+    "Unsupported qualification is not guessed: Find eGFR values before 2021",
+    "Export retains displayed scope identity and exact evidence",
+    "Uploaded report date is distinct from server availability",
+    "Exactly one import event after duplicate commit"
+  ],
+  "before_scope": {
+    "as_of": "2021-12-31",
+    "known_at": "2026-10-27T17:32:34.539444Z",
+    "captured_at": "2026-10-27T17:32:34.539444Z",
+    "scope_id": "sha256:3bf0dbc2b200a814a9f0a2bdb481f91fecaed4959a51461c41fbbe9baac986ca"
+  },
+  "after_scope": {
+    "as_of": "2021-12-31",
+    "known_at": "2026-10-27T17:32:34.583979Z",
+    "captured_at": "2026-10-27T17:32:34.583979Z",
+    "scope_id": "sha256:e3e3d970927ce08c2a7571119f2a7873af1c1e518691b5262f3d57535fb4a440"
+  },
+  "receipt": {
+    "draft_id": "import-ee3a06e10034de5b3035",
+    "source_id": "import-ee3a06e10034de5b3035",
+    "inserted": 1,
+    "duplicate": false,
+    "available_at": "2026-10-27T17:32:34.569576Z",
+    "observation_ids": [
+      "import-ee3a06e10034de5b3035-0"
+    ],
+    "bundle_id": "sha256:9c715e11e9d884adaf21c7aa6c9cd8d8f34ff23e10247e84bafe041a43fccff0"
+  },
+  "retrieval": {
+    "scope": {
+      "as_of": "2021-12-31",
+      "known_at": "2026-10-27T17:32:34.583979Z",
+      "captured_at": "2026-10-27T17:32:34.589118Z",
+      "scope_id": "sha256:e3e3d970927ce08c2a7571119f2a7873af1c1e518691b5262f3d57535fb4a440"
+    },
+    "query": "Find records from \"workspace-late.csv\"",
+    "limit": 5,
+    "method": "scoped-record-bm25-v2",
+    "ontology_version": "modus-record-terminology-1.0.0-2026-10-28",
+    "constraints": {
+      "concept_ids": [],
+      "loinc_codes": [],
+      "methods": [],
+      "standardizations": [],
+      "units": [],
+      "ambiguous": false,
+      "unsupported": false
+    },
+    "hits": [
+      {
+        "id": "import-ee3a06e10034de5b3035-0",
+        "metric": "egfr",
+        "value": 79.1234567,
+        "unit": "mL/min/1.73m2",
+        "date": "2021-04-08",
+        "source_id": "import-ee3a06e10034de5b3035",
+        "page": null,
+        "reported_at": "2021-04-10T09:00:00Z",
+        "reported_at_raw": "2021-04-10T09:00:00Z",
+        "available_at": "2026-10-27T17:32:34.569576Z",
+        "availability_basis": "review_commit",
+        "reviewed_fields": [],
+        "observation_id": "import-ee3a06e10034de5b3035-0",
+        "source_title": "workspace-late.csv",
+        "source_span": "\ucd94\uc815 \uc0ac\uad6c\uccb4 \uc5ec\uacfc\uc728, 79.1234567, mL/min/1.73m2, 2021-04-08",
+        "source_span_withheld": false,
+        "score": 0.86304622,
+        "retrieved_because": "query_match",
+        "conflict_ids": [
+          "conflict-egfr-2021-04-08"
+        ],
+        "matched_terms": [
+          "workspace",
+          "late",
+          "csv"
+        ]
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "conflict_source_filter",
+        "conflict_id": "conflict-egfr-2021-04-08",
+        "included_observation_ids": [
+          "import-ee3a06e10034de5b3035-0"
+        ],
+        "omitted_observation_ids": [
+          "record-2021-04-09-egfr"
+        ],
+        "omitted_count": 1,
+        "context_observation_ids": [
+          "record-2021-04-09-egfr"
+        ],
+        "message": "Other conflicting values do not satisfy the query restrictions and are not answer hits. See separate conflict context or record_conflicts; no value is chosen as correct."
+      }
+    ],
+    "conflict_context": [
+      {
+        "conflict_id": "conflict-egfr-2021-04-08",
+        "query_hit_observation_ids": [
+          "import-ee3a06e10034de5b3035-0"
+        ],
+        "observations": [
+          {
+            "id": "record-2021-04-09-egfr",
+            "metric": "egfr",
+            "value": 96.0,
+            "unit": "mL/min/1.73m2",
+            "date": "2021-04-08",
+            "source_id": "record-2021-04-09",
+            "page": 1,
+            "reported_at": null,
+            "reported_at_raw": null,
+            "available_at": "2021-04-09T00:00:00Z",
+            "availability_basis": "authored_synthetic_timeline",
+            "reviewed_fields": [],
+            "observation_id": "record-2021-04-09-egfr",
+            "source_title": "Recorded measurements \u00b7 2021-04-09",
+            "source_span": "eGFR 96 mL/min/1.73m2 2021-04-08",
+            "source_span_withheld": false,
+            "score": 0,
+            "retrieved_because": "conflict_context_only",
+            "conflict_ids": [
+              "conflict-egfr-2021-04-08"
+            ]
+          }
+        ],
+        "omitted_context_count": 0
+      }
+    ],
+    "context_limit": 8,
+    "conflict_only": false,
+    "passage_constraints": {
+      "phrases": [
+        "workspace-late.csv"
+      ],
+      "title_only": false,
+      "required_terms": []
+    },
+    "match_mode": "exact_phrase_and_lexical",
+    "empty_reason": null,
+    "truncated": false,
+    "claims": [
+      {
+        "id": "retrieval-97415513326f-import-ee3a06e10034de5b3035-0",
+        "text": "eGFR: 79.1234567 mL/min/1.73m2, measured 2021-04-08. Other conflicting values are outside this retrieval result; no value is chosen as correct.",
+        "evidence_ids": [
+          "import-ee3a06e10034de5b3035-0",
+          "import-ee3a06e10034de5b3035"
+        ],
+        "tool_name": "search_record_evidence",
+        "status": "conflict"
+      }
+    ]
+  },
+  "browser_verification": "eval/workspaces-v5-e2e.json"
+}

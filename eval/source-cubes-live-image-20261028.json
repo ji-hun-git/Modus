@@ -1,0 +1,567 @@
+{
+  "schema": "modus-record-extraction-smoke-v1",
+  "model": "muse-spark-1.3",
+  "endpoint": "https://api.meta.ai/v1/chat/completions",
+  "synthetic_only": true,
+  "data_origin": "Fixed authored PDF, optionally rendered locally, and separate authored entry seed",
+  "input_mode": "image",
+  "filename": "authored-entry-smoke.png",
+  "mime": "image/png",
+  "local_ocr_requested": false,
+  "document_sha256": "a979f9d2adb78211dfb48ea1fa626678f6416b7dd8598f806b63afc8fc7d285b",
+  "authored_pdf_sha256": "3b32b79ee94509cf71bedb8405b070f3a418fd5b015bebcf6ac402a2fff070ee",
+  "smoke_sha256": "6ee9015db2f26d1925b5bc9bb71382826fa1fc18feaa34cda655743abd01b450",
+  "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+  "policy": {
+    "version": "1.0.0",
+    "max_rounds": 6,
+    "max_tool_calls": 14,
+    "max_selected_claims": 8,
+    "max_completion_tokens": 1600,
+    "request_timeout_seconds": 45,
+    "allow_contributor_mode": false
+  },
+  "pricing_basis": {
+    "checked_at": "2026-10-28",
+    "currency": "USD",
+    "input_per_million": 1.25,
+    "output_per_million": 4.25,
+    "cached_input_per_million": 0.15,
+    "source": "https://dev.meta.ai/docs/pricing-rate-limits"
+  },
+  "max_requests": 8,
+  "max_reserved_output_tokens": 17600,
+  "max_payload_bytes_per_request": 131072,
+  "retries": 0,
+  "automatic_commit": false,
+  "scope": "Extract then verify plus a committed-record inventory question",
+  "limits": "No hard monetary/input-token cap. One authored case, no clinical, held-out or benchmark qualification. Image source support is model judgement, not independent text matching.",
+  "plan_id": "sha256:b0e551840b7472f42a121883c8dd2161fe7668e2e26f26493078730259353aee",
+  "run_id": "4200a59c-42d2-4f86-8ec0-b1f4bef2e1b6",
+  "tested_at": "2026-10-28T09:33:09.232879+00:00",
+  "status": "passed",
+  "execution_class": "live_provider_smoke",
+  "provider_requests_made": 4,
+  "provider_requests_attempted": 4,
+  "provider_responses_received": 4,
+  "live_path_verified": true,
+  "model_performance_measured": false,
+  "committed_imports": 0,
+  "stages": [
+    {
+      "kind": "record_extract_then_verify",
+      "status": "passed",
+      "telemetry": {
+        "execution": {
+          "run_id": "ba4f003e-b59c-4372-ac13-8693a3dfd517",
+          "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+          "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+          "started_at": "2026-10-28T09:33:09.232879+00:00",
+          "mode": "meta",
+          "requested_model": "muse-spark-1.3",
+          "model_version_basis": "mutable provider identifier; immutable version unverified",
+          "runtime": {
+            "python": "3.12.10",
+            "platform": "Windows",
+            "dependencies": {
+              "annotated-doc": "0.0.5",
+              "annotated-types": "0.8.0",
+              "anyio": "4.15.1",
+              "certifi": "2026.10.23",
+              "click": "8.5.0",
+              "colorama": "0.4.6",
+              "fastapi": "0.162.0",
+              "h11": "0.16.0",
+              "httpcore": "1.0.9",
+              "httpx": "0.28.1",
+              "idna": "3.20",
+              "iniconfig": "2.3.1",
+              "opentelemetry-api": "1.45.1",
+              "packaging": "26.3",
+              "pillow": "13.0.0",
+              "pluggy": "1.7.0",
+              "pydantic": "2.14.1",
+              "pydantic-core": "2.50.1",
+              "pygments": "2.21.0",
+              "pypdf": "6.21.2",
+              "pypdfium2": "5.14.0",
+              "pytest": "9.1.1",
+              "python-dotenv": "1.2.4",
+              "python-multipart": "0.0.32",
+              "starlette": "1.10.0",
+              "typing-extensions": "4.16.0",
+              "typing-inspection": "0.4.4",
+              "uvicorn": "0.54.0"
+            }
+          }
+        },
+        "calls": [
+          {
+            "model": "muse-spark-1.3",
+            "status": "completed",
+            "usage": {
+              "prompt_tokens": 3800,
+              "completion_tokens": 1296,
+              "total_tokens": 5096
+            },
+            "response_id": "chatcmpl-01a181db-5102-7711-8ab9-50bf2dedf75c",
+            "request_id": "7ecc9858-c976-4780-a32a-bab9b8b66736",
+            "http_status": 200,
+            "finish_reason": "stop",
+            "error_kind": null,
+            "run_id": "ba4f003e-b59c-4372-ac13-8693a3dfd517",
+            "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+            "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+            "returned_model": "muse-spark-1.3",
+            "duration_ms": 6867.76,
+            "stage": "ExtractRecordedFields",
+            "result_validation": "passed"
+          },
+          {
+            "model": "muse-spark-1.3",
+            "status": "completed",
+            "usage": {
+              "prompt_tokens": 1812,
+              "completion_tokens": 940,
+              "total_tokens": 2752
+            },
+            "response_id": "chatcmpl-01a181db-6155-7577-ab6a-f7b06ba16cec",
+            "request_id": "62d808d5-13df-4484-9889-fdd0fad3f345",
+            "http_status": 200,
+            "finish_reason": "stop",
+            "error_kind": null,
+            "run_id": "ba4f003e-b59c-4372-ac13-8693a3dfd517",
+            "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+            "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+            "returned_model": "muse-spark-1.3",
+            "duration_ms": 4246.07,
+            "stage": "VerifyRecordedFields",
+            "result_validation": "passed"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 5612,
+          "completion_tokens": 2236,
+          "total_tokens": 7848
+        },
+        "record_extraction": {
+          "schema_version": "record-draft-v1",
+          "document_type": "lab_report",
+          "field_count": 1,
+          "verification": {
+            "status": "completed",
+            "error_kind": null
+          },
+          "review_required": true
+        }
+      },
+      "draft": {
+        "document_type": "lab_report",
+        "fields": [
+          {
+            "id": "field-1",
+            "kind": "measurement",
+            "label": "HbA1c",
+            "value": "5.6",
+            "unit": "%",
+            "occurred_on": "2024-02-03",
+            "source_quote": "HbA1c 5.6 % 2024-02-03",
+            "page": 1,
+            "bbox": null,
+            "model_confidence": 0.99,
+            "local_support": {
+              "status": "unavailable",
+              "issues": [
+                "no_independent_page_text"
+              ]
+            },
+            "verification": {
+              "status": "supported",
+              "reason": "matches_source"
+            },
+            "commit_supported": true,
+            "observation_index": 0
+          }
+        ],
+        "observations": [
+          {
+            "metric": "hba1c",
+            "value": 5.6,
+            "unit": "%",
+            "date": "2024-02-03",
+            "source_span": "HbA1c 5.6 % 2024-02-03",
+            "page": 1
+          }
+        ],
+        "review_required": true,
+        "extraction": {
+          "mode": "vision",
+          "input_sha256": "a979f9d2adb78211dfb48ea1fa626678f6416b7dd8598f806b63afc8fc7d285b",
+          "page_count": 1,
+          "pages": [
+            {
+              "page": 1,
+              "text_source": "none",
+              "vision_supplied": true,
+              "image": {
+                "width": 918,
+                "height": 1188,
+                "sha256": "d6cfce2da4d6571cdf04c8a983c3879e11a58aec56a6f874ab8589fb0904a82f",
+                "mime": "image/jpeg",
+                "coordinate_system": "normalized_top_left",
+                "orientation": "rendered_display_orientation"
+              }
+            }
+          ],
+          "local_ocr_status": "not_requested",
+          "confidence_basis": "model_self_report_not_calibrated",
+          "bbox_basis": "model_proposed_not_independently_located"
+        },
+        "verification": {
+          "status": "completed",
+          "error_kind": null
+        }
+      },
+      "extract_only_authored_fields_match": true,
+      "source_and_second_pass_checks_passed": true,
+      "review_still_required": true,
+      "committed": false
+    },
+    {
+      "kind": "record_tool_loop",
+      "status": "passed",
+      "telemetry": {
+        "execution": {
+          "run_id": "1e2a79ec-4fcb-4fae-a44f-a6832042f4c9",
+          "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+          "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+          "started_at": "2026-10-28T09:33:20.385733+00:00",
+          "mode": "meta",
+          "requested_model": "muse-spark-1.3",
+          "model_version_basis": "mutable provider identifier; immutable version unverified",
+          "runtime": {
+            "python": "3.12.10",
+            "platform": "Windows",
+            "dependencies": {
+              "annotated-doc": "0.0.5",
+              "annotated-types": "0.8.0",
+              "anyio": "4.15.1",
+              "certifi": "2026.10.23",
+              "click": "8.5.0",
+              "colorama": "0.4.6",
+              "fastapi": "0.162.0",
+              "h11": "0.16.0",
+              "httpcore": "1.0.9",
+              "httpx": "0.28.1",
+              "idna": "3.20",
+              "iniconfig": "2.3.1",
+              "opentelemetry-api": "1.45.1",
+              "packaging": "26.3",
+              "pillow": "13.0.0",
+              "pluggy": "1.7.0",
+              "pydantic": "2.14.1",
+              "pydantic-core": "2.50.1",
+              "pygments": "2.21.0",
+              "pypdf": "6.21.2",
+              "pypdfium2": "5.14.0",
+              "pytest": "9.1.1",
+              "python-dotenv": "1.2.4",
+              "python-multipart": "0.0.32",
+              "starlette": "1.10.0",
+              "typing-extensions": "4.16.0",
+              "typing-inspection": "0.4.4",
+              "uvicorn": "0.54.0"
+            }
+          }
+        },
+        "calls": [
+          {
+            "model": "muse-spark-1.3",
+            "status": "completed",
+            "usage": {
+              "prompt_tokens": 1649,
+              "completion_tokens": 1256,
+              "total_tokens": 2905
+            },
+            "response_id": "chatcmpl-01a181db-72d6-7049-b480-9cc084f705c2",
+            "request_id": "1e3c6bf0-c168-42b7-a2fe-485167b2ff68",
+            "http_status": 200,
+            "finish_reason": "tool_calls",
+            "error_kind": null,
+            "run_id": "1e2a79ec-4fcb-4fae-a44f-a6832042f4c9",
+            "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+            "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+            "returned_model": "muse-spark-1.3",
+            "duration_ms": 4423.59
+          },
+          {
+            "model": "muse-spark-1.3",
+            "status": "completed",
+            "usage": {
+              "prompt_tokens": 3375,
+              "completion_tokens": 253,
+              "total_tokens": 3628
+            },
+            "response_id": "chatcmpl-01a181db-797b-70a9-91d3-5c3bbc1ed56c",
+            "request_id": "417f1d76-7cc1-4ffc-81e8-423128dd061b",
+            "http_status": 200,
+            "finish_reason": "tool_calls",
+            "error_kind": null,
+            "run_id": "1e2a79ec-4fcb-4fae-a44f-a6832042f4c9",
+            "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+            "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+            "returned_model": "muse-spark-1.3",
+            "duration_ms": 1663.12
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 5024,
+          "completion_tokens": 1509,
+          "total_tokens": 6533
+        }
+      },
+      "claims": [
+        {
+          "id": "inventory-all",
+          "text": "This view contains 9 recorded measurements from 3 documents.",
+          "evidence_ids": [
+            "record-2018-04-09-egfr",
+            "record-2018-04-09-hba1c",
+            "record-2018-04-09-ldl",
+            "record-2021-04-09-egfr",
+            "record-2021-04-09-hba1c",
+            "record-2021-04-09-ldl",
+            "record-2026-10-20-egfr",
+            "record-2026-10-20-hba1c",
+            "record-2026-10-20-ldl"
+          ],
+          "tool_name": "record_inventory",
+          "status": "observed"
+        }
+      ],
+      "trace": [
+        {
+          "name": "record_inventory",
+          "arguments": {
+            "metric": null,
+            "offset": 0,
+            "limit": 30
+          },
+          "result": {
+            "scope": {
+              "as_of": "2026-10-27",
+              "known_at": "2026-10-28T00:00:00.000000Z",
+              "captured_at": "2026-10-28T00:00:00.000000Z",
+              "scope_id": "sha256:da5d8228dfc4cfcb2762a1d95749931e4bb13de549aa5e48f238895f506a0261"
+            },
+            "observations": [
+              {
+                "id": "record-2018-04-09-egfr",
+                "metric": "egfr",
+                "value": 99.0,
+                "unit": "mL/min/1.73m2",
+                "date": "2018-04-09",
+                "source_id": "record-2018-04-09",
+                "source_span": "eGFR 99 mL/min/1.73m2 2018-04-09",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2018-04-09T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              },
+              {
+                "id": "record-2018-04-09-hba1c",
+                "metric": "hba1c",
+                "value": 5.4,
+                "unit": "%",
+                "date": "2018-04-09",
+                "source_id": "record-2018-04-09",
+                "source_span": "HbA1c 5.4 % 2018-04-09",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2018-04-09T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              },
+              {
+                "id": "record-2018-04-09-ldl",
+                "metric": "ldl",
+                "value": 112.0,
+                "unit": "mg/dL",
+                "date": "2018-04-09",
+                "source_id": "record-2018-04-09",
+                "source_span": "LDL cholesterol 112 mg/dL 2018-04-09",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2018-04-09T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              },
+              {
+                "id": "record-2021-04-09-egfr",
+                "metric": "egfr",
+                "value": 96.0,
+                "unit": "mL/min/1.73m2",
+                "date": "2021-04-08",
+                "source_id": "record-2021-04-09",
+                "source_span": "eGFR 96 mL/min/1.73m2 2021-04-08",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2021-04-09T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              },
+              {
+                "id": "record-2021-04-09-hba1c",
+                "metric": "hba1c",
+                "value": 5.5,
+                "unit": "%",
+                "date": "2021-04-08",
+                "source_id": "record-2021-04-09",
+                "source_span": "HbA1c 5.5 % 2021-04-08",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2021-04-09T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              },
+              {
+                "id": "record-2021-04-09-ldl",
+                "metric": "ldl",
+                "value": 116.0,
+                "unit": "mg/dL",
+                "date": "2021-04-08",
+                "source_id": "record-2021-04-09",
+                "source_span": "LDL cholesterol 116 mg/dL 2021-04-08",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2021-04-09T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              },
+              {
+                "id": "record-2026-10-20-egfr",
+                "metric": "egfr",
+                "value": 83.0,
+                "unit": "mL/min/1.73m2",
+                "date": "2026-10-20",
+                "source_id": "record-2026-10-20",
+                "source_span": "eGFR 83 mL/min/1.73m2 2026-10-20",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2026-10-20T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              },
+              {
+                "id": "record-2026-10-20-hba1c",
+                "metric": "hba1c",
+                "value": 5.7,
+                "unit": "%",
+                "date": "2026-10-20",
+                "source_id": "record-2026-10-20",
+                "source_span": "HbA1c 5.7 % 2026-10-20",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2026-10-20T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              },
+              {
+                "id": "record-2026-10-20-ldl",
+                "metric": "ldl",
+                "value": 119.0,
+                "unit": "mg/dL",
+                "date": "2026-10-20",
+                "source_id": "record-2026-10-20",
+                "source_span": "LDL cholesterol 119 mg/dL 2026-10-20",
+                "source_span_withheld": false,
+                "page": 1,
+                "reviewed_fields": [],
+                "reported_at": null,
+                "reported_at_raw": null,
+                "available_at": "2026-10-20T00:00:00Z",
+                "availability_basis": "authored_synthetic_timeline"
+              }
+            ],
+            "counts": {
+              "measurements": 9,
+              "documents": 3
+            },
+            "next_offset": null,
+            "claims": [
+              {
+                "id": "inventory-all",
+                "text": "This view contains 9 recorded measurements from 3 documents.",
+                "evidence_ids": [
+                  "record-2018-04-09-egfr",
+                  "record-2018-04-09-hba1c",
+                  "record-2018-04-09-ldl",
+                  "record-2021-04-09-egfr",
+                  "record-2021-04-09-hba1c",
+                  "record-2021-04-09-ldl",
+                  "record-2026-10-20-egfr",
+                  "record-2026-10-20-hba1c",
+                  "record-2026-10-20-ldl"
+                ],
+                "tool_name": "record_inventory",
+                "status": "observed"
+              }
+            ]
+          },
+          "status": "completed",
+          "duration_ms": 0.02,
+          "executor": "Meta-selected local tool",
+          "run_id": "1e2a79ec-4fcb-4fae-a44f-a6832042f4c9",
+          "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+          "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f"
+        }
+      ],
+      "scope": {
+        "as_of": "2026-10-27",
+        "known_at": "2026-10-28T00:00:00.000000Z",
+        "captured_at": "2026-10-28T00:00:00.000000Z",
+        "scope_id": "sha256:da5d8228dfc4cfcb2762a1d95749931e4bb13de549aa5e48f238895f506a0261"
+      }
+    }
+  ],
+  "cost": {
+    "pricing_basis": {
+      "checked_at": "2026-10-28",
+      "currency": "USD",
+      "input_per_million": 1.25,
+      "output_per_million": 4.25,
+      "cached_input_per_million": 0.15,
+      "source": "https://dev.meta.ai/docs/pricing-rate-limits"
+    },
+    "billed_cost_usd": null,
+    "uncached_usage_estimate_usd": 0.02921125,
+    "basis": "Reported usage at uncached Standard rates; upper estimate if cached tokens were discounted, not an invoice."
+  },
+  "execution_limits": {
+    "max_requests": 8,
+    "max_reserved_output_tokens": 17600
+  },
+  "records_unchanged": true,
+  "duration_ms": 17254.03,
+  "transport_requests": 4,
+  "request_count_basis": "Attempts counted before transport; responses establish returned calls, transmission on timeout remains unknown.",
+  "reserved_output_tokens": 11200,
+  "blocked_requests": 0
+}

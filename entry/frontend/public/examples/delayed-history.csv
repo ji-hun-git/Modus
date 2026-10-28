@@ -1,0 +1,2 @@
+metric,value,unit,date,reported_at,source_span,note
+egfr,82,mL/min/1.73m2,2021-04-08,2021-04-10T09:00:00+09:00,eGFR 82 mL/min/1.73m2 measured 2021-04-08; report issued 2021-04-10,SYNTHETIC delayed historical report for Alex; no real person

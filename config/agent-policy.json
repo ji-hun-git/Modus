@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "max_rounds": 6,
+  "max_tool_calls": 14,
+  "max_selected_claims": 8,
+  "max_completion_tokens": 1600,
+  "request_timeout_seconds": 45,
+  "allow_contributor_mode": false
+}

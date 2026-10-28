@@ -1,0 +1,1721 @@
+{
+  "format": "modus-entry-source-allowlist-v1",
+  "scope": "Exact bounded source candidate. No eligibility or publication approval implied.",
+  "files": [
+    {
+      "source": "backend/modus/__init__.py",
+      "destination": "backend/modus/__init__.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_models.py",
+      "destination": "backend/modus/record_models.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_store.py",
+      "destination": "backend/modus/record_store.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_conflicts.py",
+      "destination": "backend/modus/record_conflicts.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/ingest.py",
+      "destination": "backend/modus/ingest.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/temporal.py",
+      "destination": "backend/modus/temporal.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/policy.py",
+      "destination": "backend/modus/policy.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/bundle.py",
+      "destination": "backend/modus/bundle.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/provider.py",
+      "destination": "backend/modus/provider.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/extraction.py",
+      "destination": "backend/modus/extraction.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/__init__.py",
+      "destination": "backend/modus_entry/__init__.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/agent.py",
+      "destination": "backend/modus_entry/agent.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/app.py",
+      "destination": "backend/modus_entry/app.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/models.py",
+      "destination": "backend/modus_entry/models.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/runtime.py",
+      "destination": "backend/modus_entry/runtime.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/seed.py",
+      "destination": "backend/modus_entry/seed.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/tools.py",
+      "destination": "backend/modus_entry/tools.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/requirements.lock.txt",
+      "destination": "backend/requirements.lock.txt",
+      "behavior": true
+    },
+    {
+      "source": "backend/requirements.txt",
+      "destination": "backend/requirements.txt",
+      "behavior": true
+    },
+    {
+      "source": "backend/pyproject.toml",
+      "destination": "backend/pyproject.toml",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry.py",
+      "destination": "backend/tests/test_entry.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_adversarial.py",
+      "destination": "backend/tests/test_entry_adversarial.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_record_store.py",
+      "destination": "backend/tests/test_record_store.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/setup_entry.py",
+      "destination": "scripts/setup_entry.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/check_entry.py",
+      "destination": "scripts/check_entry.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/serve_entry.py",
+      "destination": "scripts/serve_entry.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/evaluate_entry.py",
+      "destination": "scripts/evaluate_entry.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/entry_release.py",
+      "destination": "scripts/entry_release.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/package_entry.py",
+      "destination": "scripts/package_entry.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/index.html",
+      "destination": "entry/frontend/index.html",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/package-lock.json",
+      "destination": "entry/frontend/package-lock.json",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/package.json",
+      "destination": "entry/frontend/package.json",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/delayed-history.csv",
+      "destination": "entry/frontend/public/examples/delayed-history.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/update.csv",
+      "destination": "entry/frontend/public/examples/update.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/README.md",
+      "destination": "entry/frontend/README.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/api.ts",
+      "destination": "entry/frontend/src/api.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/App.tsx",
+      "destination": "entry/frontend/src/App.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ImportWorkflow.tsx",
+      "destination": "entry/frontend/src/ImportWorkflow.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/main.tsx",
+      "destination": "entry/frontend/src/main.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/Shell.tsx",
+      "destination": "entry/frontend/src/Shell.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/styles.css",
+      "destination": "entry/frontend/src/styles.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/types.ts",
+      "destination": "entry/frontend/src/types.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ui.tsx",
+      "destination": "entry/frontend/src/ui.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tsconfig.json",
+      "destination": "entry/frontend/tsconfig.json",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/vite.config.ts",
+      "destination": "entry/frontend/vite.config.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/prompts/records.md",
+      "destination": "entry/prompts/records.md",
+      "behavior": true
+    },
+    {
+      "source": "entry/prompts/registry.json",
+      "destination": "entry/prompts/registry.json",
+      "behavior": true
+    },
+    {
+      "source": "entry/docs/AGENT_WORKFLOW.md",
+      "destination": "entry/docs/AGENT_WORKFLOW.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/API_CONTRACT.md",
+      "destination": "entry/docs/API_CONTRACT.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/CONTRIBUTIONS.md",
+      "destination": "entry/docs/CONTRIBUTIONS.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/DEPENDENCIES.json",
+      "destination": "entry/docs/DEPENDENCIES.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/GOALS_AND_PROMPTS.md",
+      "destination": "entry/docs/GOALS_AND_PROMPTS.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/PRODUCT.md",
+      "destination": "entry/docs/PRODUCT.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/evidence-three-dates.png",
+      "destination": "entry/demo/evidence-three-dates.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/rehearsal-before.json",
+      "destination": "entry/demo/rehearsal-before.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/rehearsal-comparison.json",
+      "destination": "entry/demo/rehearsal-comparison.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/rehearsal-historical-after.json",
+      "destination": "entry/demo/rehearsal-historical-after.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/replay-before.png",
+      "destination": "entry/demo/replay-before.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/replay-comparison.png",
+      "destination": "entry/demo/replay-comparison.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/replay-mobile.png",
+      "destination": "entry/demo/replay-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/review-record.png",
+      "destination": "entry/demo/review-record.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/review-recovery.png",
+      "destination": "entry/demo/review-recovery.png",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_code-frame-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_code-frame-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_compat-data-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_compat-data-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_core-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_core-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_generator-7.29.8/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_generator-7.29.8/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helper-compilation-targets-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helper-compilation-targets-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helper-globals-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helper-globals-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helper-module-imports-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helper-module-imports-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helper-module-transforms-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helper-module-transforms-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helper-plugin-utils-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helper-plugin-utils-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helper-string-parser-7.29.11/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helper-string-parser-7.29.11/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helper-validator-identifier-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helper-validator-identifier-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helper-validator-option-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helper-validator-option-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_helpers-7.29.10/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_helpers-7.29.10/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_parser-7.29.11/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_parser-7.29.11/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_plugin-transform-react-jsx-self-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_plugin-transform-react-jsx-self-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_plugin-transform-react-jsx-source-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_plugin-transform-react-jsx-source-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_template-7.29.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_template-7.29.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_traverse-7.29.10/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_traverse-7.29.10/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_babel_types-7.29.11/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_babel_types-7.29.11/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_jridgewell_gen-mapping-0.3.13/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_jridgewell_gen-mapping-0.3.13/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_jridgewell_remapping-2.3.5/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_jridgewell_remapping-2.3.5/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_jridgewell_resolve-uri-3.1.2/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_jridgewell_resolve-uri-3.1.2/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_jridgewell_sourcemap-codec-1.6.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_jridgewell_sourcemap-codec-1.6.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_jridgewell_trace-mapping-0.3.31/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_jridgewell_trace-mapping-0.3.31/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_rolldown_pluginutils-1.0.0-beta.27/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_rolldown_pluginutils-1.0.0-beta.27/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_types_babel__core-7.20.5/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_types_babel__core-7.20.5/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_types_babel__generator-7.27.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_types_babel__generator-7.27.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_types_babel__template-7.4.4/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_types_babel__template-7.4.4/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_types_babel__traverse-7.28.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_types_babel__traverse-7.28.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_types_estree-1.0.9/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_types_estree-1.0.9/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_types_react-19.3.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_types_react-19.3.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_types_react-dom-19.3.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_types_react-dom-19.3.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/_vitejs_plugin-react-4.7.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/_vitejs_plugin-react-4.7.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/baseline-browser-mapping-2.11.33/LICENSE.txt",
+      "destination": "data/licenses/dependencies/npm/baseline-browser-mapping-2.11.33/LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/browserslist-4.29.5/LICENSE",
+      "destination": "data/licenses/dependencies/npm/browserslist-4.29.5/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/caniuse-lite-1.0.30001819/LICENSE",
+      "destination": "data/licenses/dependencies/npm/caniuse-lite-1.0.30001819/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/convert-source-map-2.0.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/convert-source-map-2.0.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/csstype-3.2.3/LICENSE",
+      "destination": "data/licenses/dependencies/npm/csstype-3.2.3/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/debug-4.4.3/LICENSE",
+      "destination": "data/licenses/dependencies/npm/debug-4.4.3/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/electron-to-chromium-1.5.465/LICENSE",
+      "destination": "data/licenses/dependencies/npm/electron-to-chromium-1.5.465/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/esbuild-0.25.12/LICENSE.md",
+      "destination": "data/licenses/dependencies/npm/esbuild-0.25.12/LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/escalade-3.2.0/license",
+      "destination": "data/licenses/dependencies/npm/escalade-3.2.0/license",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/fdir-6.5.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/fdir-6.5.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/gensync-1.0.0-beta.2/LICENSE",
+      "destination": "data/licenses/dependencies/npm/gensync-1.0.0-beta.2/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/js-tokens-4.0.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/js-tokens-4.0.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/jsesc-3.1.0/LICENSE-MIT.txt",
+      "destination": "data/licenses/dependencies/npm/jsesc-3.1.0/LICENSE-MIT.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/json5-2.2.3/LICENSE.md",
+      "destination": "data/licenses/dependencies/npm/json5-2.2.3/LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/lru-cache-5.1.1/LICENSE",
+      "destination": "data/licenses/dependencies/npm/lru-cache-5.1.1/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/lucide-react-0.468.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/lucide-react-0.468.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/ms-2.1.3/license.md",
+      "destination": "data/licenses/dependencies/npm/ms-2.1.3/license.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/nanoid-3.3.20/LICENSE",
+      "destination": "data/licenses/dependencies/npm/nanoid-3.3.20/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/node-releases-2.0.60/LICENSE",
+      "destination": "data/licenses/dependencies/npm/node-releases-2.0.60/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/picocolors-1.1.1/LICENSE",
+      "destination": "data/licenses/dependencies/npm/picocolors-1.1.1/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/picomatch-4.0.7/LICENSE",
+      "destination": "data/licenses/dependencies/npm/picomatch-4.0.7/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/postcss-8.5.32/LICENSE",
+      "destination": "data/licenses/dependencies/npm/postcss-8.5.32/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/prettier-3.9.10/LICENSE",
+      "destination": "data/licenses/dependencies/npm/prettier-3.9.10/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/prettier-3.9.10/THIRD-PARTY-NOTICES.md",
+      "destination": "data/licenses/dependencies/npm/prettier-3.9.10/THIRD-PARTY-NOTICES.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/react-19.3.1/LICENSE",
+      "destination": "data/licenses/dependencies/npm/react-19.3.1/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/react-dom-19.3.1/LICENSE",
+      "destination": "data/licenses/dependencies/npm/react-dom-19.3.1/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/react-refresh-0.17.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/react-refresh-0.17.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/rollup-4.65.1/LICENSE.md",
+      "destination": "data/licenses/dependencies/npm/rollup-4.65.1/LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/scheduler-0.28.0/LICENSE",
+      "destination": "data/licenses/dependencies/npm/scheduler-0.28.0/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/semver-6.3.1/LICENSE",
+      "destination": "data/licenses/dependencies/npm/semver-6.3.1/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/source-map-js-1.2.2/LICENSE",
+      "destination": "data/licenses/dependencies/npm/source-map-js-1.2.2/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/tinyglobby-0.2.17/LICENSE",
+      "destination": "data/licenses/dependencies/npm/tinyglobby-0.2.17/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/typescript-5.8.3/LICENSE.txt",
+      "destination": "data/licenses/dependencies/npm/typescript-5.8.3/LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/update-browserslist-db-1.3.4/LICENSE",
+      "destination": "data/licenses/dependencies/npm/update-browserslist-db-1.3.4/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/vite-6.4.5/LICENSE.md",
+      "destination": "data/licenses/dependencies/npm/vite-6.4.5/LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/npm/yallist-3.1.1/LICENSE",
+      "destination": "data/licenses/dependencies/npm/yallist-3.1.1/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/annotated-doc-0.0.5/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/annotated-doc-0.0.5/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/annotated-types-0.8.0/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/annotated-types-0.8.0/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/anyio-4.15.1/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/anyio-4.15.1/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/certifi-2026.10.23/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/certifi-2026.10.23/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/click-8.5.0/0-LICENSE.txt",
+      "destination": "data/licenses/dependencies/python/click-8.5.0/0-LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/colorama-0.4.6/0-LICENSE.txt",
+      "destination": "data/licenses/dependencies/python/colorama-0.4.6/0-LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/fastapi-0.162.0/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/fastapi-0.162.0/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/h11-0.16.0/0-LICENSE.txt",
+      "destination": "data/licenses/dependencies/python/h11-0.16.0/0-LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/httpcore-1.0.9/0-LICENSE.md",
+      "destination": "data/licenses/dependencies/python/httpcore-1.0.9/0-LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/httpx-0.28.1/0-LICENSE.md",
+      "destination": "data/licenses/dependencies/python/httpx-0.28.1/0-LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/idna-3.20/0-LICENSE.md",
+      "destination": "data/licenses/dependencies/python/idna-3.20/0-LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/iniconfig-2.3.1/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/iniconfig-2.3.1/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/opentelemetry-api-1.45.1/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/opentelemetry-api-1.45.1/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/packaging-26.3/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/packaging-26.3/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/packaging-26.3/1-LICENSE.APACHE",
+      "destination": "data/licenses/dependencies/python/packaging-26.3/1-LICENSE.APACHE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/packaging-26.3/2-LICENSE.BSD",
+      "destination": "data/licenses/dependencies/python/packaging-26.3/2-LICENSE.BSD",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pluggy-1.7.0/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/pluggy-1.7.0/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pydantic-2.14.1/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/pydantic-2.14.1/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pydantic-core-2.50.1/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/pydantic-core-2.50.1/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pygments-2.21.0/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/pygments-2.21.0/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdf-6.21.2/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/pypdf-6.21.2/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pytest-9.1.1/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/pytest-9.1.1/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/python-dotenv-1.2.4/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/python-dotenv-1.2.4/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/python-multipart-0.0.32/0-LICENSE.txt",
+      "destination": "data/licenses/dependencies/python/python-multipart-0.0.32/0-LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/starlette-1.10.0/0-LICENSE.md",
+      "destination": "data/licenses/dependencies/python/starlette-1.10.0/0-LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/typing-extensions-4.16.0/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/typing-extensions-4.16.0/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/typing-inspection-0.4.4/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/typing-inspection-0.4.4/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/uvicorn-0.54.0/0-LICENSE.md",
+      "destination": "data/licenses/dependencies/python/uvicorn-0.54.0/0-LICENSE.md",
+      "behavior": false
+    },
+    {
+      "source": ".gitignore",
+      "destination": ".gitignore",
+      "behavior": true
+    },
+    {
+      "source": ".gitattributes",
+      "destination": ".gitattributes",
+      "behavior": true
+    },
+    {
+      "source": "config/agent-policy.json",
+      "destination": "config/agent-policy.json",
+      "behavior": true
+    },
+    {
+      "source": "prompts/extract.md",
+      "destination": "prompts/extract.md",
+      "behavior": true
+    },
+    {
+      "source": "entry/README.md",
+      "destination": "README.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/AGENTS.md",
+      "destination": "AGENTS.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/THIRD_PARTY_NOTICES.md",
+      "destination": "THIRD_PARTY_NOTICES.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/.env.example",
+      "destination": ".env.example",
+      "behavior": false
+    },
+    {
+      "source": "entry/config/source_manifest.json",
+      "destination": "entry/config/source_manifest.json",
+      "behavior": true
+    },
+    {
+      "source": "entry/docs/VERIFICATION.md",
+      "destination": "entry/docs/VERIFICATION.md",
+      "behavior": false
+    },
+    {
+      "source": "scripts/benchmark_common.py",
+      "destination": "scripts/benchmark_common.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/benchmark_grading.py",
+      "destination": "scripts/benchmark_grading.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/benchmark_runner.py",
+      "destination": "scripts/benchmark_runner.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/benchmark_workflows.py",
+      "destination": "scripts/benchmark_workflows.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/benchmark_cli.py",
+      "destination": "scripts/benchmark_cli.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/compare_workflows.py",
+      "destination": "scripts/compare_workflows.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/evaluate_heldout_documents.py",
+      "destination": "scripts/evaluate_heldout_documents.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_benchmark_harness.py",
+      "destination": "backend/tests/test_benchmark_harness.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/docs/BENCHMARK.md",
+      "destination": "entry/docs/BENCHMARK.md",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus/local_ocr.py",
+      "destination": "backend/modus/local_ocr.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_routing.py",
+      "destination": "backend/tests/test_entry_routing.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_extraction_layouts.py",
+      "destination": "backend/tests/test_extraction_layouts.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_local_ocr.py",
+      "destination": "backend/tests/test_local_ocr.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_ocr_api.py",
+      "destination": "backend/tests/test_entry_ocr_api.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_development_comparison.py",
+      "destination": "backend/tests/test_development_comparison.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/compare_development.py",
+      "destination": "scripts/compare_development.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/development_guard.py",
+      "destination": "scripts/development_guard.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/teleocr_runtime.py",
+      "destination": "scripts/teleocr_runtime.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/teleocr_document_worker.py",
+      "destination": "scripts/teleocr_document_worker.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/teleocr_assets.py",
+      "destination": "scripts/teleocr_assets.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/requirements-ocr.txt",
+      "destination": "scripts/requirements-ocr.txt",
+      "behavior": true
+    },
+    {
+      "source": "scripts/requirements-ocr.lock.txt",
+      "destination": "scripts/requirements-ocr.lock.txt",
+      "behavior": true
+    },
+    {
+      "source": "config/teleocr.json",
+      "destination": "config/teleocr.json",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/ocr_text.py",
+      "destination": "backend/modus/ocr_text.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/eval/development-improvement.json",
+      "destination": "entry/eval/development-improvement.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/RecordsWorkspace.tsx",
+      "destination": "entry/frontend/src/RecordsWorkspace.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/docs/DATA.md",
+      "destination": "entry/docs/DATA.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/LIVE_COMPARISONS.md",
+      "destination": "entry/docs/LIVE_COMPARISONS.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/eval/development-annotation-review.json",
+      "destination": "entry/eval/development-annotation-review.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v2-records.png",
+      "destination": "entry/demo/design-v2-records.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v2-mobile.png",
+      "destination": "entry/demo/design-v2-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v2-data.png",
+      "destination": "entry/demo/design-v2-data.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v2-source.png",
+      "destination": "entry/demo/design-v2-source.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v2-mobile-source.png",
+      "destination": "entry/demo/design-v2-mobile-source.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v2-review.png",
+      "destination": "entry/demo/design-v2-review.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v2-replay.png",
+      "destination": "entry/demo/design-v2-replay.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v2-comparison.json",
+      "destination": "entry/demo/design-v2-comparison.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/HomeWorkspace.tsx",
+      "destination": "entry/frontend/src/HomeWorkspace.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/MeasurementsWorkspace.tsx",
+      "destination": "entry/frontend/src/MeasurementsWorkspace.tsx",
+      "behavior": true
+    },
+    {
+      "source": "docs/PRODUCT_DESIGN_V3.md",
+      "destination": "docs/PRODUCT_DESIGN_V3.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/service-home-desktop.png",
+      "destination": "entry/demo/service-home-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/service-home-mobile.png",
+      "destination": "entry/demo/service-home-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/service-measurements-desktop.png",
+      "destination": "entry/demo/service-measurements-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/service-measurements-mobile.png",
+      "destination": "entry/demo/service-measurements-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/service-home-comparison.json",
+      "destination": "entry/demo/service-home-comparison.json",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus/ontology.py",
+      "destination": "backend/modus/ontology.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_retrieval.py",
+      "destination": "backend/modus/record_retrieval.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_ontology.py",
+      "destination": "backend/tests/test_ontology.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_record_retrieval.py",
+      "destination": "backend/tests/test_record_retrieval.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_retrieval.py",
+      "destination": "backend/tests/test_entry_retrieval.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_ontology_rag_evaluation.py",
+      "destination": "backend/tests/test_ontology_rag_evaluation.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/evaluate_ontology_rag.py",
+      "destination": "scripts/evaluate_ontology_rag.py",
+      "behavior": true
+    },
+    {
+      "source": "data/development/ontology_rag_v1.json",
+      "destination": "data/development/ontology_rag_v1.json",
+      "behavior": true
+    },
+    {
+      "source": "docs/ONTOLOGY_RAG_EVALUATION.md",
+      "destination": "docs/ONTOLOGY_RAG_EVALUATION.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/TERMINOLOGY_RETRIEVAL.md",
+      "destination": "entry/docs/TERMINOLOGY_RETRIEVAL.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/WORKSHOP_ALIGNMENT.md",
+      "destination": "docs/WORKSHOP_ALIGNMENT.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/LOINC_short_license.txt",
+      "destination": "LOINC_short_license.txt",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/public/LOINC_short_license.txt",
+      "destination": "entry/frontend/public/LOINC_short_license.txt",
+      "behavior": true
+    },
+    {
+      "source": "eval/ontology-rag-development-v1.json",
+      "destination": "eval/ontology-rag-development-v1.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/ontology-rag-development-v1-20261027T162044958823Z.json",
+      "destination": "eval/ontology-rag-development-v1-20261027T162044958823Z.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/ontology-rag-development-v1-20261027T163445624357Z.json",
+      "destination": "eval/ontology-rag-development-v1-20261027T163445624357Z.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/ontology-rag-development-v1-20261027T163848580055Z.json",
+      "destination": "eval/ontology-rag-development-v1-20261027T163848580055Z.json",
+      "behavior": false
+    },
+    {
+      "source": "docs/PRODUCT_DESIGN_V4.md",
+      "destination": "docs/PRODUCT_DESIGN_V4.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v4-desktop.png",
+      "destination": "entry/demo/design-v4-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v4-mobile.png",
+      "destination": "entry/demo/design-v4-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v4-evidence.png",
+      "destination": "entry/demo/design-v4-evidence.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v4-answer-desktop.png",
+      "destination": "entry/demo/design-v4-answer-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v4-answer-mobile.png",
+      "destination": "entry/demo/design-v4-answer-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/design-v4-comparison.json",
+      "destination": "entry/demo/design-v4-comparison.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/ontology-rag-e2e.json",
+      "destination": "eval/ontology-rag-e2e.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/ReplayWorkspace.tsx",
+      "destination": "entry/frontend/src/ReplayWorkspace.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ChangesWorkspace.tsx",
+      "destination": "entry/frontend/src/ChangesWorkspace.tsx",
+      "behavior": true
+    },
+    {
+      "source": "scripts/smoke_entry_meta.py",
+      "destination": "scripts/smoke_entry_meta.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_smoke.py",
+      "destination": "backend/tests/test_entry_smoke.py",
+      "behavior": true
+    },
+    {
+      "source": "docs/PRODUCT_DESIGN_V5.md",
+      "destination": "docs/PRODUCT_DESIGN_V5.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/RELEASE_REVIEW_2026-10-28.md",
+      "destination": "docs/RELEASE_REVIEW_2026-10-28.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/entry-meta-smoke-workspaces-v5-prepared.json",
+      "destination": "eval/entry-meta-smoke-workspaces-v5-prepared.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/workspaces-v5-api.json",
+      "destination": "eval/workspaces-v5-api.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/workspaces-v5-e2e.json",
+      "destination": "eval/workspaces-v5-e2e.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-records-desktop.png",
+      "destination": "entry/demo/workspaces-v5-records-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-records-mobile.png",
+      "destination": "entry/demo/workspaces-v5-records-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-measurements-desktop.png",
+      "destination": "entry/demo/workspaces-v5-measurements-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-measurements-mobile.png",
+      "destination": "entry/demo/workspaces-v5-measurements-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-replay-desktop.png",
+      "destination": "entry/demo/workspaces-v5-replay-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-replay-mobile.png",
+      "destination": "entry/demo/workspaces-v5-replay-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-changes-desktop.png",
+      "destination": "entry/demo/workspaces-v5-changes-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-changes-mobile.png",
+      "destination": "entry/demo/workspaces-v5-changes-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-comparison.json",
+      "destination": "entry/demo/workspaces-v5-comparison.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/workspaces-v5-conflict-mobile.png",
+      "destination": "entry/demo/workspaces-v5-conflict-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "eval/ontology-rag-development-v1-20261027T173447003989Z.json",
+      "destination": "eval/ontology-rag-development-v1-20261027T173447003989Z.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/importQueue.ts",
+      "destination": "entry/frontend/src/importQueue.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/import-queue.css",
+      "destination": "entry/frontend/src/import-queue.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/importQueue.test.mjs",
+      "destination": "entry/frontend/tests/importQueue.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "docs/PRODUCT_DESIGN_V6.md",
+      "destination": "docs/PRODUCT_DESIGN_V6.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/consumer-v6-home.png",
+      "destination": "entry/demo/consumer-v6-home.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/consumer-v6-review-desktop.png",
+      "destination": "entry/demo/consumer-v6-review-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/consumer-v6-review-mobile.png",
+      "destination": "entry/demo/consumer-v6-review-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/consumer-v6-completion-mobile.png",
+      "destination": "entry/demo/consumer-v6-completion-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/service-design.css",
+      "destination": "entry/frontend/src/service-design.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HistoryPlot.tsx",
+      "destination": "entry/frontend/src/HistoryPlot.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/historyGeometry.ts",
+      "destination": "entry/frontend/src/historyGeometry.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/history-plot.css",
+      "destination": "entry/frontend/src/history-plot.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/historyPlot.test.mjs",
+      "destination": "entry/frontend/tests/historyPlot.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "docs/PRODUCT_DESIGN_V7.md",
+      "destination": "docs/PRODUCT_DESIGN_V7.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/AnswerScope.tsx",
+      "destination": "entry/frontend/src/AnswerScope.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/service-responsive.css",
+      "destination": "entry/frontend/src/service-responsive.css",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_record_answers.py",
+      "destination": "backend/tests/test_entry_record_answers.py",
+      "behavior": true
+    },
+    {
+      "source": "docs/PRODUCT_EXPANSION_PLAN.md",
+      "destination": "docs/PRODUCT_EXPANSION_PLAN.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/WORKSTREAM_A_REVIEW.md",
+      "destination": "docs/WORKSTREAM_A_REVIEW.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/AnswerScope.css",
+      "destination": "entry/frontend/src/AnswerScope.css",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_extraction.py",
+      "destination": "backend/modus/record_extraction.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_extraction_models.py",
+      "destination": "backend/modus/record_extraction_models.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_document_input.py",
+      "destination": "backend/modus/record_document_input.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/extraction_review.py",
+      "destination": "backend/modus_entry/extraction_review.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_record_extraction.py",
+      "destination": "backend/tests/test_record_extraction.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_record_extraction_api.py",
+      "destination": "backend/tests/test_entry_record_extraction_api.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_record_smoke.py",
+      "destination": "backend/tests/test_entry_record_smoke.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/smoke_record_extraction.py",
+      "destination": "scripts/smoke_record_extraction.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ExtractionReviewSummary.tsx",
+      "destination": "entry/frontend/src/ExtractionReviewSummary.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/extraction-review.css",
+      "destination": "entry/frontend/src/extraction-review.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/CallDetails.tsx",
+      "destination": "entry/frontend/src/CallDetails.tsx",
+      "behavior": true
+    },
+    {
+      "source": "docs/C_EXTRACTION_RESEARCH.md",
+      "destination": "docs/C_EXTRACTION_RESEARCH.md",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus/history_ingest.py",
+      "destination": "backend/modus/history_ingest.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_history.py",
+      "destination": "backend/modus/record_history.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_history_models.py",
+      "destination": "backend/modus/record_history_models.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_history_view.py",
+      "destination": "backend/modus/record_history_view.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_units.py",
+      "destination": "backend/modus/record_units.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_ingest.py",
+      "destination": "backend/tests/test_history_ingest.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_record_history.py",
+      "destination": "backend/tests/test_record_history.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_record_units.py",
+      "destination": "backend/tests/test_record_units.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_audit.py",
+      "destination": "backend/tests/test_history_audit.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_history_api.py",
+      "destination": "backend/tests/test_entry_history_api.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/historyTypes.ts",
+      "destination": "entry/frontend/src/historyTypes.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/GenericFactReview.tsx",
+      "destination": "entry/frontend/src/GenericFactReview.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/generic-records.css",
+      "destination": "entry/frontend/src/generic-records.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HistoryTimeline.tsx",
+      "destination": "entry/frontend/src/HistoryTimeline.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/history-timeline.css",
+      "destination": "entry/frontend/src/history-timeline.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/TimelineFact.tsx",
+      "destination": "entry/frontend/src/TimelineFact.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/TimelineSettings.tsx",
+      "destination": "entry/frontend/src/TimelineSettings.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HistoryFiles.tsx",
+      "destination": "entry/frontend/src/HistoryFiles.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/useHistoryView.ts",
+      "destination": "entry/frontend/src/useHistoryView.ts",
+      "behavior": true
+    },
+    {
+      "source": "docs/C1_C2_REVIEW.md",
+      "destination": "docs/C1_C2_REVIEW.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/RECORD_UNIT_RULES.md",
+      "destination": "docs/RECORD_UNIT_RULES.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/LIFELONG_RECORDS_REVIEW.md",
+      "destination": "docs/LIFELONG_RECORDS_REVIEW.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/SourceCubeHome.tsx",
+      "destination": "entry/frontend/src/SourceCubeHome.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/SourceCubeOverview.tsx",
+      "destination": "entry/frontend/src/SourceCubeOverview.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/SourceCubeEvidence.tsx",
+      "destination": "entry/frontend/src/SourceCubeEvidence.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/source-cubes.css",
+      "destination": "entry/frontend/src/source-cubes.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/source-cube-evidence.css",
+      "destination": "entry/frontend/src/source-cube-evidence.css",
+      "behavior": true
+    },
+    {
+      "source": "docs/PRODUCT_SYSTEM_DECISIONS.md",
+      "destination": "docs/PRODUCT_SYSTEM_DECISIONS.md",
+      "behavior": false
+    },
+    {
+      "source": "research/COMPETITIVE_REVIEW_2026-10-28.md",
+      "destination": "research/COMPETITIVE_REVIEW_2026-10-28.md",
+      "behavior": false
+    },
+    {
+      "source": "research/ARCHITECTURE_PRIVACY_AUDIT_2026-10-28.md",
+      "destination": "research/ARCHITECTURE_PRIVACY_AUDIT_2026-10-28.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pillow-13.0.0/0-LICENSE",
+      "destination": "data/licenses/dependencies/python/pillow-13.0.0/0-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/0-Apache-2.0.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/0-Apache-2.0.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/1-BSD-3-Clause.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/1-BSD-3-Clause.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/2-CC-BY-4.0.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/2-CC-BY-4.0.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/3-abseil.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/3-abseil.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/4-agg23.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/4-agg23.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/5-fast_float.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/5-fast_float.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/6-freetype.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/6-freetype.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/7-icu.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/7-icu.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/8-lcms.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/8-lcms.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/9-libjpeg_turbo.ijg",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/9-libjpeg_turbo.ijg",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/10-libjpeg_turbo.md",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/10-libjpeg_turbo.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/11-libopenjpeg.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/11-libopenjpeg.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/12-libpng.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/12-libpng.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/13-llvm-libc.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/13-llvm-libc.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/14-pdfium-binaries.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/14-pdfium-binaries.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/15-pdfium.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/15-pdfium.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/16-simdutf.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/16-simdutf.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pypdfium2-5.14.0/17-zlib.txt",
+      "destination": "data/licenses/dependencies/python/pypdfium2-5.14.0/17-zlib.txt",
+      "behavior": false
+    },
+    {
+      "source": "entry/.github/workflows/verify.yml",
+      "destination": ".github/workflows/verify.yml",
+      "behavior": true
+    },
+    {
+      "source": "entry/demo/source-cubes-home.png",
+      "destination": "entry/demo/source-cubes-home.png",
+      "behavior": false
+    },
+    {
+      "source": "eval/source-cubes-live-image-20261028.json",
+      "destination": "eval/source-cubes-live-image-20261028.json",
+      "behavior": false
+    }
+  ]
+}

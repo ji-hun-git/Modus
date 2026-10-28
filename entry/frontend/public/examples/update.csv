@@ -1,0 +1,3 @@
+metric,value,unit,date,reported_at,source_span,note
+hba1c,5.7,%,2026-10-21,2026-10-22T09:00:00Z,HbA1c 5.7 percent measured 2026-10-21,SYNTHETIC authored example; no real person
+ldl,130,mg/dL,2026-10-21,2026-10-22T09:00:00Z,LDL 130 mg/dL measured 2026-10-21,SYNTHETIC authored example; no real person

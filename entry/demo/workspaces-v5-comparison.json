@@ -1,0 +1,426 @@
+{
+  "format": "modus-record-export-v1",
+  "synthetic": true,
+  "bundle_id": "sha256:3c429536700b2fdaa779c42beb9b78aea6865e2ee9759dfa6e1da989e8783fd0",
+  "kind": "comparison",
+  "data": {
+    "before": {
+      "scope": {
+        "as_of": "2021-10-28",
+        "known_at": "2021-10-28T23:59:59.999999Z",
+        "captured_at": "2026-10-27T17:29:30.641241Z",
+        "scope_id": "sha256:351cdabd62bcf3ece15ed8218ecabb797e9757365fd5458a7375a7bfe5a7b241"
+      },
+      "observations": [
+        {
+          "id": "record-2018-04-09-egfr",
+          "metric": "egfr",
+          "value": 99,
+          "unit": "mL/min/1.73m2",
+          "date": "2018-04-09",
+          "source_id": "record-2018-04-09",
+          "source_span": "eGFR 99 mL/min/1.73m2 2018-04-09",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2018-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2018-04-09-hba1c",
+          "metric": "hba1c",
+          "value": 5.4,
+          "unit": "%",
+          "date": "2018-04-09",
+          "source_id": "record-2018-04-09",
+          "source_span": "HbA1c 5.4 % 2018-04-09",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2018-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2018-04-09-ldl",
+          "metric": "ldl",
+          "value": 112,
+          "unit": "mg/dL",
+          "date": "2018-04-09",
+          "source_id": "record-2018-04-09",
+          "source_span": "LDL cholesterol 112 mg/dL 2018-04-09",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2018-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2021-04-09-egfr",
+          "metric": "egfr",
+          "value": 96,
+          "unit": "mL/min/1.73m2",
+          "date": "2021-04-08",
+          "source_id": "record-2021-04-09",
+          "source_span": "eGFR 96 mL/min/1.73m2 2021-04-08",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2021-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2021-04-09-hba1c",
+          "metric": "hba1c",
+          "value": 5.5,
+          "unit": "%",
+          "date": "2021-04-08",
+          "source_id": "record-2021-04-09",
+          "source_span": "HbA1c 5.5 % 2021-04-08",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2021-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2021-04-09-ldl",
+          "metric": "ldl",
+          "value": 116,
+          "unit": "mg/dL",
+          "date": "2021-04-08",
+          "source_id": "record-2021-04-09",
+          "source_span": "LDL cholesterol 116 mg/dL 2021-04-08",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2021-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        }
+      ],
+      "sources": [
+        {
+          "id": "record-2021-04-09",
+          "title": "Recorded measurements · 2021-04-09",
+          "provider": "Authored synthetic example",
+          "date": "2021-04-09",
+          "type": "lab_report",
+          "content": "SYNTHETIC RECORD — no real person.\nHbA1c 5.5 % 2021-04-08\neGFR 96 mL/min/1.73m2 2021-04-08\nLDL cholesterol 116 mg/dL 2021-04-08",
+          "synthetic": true,
+          "available_at": "2021-04-09T00:00:00.000000Z",
+          "availability_basis": "authored_synthetic_timeline",
+          "original_available": false
+        },
+        {
+          "id": "record-2018-04-09",
+          "title": "Recorded measurements · 2018-04-09",
+          "provider": "Authored synthetic example",
+          "date": "2018-04-09",
+          "type": "lab_report",
+          "content": "SYNTHETIC RECORD — no real person.\nHbA1c 5.4 % 2018-04-09\neGFR 99 mL/min/1.73m2 2018-04-09\nLDL cholesterol 112 mg/dL 2018-04-09",
+          "synthetic": true,
+          "available_at": "2018-04-09T00:00:00.000000Z",
+          "availability_basis": "authored_synthetic_timeline",
+          "original_available": false
+        }
+      ],
+      "conflicts": [],
+      "counts": {
+        "measurements": 6,
+        "documents": 2,
+        "disagreements": 0
+      }
+    },
+    "after": {
+      "scope": {
+        "as_of": "2021-10-28",
+        "known_at": "2026-10-27T17:29:16.408634Z",
+        "captured_at": "2026-10-27T17:29:30.641241Z",
+        "scope_id": "sha256:684a9e1383f8d87a9bc16b4fa3c6c072b3f3bf60ea90105ef310162b89ef9443"
+      },
+      "observations": [
+        {
+          "id": "record-2018-04-09-egfr",
+          "metric": "egfr",
+          "value": 99,
+          "unit": "mL/min/1.73m2",
+          "date": "2018-04-09",
+          "source_id": "record-2018-04-09",
+          "source_span": "eGFR 99 mL/min/1.73m2 2018-04-09",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2018-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2018-04-09-hba1c",
+          "metric": "hba1c",
+          "value": 5.4,
+          "unit": "%",
+          "date": "2018-04-09",
+          "source_id": "record-2018-04-09",
+          "source_span": "HbA1c 5.4 % 2018-04-09",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2018-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2018-04-09-ldl",
+          "metric": "ldl",
+          "value": 112,
+          "unit": "mg/dL",
+          "date": "2018-04-09",
+          "source_id": "record-2018-04-09",
+          "source_span": "LDL cholesterol 112 mg/dL 2018-04-09",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2018-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "import-1887deb5f7c4d974a7d4-0",
+          "metric": "egfr",
+          "value": 80.1234567,
+          "unit": "mL/min/1.73m2",
+          "date": "2021-04-08",
+          "source_id": "import-1887deb5f7c4d974a7d4",
+          "source_span": "egfr, 79.1234567, mL/min/1.73m2, 2021-04-08",
+          "source_span_withheld": false,
+          "page": null,
+          "reviewed_fields": [
+            "value"
+          ],
+          "reported_at": "2021-04-10T09:00:00Z",
+          "reported_at_raw": "2021-04-10T09:00:00Z",
+          "available_at": "2026-10-27T17:29:10.575278Z",
+          "availability_basis": "review_commit"
+        },
+        {
+          "id": "record-2021-04-09-egfr",
+          "metric": "egfr",
+          "value": 96,
+          "unit": "mL/min/1.73m2",
+          "date": "2021-04-08",
+          "source_id": "record-2021-04-09",
+          "source_span": "eGFR 96 mL/min/1.73m2 2021-04-08",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2021-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2021-04-09-hba1c",
+          "metric": "hba1c",
+          "value": 5.5,
+          "unit": "%",
+          "date": "2021-04-08",
+          "source_id": "record-2021-04-09",
+          "source_span": "HbA1c 5.5 % 2021-04-08",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2021-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        },
+        {
+          "id": "record-2021-04-09-ldl",
+          "metric": "ldl",
+          "value": 116,
+          "unit": "mg/dL",
+          "date": "2021-04-08",
+          "source_id": "record-2021-04-09",
+          "source_span": "LDL cholesterol 116 mg/dL 2021-04-08",
+          "source_span_withheld": false,
+          "page": 1,
+          "reviewed_fields": [],
+          "reported_at": null,
+          "reported_at_raw": null,
+          "available_at": "2021-04-09T00:00:00Z",
+          "availability_basis": "authored_synthetic_timeline"
+        }
+      ],
+      "sources": [
+        {
+          "id": "record-2021-04-09",
+          "title": "Recorded measurements · 2021-04-09",
+          "provider": "Authored synthetic example",
+          "date": "2021-04-09",
+          "type": "lab_report",
+          "content": "SYNTHETIC RECORD — no real person.\nHbA1c 5.5 % 2021-04-08\neGFR 96 mL/min/1.73m2 2021-04-08\nLDL cholesterol 116 mg/dL 2021-04-08",
+          "synthetic": true,
+          "available_at": "2021-04-09T00:00:00.000000Z",
+          "availability_basis": "authored_synthetic_timeline",
+          "original_available": false
+        },
+        {
+          "id": "import-1887deb5f7c4d974a7d4",
+          "title": "Spring-lab-delayed.csv",
+          "provider": "Imported synthetic document",
+          "date": "2021-04-08",
+          "type": "Lab report",
+          "content": "metric,value,unit,date,reported_at\negfr,79.1234567,mL/min/1.73m2,2021-04-08,2021-04-10T09:00:00Z\nldl,131,mg/dL,2021-04-08,2021-04-10T09:00:00Z\n",
+          "synthetic": true,
+          "original_available": true,
+          "available_at": "2026-10-27T17:29:10.575278Z",
+          "availability_basis": "review_commit",
+          "ingested_at": "2026-10-27T17:28:48.735602Z",
+          "sha256": "1887deb5f7c4d974a7d49a41cd6aa003fcd5852b6f14fd48fc66a4b5ed782b5f",
+          "extraction_mode": "local"
+        },
+        {
+          "id": "record-2018-04-09",
+          "title": "Recorded measurements · 2018-04-09",
+          "provider": "Authored synthetic example",
+          "date": "2018-04-09",
+          "type": "lab_report",
+          "content": "SYNTHETIC RECORD — no real person.\nHbA1c 5.4 % 2018-04-09\neGFR 99 mL/min/1.73m2 2018-04-09\nLDL cholesterol 112 mg/dL 2018-04-09",
+          "synthetic": true,
+          "available_at": "2018-04-09T00:00:00.000000Z",
+          "availability_basis": "authored_synthetic_timeline",
+          "original_available": false
+        }
+      ],
+      "conflicts": [
+        {
+          "id": "conflict-egfr-2021-04-08",
+          "metric": "egfr",
+          "date": "2021-04-08",
+          "reason": "Different values or units on the same day; specimen equivalence is unknown.",
+          "observations": [
+            {
+              "id": "import-1887deb5f7c4d974a7d4-0",
+              "metric": "egfr",
+              "value": 80.1234567,
+              "unit": "mL/min/1.73m2",
+              "date": "2021-04-08",
+              "source_id": "import-1887deb5f7c4d974a7d4",
+              "source_span": "egfr, 79.1234567, mL/min/1.73m2, 2021-04-08",
+              "source_span_withheld": false,
+              "page": null,
+              "reviewed_fields": [
+                "value"
+              ],
+              "reported_at": "2021-04-10T09:00:00Z",
+              "reported_at_raw": "2021-04-10T09:00:00Z",
+              "available_at": "2026-10-27T17:29:10.575278Z",
+              "availability_basis": "review_commit"
+            },
+            {
+              "id": "record-2021-04-09-egfr",
+              "metric": "egfr",
+              "value": 96,
+              "unit": "mL/min/1.73m2",
+              "date": "2021-04-08",
+              "source_id": "record-2021-04-09",
+              "source_span": "eGFR 96 mL/min/1.73m2 2021-04-08",
+              "source_span_withheld": false,
+              "page": 1,
+              "reviewed_fields": [],
+              "reported_at": null,
+              "reported_at_raw": null,
+              "available_at": "2021-04-09T00:00:00Z",
+              "availability_basis": "authored_synthetic_timeline"
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "measurements": 7,
+        "documents": 3,
+        "disagreements": 1
+      }
+    },
+    "captured_at": "2026-10-27T17:29:30.641241Z",
+    "added": [
+      {
+        "id": "import-1887deb5f7c4d974a7d4-0",
+        "metric": "egfr",
+        "value": 80.1234567,
+        "unit": "mL/min/1.73m2",
+        "date": "2021-04-08",
+        "source_id": "import-1887deb5f7c4d974a7d4",
+        "source_span": "egfr, 79.1234567, mL/min/1.73m2, 2021-04-08",
+        "source_span_withheld": false,
+        "page": null,
+        "reviewed_fields": [
+          "value"
+        ],
+        "reported_at": "2021-04-10T09:00:00Z",
+        "reported_at_raw": "2021-04-10T09:00:00Z",
+        "available_at": "2026-10-27T17:29:10.575278Z",
+        "availability_basis": "review_commit"
+      }
+    ],
+    "unchanged_count": 6,
+    "new_conflicts": [
+      {
+        "id": "conflict-egfr-2021-04-08",
+        "metric": "egfr",
+        "date": "2021-04-08",
+        "reason": "Different values or units on the same day; specimen equivalence is unknown.",
+        "observations": [
+          {
+            "id": "import-1887deb5f7c4d974a7d4-0",
+            "metric": "egfr",
+            "value": 80.1234567,
+            "unit": "mL/min/1.73m2",
+            "date": "2021-04-08",
+            "source_id": "import-1887deb5f7c4d974a7d4",
+            "source_span": "egfr, 79.1234567, mL/min/1.73m2, 2021-04-08",
+            "source_span_withheld": false,
+            "page": null,
+            "reviewed_fields": [
+              "value"
+            ],
+            "reported_at": "2021-04-10T09:00:00Z",
+            "reported_at_raw": "2021-04-10T09:00:00Z",
+            "available_at": "2026-10-27T17:29:10.575278Z",
+            "availability_basis": "review_commit"
+          },
+          {
+            "id": "record-2021-04-09-egfr",
+            "metric": "egfr",
+            "value": 96,
+            "unit": "mL/min/1.73m2",
+            "date": "2021-04-08",
+            "source_id": "record-2021-04-09",
+            "source_span": "eGFR 96 mL/min/1.73m2 2021-04-08",
+            "source_span_withheld": false,
+            "page": 1,
+            "reviewed_fields": [],
+            "reported_at": null,
+            "reported_at_raw": null,
+            "available_at": "2021-04-09T00:00:00Z",
+            "availability_basis": "authored_synthetic_timeline"
+          }
+        ]
+      }
+    ]
+  }
+}

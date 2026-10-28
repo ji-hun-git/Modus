@@ -1,0 +1,64 @@
+.generic-fact-review {
+  display: grid;
+  gap: 14px;
+}
+.generic-fact-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 14px 0;
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.generic-wide-field {
+  grid-column: 1 / -1;
+}
+.generic-fact-fields textarea {
+  resize: vertical;
+  min-height: 66px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--inset);
+  padding: 10px 12px;
+  font: inherit;
+}
+.generic-fact-fields input,
+.generic-fact-fields select,
+.generic-fact-fields textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+.generic-fact-source {
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: var(--inset);
+  padding: 0 14px;
+}
+.generic-fact-source > summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+}
+.generic-fact-source blockquote {
+  margin: 0;
+  padding: 4px 0 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.generic-fact-source p {
+  padding: 0 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .generic-fact-fields {
+    grid-template-columns: 1fr;
+  }
+}

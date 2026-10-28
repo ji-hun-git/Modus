@@ -1,0 +1,97 @@
+{
+  "status": "passed",
+  "generated_at": "2026-10-28T10:20:41.449973+00:00",
+  "bundle_id": "sha256:b6b2c4c81a362138615ba45ac63a55c2fd99e4abcdd5ae727088bff49e8a7814",
+  "scope": "Six authored temporal and five deterministic routing development cases; no independent quality benchmark or live model call.",
+  "temporal": [
+    {
+      "id": "before-any",
+      "expected_count": 0,
+      "dual_time_count": 0,
+      "event_only_count": 0,
+      "passed": true,
+      "event_only_passed": true
+    },
+    {
+      "id": "early-history",
+      "expected_count": 3,
+      "dual_time_count": 3,
+      "event_only_count": 3,
+      "passed": true,
+      "event_only_passed": true
+    },
+    {
+      "id": "as-known-2021",
+      "expected_count": 6,
+      "dual_time_count": 6,
+      "event_only_count": 7,
+      "passed": true,
+      "event_only_passed": false
+    },
+    {
+      "id": "later-period-earlier-knowledge",
+      "expected_count": 6,
+      "dual_time_count": 6,
+      "event_only_count": 10,
+      "passed": true,
+      "event_only_passed": false
+    },
+    {
+      "id": "2021-reconstruction",
+      "expected_count": 7,
+      "dual_time_count": 7,
+      "event_only_count": 7,
+      "passed": true,
+      "event_only_passed": true
+    },
+    {
+      "id": "all-current",
+      "expected_count": 10,
+      "dual_time_count": 10,
+      "event_only_count": 10,
+      "passed": true,
+      "event_only_passed": true
+    }
+  ],
+  "routing": [
+    {
+      "question": "How many records?",
+      "expected_tool": "record_inventory",
+      "actual_tool": "record_inventory",
+      "passed": true
+    },
+    {
+      "question": "Which values disagree?",
+      "expected_tool": "record_conflicts",
+      "actual_tool": "record_conflicts",
+      "passed": true
+    },
+    {
+      "question": "Which records arrived later?",
+      "expected_tool": "compare_record_snapshots",
+      "actual_tool": "compare_record_snapshots",
+      "passed": true
+    },
+    {
+      "question": "Should I change treatment?",
+      "expected_tool": null,
+      "actual_tool": null,
+      "passed": true
+    },
+    {
+      "question": "What diagnosis does this prove?",
+      "expected_tool": null,
+      "actual_tool": null,
+      "passed": true
+    }
+  ],
+  "summary": {
+    "dual_time_passed": 6,
+    "event_only_passed": 4,
+    "temporal_cases": 6,
+    "routing_passed": 5,
+    "routing_cases": 5
+  },
+  "live_meta": "not run",
+  "model_workflow_comparison": "fixed-route vs live selector quality/cost/reliability unmeasured"
+}

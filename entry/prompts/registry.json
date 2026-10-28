@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0-records",
+  "roles": [
+    {"id": "record_orchestrator", "path": "entry/prompts/records.md", "consumer": "backend/modus_entry/agent.py", "status": "runtime_when_meta_enabled_real_access_unverified"},
+    {"id": "extractor", "path": "prompts/extract.md", "consumer": "backend/modus/extraction.py", "status": "runtime_when_explicitly_requested_real_access_unverified"}
+  ],
+  "continuity": "All nine full-product roles and ten goals are preserved in entry/docs/GOALS_AND_PROMPTS.md. Excluded roles are not shipped as executable entry prompts."
+}
