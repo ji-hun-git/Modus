@@ -260,7 +260,8 @@ def test_live_tools_cannot_gain_authority_or_fabricate_claims(history_app, name,
 def test_mocked_selection_preserves_source_attribution_and_hides_profile(history_app):
     client, store = history_app
     assert client.put('/api/profile', json={'date_of_birth': '1991-07-23'}).status_code == 200
-    save_rows(client, [['recorded_text', 'Archived letter', INSTRUCTION, '', '2024-06-15', 'Authored clinic']])
+    benign_text = 'Stop prior prescription per source. This is an archived instruction.'
+    save_rows(client, [['recorded_text', 'Archived letter', benign_text, '', '2024-06-15', 'Authored clinic']])
     history_agent = importlib.import_module('modus_entry.history_agent')
     history_tools = importlib.import_module('modus_entry.history_tools')
     context = history_tools.capture_history(store, None, NOW)
@@ -270,6 +271,8 @@ def test_mocked_selection_preserves_source_attribution_and_hides_profile(history
 
     async def transport(payload):
         # Copy so later message appends cannot change the captured request.
+        assert payload['reasoning_effort'] == 'minimal'
+        assert payload['max_completion_tokens'] == 1600
         calls.append(json.loads(json.dumps(payload)))
         if len(calls) == 1:
             name, args = 'search_history_evidence', {'query': requested, 'kind': None, 'limit': 5}
@@ -283,7 +286,7 @@ def test_mocked_selection_preserves_source_attribution_and_hides_profile(history
 
     answer = asyncio.run(history_agent.live_chat(context, requested, {}, request=transport))
     assert len(calls) == 2
-    assert answer['claims'] and any(row['value'] == INSTRUCTION for row in facts(answer))
+    assert answer['claims'] and any(row['value'] == benign_text for row in facts(answer))
     assert answer['answer'] == '\n'.join(row['text'] for row in answer['claims'])
     assert arbitrary_prose not in json.dumps(answer)
     encoded = '\n'.join(message.get('content') or '' for payload in calls for message in payload['messages'])
@@ -291,8 +294,31 @@ def test_mocked_selection_preserves_source_attribution_and_hides_profile(history
     assert '\"source_proposal\":' not in encoded
     assert '\"reviewer\":' not in encoded
     assert '\"age_years\":' not in encoded
-    assert INSTRUCTION not in json.dumps(calls[0]['messages'])
-    assert INSTRUCTION in json.dumps(calls[1]['messages'][-1])
+    assert benign_text not in json.dumps(calls[0]['messages'])
+    assert benign_text in json.dumps(calls[1]['messages'][-1])
+
+
+def test_live_injected_record_is_preserved_but_not_reused_as_model_context(history_app):
+    client, store = history_app
+    save_rows(client, [['recorded_text', 'Archived letter', INSTRUCTION, '', '2024-06-15', 'Authored clinic']])
+    history_agent = importlib.import_module('modus_entry.history_agent')
+    history_tools = importlib.import_module('modus_entry.history_tools')
+    context = history_tools.capture_history(store, None, NOW)
+    before = client.get('/api/history/view').json()
+    calls = []
+    async def transport(payload):
+        calls.append(json.loads(json.dumps(payload)))
+        assert len(calls) == 1, 'Injected source text reached a second model round'
+        return {'choices': [{'message': {'content': None,
+            'tool_calls': [{'id': 'fake-read', 'function': {'name': 'search_history_evidence',
+                'arguments': json.dumps({'query': 'Find archived letter records', 'kind': None, 'limit': 5})}}]}}]}
+    answer = asyncio.run(history_agent.live_chat(context, 'Find archived letter records', {}, request=transport))
+    assert len(calls) == 1 and answer['claims'] == [] and answer['abstained']
+    assert answer['document_guard']['status'] == 'quarantined'
+    assert INSTRUCTION not in json.dumps(calls) + json.dumps(answer)
+    after = client.get('/api/history/view').json()
+    assert after['facts'] == before['facts']
+    assert any(row['value'] == INSTRUCTION for row in after['facts'])
 
 
 def test_invalid_tool_batch_is_rejected_before_any_dispatch(history_app, monkeypatch):

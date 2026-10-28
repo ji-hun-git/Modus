@@ -1,0 +1,29 @@
+{
+  "schema": "modus-sam-feasibility-summary-v1",
+  "provider_requests_made": 4,
+  "http_200_completed_responses": 4,
+  "images_processed_reported": 4,
+  "estimated_image_charge_usd": 0.01,
+  "actual_billing_verified": false,
+  "account_balance_verified": false,
+  "initial_adapter_limited_requests": 3,
+  "diagnostic_valid_empty_text_lane_requests": 1,
+  "usable_field_regions": 0,
+  "synthetic_only": true,
+  "heldout_executed": false,
+  "ui_integrated": false,
+  "recommendation": "Do not integrate field highlights from this evidence; one validated empty result for one concept/page is not general SAM capability evidence.",
+  "initial_summary": "eval/sam-probe-20261029.json",
+  "diagnostic_summary": "eval/sam-diagnostic-20261029.json",
+  "refusals_in_diagnostic": 0,
+  "diagnostic_error": null,
+  "diagnostic_incomplete_details": null,
+  "decision": "deferred_insufficient_reliable_geometry",
+  "probe_tests": {
+    "command": ".venv/Scripts/python.exe -m pytest evaluation/sam-probe-20261029/test_probe.py -q",
+    "passed": 22,
+    "elapsed_seconds": 0.38,
+    "network_calls": 0
+  },
+  "source_allowlist_changed": false
+}

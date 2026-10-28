@@ -13,6 +13,10 @@ jobs:
     env:
       MODUS_PROVIDER: offline
       MODEL_API_KEY: ''
+      MODUS_META_KEY: ''
+      ANTHROPIC_API_KEY: ''
+      OPENAI_API_KEY: ''
+      PYTHON_DOTENV_DISABLED: '1'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

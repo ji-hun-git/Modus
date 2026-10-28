@@ -1,0 +1,27 @@
+{
+  "verified_on": "2026-10-29",
+  "repository": "https://github.com/ji-hun-git/Modus",
+  "created_at": "2026-10-27T07:31:03Z",
+  "description": "Source-linked record reconciliation with reviewed imports, preserved conflicts, and historical availability replay. Built with Meta Muse Spark.",
+  "homepage": "https://github.com/ji-hun-git/Modus#readme",
+  "topics": [
+    "ai-agents",
+    "hackathon",
+    "human-in-the-loop",
+    "meta-ai",
+    "muse-spark",
+    "provenance",
+    "record-reconciliation",
+    "temporal-data"
+  ],
+  "github_license_detection": {
+    "key": "other",
+    "name": "Other",
+    "spdx_id": "NOASSERTION",
+    "url": null,
+    "node_id": "MDc6TGljZW5zZTA="
+  },
+  "first_party_license_file_present": false,
+  "license_choice": "Jason pending",
+  "scope": "Authorized repository metadata update only; no code publication, agreement or deployment."
+}

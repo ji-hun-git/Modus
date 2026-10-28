@@ -1,0 +1,142 @@
+{
+  "schema": "modus-browser-product-check-v1",
+  "synthetic_only": true,
+  "candidate_bundle": "sha256:f1813a297668ae19ce164f5287454c2b6d949a05903bcb928616543ff1700f34",
+  "new_provider_requests": 7,
+  "completed_calls": 6,
+  "failed_calls": 1,
+  "qualification": "Two initial calls used retired local OCR preparation; retained as mixed-pipeline evidence, not Meta-only proof. Revised candidate used four successful Meta-only calls.",
+  "meta_only_candidate_successful_calls": 4,
+  "injection_provider_calls": 0,
+  "checks": {
+    "draft_fields": 3,
+    "exact_label_value_unit_date_match": true,
+    "explicit_review_commit": 3,
+    "review_value": 73,
+    "original_quote_value": 72,
+    "download_sha256_matches": true,
+    "unknown_dates_preserved": true,
+    "source_evidence_visible": true
+  },
+  "current_batch_estimated_usd": 0.0618445,
+  "cumulative_prejury_estimated_usd": 0.2370055,
+  "invoice_verified": false,
+  "heldout_accessed": false,
+  "call_telemetry": [
+    {
+      "model": "muse-spark-1.3",
+      "returned_model": "muse-spark-1.3",
+      "status": "completed",
+      "duration_ms": 1857.86,
+      "run_id": "49d0029a-b48f-49eb-a8a8-62d672f0fa82",
+      "bundle_id": "sha256:f1813a297668ae19ce164f5287454c2b6d949a05903bcb928616543ff1700f34",
+      "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+      "response_id": "chatcmpl-01a18375-75c2-7432-929d-789d4ac22fa2",
+      "request_id": "5ee62a3a-8ed0-4734-8f30-4473c841c079",
+      "http_status": 200,
+      "finish_reason": "tool_calls",
+      "error_kind": null,
+      "usage": {
+        "prompt_tokens": 1262,
+        "completion_tokens": 122,
+        "total_tokens": 1384
+      }
+    },
+    {
+      "model": "muse-spark-1.3",
+      "returned_model": "muse-spark-1.3",
+      "status": "completed",
+      "duration_ms": 1504.21,
+      "run_id": "49d0029a-b48f-49eb-a8a8-62d672f0fa82",
+      "bundle_id": "sha256:f1813a297668ae19ce164f5287454c2b6d949a05903bcb928616543ff1700f34",
+      "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+      "response_id": "chatcmpl-01a18375-7b9e-725e-843d-15fa984790f4",
+      "request_id": "29659f5f-c9ab-4679-a0db-6ad2f8327955",
+      "http_status": 200,
+      "finish_reason": "tool_calls",
+      "error_kind": null,
+      "usage": {
+        "prompt_tokens": 1909,
+        "completion_tokens": 156,
+        "total_tokens": 2065
+      }
+    },
+    {
+      "model": "muse-spark-1.3",
+      "returned_model": "muse-spark-1.3",
+      "status": "completed",
+      "duration_ms": 2842.63,
+      "run_id": "31ee0fd6-392e-40c0-b1f5-e5650f0b6e8d",
+      "bundle_id": "sha256:f1813a297668ae19ce164f5287454c2b6d949a05903bcb928616543ff1700f34",
+      "config_id": "sha256:7167ad0f8a21bfcb7a1b1c2b519a7024434ff96812702d403fc40df271ff9772",
+      "response_id": "chatcmpl-01a18373-9cbb-7450-9d1c-32558ffc50df",
+      "request_id": "3d9842f2-dc80-4151-88e6-e36ab146a8b9",
+      "http_status": 200,
+      "finish_reason": "stop",
+      "error_kind": null,
+      "stage": "ExtractRecordedFields",
+      "result_validation": "passed",
+      "usage": {
+        "prompt_tokens": 3331,
+        "completion_tokens": 583,
+        "total_tokens": 3914
+      }
+    },
+    {
+      "model": "muse-spark-1.3",
+      "returned_model": "muse-spark-1.3",
+      "status": "completed",
+      "duration_ms": 2497.95,
+      "run_id": "31ee0fd6-392e-40c0-b1f5-e5650f0b6e8d",
+      "bundle_id": "sha256:f1813a297668ae19ce164f5287454c2b6d949a05903bcb928616543ff1700f34",
+      "config_id": "sha256:7167ad0f8a21bfcb7a1b1c2b519a7024434ff96812702d403fc40df271ff9772",
+      "response_id": "chatcmpl-01a18373-a657-73c3-80a2-d7a5a8934e5d",
+      "request_id": "3a713301-55c0-49e8-a883-bf21568f7a3f",
+      "http_status": 200,
+      "finish_reason": "stop",
+      "error_kind": null,
+      "stage": "VerifyRecordedFields",
+      "result_validation": "passed",
+      "usage": {
+        "prompt_tokens": 1481,
+        "completion_tokens": 278,
+        "total_tokens": 1759
+      }
+    },
+    {
+      "model": "muse-spark-1.3",
+      "returned_model": "muse-spark-1.3",
+      "status": "failed",
+      "duration_ms": 16387.71,
+      "run_id": "4d94250d-3ec5-4eef-b602-ce3b7687a2cf",
+      "bundle_id": "sha256:5059064b160d2db5952fd207c6ad458657ac55f75899d5e7d436b1f46c076128",
+      "config_id": "sha256:7167ad0f8a21bfcb7a1b1c2b519a7024434ff96812702d403fc40df271ff9772",
+      "response_id": "chatcmpl-01a1836f-dd30-75c8-b7a4-24b3fbc873d1",
+      "request_id": "4ee27189-0e8d-4efe-be6c-1e19f90a6fd7",
+      "http_status": 200,
+      "finish_reason": "length",
+      "error_kind": "incomplete",
+      "stage": "ExtractRecordedFields",
+      "usage": {
+        "prompt_tokens": 3331,
+        "completion_tokens": 4000,
+        "total_tokens": 7331
+      }
+    }
+  ],
+  "screenshots": {
+    "ask.png": "fdc5f895a824fd48484b6548012b6c9b9b5c3e449c03220855f901d5b9be7970",
+    "documents.png": "38fe619524811b504b5171a068e50715ec06869615f2089434ab21fc513c52c9",
+    "draft.png": "759b8f289a422b549704ad1285c4d06607378b191d4f542d2ef6148b0c33a934",
+    "evidence.png": "8bd825c5b4b36a6ba35a769cb0590ffef40a7420847602395851ecc4f7e30dd0",
+    "guard.png": "b4831ee79dd9e260e2cef90f273cc15875802d0bba48845e22debd4c092bd37c",
+    "home.png": "15596b2f1566b149fc4625f74cb2a51432bc9cd573db44427c6540446ef6ba47",
+    "mixed-pipeline-draft.png": "37583b48c3bf8e8fcb2b6ec2a39cf65371dffd9e87db5581c091c76dac35d045",
+    "record.png": "dce9f34837b76eb5c8f5404eba3ced13c525a62347f3d9fa7adddaa45cdc34ef"
+  },
+  "limitations": [
+    "One fresh authored scan and one normal question; no general accuracy claim.",
+    "Model verification does not replace human review.",
+    "No SAM boxes or hosted guard demonstrated."
+  ]
+}

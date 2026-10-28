@@ -48,6 +48,26 @@ const draft = (extra = {}) => ({
   ...extra,
 });
 const review = () => queue.acceptDraft(selected(), draft());
+
+test("contest readers offer Meta as the only model and reject stale OCR selection", () => {
+  const pdf = file("record.pdf");
+  const readers = queue.readingOptions(pdf, true);
+  assert.deepEqual(readers.map((reader) => reader.value), ["local", "meta"]);
+  assert.deepEqual(queue.previewReaderFields(pdf, "local", false), { use_meta: "false" });
+  assert.deepEqual(queue.previewReaderFields(pdf, "meta", true), { use_meta: "true" });
+  assert.throws(() => queue.previewReaderFields(pdf, "local-teleocr", true), /available reading method/);
+  assert.throws(() => queue.previewReaderFields(pdf, "meta", false), /available reading method/);
+});
+
+test("images require explicit Meta selection and cannot silently fall back to a local model", () => {
+  const image = file("record.PNG");
+  assert.equal(queue.appendFiles([], [image], id).items[0].extraction, "local");
+  assert.equal(queue.readingOptions(image, false).some((reader) => reader.available), false);
+  assert.throws(() => queue.previewReaderFields(image, "local", true), /Images require Meta/);
+  assert.deepEqual(queue.previewReaderFields(image, "meta", true), { use_meta: "true" });
+  assert.equal(queue.appendFiles([], [file("record.txt")], id).items[0].extraction, "local");
+  assert.deepEqual(queue.previewReaderFields(file("record.txt"), "local", false), { use_meta: "false" });
+});
 const receipt = (extra = {}) => ({
   draft_id: "draft-1",
   source_id: "draft-1",

@@ -20,7 +20,6 @@ from modus.history_ingest import make_history_draft
 from modus.record_history import commit_history, history_view, get_profile, update_profile
 from modus.provider import provider_status
 from modus.record_extraction import extract_record_document
-from modus import local_ocr
 from .models import RELEASE, CompareRequest, ChatRequest, HistoryChatRequest, ExportRequest, CommitRequest, HistoryCommitRequest, ProfileRequest
 from .seed import initial_data
 from .runtime import ROOT, BUNDLE_ID, ENVIRONMENT, execution_context
@@ -31,6 +30,7 @@ from .history_tools import capture_history
 from .briefs import (BriefRequest, BriefExportRequest, BriefChangedError,
                      build_brief, validate_export, render_html, render_json)
 from .extraction_review import review_draft
+from .document_guard import screen_untrusted
 
 load_dotenv(ROOT / '.env')
 CHANGE_FIELDS = {'id', 'created_at', 'kind', 'status', 'draft_id', 'source_id', 'available_at',
@@ -102,6 +102,7 @@ def preview_response(saved, *, reused=False):
         'observations': [observation(o) for o in saved['observations']], 'warnings': warnings,
         'extraction_mode': saved['extraction_mode'], 'already_committed': saved['already_committed'],
         **({'facts': saved['facts']} if 'facts' in saved else {}),
+        **({'document_guard': saved['document_guard']} if 'document_guard' in saved else {}),
         **({'extraction_review': saved['extraction_review']} if 'extraction_review' in saved else {})}
 
 
@@ -130,7 +131,9 @@ def create_entry_app(database=None, clock=None):
 
     @app.get('/api/health')
     def health():
-        return {'application': 'modus-records', 'release': RELEASE, 'bundle_id': BUNDLE_ID, 'synthetic_only': True, 'provider': provider_status(), 'local_ocr': local_ocr.status()}
+        return {'application': 'modus-records', 'release': RELEASE, 'bundle_id': BUNDLE_ID, 'synthetic_only': True, 'provider': provider_status(),
+            'local_ocr': {'available': False, 'mode': 'disabled',
+                'reason': 'Local OCR is retired from the contest entry. Model extraction uses Meta only.'}}
 
     @app.get('/api/records/view')
     def records_view(as_of: date, known_at: AwareDatetime | None = None):
@@ -184,8 +187,8 @@ def create_entry_app(database=None, clock=None):
     async def read_preview(file, synthetic_confirmed, use_meta, use_local_ocr):
         if not synthetic_confirmed:
             raise HTTPException(400, 'Confirm that this file contains only synthetic example data')
-        if use_meta and use_local_ocr:
-            raise HTTPException(422, 'Choose one extraction method')
+        if use_local_ocr:
+            raise HTTPException(422, 'Local OCR is not available in this entry. Choose Meta or the local text reader.')
         raw = await file.read(MAX_BYTES + 1)
         if len(raw) > MAX_BYTES:
             raise HTTPException(413, 'Maximum file size is 8 MB')
@@ -200,23 +203,30 @@ def create_entry_app(database=None, clock=None):
             # proposal INSERT OR IGNORE would silently discard.
             return preview_response(existing, reused=True)
         telemetry = {}
-        mode = 'local-teleocr' if use_local_ocr else 'meta' if use_meta else 'local'
+        mode = 'meta' if use_meta else 'local'
         try:
             extracted = None
-            if use_local_ocr:
-                telemetry['execution'] = execution_context('local-teleocr', local_ocr.status().get('model'))
-                telemetry['execution']['model_version_basis'] = 'configured pinned local checkpoint; worker verifies integrity before inference'
-                draft = await run_in_threadpool(local_ocr.make_local_history_draft, raw, name)
-                telemetry.update(draft.pop('telemetry', {}))
-            elif use_meta:
+            if use_meta:
                 if provider_status()['mode'] != 'meta':
                     raise ValueError('Enable the Meta provider before requesting model extraction')
                 telemetry['execution'] = execution_context('meta-extraction', provider_status()['model'])
                 extracted = await extract_record_document(raw, name, mime, telemetry,
-                    use_local_ocr=local_ocr.status().get('available', False))
+                    use_local_ocr=False, screen_document=screen_untrusted)
                 draft = review_draft(name, raw, extracted)
             else:
                 draft = make_history_draft(name, raw)
+            inspected = {'source_content': draft['source'].get('content', ''),
+                'facts': draft.get('facts', []), 'observations': draft['observations']}
+            if extension in {'csv', 'txt'}:
+                inspected['source_text'] = raw.decode('utf-8', errors='replace')
+            checks = {'draft': screen_untrusted(inspected)}
+            if 'source_document_guard' in draft:
+                checks['source'] = draft['source_document_guard']
+            draft['document_guard'] = {'method': 'deterministic_known_patterns', 'model_executed': False,
+                'status': 'quarantined' if any(check['status'] == 'quarantined' for check in checks.values()) else 'passed',
+                'checks': checks, 'scope': 'Available text and draft fields only; image pixels are not screened.'}
+            if draft['document_guard']['status'] == 'quarantined':
+                draft.setdefault('warnings', []).append('Instruction-like text was flagged for review. The original and extracted records are preserved; this text cannot authorize tools or save records.')
             if telemetry:
                 draft['source']['extraction_telemetry'] = telemetry
             saved = store.add_draft(draft, raw=raw, filename=name, mime=mime)
@@ -225,16 +235,10 @@ def create_entry_app(database=None, clock=None):
                     message='A draft was read. No measurements were saved.',
                     execution=telemetry.get('execution'), telemetry=telemetry)
             return preview_response(saved)
-        except local_ocr.LocalOCRError as error:
-            telemetry.update(getattr(error, 'telemetry', None) or {})
-            recorded_run('extraction_failure', status='failed', mode=mode, error='Local OCR failed; no draft was accepted.', execution=telemetry.get('execution'), telemetry=telemetry)
-            raise HTTPException(422, 'Local OCR is unavailable, busy or did not complete. No draft was accepted and no alternate provider was used.') from None
         except RuntimeError:
             recorded_run('extraction_failure', status='failed', mode=mode, error='Model extraction failed; no draft was accepted.', execution=telemetry.get('execution'), telemetry=telemetry)
             raise HTTPException(502, 'Model extraction failed; no draft was accepted. No local fallback was used.') from None
         except (ValueError, KeyError, TypeError) as error:
-            if use_local_ocr:
-                telemetry.update(getattr(error, 'telemetry', None) or {})
             if telemetry:
                 recorded_run('extraction_failure', status='failed', mode=mode, error='No usable validated extraction was accepted.', execution=telemetry.get('execution'), telemetry=telemetry)
             raise HTTPException(422, 'No usable validated rows were accepted. Check explicit dates, values and units, or choose a supported extraction mode.') from None

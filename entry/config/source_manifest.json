@@ -63,6 +63,16 @@
       "behavior": true
     },
     {
+      "source": "backend/modus_entry/document_guard.py",
+      "destination": "backend/modus_entry/document_guard.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_document_guard.py",
+      "destination": "backend/tests/test_entry_document_guard.py",
+      "behavior": true
+    },
+    {
       "source": "backend/modus_entry/app.py",
       "destination": "backend/modus_entry/app.py",
       "behavior": true
@@ -2010,6 +2020,211 @@
     {
       "source": "entry/demo/simple-home-meta.png",
       "destination": "entry/demo/simple-home-meta.png",
+      "behavior": false
+    },
+    {
+      "source": "backend/tests/test_entry_runtime_identity.py",
+      "destination": "backend/tests/test_entry_runtime_identity.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_document_guard_import.py",
+      "destination": "backend/tests/test_entry_document_guard_import.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_benchmark_admission.py",
+      "destination": "backend/tests/test_entry_benchmark_admission.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_benchmark_record_review.py",
+      "destination": "backend/tests/test_benchmark_record_review.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/offline_environment.py",
+      "destination": "scripts/offline_environment.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_environment_isolation.py",
+      "destination": "backend/tests/test_entry_environment_isolation.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/__init__.py",
+      "destination": "eval/judges/__init__.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/aggregate.py",
+      "destination": "eval/judges/aggregate.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/budget.py",
+      "destination": "eval/judges/budget.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/cli.py",
+      "destination": "eval/judges/cli.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/code_checks.py",
+      "destination": "eval/judges/code_checks.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/prompts.py",
+      "destination": "eval/judges/prompts.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/repro.py",
+      "destination": "eval/judges/repro.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/runner.py",
+      "destination": "eval/judges/runner.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/schema.py",
+      "destination": "eval/judges/schema.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/transport.py",
+      "destination": "eval/judges/transport.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/models.yaml",
+      "destination": "eval/judges/models.yaml",
+      "behavior": true
+    },
+    {
+      "source": "eval/judges/PROTOCOL.md",
+      "destination": "eval/judges/PROTOCOL.md",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_jury_harness.py",
+      "destination": "backend/tests/test_jury_harness.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_jury_aggregation.py",
+      "destination": "backend/tests/test_jury_aggregation.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_jury_code_checks.py",
+      "destination": "backend/tests/test_jury_code_checks.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_jury_packaging.py",
+      "destination": "backend/tests/test_entry_jury_packaging.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_jury_transport.py",
+      "destination": "backend/tests/test_jury_transport.py",
+      "behavior": true
+    },
+    {
+      "source": "SCOREBOARD.md",
+      "destination": "SCOREBOARD.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-feedback-20261029.json",
+      "destination": "eval/jury-feedback-20261029.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/product-meta-only-browser-20261029.json",
+      "destination": "eval/product-meta-only-browser-20261029.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/repository-metadata-20261029.json",
+      "destination": "eval/repository-metadata-20261029.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/sam-probe-20261029.json",
+      "destination": "eval/sam-probe-20261029.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/sam-diagnostic-20261029.json",
+      "destination": "eval/sam-diagnostic-20261029.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/sam-feasibility-20261029.json",
+      "destination": "eval/sam-feasibility-20261029.json",
+      "behavior": false
+    },
+    {
+      "source": "research/SAM31_PAGE_REGION_PROBE_2026-10-29.md",
+      "destination": "research/SAM31_PAGE_REGION_PROBE_2026-10-29.md",
+      "behavior": false
+    },
+    {
+      "source": "research/DISCORD_RULES_2026-10-29.md",
+      "destination": "research/DISCORD_RULES_2026-10-29.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-2f11a8454b954f7eb76d6138c9a262d0.json",
+      "destination": "eval/jury-2f11a8454b954f7eb76d6138c9a262d0.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-2f11a8454b954f7eb76d6138c9a262d0.md",
+      "destination": "eval/jury-2f11a8454b954f7eb76d6138c9a262d0.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-runs/2f11a8454b954f7eb76d6138c9a262d0/config.json",
+      "destination": "eval/jury-runs/2f11a8454b954f7eb76d6138c9a262d0/config.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-33711e09458d437faffe4b5972d875f9.json",
+      "destination": "eval/jury-33711e09458d437faffe4b5972d875f9.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-33711e09458d437faffe4b5972d875f9.md",
+      "destination": "eval/jury-33711e09458d437faffe4b5972d875f9.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-runs/33711e09458d437faffe4b5972d875f9/config.json",
+      "destination": "eval/jury-runs/33711e09458d437faffe4b5972d875f9/config.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-b86bf354013644bcabd96443b2676432.json",
+      "destination": "eval/jury-b86bf354013644bcabd96443b2676432.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-b86bf354013644bcabd96443b2676432.md",
+      "destination": "eval/jury-b86bf354013644bcabd96443b2676432.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-runs/b86bf354013644bcabd96443b2676432/config.json",
+      "destination": "eval/jury-runs/b86bf354013644bcabd96443b2676432/config.json",
       "behavior": false
     }
   ]

@@ -13,6 +13,7 @@ from modus.provider import measured_request, provider_status
 from modus_entry import agent
 from modus_entry.tools import capture, dispatch, SelectionArgs, ARGUMENTS
 from modus_entry.runtime import execution_context
+from modus_entry.document_guard import screen_untrusted, REQUEST_QUARANTINED, QUARANTINED
 
 METHODS = ('local_fixed', 'meta_single', 'meta_agent')
 SINGLE_PROMPT = '''Select exact recorded-fact claims that answer the user's question from the fixed tool results.
@@ -58,7 +59,7 @@ def candidate_bank(context, question=None):
     return claims, results
 
 
-def authenticated_claim_bank(context, question, result, base=None):
+def authenticated_claim_bank(context, question, result, base=None, *, include_guard_answer=False):
     """Authenticate trace claims by replaying bounded read arguments, never trace output.
 
     A model may rephrase a search or choose another result limit. Those claims
@@ -70,18 +71,50 @@ def authenticated_claim_bank(context, question, result, base=None):
     trace = result.get('trace', [])
     if not isinstance(trace, list) or len(trace) > POLICY.max_tool_calls:
         raise ValueError('Invalid bounded read trace')
+    guard_answer = None
     for step in trace:
         name = step.get('name') if isinstance(step, dict) else None
+        if name == 'screen_record_request':
+            expected = {**screen_untrusted(question), 'boundary': 'request'}
+            if (len(trace) != 1 or expected['status'] != 'quarantined'
+                    or step.get('arguments') != {} or step.get('status') != 'quarantined'
+                    or step.get('executor') != 'local deterministic guard'
+                    or step.get('document_guard') != expected
+                    or step.get('result') != {'claims': [], 'document_guard': expected}
+                    or result.get('mode') != 'request_guard'
+                    or result.get('provider_requests_made') != 0
+                    or result.get('telemetry', {}).get('calls')):
+                raise ValueError('Unauthenticated request guard trace')
+            guard_answer = REQUEST_QUARANTINED
+            continue
         if name == 'select_claims':
             continue
         if name not in ARGUMENTS:
             raise ValueError('Trace tool not permitted')
         replay = dispatch(context, name, step.get('arguments', {}))
+        if 'document_guard' in step:
+            expected = {**screen_untrusted(replay), 'boundary': 'tool_result'}
+            if step['document_guard'] != expected:
+                raise ValueError('Unauthenticated result guard trace')
+            if expected['status'] == 'quarantined':
+                if (step is not trace[-1] or step.get('status') != 'quarantined'
+                        or step.get('result') != {'claims': [], 'withheld_from_model': True,
+                            'document_guard': expected}):
+                    raise ValueError('Invalid quarantined result trace')
+                guard_answer = QUARANTINED
         for item in replay['claims']:
             if item['id'] in known and item != known[item['id']]:
                 raise ValueError('Ambiguous replayed claim ID')
             known[item['id']] = item
-    return known
+    if guard_answer is not None:
+        if (result.get('claims') != [] or result.get('abstained') is not True
+                or result.get('answer') != guard_answer
+                or result.get('document_guard') != expected
+                or result.get('telemetry', {}).get('document_guard') != expected):
+            raise ValueError('Invalid quarantine response')
+    elif result.get('document_guard', {}).get('status') == 'quarantined':
+        raise ValueError('Missing authenticated guard trace')
+    return (known, guard_answer) if include_guard_answer else known
 
 
 async def run_method(method, context, question, request=None, telemetry=None):

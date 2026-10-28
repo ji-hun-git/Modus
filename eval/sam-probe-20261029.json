@@ -1,0 +1,112 @@
+{
+  "schema": "modus-sam-feasibility-v1",
+  "executed_at": "2026-10-28T16:01:04.124224+00:00",
+  "synthetic_only": true,
+  "model": "sam-3.1",
+  "plan_sha256": "8f852dc9dd6c8df3df341d439c931181e05fa91ec36c116f742e53ded70fb6f8",
+  "provider_requests_made": 3,
+  "completed_responses": 3,
+  "pricing": {
+    "usd_per_image": 0.0025,
+    "checked_at": "2026-10-29",
+    "source": "https://dev.meta.ai/docs/pricing-rate-limits",
+    "basis": "Published image rate only; not an invoice or balance check. Failed-call and other charges unknown."
+  },
+  "estimated_image_charge_usd": 0.0075,
+  "billing_verified": false,
+  "account_balance": "not_verified",
+  "ui_integrated": false,
+  "decision": "no_go_no_usable_regions",
+  "heldout_executed": false,
+  "access_demonstrated": true,
+  "useful_region_count": 0,
+  "visual_review": {
+    "reviewer": "development agent",
+    "source_pages_inspected": 3,
+    "usable_regions": 0,
+    "field_associations_confirmed": 0,
+    "human_independent_review": false
+  },
+  "limitations": [
+    "Three authored development pages and one preselected concept only; not a benchmark or proof SAM cannot locate text with other prompts.",
+    "No full provider envelope retained. Geometry lane inspected by this narrow adapter was empty; absent output and empty output are not distinguished. The result establishes no usable regions, not a validated zero-detection count.",
+    "No app integration or clinical claim. Account balance and invoice are unknown."
+  ],
+  "commands": [
+    ".venv/Scripts/python.exe scripts/probe_sam_regions.py",
+    ".venv/Scripts/python.exe scripts/probe_sam_regions.py --execute"
+  ],
+  "offline_parser_checks": {
+    "passed": 5,
+    "provider_requests": 0
+  },
+  "retries": 0,
+  "cases": [
+    {
+      "id": "update",
+      "status": "completed",
+      "model_requested": "sam-3.1",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "images_processed": 1
+      },
+      "source_sha256": "203536d92ad3b44757f42a9474905163475f58d283815534647725c502f1adc3",
+      "raster_sha256": "8eee41cce58b2cd359cd69241d7158427ae0a935a82b393b3af4f6a8acbd55b3",
+      "page": 1,
+      "prompt": "text row",
+      "http_status": 200,
+      "latency_ms": 809.04,
+      "model_returned": "sam-3.1",
+      "completion_status": "completed",
+      "boxes": [],
+      "box_count": 0,
+      "field_association": "unconfirmed"
+    },
+    {
+      "id": "mixed",
+      "status": "completed",
+      "model_requested": "sam-3.1",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "images_processed": 1
+      },
+      "source_sha256": "56c10e9676e33d29c58ff7168ceb012d8fd1f92f4b3d2d97c0d73fcaad6b748c",
+      "raster_sha256": "fb716f325e6597539d2cf9639e98c43b587bfec28c0ce3e0680dc80f941cdfea",
+      "page": 1,
+      "prompt": "text row",
+      "http_status": 200,
+      "latency_ms": 1715.19,
+      "model_returned": "sam-3.1",
+      "completion_status": "completed",
+      "boxes": [],
+      "box_count": 0,
+      "field_association": "unconfirmed"
+    },
+    {
+      "id": "injection",
+      "status": "completed",
+      "model_requested": "sam-3.1",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "images_processed": 1
+      },
+      "source_sha256": "db88e3c2b12e5b63465d5adff8ff542c76544eaf9d02d2645ead586edab1409a",
+      "raster_sha256": "ed79077a7e35509c2c574ce7d10420aa4298fa6c576207590bdd069028e1b501",
+      "page": 1,
+      "prompt": "text row",
+      "http_status": 200,
+      "latency_ms": 2349.68,
+      "model_returned": "sam-3.1",
+      "completion_status": "completed",
+      "boxes": [],
+      "box_count": 0,
+      "field_association": "unconfirmed"
+    }
+  ]
+}

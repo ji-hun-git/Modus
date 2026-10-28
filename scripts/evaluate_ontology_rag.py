@@ -392,10 +392,12 @@ def summarize(cases):
 
 
 def run_subprocess(payload, directory):
+    from offline_environment import offline_environment
     path = Path(directory) / (payload["method"] + "-input.json")
     path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
     env = {key: value for key, value in os.environ.items()
            if not any(word in key.upper() for word in ("TOKEN", "SECRET", "API_KEY", "PASSWORD"))}
+    env = offline_environment(env)
     env["PYTHONIOENCODING"] = "utf-8"
     try:
         completed = subprocess.run([sys.executable, "-I", str(Path(__file__).absolute()), "--worker", str(path)],

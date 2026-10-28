@@ -28,6 +28,8 @@ import {
   statusLabel,
   fileError,
   extension,
+  readingOptions,
+  previewReaderFields,
   MAX_FILES,
   type QueueItem,
   type Extraction,
@@ -88,18 +90,13 @@ export default function ImportWorkflow({
   ).length;
   const finished =
     !!current && ["saved", "duplicate", "skipped"].includes(current.status);
-  const localOcrAvailable = health?.local_ocr?.available === true;
   const metaAvailable = health?.provider.mode === "meta";
   const textOnly =
     !!current && ["csv", "txt"].includes(extension(current.file));
   const imageFile =
     !!current && ["png", "jpg", "jpeg"].includes(extension(current.file));
-  const extractionAvailable =
-    extraction === "local"
-      ? !imageFile
-      : extraction === "local-teleocr"
-        ? localOcrAvailable
-        : metaAvailable;
+  const readers = current ? readingOptions(current.file, metaAvailable) : [];
+  const extractionAvailable = readers.some((reader) => reader.value === extraction && reader.available);
   const patch = (id: string, value: Partial<QueueItem>) =>
     setQueue((items) =>
       items.map((item) => (item.id === id ? { ...item, ...value } : item)),
@@ -157,8 +154,8 @@ export default function ImportWorkflow({
       const body = new FormData();
       body.append("file", item.file);
       body.append("synthetic_confirmed", "true");
-      body.append("use_meta", String(item.extraction === "meta"));
-      body.append("use_local_ocr", String(item.extraction === "local-teleocr"));
+      const readerFields = previewReaderFields(item.file, item.extraction, metaAvailable);
+      body.append("use_meta", readerFields.use_meta);
       const result = await api<Draft>("/imports/preview", {
         method: "POST",
         body,
@@ -500,30 +497,25 @@ export default function ImportWorkflow({
                     })
                   }
                 >
-                  <option value="local" disabled={imageFile}>
-                    Local text · no model
-                  </option>
-                  <option value="local-teleocr" disabled={!localOcrAvailable}>
-                    Local OCR{localOcrAvailable ? "" : " · unavailable"}
-                  </option>
-                  <option value="meta" disabled={!metaAvailable}>
-                    Meta{metaAvailable ? "" : " · not configured"}
-                  </option>
+                  {readers.map((reader) => (
+                    <option key={reader.value} value={reader.value} disabled={!reader.available}>
+                      {reader.label}
+                    </option>
+                  ))}
                 </select>
               </label>
               <p className="safe-note">
                 {extraction === "meta"
                   ? "Meta reads this synthetic file, then checks the proposed fields against the source. You review everything before saving."
-                  : extraction === "local-teleocr"
-                    ? "Reads this file on this computer with the TeleOCR model. Up to 12 pages; every field still needs review."
-                    : "Reads explicit text rows locally. Up to 30 PDF pages. Scans may need an available OCR method."}
+                  : "Reads explicit text rows locally. Up to 30 PDF pages. Choose Meta for scanned pages."}
               </p>
             </details>
           )}
           {imageFile && !extractionAvailable && (
             <p className="safe-note">
-              Choose an available OCR or Meta method to read this image, or skip
-              it and continue.
+              {metaAvailable
+                ? "Choose Meta to read this image, or skip it and continue."
+                : "Meta must be configured to read this image. You can skip it and continue."}
             </p>
           )}
           <p className="progress-note" role="status">

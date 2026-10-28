@@ -1,7 +1,9 @@
 """Frozen synthetic evaluation data and enforceable pre-request budgets."""
 from dataclasses import dataclass
+from decimal import Decimal
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 
 
@@ -41,11 +43,13 @@ def unique(values, label):
         raise ValueError('Duplicate ' + label)
 
 
-def validate_suite(root, kind, *, selected_split=None):
+def validate_suite(root, kind, *, selected_split=None, expected_freeze_id=None):
     root = Path(root)
     if kind not in {'workflow', 'documents'}:
         raise ValueError('Unknown benchmark kind')
     raw = safe_path(root, 'freeze.json').read_bytes()
+    if expected_freeze_id is not None and hashlib.sha256(raw).hexdigest() != expected_freeze_id:
+        raise ValueError('Freeze metadata changed after admission; selected inputs were not opened')
     freeze = json.loads(raw)
     files = freeze['files_sha256']
     if not {'dev.json', 'holdout.json'} <= set(files):
@@ -124,6 +128,17 @@ class BudgetExceeded(RuntimeError):
     pass
 
 
+STANDARD_MODEL = 'muse-spark-1.3'
+PRICING = {'model': STANDARD_MODEL, 'input_usd_per_million_tokens': 1.25,
+    'output_usd_per_million_tokens': 4.25, 'source': 'https://dev.meta.ai/docs/pricing-rate-limits',
+    'basis': 'Standard uncached token prices; estimate only, not an invoice or tokenizer guarantee'}
+COST_BASIS = 'Serialized UTF-8 request bytes treated as input-token proxy plus maximum requested output; not a tokenizer or billing guarantee.'
+
+
+def estimated_cost(input_tokens, output_tokens):
+    return (Decimal(input_tokens) * Decimal('1.25') + Decimal(output_tokens) * Decimal('4.25')) / Decimal(1_000_000)
+
+
 @dataclass
 class Budget:
     max_requests: int
@@ -131,6 +146,23 @@ class Budget:
     max_context_bytes: int = 128000
     calls: int = 0
     output_reserved: int = 0
+    max_estimated_usd: float | None = None
+    estimated_usd_accounted: Decimal = Decimal('0')
+
+    def __post_init__(self):
+        if self.max_estimated_usd is not None:
+            if isinstance(self.max_estimated_usd, bool) or not isinstance(self.max_estimated_usd, (int, float, Decimal)):
+                raise ValueError('Estimated-dollar limit must be a number')
+            limit = Decimal(str(self.max_estimated_usd))
+            if not limit.is_finite() or limit <= 0:
+                raise ValueError('Estimated-dollar limit must be positive and finite')
+
+    def cost_reservation(self, payload):
+        if payload.get('model') != STANDARD_MODEL:
+            if self.max_estimated_usd is not None:
+                raise BudgetExceeded('Estimated-dollar cap requires the verified Muse Spark 1.3 Standard price')
+            return None
+        return estimated_cost(len(canonical(payload).encode('utf-8')), payload['max_completion_tokens'])
 
     def reserve(self, payload):
         tokens = payload.get('max_completion_tokens')
@@ -141,17 +173,40 @@ class Budget:
             raise BudgetExceeded('Serialized request exceeds the context-byte cap')
         if self.calls + 1 > self.max_requests or self.output_reserved + tokens > self.max_output_tokens:
             raise BudgetExceeded('Request or reserved-output budget exhausted')
+        reservation = self.cost_reservation(payload)
+        if (reservation is not None and self.max_estimated_usd is not None
+                and self.estimated_usd_accounted + reservation > Decimal(str(self.max_estimated_usd))):
+            raise BudgetExceeded('Estimated-dollar budget exhausted before provider request')
         self.calls += 1
         self.output_reserved += tokens
+        if reservation is not None:
+            self.estimated_usd_accounted += reservation
+        return reservation
+
+    def settle(self, reservation, usage):
+        """Unknown usage keeps its full reservation; known usage replaces it."""
+        if reservation is None:
+            return {'estimated_cost_usd': None, 'cost_basis': 'No verified price for this model'}
+        known = isinstance(usage, dict) and all(type(usage.get(key)) is int and usage[key] >= 0
+            for key in ('prompt_tokens', 'completion_tokens'))
+        cost = estimated_cost(usage['prompt_tokens'], usage['completion_tokens']) if known else reservation
+        self.estimated_usd_accounted += cost - reservation
+        return {'estimated_cost_usd': float(cost),
+            'cost_basis': 'reported_token_usage_at_standard_prices' if known else 'preflight_reservation_retained_usage_unknown',
+            'estimated_cost_limit_exceeded': self.max_estimated_usd is not None
+                and self.estimated_usd_accounted > Decimal(str(self.max_estimated_usd))}
 
 
 def event(path, value):
     with Path(path).open('a', encoding='utf-8') as stream:
         stream.write(canonical(value) + '\n')
         stream.flush()
+        os.fsync(stream.fileno())
 
 
 def require_execution(args):
+    if args.split == 'holdout' and not args.execute:
+        raise ValueError('Held-out plan-only access is disabled; explicit admitted execution is required')
     if not args.execute:
         return
     if args.split == 'holdout' and (not args.unlock_holdout or not args.holdout_reason.strip()):

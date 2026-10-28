@@ -148,6 +148,8 @@ def test_live_exact_selection_and_model_identity(tmp_path, monkeypatch):
     monkeypatch.setenv('MODUS_MODEL', 'first-model')
     async def fake(payload):
         assert payload['tool_choice'] == 'auto'
+        assert payload['reasoning_effort'] == 'minimal'
+        assert payload['max_completion_tokens'] == 1600
         sent.append(payload)
         monkeypatch.setenv('MODUS_MODEL', 'changed-mid-turn')
         name, args = ('record_inventory', {}) if len(sent) == 1 else ('select_claims', {'claim_ids': ['inventory-all']})

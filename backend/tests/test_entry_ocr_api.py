@@ -1,4 +1,4 @@
-"""OCR API adversarial tests. Fake inference, artificial bytes, temporary stores."""
+"""Retired entry OCR route and preserved legacy evidence; no model inference."""
 from copy import deepcopy
 from datetime import datetime, timezone
 import importlib
@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from modus.ingest import make_draft
+from modus import local_ocr
 
 
 NOW = datetime(2026, 10, 27, 12, 0, tzinfo=timezone.utc)
@@ -21,7 +22,7 @@ def ocr_api(tmp_path, monkeypatch):
     monkeypatch.delenv('MODEL_API_KEY', raising=False)
     monkeypatch.setenv('MODUS_ENTRY_DB_PATH', str(tmp_path / 'module.db'))
     module = importlib.import_module('modus_entry.app')
-    monkeypatch.setattr(module.local_ocr, 'status', lambda: {'available': True, 'mode': 'local-teleocr',
+    monkeypatch.setattr(local_ocr, 'status', lambda: {'available': True, 'mode': 'local-teleocr',
         'model': 'artificial-pinned-model', 'revision': 'artificial-revision'})
     calls = []
     def fake_draft(raw, filename):
@@ -37,7 +38,7 @@ def ocr_api(tmp_path, monkeypatch):
             'input_tokens': 10, 'output_tokens': 5}
         draft['warnings'].append('Unverified synthetic model transcription; review every field.')
         return draft
-    monkeypatch.setattr(module.local_ocr, 'make_local_history_draft', fake_draft)
+    monkeypatch.setattr(local_ocr, 'make_local_history_draft', fake_draft)
     async def forbidden_provider(*args, **kwargs):
         pytest.fail('The explicit local OCR path called Meta')
     monkeypatch.setattr(module, 'extract_record_document', forbidden_provider)
@@ -65,11 +66,12 @@ def reviewed(draft):
         for row in draft['observations']]
 
 
-def test_health_reports_local_capability_without_running_model(ocr_api):
+def test_health_reports_retired_ocr_even_when_shared_research_model_is_installed(ocr_api):
     client, _, _, calls, _ = ocr_api
     health = client.get('/api/health').json()
-    assert health['local_ocr']['available'] is True
-    assert health['local_ocr']['mode'] == 'local-teleocr'
+    assert health['local_ocr']['available'] is False
+    assert health['local_ocr']['mode'] == 'disabled'
+    assert 'retired' in health['local_ocr']['reason']
     assert health['provider']['mode'] == 'offline'
     assert calls == []
 
@@ -93,39 +95,32 @@ def test_local_text_is_default_and_image_needs_explicit_model(ocr_api):
     assert calls == []
 
 
-def test_local_ocr_preview_is_honest_and_does_not_commit(ocr_api):
+def test_local_ocr_preview_is_rejected_without_draft_or_commit(ocr_api):
     client, store, _, calls, _ = ocr_api
     before = records(client)
     response = preview(client, use_local_ocr='true')
-    assert response.status_code == 200, response.text
-    draft = response.json()
-    assert draft['extraction_mode'] == draft['source']['extraction_mode'] == 'local-teleocr'
-    assert len(calls) == 1
+    assert response.status_code == 422
+    assert calls == []
     assert records(client)['observations'] == before['observations']
-    assert client.get(f"/api/drafts/{draft['id']}/original").content == RAW
-    saved = store.draft(draft['id'])
-    assert saved['source']['ocr_execution']['model'] == 'artificial-pinned-model'
-    assert saved['source']['extraction_telemetry']['execution']['mode'] == 'local-teleocr'
-    assert saved['source']['extraction_telemetry']['revision'] == 'artificial-revision'
-    assert client.post('/api/imports/commit', json={'draft_id': draft['id'], 'synthetic_confirmed': True}).status_code == 422
+    with store.connect() as db:
+        assert db.execute('SELECT count(*) FROM drafts').fetchone()[0] == 0
 
 
 @pytest.mark.parametrize('error_class', ['LocalOCRError', 'RuntimeError', 'ValueError'])
-def test_ocr_failure_never_falls_back_or_leaks_raw_error(ocr_api, monkeypatch, error_class):
+def test_retired_ocr_never_runs_worker_or_fallback_even_if_worker_would_fail(ocr_api, monkeypatch, error_class):
     client, store, module, _, _ = ocr_api
     before = records(client)
-    cls = module.local_ocr.LocalOCRError if error_class == 'LocalOCRError' else RuntimeError if error_class == 'RuntimeError' else ValueError
+    cls = local_ocr.LocalOCRError if error_class == 'LocalOCRError' else RuntimeError if error_class == 'RuntimeError' else ValueError
     def failed(*args):
         raise cls('ARTIFICIAL_PRIVATE_WORKER_ERROR')
-    monkeypatch.setattr(module.local_ocr, 'make_local_history_draft', failed)
+    monkeypatch.setattr(local_ocr, 'make_local_history_draft', failed)
     monkeypatch.setattr(module, 'make_draft', lambda *args: pytest.fail('OCR failure silently used text parser'))
     response = preview(client, use_local_ocr='true')
-    assert response.status_code == (502 if error_class == 'RuntimeError' else 422)
+    assert response.status_code == 422
     assert 'ARTIFICIAL_PRIVATE_WORKER_ERROR' not in response.text
     assert records(client)['observations'] == before['observations']
     changes = client.get('/api/changes').json()['changes']
-    assert len(changes) == 1 and changes[0]['kind'] == 'extraction_failure'
-    assert changes[0]['status'] == 'failed' and changes[0]['mode'] == 'local-teleocr'
+    assert changes == []
     assert 'ARTIFICIAL_PRIVATE_WORKER_ERROR' not in json.dumps(store.history())
 
 
@@ -136,10 +131,10 @@ def test_ocr_requires_synthetic_attestation_before_inference(ocr_api):
     assert response.status_code == 400 and calls == []
 
 
-def test_reviewed_ocr_commit_is_idempotent_and_historical(ocr_api):
-    client, _, _, _, _ = ocr_api
+def test_legacy_ocr_draft_review_remains_idempotent_and_historical(ocr_api):
+    client, store, _, _, fake = ocr_api
     before = records(client, '2021-12-31', '2021-12-31T23:59:59Z')
-    draft = preview(client, use_local_ocr='true').json()
+    draft = store.add_draft(fake(RAW, 'artificial.png'), raw=RAW, filename='artificial.png', mime='image/png')
     rows = reviewed(draft)
     rows[0]['value'] = 72
     payload = {'draft_id': draft['id'], 'synthetic_confirmed': True, 'reviewed_observations': rows}
@@ -170,10 +165,8 @@ def test_partial_source_never_exposes_future_nested_ocr(ocr_api, monkeypatch, ex
             ocr_execution={'nested': {'text': SENTINEL}})
         draft['telemetry']['nested'] = {'pages': [{'text': SENTINEL}]}
         return draft
-    monkeypatch.setattr(module.local_ocr, 'make_local_history_draft', mixed)
-    response = preview(client, use_local_ocr='true')
-    assert response.status_code == 200
-    draft = response.json()
+    # Historical stored proposals can be reviewed; this does not re-enable an OCR API.
+    draft = store.add_draft(mixed(RAW, 'artificial.png'), raw=RAW, filename='artificial.png', mime='image/png')
     rows = reviewed(draft)[:1] if exclude_future else reviewed(draft)
     response = client.post('/api/imports/commit', json={'draft_id': draft['id'],
         'synthetic_confirmed': True, 'reviewed_observations': rows})
@@ -195,20 +188,15 @@ def test_partial_source_never_exposes_future_nested_ocr(ocr_api, monkeypatch, ex
 
 
 @pytest.mark.parametrize('empty_result', [False, True])
-def test_failed_or_empty_ocr_retains_bounded_attempt_costs_without_text(ocr_api, monkeypatch, empty_result):
-    from modus.ingest import NoObservationsError
-    client, _, module, _, _ = ocr_api
-    cls = NoObservationsError if empty_result else module.local_ocr.LocalOCRError
-    def failed(*args):
-        error = cls('ARTIFICIAL_UNTRUSTED_ERROR')
-        error.telemetry = {'mode':'local-teleocr','status':'completed' if empty_result else 'failed',
+def test_legacy_failed_or_empty_ocr_activity_retains_bounded_costs_without_text(ocr_api, monkeypatch, empty_result):
+    client, store, _, _, _ = ocr_api
+    telemetry = {'mode':'local-teleocr','status':'completed' if empty_result else 'failed',
             'input_tokens':30,'output_tokens':12,'usage_verified':True,'raw_text':'ARTIFICIAL_HIDDEN_TEXT',
             'attempts':[{'attempt':1,'resolution':'primary','status':'failed','input_tokens':20,'output_tokens':8,
                 'diagnostic':{'kind':'layout_output','text':'ARTIFICIAL_HIDDEN_TEXT'}},
                 {'attempt':2,'resolution':'fallback','status':'completed' if empty_result else 'failed','input_tokens':10,'output_tokens':4}]}
-        raise error
-    monkeypatch.setattr(module.local_ocr,'make_local_history_draft',failed)
-    assert preview(client,use_local_ocr='true').status_code == 422
+    store.save_run({'schema':'modus-entry-change-v1','kind':'extraction_failure',
+        'status':'failed','mode':'local-teleocr','telemetry':telemetry})
     changes = client.get('/api/changes').json()['changes']
     telemetry = changes[0]['telemetry']
     assert telemetry['input_tokens']==30 and telemetry['output_tokens']==12

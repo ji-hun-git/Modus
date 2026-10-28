@@ -8,7 +8,7 @@
 
 ```text
 Synthetic source
-  → local parser OR explicit local TeleOCR OR explicit Meta extraction
+  → deterministic local text parser OR explicit Meta extraction
   → schema-checked draft + preserved original
   → person's reviewed fields
   → transactional, idempotent record commit
@@ -20,6 +20,20 @@ Synthetic source
 For a question, Meta can select permitted read tools and then select exact claim IDs those tools emitted. It cannot calculate authoritative findings freely, write records, choose another person, widen dates, run shell/SQL, fetch arbitrary URLs or create new permissions. The local question path remains useful and explicitly says no model was called. A failed model request is not relabelled as local success.
 
 The independent entry has a record-only API/tool/source boundary. The broader product's medication, care-plan, clinical-reference and genetic features remain outside this build. Prompt instructions reinforce the boundary; code and schemas enforce it. The source record is preserved evidence, not authority over the application.
+
+### Active import path checked on 29 October
+
+Muse extraction is integrated into the actual Add records flow, not only the smoke runner. An explicitly selected Meta upload sends `use_meta=true` to `POST /api/imports/preview`. The route calls `extract_record_document`, which performs `ExtractRecordedFields` with a strict document-specific schema, then `VerifyRecordedFields` as a separate reread of the original pages and proposed fields. The verifier must return one check for each proposed field; it cannot repair the proposal or add facts. Both passes use the configured Muse model and have no tools. This is a separate check, not independent clinical validation or calibrated confidence.
+
+The contest entry now uses Meta as its only model reader. Local OCR is disabled during document preparation even if its separate research environment is installed; an explicit `use_local_ocr=true` request is rejected before inference. The deterministic text parser remains usable without a model. Earlier mixed Meta/local-OCR and local-only execution traces remain historical evidence, not evidence of this revised path.
+
+Local code also checks readable page text, quoted labels/values/units/dates and ambiguous numerical qualifiers. Images without independent text remain explicitly unchecked by that local matcher. Model disagreement, uncertainty or a failed verifier is preserved in the review reasons. A failed first extraction accepts no draft; a failed second reading can retain an unconfirmed proposal with the source check marked unavailable. Neither model agreement nor verifier failure bypasses the owner's explicit reviewed-field submission. An owner can correct a proposed value while the original quoted wording remains intact. Reviewed availability is assigned at commit, so earlier availability views exclude that new record.
+
+The stored draft and Changes metadata retain the two stage names, returned request/response identifiers when supplied, timing, usage and validation outcomes. Duplicate uploads reopen the existing draft without another model request. Invalid/refused/failed extraction never silently becomes a local success. The route permits at most two model requests for a nonempty extraction and performs no automatic retry.
+
+Both structured extraction passes and each bounded tool/claim-selection request explicitly use Muse's `reasoning_effort: minimal`. The caps remain 4,000 completion tokens per extraction pass and 1,600 per selection request. This candidate setting responds to a retained 29 October live extraction that exhausted its completion cap. Its benefit still requires a separately recorded run; failed attempts are retained, and the legacy extraction comparator is unchanged.
+
+Focused offline verification runs the real HTTP upload, document preparation, both schema passes and review/commit code with an explicitly artificial transport. It covers edited commit, source preservation, earlier replay, duplicate upload, first-pass failure and verifier timeout/malformed output/disagreement. These tests made **zero provider requests** and do not measure live extraction accuracy. Pytest forces provider mode offline, blanks the model credential and disables dotenv loading before collection and for each test; a canary regression proves even `override=True` cannot open a credential file. Live product verification and graded model comparisons require separately authorized execution and retained actual traces.
 
 The terminology/retrieval extension adds a versioned three-concept catalog and BM25 over captured recorded facts with ontology aliases. Source coding qualifies precise method/code searches; generic labels do not. Both single-call selection and the bounded model loop can access query-specific retrieval evidence. This is a measured candidate, not a claim of full ontology coverage, neural retrieval or universal superiority. See [its scope and limits](TERMINOLOGY_RETRIEVAL.md).
 
@@ -40,7 +54,7 @@ Development uses several agents on separate implementation/review tasks because 
 
 The broader project selected and executed a pinned TeleOCR checkpoint as a document-reading challenger, based on benchmark-specific research. Its isolated text-reading-plus-parser experiment passed eight authored development documents, including two images unavailable to the local PDF parser. The authored corpus informed parser development. This is actual execution of a released method with limited local evidence; it is not independently held-out accuracy, the authors' full layout pipeline, medical validation or reproduction of the external benchmark ranking.
 
-The entry now integrates an explicitly selected local TeleOCR import path and a parser/OCR comparison method. The pinned worker, extraction draft, review and commit have separate local execution evidence; the earlier eight-document experiment alone was not evidence of that integration. The optional OCR environment is not bundled with public source. Meta direct extraction and tool selection still require real access and measured runs. No medical model was fine-tuned, no memory benchmark reproduced, and no model critic calibrated by merely preparing their prompts.
+That local TeleOCR path was previously integrated and checked, but was retired from the active contest entry on 29 October in favor of Meta-only model execution. The shared research implementation and earlier parser/OCR measurements remain preserved separately. Their evidence does not describe the revised entry path. Meta extraction and tool selection require actual traces and graded comparisons for quality claims. No medical model was fine-tuned, no memory benchmark reproduced, and no model critic calibrated by merely preparing their prompts.
 
 To justify a stronger claim, freeze the benchmark/corpus revision, inputs, prompts, method/model revision, tool schemas, decoding settings, budget and graders. Hold out whole layouts/people; use the same cases and budget for comparators; report exact fields/spans, support/relevance, abstention, failures, latency and usage with denominators. Keep all attempts rather than selecting the best run. External leaderboard standing and Modus's measured task performance are different claims.
 

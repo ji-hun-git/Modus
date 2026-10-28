@@ -61,6 +61,8 @@ def review_draft(filename, raw, result):
     # Preserve exact model proposals, checks and non-calibrated confidence for
     # later review without exposing them as committed or historically known facts.
     draft['extraction_proposal'] = result
+    if 'document_guard' in result:
+        draft['source_document_guard'] = result['document_guard']
     if result['fields']:
         attach_facts(draft, [{**field, 'facility': None, 'extractor': 'meta',
             'review_reasons': facts[index]['review_reasons']}

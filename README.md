@@ -16,11 +16,11 @@ python scripts/check_entry.py
 python scripts/serve_entry.py --port 8011
 ```
 
-Open **http://127.0.0.1:8011/**. Setup creates an isolated Python environment and installs locked dependencies. The default mode is deterministic and needs no API key. For optional Meta execution, copy `.env.example` to `.env` and configure the server locally; never put credentials in browser code or Git. Restart the service after configuration changes.
+Open **http://127.0.0.1:8011/**. Setup creates an isolated Python environment and installs locked dependencies. The default mode is deterministic and needs no API key. For optional Meta execution, copy `.env.example` to `.env` and set server-only `MODUS_META_KEY`; the older `MODEL_API_KEY` remains a fallback when the preferred variable is empty. Never put credentials in browser code or Git. Restart the service after configuration changes.
 
 ## What works
 
-- Upload up to ten supported files, then review and save each separately. CSV, explicit text and text PDFs have local routes. PNG/JPEG/PDF extraction can use Muse Spark; optional local TeleOCR needs a separately installed environment and checkpoint.
+- Upload up to ten supported files, then review and save each separately. CSV, explicit text and text PDFs have deterministic local routes. Explicitly selected PNG/JPEG/PDF model extraction uses Muse Spark. Local OCR is disabled in the contest entry, including during Meta document preparation.
 - Records and Documents retain eight record kinds: measurements, visits, provider-recorded diagnoses, procedures, prescriptions, vaccinations, imaging report text and other recorded text. Original dates, units, partial dates and unknowns remain explicit.
 - Models produce proposals; the owner reviews the selection before a transactional save. Original wording, proposed values and review edits remain distinct. Exact retries do not create duplicate records.
 - Home selects up to four latest result groups by occurrence date and retains tied results. A compact conflict notice opens a side-by-side comparison; See all records opens the complete timeline, including partial or missing dates. Documents keeps a cube shelf and list, with filenames and upload timestamps in source details. Keyboard and phone layouts are supported.
@@ -34,6 +34,10 @@ Try **Add records → review → save → open a result → inspect evidence**, 
 Home, Records and Ask are the three primary destinations. **More** contains Brief, Trends, Documents, Replay and Changes. Date controls collapse into a single **View as of** chip. [Current review and remaining work](entry/docs/REVIEW_READINESS_2026-10-28.md).
 
 ## Verification and Meta evidence
+
+**29 October update:** Modus runs entirely on Meta models. Its evaluation uses a cross-provider judge panel (Meta Muse, Anthropic Claude, OpenAI) to avoid single-model self-preference. The evaluator is isolated under `eval/judges`; deterministic text reading and typed tools remain ordinary software. Five fresh synthetic browser cases received fifteen valid judgments. Five earlier Claude API failures are retained; the corrected run reused Muse/OpenAI results and a subsequent exact rerun made zero requests. Human labels are not supplied. [Current scoreboard, costs and limitations](SCOREBOARD.md).
+
+The current browser rehearsal verified pure Meta extract→verify, explicit correction and save, source quotation retention, original-file byte identity, bounded Ask and a zero-call injection refusal. [Evidence](eval/product-meta-only-browser-20261029.json). SAM yielded no reliable field crops, and hosted Meta Guard is not demonstrated. The following dated milestones remain historical evidence, not the current cumulative ledger.
 
 The reviewed-brief milestone passes **1,042 backend / 926 entry / 55 frontend tests**, both builds and offline evaluations. Actual browser checks cover four newly authored uploads, all eight record kinds, selection, source inspection, review, HTML/JSON downloads, and stale-preview rejection. Ten selected records produce eleven exported records because a conflicting laboratory copy is explicitly retained. [Browser evidence](eval/record-brief-browser-20261028.json). These changes made zero provider requests and did not access held-outs or frozen baselines. User-value testing remains proposed, not completed.
 
@@ -61,7 +65,7 @@ Models cannot execute shell commands, SQL, arbitrary URLs, record writes or perm
 
 The owner attests that all first-party implementation was created after kickoff. The first Git commit is an honest import of that work on its actual commit date; it does not reconstruct earlier history. AI assistance was used for implementation, design, research and testing. [Contribution record](entry/docs/CONTRIBUTIONS.md).
 
-The supplied participant instructions require public event-built source, a three-minute video with opening contribution disclosure, approved human contributors and no AI medical/health advice. Public source publication does not itself submit the entry or confirm eligibility. The official judging weights and the supplied FAQ conflict; organizer clarification remains pending.
+The supplied participant instructions require public event-built source, a three-minute video with contribution disclosure where required, approved human contributors and no AI medical/health advice. Public source publication does not itself submit the entry or confirm eligibility. The 29 October owner-supplied Discord update sets an initial theme/Meta gate followed by four equally weighted criteria. [Current rules and conservative deadline](research/DISCORD_RULES_2026-10-29.md).
 
 The first-party project license is **undecided**. No open-source license is granted by this README. Third-party libraries, standards and models retain their own terms; see [notices](THIRD_PARTY_NOTICES.md) and [dependency inventory](entry/docs/DEPENDENCIES.json). Model weights, private reference documents, runtime databases, credentials and held-out suites are excluded.
 

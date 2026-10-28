@@ -2,6 +2,10 @@
 
 Implementation contract for the independent entry. All dates/times are strings; instants require a timezone. JSON requests forbid extra fields. No broad assessment, medication, genetics or reference routes exist.
 
+The product's only remote provider is Meta. Server configuration prefers `MODUS_META_KEY`, falling back to `MODEL_API_KEY` only when the preferred variable is empty. `/api/health` exposes only whether a Meta credential is configured, never its value. Evaluation-only provider credentials do not activate the product or provide a fallback. Ordinary pytest, offline check/build subprocesses and CI clear model credentials and disable dotenv loading; explicitly authorized live evaluation is separate.
+
+The current schema extractor and bounded entry tool/claim selector explicitly request `reasoning_effort:"minimal"`. Extraction keeps a 4,000-token completion cap per pass; tool selection keeps the 1,600-token policy cap per request. This is the 29 October candidate configuration after a capped live extraction ended with `finish_reason:length`; it is not evidence of improved quality or a reason to discard that failure. There is no automatic retry, cap expansion or model substitution. The preserved legacy extraction comparator retains its original request settings.
+
 `ScopeRequest = {as_of: YYYY-MM-DD, known_at?: timestamp|null, compare_from?: timestamp|null}`. Null/omitted known_at captures current server time. A non-null compare_from requests a comparison from that availability bound to known_at, keeping as_of fixed. Both views derive from one frozen capture. Future instants are capped at that capture; reversed resolved comparison bounds are rejected.
 
 `Scope = {as_of, known_at, captured_at, scope_id}`. The UI uses resolved bounds for subsequent questions, originals and exports. `scope_id` identifies the scoped records and algorithm bundle; it is not an authorization token.
@@ -18,10 +22,10 @@ Implementation contract for the independent entry. All dates/times are strings; 
 
 Routes:
 
-- `GET /api/health`: `{application:"modus-records",release,bundle_id,synthetic_only:true,provider:{mode,requested_mode,key_configured,model,live_verified:false},local_ocr:{available,mode,model?,revision?,reason?}}`. Local OCR availability is an installation probe, not proof of a successful inference; checkpoint integrity is verified before each worker execution.
+- `GET /api/health`: `{application:"modus-records",release,bundle_id,synthetic_only:true,provider:{mode,requested_mode,key_configured,model,live_verified:false},local_ocr:{available:false,mode:"disabled",reason}}`. Since 29 October, local OCR is retired from the contest entry; this route neither probes nor loads a local OCR model.
 - `GET /api/records/view?as_of=...&known_at=...`: View. as_of required.
 - `POST /api/records/compare`: `{as_of,before_known_at,after_known_at?:null}` → Comparison.
-- `POST /api/imports/preview`: multipart file, synthetic_confirmed=true, use_meta=false and use_local_ocr=false by default → `{id,source,observations,warnings,extraction_mode,already_committed}`. CSV/text/text-PDF deterministic extraction; opted-in PDF/PNG/JPEG uses either Meta or the separately installed local TeleOCR model. Selecting both is rejected. Local OCR runs in a fixed worker without provider credentials, accepts bounded complete page transcription only, and still requires explicit review before commit. Mode `local-teleocr` is a real local model result, never labelled deterministic text or Meta. There is no alternate-provider fallback. Local OCR permits one lower-resolution retry only for verified truncation/layout-format failure; both attempts and verified usage are retained. Completed empty extraction and missing fields never trigger this retry. JSON/FHIR import is excluded from this first entry.
+- `POST /api/imports/preview`: multipart file, synthetic_confirmed=true and use_meta=false by default → `{id,source,observations,warnings,extraction_mode,already_committed}`. CSV/text/text-PDF deterministic extraction remains available without a model. Explicitly opted-in PDF/PNG/JPEG extraction uses Meta for the schema-constrained proposal and separate source check. Local OCR is disabled during Meta document preparation even when a research OCR installation exists. A stale client sending `use_local_ocr=true` receives 422 before parsing or inference. There is no alternate-model fallback or automatic retry. Both paths require explicit review before commit. JSON/FHIR import is excluded from this first entry.
 - `GET /api/drafts/{draft_id}/original`: original attachment for an uncommitted draft only.
 - `POST /api/imports/commit`: `{draft_id,synthetic_confirmed:true,reviewed_observations:[{id,metric,value,unit,date}]}`. Nonempty explicit selection required. Returns `{draft_id,source_id,inserted,duplicate,available_at,observation_ids,bundle_id}`. A repeated commit returns the original identity/time and inserted=0. No unrestricted before/after attribution.
 - `GET /api/records/{source_id}/original?as_of=...&known_at=...`: both resolved scope parameters required. Rejects unavailable or partially visible documents.
@@ -60,6 +64,10 @@ Preview may now include `facts`, with server-owned IDs, original quotes/page/reg
 `GET /api/profile?known_at=...` returns a local profile revision. `PUT /api/profile` takes only `{date_of_birth: YYYY-MM-DD|null}` and stamps its revision server-side. Profile data is not added to provider extraction or question prompts. Age markers are computed only from exact dates.
 
 Meta preview now uses text/image preparation and extract-then-verify. Every result is still a review proposal. Unknown/failed verification and uncalibrated model confidence never authorize a commit. Successful/partial runs expose sanitized per-call traces in `/api/changes`; duplicate uploads reopen existing reviews before any provider call.
+
+29 October guard extension: prepared document text is screened for known instruction patterns before extraction. Guard metadata identifies its deterministic method, version, coverage and matched rule IDs; original source bytes and draft facts are preserved. Image pixels are not classified by this text screen. Ask requests and retrieved text are screened before model/tool reuse; a blocked request returns an explicit abstention with a timed guard trace and no model or record-tool execution. This is not Prompt Guard, Llama Guard or proof of complete injection detection. Source crops from SAM remain an unintegrated feasibility experiment.
+
+Server Meta authentication prefers `MODUS_META_KEY`; `MODEL_API_KEY` remains a compatibility fallback. Claude and OpenAI keys/adapters are used only by the separate evaluation jury. They are not part of this API or its tool capabilities. Test and check subprocesses strip all four key variables and disable dotenv loading.
 
 ## Whole-history questions
 

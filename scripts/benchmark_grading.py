@@ -38,7 +38,7 @@ def normalized_claim(claim):
     return result
 
 
-def grade_workflow(case, result, trusted_claims, expected_scope, expected_comparison=None, *, response_format='legacy-v1'):
+def grade_workflow(case, result, trusted_claims, expected_scope, expected_comparison=None, *, response_format='legacy-v1', authenticated_guard_answer=None):
     if response_format not in ('legacy-v1', WORKFLOW_RESPONSE_FORMAT):
         raise ValueError('Unsupported workflow response format')
     claims = result.get('claims', [])
@@ -65,7 +65,7 @@ def grade_workflow(case, result, trusted_claims, expected_scope, expected_compar
         prose_ok = result.get('answer') == (SUPPORTED_ANSWER if claims else UNSUPPORTED_ANSWER)
     else:
         prose_ok = all(isinstance(c.get('text'), str) for c in claims) and result.get('answer') == (
-            '\n'.join(c['text'] for c in claims) if claims else UNSUPPORTED_ANSWER)
+            '\n'.join(c['text'] for c in claims) if claims else authenticated_guard_answer or UNSUPPORTED_ANSWER)
     return {'support': support, 'relevance': relevance, 'scope': scope_ok, 'prose': prose_ok,
             'response_format': response_format,
             'abstention_correct': not claims if case['expected']['intent'] == 'abstain' else None,

@@ -1,19 +1,35 @@
 from datetime import datetime, timezone
+import json
 from pathlib import Path
 from uuid import uuid4
 from modus.bundle import hashes, identity, installed_environment
 from modus.policy import POLICY
 
 ROOT = Path(__file__).resolve().parents[2]
-SHARED = ('__init__.py', 'record_models.py', 'record_store.py', 'record_conflicts.py', 'ontology.py', 'record_retrieval.py', 'local_ocr.py', 'ocr_text.py',
-          'ingest.py', 'temporal.py', 'policy.py', 'bundle.py', 'provider.py', 'extraction.py')
-paths = [ROOT / 'backend/modus' / name for name in SHARED]
-paths += list((ROOT / 'backend/modus_entry').glob('*.py'))
-paths += [ROOT / 'prompts/extract.md', ROOT / 'entry/prompts/records.md', ROOT / 'entry/prompts/history.md', ROOT / 'config/agent-policy.json', ROOT / 'backend/requirements.lock.txt']
-paths += [ROOT / 'backend/modus' / name for name in ('record_history.py', 'record_history_view.py', 'record_history_models.py', 'record_units.py')]
-paths += [ROOT / name for name in ('config/teleocr.json', 'scripts/teleocr_runtime.py',
-    'scripts/teleocr_document_worker.py', 'scripts/teleocr_assets.py', 'scripts/requirements-ocr.lock.txt')]
-BUNDLE_ID = identity(hashes(ROOT, paths))
+
+def runtime_bundle(root=ROOT):
+    """Use the entry allowlist as the source of truth for runtime Python files.
+
+    The former hand-maintained list omitted the current two-pass extractor,
+    page preparation and generic history import. Tests and research-only code
+    are deliberately outside this runtime identity; the release gate covers
+    test and UI inputs separately.
+    """
+    root = Path(root)
+    manifest = json.loads((root / 'entry/config/source_manifest.json').read_text(encoding='utf-8'))
+    paths = [root / item['source'] for item in manifest['files']
+        if item.get('behavior') and item['source'].endswith('.py')
+        and item['source'].startswith(('backend/modus/', 'backend/modus_entry/'))]
+    paths += [root / name for name in ('prompts/extract.md', 'entry/prompts/records.md',
+        'entry/prompts/history.md', 'config/agent-policy.json', 'backend/requirements.lock.txt',
+        'config/teleocr.json', 'scripts/teleocr_runtime.py', 'scripts/teleocr_document_worker.py',
+        'scripts/teleocr_assets.py', 'scripts/requirements-ocr.lock.txt')]
+    if any(not path.is_file() for path in paths):
+        raise ValueError('An allowlisted entry runtime input is missing')
+    return hashes(root, paths)
+
+
+BUNDLE_ID = identity(runtime_bundle())
 ENVIRONMENT = installed_environment()
 
 

@@ -4,7 +4,8 @@ from pathlib import Path
 import json
 import re
 
-from .agent import execute, live_selection, result
+from .agent import execute, live_selection, result, quarantine_request
+from .document_guard import QUARANTINED, REQUEST_QUARANTINED
 from .runtime import execution_context
 from .tools import SelectionArgs
 from .history_tools import ARGUMENTS, DESCRIPTIONS, dispatch
@@ -130,13 +131,17 @@ def decorate(context, response):
     response['answer'] = '\n'.join(claim['text'] for claim in response['claims'])
     response['history_evidence']=evidence_view(context,response['claims'])
     if not response['claims']:
-        response['answer']=UNSUPPORTED
+        guard = response.get('document_guard', {})
+        response['answer'] = (REQUEST_QUARANTINED if guard.get('boundary') == 'request' else QUARANTINED) if guard.get('status') == 'quarantined' else UNSUPPORTED
     if context.get('comparison'):
         response['history_comparison']={key:context['comparison'][key]['scope'] for key in ('before','after')}
     return response
 
 
 def offline_chat(context, message):
+    guarded = quarantine_request(context, message, {})
+    if guarded:
+        return decorate(context, guarded)
     execution=execution_context('offline')
     trace=[]
     route=offline_route(context,message)
@@ -148,6 +153,9 @@ def offline_chat(context, message):
 
 
 async def live_chat(context, message, telemetry, *, request=None):
+    guarded = quarantine_request(context, message, telemetry)
+    if guarded:
+        return decorate(context, guarded)
     route=offline_route(context,message)
     if route is None:
         response=decorate(context,result(context,execution_context('request_guard'),[],[]))

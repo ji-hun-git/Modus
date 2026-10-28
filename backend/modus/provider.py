@@ -66,8 +66,13 @@ def validate_completion(response):
             raise MetaRequestError('incomplete')
 
 
+def meta_credential():
+    """Meta-only alias; evaluation provider credentials are never used here."""
+    return os.getenv('MODUS_META_KEY') or os.getenv('MODEL_API_KEY')
+
+
 def provider_status():
-    configured = bool(os.getenv('MODEL_API_KEY'))
+    configured = bool(meta_credential())
     requested = os.getenv('MODUS_PROVIDER', 'offline')
     return {'mode': 'meta' if requested == 'meta' and configured else 'offline',
             'requested_mode': requested, 'key_configured': configured,
@@ -75,7 +80,7 @@ def provider_status():
 
 
 async def meta_request(payload):
-    key = os.getenv('MODEL_API_KEY')
+    key = meta_credential()
     if not key:
         raise ValueError('Meta credentials are not configured')
     base = os.getenv('MODUS_META_BASE_URL', 'https://api.meta.ai/v1').rstrip('/')

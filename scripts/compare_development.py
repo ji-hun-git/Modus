@@ -103,9 +103,9 @@ def compare(kind, candidate_folder, root=ROOT):
                     if label == 'candidate' and row['result']['execution']['bundle_id'] != BUNDLE_ID:
                         raise ValueError('Unexpected candidate runtime identity')
                     scopes = {k:scope(context['comparison'][k]) for k in ('before','after')} if context['comparison'] is not None else None
-                    authenticated = authenticated_claim_bank(context, case['question'], row['result'], trusted[row['case_id']])
+                    authenticated, guard_answer = authenticated_claim_bank(context, case['question'], row['result'], trusted[row['case_id']], include_guard_answer=True)
                     grade = grade_workflow(case,row['result'],authenticated,scope(context['view']),scopes,
-                                           response_format=plan.get('response_format', 'legacy-v1'))
+                                           response_format=plan.get('response_format', 'legacy-v1'), authenticated_guard_answer=guard_answer)
                 if grade['passed'] != row['grade']['passed']:
                     raise ValueError('Regrading changes a recorded outcome; investigate before comparing')
                 row['grade'] = grade

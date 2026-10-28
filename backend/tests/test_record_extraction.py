@@ -68,6 +68,7 @@ def test_text_layer_two_pass_preserves_exact_source_and_requires_review():
     result, payloads, telemetry = run()
     assert len(payloads) == 2
     assert all('tools' not in payload and payload['max_completion_tokens'] == 4000 for payload in payloads)
+    assert all(payload['reasoning_effort'] == 'minimal' for payload in payloads)
     assert all(part['type'] == 'text' for part in payloads[0]['messages'][1]['content'])
     assert result['fields'][0]['local_support'] == {'status': 'matched_text', 'issues': []}
     assert result['fields'][0]['verification']['status'] == 'supported'

@@ -9,6 +9,7 @@ from modus.record_retrieval import UNSAFE_QUERY, query_requires_record_filter, h
 from modus.provider import provider_status, meta_request, measured_request
 from .runtime import execution_context
 from .tools import ARGUMENTS, DESCRIPTIONS, dispatch
+from .document_guard import screen_untrusted, QUARANTINED, REQUEST_QUARANTINED
 
 PROMPT = (Path(__file__).resolve().parents[2] / 'entry/prompts/records.md').read_text(encoding='utf-8')
 UNSUPPORTED = 'This workspace answers questions about recorded facts, sources, disagreements and availability. It does not assess health or recommend care.'
@@ -154,7 +155,28 @@ def execute(context, name, args, execution, trace, *, tool_dispatch=None):
     return value
 
 
+def quarantine_request(context, message, telemetry):
+    started = perf_counter()
+    guard = screen_untrusted(message)
+    if guard['status'] != 'quarantined':
+        return None
+    guard['boundary'] = 'request'
+    execution = execution_context('request_guard')
+    telemetry.update(execution=execution, document_guard=guard)
+    trace = [{'name': 'screen_record_request', 'arguments': {},
+        'result': {'claims': [], 'document_guard': guard}, 'status': 'quarantined',
+        'duration_ms': round((perf_counter() - started) * 1000, 2),
+        'executor': 'local deterministic guard', 'document_guard': guard,
+        **{key: execution[key] for key in ('run_id', 'bundle_id', 'config_id')}}]
+    response = result(context, execution, [], trace, telemetry)
+    response.update(answer=REQUEST_QUARANTINED, document_guard=guard, abstained=True, provider_requests_made=0)
+    return response
+
+
 def offline_chat(context, message):
+    guarded = quarantine_request(context, message, {})
+    if guarded:
+        return guarded
     execution = execution_context('offline')
     trace, claims = [], []
     route = offline_route(context, message)
@@ -172,6 +194,9 @@ async def live_chat(context, message, telemetry, *, request=None):
 
 async def live_selection(context, message, telemetry, *, arguments, descriptions, tool_dispatch, prompt, request=None):
     """Shared bounded protocol; callers supply only code-owned tool registries."""
+    guarded = quarantine_request(context, message, telemetry)
+    if guarded:
+        return guarded
     model = provider_status()['model']
     execution = execution_context('meta', model)
     telemetry['execution'] = execution
@@ -183,7 +208,8 @@ async def live_selection(context, message, telemetry, *, arguments, descriptions
         response = await measured_request({'model': model, 'messages': messages, 'tools': tool_specs,
             # Hosted Meta accepts auto only. The application still requires a
             # validated tool call and never displays unsupported model prose.
-            'tool_choice': 'auto', 'max_completion_tokens': POLICY.max_completion_tokens}, telemetry, request=request or meta_request)
+            'tool_choice': 'auto', 'reasoning_effort': 'minimal',
+            'max_completion_tokens': POLICY.max_completion_tokens}, telemetry, request=request or meta_request)
         message_out = response['choices'][0]['message']
         calls = message_out.get('tool_calls', [])
         if not calls or not isinstance(calls, list):
@@ -210,6 +236,19 @@ async def live_selection(context, message, telemetry, *, arguments, descriptions
                 chosen = [known[key] for key in dict.fromkeys(args['claim_ids'])]
                 return result(context, execution, chosen, trace, telemetry)
             value = execute(context, name, args, execution, trace, tool_dispatch=tool_dispatch)
+            guard = screen_untrusted(value)
+            guard['boundary'] = 'tool_result'
+            trace[-1]['document_guard'] = guard
+            if guard['status'] == 'quarantined':
+                # Keep originals and accepted facts in the store. Do not forward
+                # this result (including quoted instructions) to another round.
+                trace[-1]['status'] = 'quarantined'
+                trace[-1]['result'] = {'claims': [], 'withheld_from_model': True,
+                    'document_guard': guard}
+                telemetry['document_guard'] = guard
+                response = result(context, execution, [], trace, telemetry)
+                response.update(answer=QUARANTINED, document_guard=guard, abstained=True)
+                return response
             known.update({c['id']: c for c in value['claims']})
             encoded = json.dumps(value)
             if len(encoded) > 128000:

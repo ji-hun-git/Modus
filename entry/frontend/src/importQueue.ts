@@ -3,7 +3,7 @@ import type { FactReviewRow, ReviewedFact } from "./historyTypes";
 
 export const MAX_FILES = 10;
 export const MAX_FILE_BYTES = 8 * 1024 * 1024;
-export type Extraction = "local" | "local-teleocr" | "meta";
+export type Extraction = "local" | "meta";
 export type QueueStatus =
   | "selected"
   | "reading"
@@ -31,6 +31,22 @@ export type QueueItem = {
 
 export function extension(file: Pick<File, "name">) {
   return file.name.split(".").pop()?.toLowerCase() || "";
+}
+
+export function readingOptions(file: Pick<File, "name">, metaAvailable: boolean) {
+  const suffix = extension(file);
+  return [
+    { value: "local" as const, label: "Local text · no model",
+      available: ["csv", "txt", "pdf"].includes(suffix) },
+    { value: "meta" as const, label: `Meta${metaAvailable ? "" : " · not configured"}`,
+      available: metaAvailable && ["pdf", "png", "jpg", "jpeg"].includes(suffix) },
+  ];
+}
+
+export function previewReaderFields(file: Pick<File, "name">, reader: string, metaAvailable: boolean) {
+  if (!readingOptions(file, metaAvailable).some((option) => option.value === reader && option.available))
+    throw new Error("Choose an available reading method. Images require Meta.");
+  return { use_meta: String(reader === "meta") };
 }
 
 export function fileError(file: Pick<File, "name" | "size">) {

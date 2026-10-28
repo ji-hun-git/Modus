@@ -28,9 +28,9 @@ async def main(argv=None):
         case, context = cases[spec['case_id']], deepcopy(contexts[spec['case_id']])
         answer = await run_method(spec['method'], context, case['question'], request=request)
         comparison_scope = {key: context['comparison'][key]['scope'] for key in ('before', 'after')} if context['comparison'] is not None else None
-        authenticated = authenticated_claim_bank(context, case['question'], answer, trusted[case['id']])
+        authenticated, guard_answer = authenticated_claim_bank(context, case['question'], answer, trusted[case['id']], include_guard_answer=True)
         return answer, grade_workflow(case, answer, authenticated, context['view']['scope'], comparison_scope,
-                                      response_format=plan['response_format'])
+                                      response_format=plan['response_format'], authenticated_guard_answer=guard_answer)
     report = await execute_schedule(plan, folder, execute, verify=lambda: verify_files(args.suite, plan['dataset_files_sha256']))
     print(json.dumps({'results': str(folder), **report}, indent=2))
     return 0 if report['status'] == 'completed' else 1

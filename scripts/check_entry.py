@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 from entry_release import inputs, build_hashes, STAMP, identity
+from offline_environment import offline_environment
 
 root = Path(__file__).resolve().parents[1]
 python = root / '.venv' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
@@ -19,12 +20,13 @@ stamp = root / STAMP
 stamp.unlink(missing_ok=True)
 before = inputs(root)
 tests = sorted(str(p.relative_to(root / 'backend')) for p in (root / 'backend/tests').glob('test_entry*.py'))
-for name in ('test_record_store.py', 'test_record_history.py', 'test_record_units.py', 'test_history_ingest.py', 'test_history_audit.py', 'test_record_extraction.py', 'test_benchmark_harness.py', 'test_extraction_layouts.py', 'test_local_ocr.py', 'test_development_comparison.py', 'test_ontology.py', 'test_record_retrieval.py', 'test_ontology_rag_evaluation.py'):
+tests += sorted(str(p.relative_to(root / 'backend')) for p in (root / 'backend/tests').glob('test_jury*.py'))
+for name in ('test_record_store.py', 'test_record_history.py', 'test_record_units.py', 'test_history_ingest.py', 'test_history_audit.py', 'test_record_extraction.py', 'test_benchmark_harness.py', 'test_benchmark_record_review.py', 'test_extraction_layouts.py', 'test_local_ocr.py', 'test_development_comparison.py', 'test_ontology.py', 'test_record_retrieval.py', 'test_ontology_rag_evaluation.py'):
     if (root / 'backend/tests' / name).is_file():
         tests.append('tests/' + name)
 if not tests:
     sys.exit('Entry tests are missing')
-env = {**os.environ, 'MODUS_PROVIDER': 'offline', 'MODEL_API_KEY': ''}
+env = offline_environment()
 commands = [('tests', [str(python), '-m', 'pytest', '-q', *tests], root / 'backend'),
     ('evaluation', [str(python), str(root / 'scripts/evaluate_entry.py')], root),
     ('frontend_tests', [npm, 'test'], root / 'entry/frontend'),

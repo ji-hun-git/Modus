@@ -1,0 +1,73 @@
+{
+  "schema": "modus-sam-envelope-diagnostic-v1",
+  "tested_at": "2026-10-28T16:06:27.216717+00:00",
+  "synthetic_only": true,
+  "requests_attempted": 1,
+  "retries": 0,
+  "model_requested": "sam-3.1",
+  "source_sha256": "203536d92ad3b44757f42a9474905163475f58d283815534647725c502f1adc3",
+  "raster_sha256": "8eee41cce58b2cd359cd69241d7158427ae0a935a82b393b3af4f6a8acbd55b3",
+  "page": 1,
+  "prompt": "text row",
+  "script_sha256": "8bb108c24434809701830e67d1f367aab343a57874f2db7d041bc36ced0b96af",
+  "status": "response_inspected",
+  "expected_image_charge_usd": 0.0025,
+  "billing_verified": false,
+  "raw_envelope_retained": true,
+  "account_balance": "not_verified",
+  "http_status": 200,
+  "exact_key_redacted": false,
+  "response_body_sha256": "bafc9b3e8b932036cf7f3192a487b8ef28407938b092283067a03a7485722712",
+  "response_bytes": 829,
+  "model_returned": "sam-3.1",
+  "usage": {
+    "input_tokens": 0,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 0,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 0,
+    "images_processed": 1
+  },
+  "top_level_types": {
+    "metadata": "dict",
+    "top_logprobs": "int",
+    "temperature": "float",
+    "top_p": "float",
+    "service_tier": "str",
+    "model": "str",
+    "background": "bool",
+    "tools": "list",
+    "tool_choice": "str",
+    "truncation": "str",
+    "id": "str",
+    "object": "str",
+    "status": "str",
+    "created_at": "float",
+    "completed_at": "float",
+    "error": "NoneType",
+    "incomplete_details": "NoneType",
+    "output": "list",
+    "instructions": "NoneType",
+    "usage": "dict",
+    "parallel_tool_calls": "bool",
+    "store": "bool"
+  },
+  "output_item_types": [
+    "message"
+  ],
+  "content_part_types": [
+    "output_text"
+  ],
+  "text_paths": [
+    "output[0].content[0].text"
+  ],
+  "text_characters": 0,
+  "classification": "valid_empty_text_lane",
+  "boxes": [],
+  "latency_ms": 1233.81,
+  "offline_envelope_checks_passed": 5
+}

@@ -62,7 +62,7 @@ async def _pass(model, prompt, parts, schema, name, telemetry, request):
         return await measured_request({'model': model, 'messages': [
             {'role': 'system', 'content': prompt}, {'role': 'user', 'content': parts}],
             'response_format': {'type': 'json_schema', 'json_schema': {'name': name, 'strict': True, 'schema': schema}},
-            'max_completion_tokens': 4000}, telemetry, request=request)
+            'reasoning_effort': 'minimal', 'max_completion_tokens': 4000}, telemetry, request=request)
     finally:
         if len(telemetry.get('calls', [])) > before:
             telemetry['calls'][-1]['stage'] = name
@@ -137,13 +137,20 @@ def _compatible_observation(field):
             'source_span': field['source_quote'], 'page': field['page']}
 
 
-async def extract_record_document(raw, filename, mime, telemetry, request=None, *, use_local_ocr=False):
+async def extract_record_document(raw, filename, mime, telemetry, request=None, *, use_local_ocr=False, screen_document=None):
     """At most two provider calls, no tools/writes, and no verifier repair/retry.
 
     First-pass failure produces no draft. Verifier failure retains the unconfirmed
     extract with every check unavailable, so a review cannot mistake it for success.
     """
     prepared = await prepare_document(raw, filename, mime, telemetry, use_local_ocr=use_local_ocr)
+    document_guard = None
+    if screen_document is not None:
+        document_guard = {**screen_document(prepared['pages']), 'input_basis': 'prepared_page_text_and_available_ocr',
+            'pages_without_readable_text': [page['page'] for page in prepared['pages']
+                if not page['text'].strip() and not page.get('ocr_text', '').strip()],
+            'image_pixels_screened': False}
+        telemetry['document_guard'] = document_guard
     model = telemetry.get('execution', {}).get('requested_model') or provider_status()['model']
     response = await _pass(model, EXTRACT_PROMPT, prepared['parts'], extraction_schema(),
                            'ExtractRecordedFields', telemetry, request)
@@ -184,4 +191,5 @@ async def extract_record_document(raw, filename, mime, telemetry, request=None, 
     telemetry['record_extraction'] = {'schema_version': 'record-draft-v1', 'document_type': proposed.document_type,
         'field_count': len(fields), 'verification': verification, 'review_required': True}
     return {'document_type': proposed.document_type, 'fields': fields, 'observations': observations,
-            'review_required': True, 'extraction': prepared['metadata'], 'verification': verification}
+            'review_required': True, 'extraction': prepared['metadata'], 'verification': verification,
+            **({'document_guard': document_guard} if document_guard is not None else {})}
