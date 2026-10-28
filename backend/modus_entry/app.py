@@ -28,6 +28,8 @@ from .tools import capture, source, observation
 from . import agent
 from . import history_agent
 from .history_tools import capture_history
+from .briefs import (BriefRequest, BriefExportRequest, BriefChangedError,
+                     build_brief, validate_export, render_html, render_json)
 from .extraction_review import review_draft
 
 load_dotenv(ROOT / '.env')
@@ -303,6 +305,27 @@ def create_entry_app(database=None, clock=None):
             recorded_run('question', status='failed', scope=context['view']['scope'], mode=provider_status()['mode'],
                 error='No validated history answer was produced.', execution=telemetry.get('execution'), telemetry=telemetry)
             raise HTTPException(502, 'The history agent could not complete a validated response. No records changed and no local fallback was used.') from None
+
+    @app.post('/api/briefs/preview')
+    def preview_brief(request: BriefRequest):
+        try:
+            return build_brief(store, request)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+
+    @app.post('/api/briefs/export')
+    def export_brief(request: BriefExportRequest):
+        try:
+            brief = validate_export(store, request)
+            content = render_html(brief) if request.format == 'html' else render_json(brief)
+        except BriefChangedError:
+            raise HTTPException(409, 'This brief changed after preview. Review the updated brief before downloading.') from None
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+        return Response(content, media_type='text/html' if request.format == 'html' else 'application/json', headers={
+            'Content-Disposition': f'attachment; filename="modus-record-brief.{request.format}"',
+            'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
+            'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"})
 
     @app.get('/api/changes')
     def changes(known_at: AwareDatetime | None = None):

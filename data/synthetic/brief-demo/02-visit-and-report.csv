@@ -1,0 +1,6 @@
+kind,label,value,unit,date,facility
+encounter,Outpatient visit,Visit recorded for a left knee concern,,2024-03-12,Example family clinic
+recorded_diagnosis,Assessment as documented,Anterior knee pain recorded in the visit note,,2024-03-12,Example family clinic
+prescription,Cetirizine,10 mg tablets; a 14-day prescription appears in the archive,,2022-04-05,Example family clinic
+procedure,Left knee radiograph,Plain radiograph examination recorded,,2024-03-12,Example imaging center
+imaging_text,Left knee radiology report,No acute fracture described in the source report,,2024-03-12,Example imaging center

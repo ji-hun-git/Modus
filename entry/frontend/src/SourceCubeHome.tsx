@@ -62,15 +62,7 @@ export default function SourceCubeHome({
         hasDraft={hasDraft}
         onNavigate={onNavigate}
       />
-      <HistoryQuestionPanel view={history.view} />
-      <div className="overview-followup">
-        <button
-          className="text-button"
-          onClick={() => onNavigate("Measurements")}
-        >
-          View measurements <ArrowRight size={15} />
-        </button>
-      </div>
+      <HistoryQuestionPanel view={history.view} compact />
     </div>
   );
 }

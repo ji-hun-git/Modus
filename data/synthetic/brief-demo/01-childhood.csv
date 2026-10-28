@@ -1,0 +1,4 @@
+kind,label,value,unit,date,facility
+vaccination,MMR,Immunization entry in childhood record,,2008,Example childhood clinic
+measurement,Height,128.4,cm,2009-06-15,Example childhood clinic
+recorded_text,Childhood record note,The original form does not record an exact vaccination day,,,Example childhood clinic

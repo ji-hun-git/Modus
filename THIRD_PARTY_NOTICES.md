@@ -1,5 +1,7 @@
 # Third-party materials in Modus Records
 
+The interface bundles unmodified Inter 4.1, copyright 2016 The Inter Project Authors, under SIL Open Font License 1.1. The font and full license are retained in `entry/frontend/public/fonts/InterVariable.woff2` and `Inter-OFL.txt`. Upstream source is the official `rsms/inter` repository at commit `e3a3d4c57d5ecc01453a575621882a384c1995a3`. No proprietary Meta font is bundled.
+
 Application dependencies retain their own licenses. Locked runtime/build/test versions are in backend/requirements.lock.txt and entry/frontend/package-lock.json. The inventory in entry/docs/DEPENDENCIES.json records declared metadata and available notice hashes; corresponding texts are under data/licenses/dependencies. Uninstalled optional platform packages are explicitly identified. This inventory is not a legal compatibility determination.
 
 This entry uses authored synthetic records. It does not bundle Synthea exports, medical reference datasets, private supplied design documents, model weights, a trained adapter or the separate TeleOCR research environment. The full private Modus workspace preserves the wider research and provenance.

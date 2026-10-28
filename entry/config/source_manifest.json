@@ -1896,6 +1896,121 @@
       "source": "entry/demo/whole-history-evidence.png",
       "destination": "entry/demo/whole-history-evidence.png",
       "behavior": false
+    },
+    {
+      "source": "backend/modus_entry/briefs.py",
+      "destination": "backend/modus_entry/briefs.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_brief_api.py",
+      "destination": "backend/tests/test_entry_brief_api.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_briefs.py",
+      "destination": "backend/tests/test_entry_briefs.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/RecordBrief.tsx",
+      "destination": "entry/frontend/src/RecordBrief.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/briefTypes.ts",
+      "destination": "entry/frontend/src/briefTypes.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/briefSelection.mjs",
+      "destination": "entry/frontend/src/briefSelection.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/briefSelection.d.mts",
+      "destination": "entry/frontend/src/briefSelection.d.mts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/record-brief.css",
+      "destination": "entry/frontend/src/record-brief.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/briefSelection.test.mjs",
+      "destination": "entry/frontend/tests/briefSelection.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/fonts/InterVariable.woff2",
+      "destination": "entry/frontend/public/fonts/InterVariable.woff2",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/fonts/Inter-OFL.txt",
+      "destination": "entry/frontend/public/fonts/Inter-OFL.txt",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/RECORD_BRIEF.md",
+      "destination": "entry/docs/RECORD_BRIEF.md",
+      "behavior": false
+    },
+    {
+      "source": "data/synthetic/brief-demo/01-childhood.csv",
+      "destination": "data/synthetic/brief-demo/01-childhood.csv",
+      "behavior": true
+    },
+    {
+      "source": "data/synthetic/brief-demo/02-visit-and-report.csv",
+      "destination": "data/synthetic/brief-demo/02-visit-and-report.csv",
+      "behavior": true
+    },
+    {
+      "source": "data/synthetic/brief-demo/03-laboratory.csv",
+      "destination": "data/synthetic/brief-demo/03-laboratory.csv",
+      "behavior": true
+    },
+    {
+      "source": "data/synthetic/brief-demo/04-later-copy.csv",
+      "destination": "data/synthetic/brief-demo/04-later-copy.csv",
+      "behavior": true
+    },
+    {
+      "source": "data/synthetic/brief-demo/README.md",
+      "destination": "data/synthetic/brief-demo/README.md",
+      "behavior": false
+    },
+    {
+      "source": "research/META_DESIGN_APPLICATION_2026-10-28.md",
+      "destination": "research/META_DESIGN_APPLICATION_2026-10-28.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/record-brief-browser-20261028.json",
+      "destination": "eval/record-brief-browser-20261028.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/record-brief-export.png",
+      "destination": "entry/demo/record-brief-export.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/REVIEW_READINESS_2026-10-28.md",
+      "destination": "entry/docs/REVIEW_READINESS_2026-10-28.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/record-brief-review.png",
+      "destination": "entry/demo/record-brief-review.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/simple-home-meta.png",
+      "destination": "entry/demo/simple-home-meta.png",
+      "behavior": false
     }
   ]
 }

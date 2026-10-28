@@ -5,6 +5,7 @@ import {
   ArrowUp,
   ArrowUpRight,
   Check,
+  ChevronDown,
   Clock3,
   Download,
   FileText,
@@ -20,6 +21,9 @@ import MeasurementsWorkspace from "./MeasurementsWorkspace";
 import ReplayWorkspace from "./ReplayWorkspace";
 import ChangesWorkspace from "./ChangesWorkspace";
 import HistoryTimeline from "./HistoryTimeline";
+import RecordBrief from "./RecordBrief";
+import HistoryQuestionPanel from "./HistoryQuestionPanel";
+import useHistoryView from "./useHistoryView";
 import { api, post } from "./api";
 import { Modal, dateLabel, timeLabel, endOfDay } from "./ui";
 import {
@@ -181,6 +185,38 @@ function EvidenceInspector({
         </div>
       )}
     </Modal>
+  );
+}
+
+function AskWorkspace({
+  view,
+  historical,
+}: {
+  view: View;
+  historical: boolean;
+}) {
+  const history = useHistoryView(view.scope, !historical);
+  if (history.error)
+    return (
+      <section className="panel empty" role="alert">
+        <AlertCircle size={24} />
+        <h2>Your records could not be loaded</h2>
+        <p>{history.error}</p>
+        <button className="secondary" onClick={history.refresh}>
+          Try again
+        </button>
+      </section>
+    );
+  if (!history.view)
+    return (
+      <section className="panel loading" role="status">
+        <LoaderCircle size={24} className="spin" /> Loading your records…
+      </section>
+    );
+  return (
+    <div className="ask-workspace">
+      <HistoryQuestionPanel view={history.view} />
+    </div>
   );
 }
 
@@ -606,32 +642,25 @@ export default function App() {
             aria-label="View dates"
           >
             {page !== "Replay" && (
-              <div className="scope-summary">
-                <Clock3 size={15} />
-                <div>
-                  <span>
-                    Measurements through <strong>{dateLabel(asOf)}</strong>
-                  </span>
-                  <span>
-                    Records available{" "}
-                    {displayed ? (
-                      <strong>{timeLabel(displayed.scope.known_at)}</strong>
-                    ) : (
-                      <strong>
-                        {mode === "latest"
-                          ? "now"
-                          : dateLabel(mode === "then" ? asOf : knownDate)}
-                      </strong>
-                    )}
-                  </span>
-                </div>
+              <div className="scope-summary scope-summary-chip">
                 <button
-                  className="text-button"
+                  className="scope-chip"
                   aria-expanded={scopeExpanded}
                   aria-controls="view-date-controls"
                   onClick={() => setScopeOpen(!scopeOpen)}
                 >
-                  {scopeExpanded ? "Hide dates" : "Change dates"}
+                  <Clock3 size={15} />
+                  <span>
+                    View as of{" "}
+                    <strong>
+                      {displayed
+                        ? dateLabel(displayed.scope.known_at.slice(0, 10))
+                        : mode === "latest"
+                          ? "now"
+                          : dateLabel(mode === "then" ? asOf : knownDate)}
+                    </strong>
+                  </span>
+                  <ChevronDown size={14} aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -773,6 +802,19 @@ export default function App() {
             )}
             {page === "Measurements" && displayed && (
               <MeasurementsWorkspace view={displayed} onInspect={inspect} />
+            )}
+            {page === "Ask" && displayed && (
+              <AskWorkspace
+                view={displayed}
+                historical={mode !== "latest" || !!pair || asOf !== currentDay}
+              />
+            )}
+            {page === "Brief" && displayed && (
+              <RecordBrief
+                scope={displayed.scope}
+                historical={mode !== "latest" || !!pair || asOf !== currentDay}
+                onImport={() => setImportOpen(true)}
+              />
             )}
             {page === "Timeline" && displayed && (
               <HistoryTimeline

@@ -1,0 +1,61 @@
+{
+  "status": "passed",
+  "date": "2026-10-28",
+  "scope": "Actual CUA browser interaction with authored synthetic files in isolated loopback store. No user study or clinical validation.",
+  "input_files": [
+    "data/synthetic/brief-demo/01-childhood.csv",
+    "data/synthetic/brief-demo/02-visit-and-report.csv",
+    "data/synthetic/brief-demo/03-laboratory.csv",
+    "data/synthetic/brief-demo/04-later-copy.csv"
+  ],
+  "checks": [
+    "Four files selected in one queue; 3/5/2/2 fields inspected and explicitly committed",
+    "Older captured availability view retained nine seed facts until explicit updated-history action",
+    "All eight record kinds and 21 total facts present in updated test view",
+    "Empty selection cannot preview; download disabled until explicit review",
+    "Ten facts selected across three documents; preview adds one Ferritin companion from fourth document and names its source",
+    "Original source inspector shows exact 29.5 ng/mL companion quote and original download link",
+    "HTML and JSON downloaded using actual browser controls; eleven records, four sources and all eight kinds preserved",
+    "Exact 32.0 and 29.5 ng/mL remain separate; partial 2008 and unknown dates preserved",
+    "HTML contains matching record/source anchors and preview identity; no scripts or remote/localhost asset URLs",
+    "Exported document visually inspected and R6 internal citation navigated",
+    "Application change between preview and export produces real HTTP409; UI removes stale review/preview and retains title/note/selection",
+    "Fresh preview requires fresh review; second HTML/JSON downloads succeed",
+    "Edit selection clears review; 1280x712 review button accessible after sticky sidebar fix",
+    "Inter font loaded in browser; font and license self-hosted",
+    "Documents cube selects exact Ferritin evidence and preserves comparison action",
+    "No horizontal overflow at 390/320/768/default1280 widths; compact phone and tablet navigation inspected",
+    "Final Home has exactly Home/Records/Ask navigation, four result groups, one Add records button, one Ask form, and See all records; no full recent or undated lists",
+    "Home Ask form bottom676px within720px desktop viewport even with a conflict banner",
+    "Compact Home Enter submission returns an exact local Cetirizine finding with scope and source controls",
+    "Dedicated Ask returns exact MMR vaccination with year-only2008; no model call",
+    "More opens Brief, Trends, Documents, Replay and Changes; Escape closes the auxiliary menu",
+    "Final phone navigation/More inspected at390px, Records at320px and Ask at768px; no horizontal overflow",
+    "Phone Brief search and record type controls now stack full width"
+  ],
+  "export_counts": {
+    "selected": 10,
+    "conflict_companions": 1,
+    "total": 11,
+    "sources": 4
+  },
+  "export_preview_id": "sha256:8e63022df1cde7d68a29f02a60fac4c86a655a9214f3e595da65dc53c4a2740b",
+  "html_sha256": "ae296d380086612b8569306ed82d905457c9ba22ef1270d66875d81680ac19a1",
+  "new_provider_requests": 0,
+  "heldout_accessed": false,
+  "frozen_baseline_accessed": false,
+  "main_store_mutated": false,
+  "privacy_production_ready": false,
+  "user_value_study_run": false,
+  "known_limits": [
+    "HTML download has print CSS; native PDF generation and actual PDF pagination not qualified",
+    "Brief is session-scoped; no saved brief archive",
+    "Some legacy surfaces still use their existing typography/card styles",
+    "General narrative contradiction detection and real-person production controls remain incomplete"
+  ],
+  "screenshots": [
+    "entry/demo/simple-home-meta.png",
+    "entry/demo/record-brief-review.png",
+    "entry/demo/record-brief-export.png"
+  ]
+}

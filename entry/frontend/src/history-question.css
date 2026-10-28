@@ -149,6 +149,31 @@
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
+.history-question-panel.history-question-compact {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  margin: 24px 0 0;
+}
+.history-question-compact form {
+  align-items: center;
+  min-height: 64px;
+  padding: 8px 12px;
+  border-radius: var(--radius-card, 24px);
+  background: var(--surface);
+}
+.history-question-compact textarea {
+  min-height: 44px;
+  padding: 10px 6px;
+  resize: none;
+}
+.history-question-compact .history-question-answer {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card, 24px);
+  background: var(--surface);
+}
 @media (max-width: 600px) {
   .history-question-panel {
     padding: 17px;

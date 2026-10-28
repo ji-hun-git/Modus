@@ -9,25 +9,36 @@ import {
   Info,
   ChartNoAxesCombined,
   MoreHorizontal,
+  MessageCircle,
   Plus,
+  FileText,
 } from "lucide-react";
 import { Brand, Modal } from "./ui";
 
 export type Page =
-  "Home" | "Timeline" | "Replay" | "Records" | "Measurements" | "Changes";
+  | "Home"
+  | "Timeline"
+  | "Replay"
+  | "Records"
+  | "Measurements"
+  | "Changes"
+  | "Brief"
+  | "Ask";
 const pages = [
-  { page: "Home" as const, label: "Overview", icon: House },
+  { page: "Home" as const, label: "Home", icon: House },
   { page: "Timeline" as const, label: "Records", icon: CalendarDays },
+  { page: "Ask" as const, label: "Ask", icon: MessageCircle },
+];
+const moreTools = [
+  { page: "Brief" as const, label: "Brief", icon: FileText },
   { page: "Measurements" as const, label: "Trends", icon: ChartNoAxesCombined },
   { page: "Records" as const, label: "Documents", icon: Files },
-];
-const historyTools = [
   {
     page: "Replay" as const,
-    label: "View past records",
+    label: "Replay",
     icon: GitCompareArrows,
   },
-  { page: "Changes" as const, label: "Upload activity", icon: History },
+  { page: "Changes" as const, label: "Changes", icon: History },
 ];
 const pageTitle = {
   Home: "Your health records",
@@ -36,6 +47,8 @@ const pageTitle = {
   Measurements: "Measurement history",
   Replay: "Past records",
   Changes: "Activity",
+  Brief: "Prepare a brief",
+  Ask: "Ask your records",
 };
 
 export default function Shell({
@@ -64,6 +77,48 @@ export default function Shell({
       <span>Demo data</span>
     </button>
   );
+  const moreControl = (
+    <details
+      ref={toolsRef}
+      className={
+        "history-tools header-more " +
+        (!pages.some((item) => item.page === page) ? "active-tools" : "")
+      }
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && toolsRef.current?.open) {
+          toolsRef.current.open = false;
+          toolsRef.current.querySelector("summary")?.focus();
+        }
+      }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null))
+          event.currentTarget.open = false;
+      }}
+    >
+      <summary aria-label="More tools">
+        <MoreHorizontal size={18} />
+        <span>More</span>
+      </summary>
+      <div className="history-tools-menu" role="group" aria-label="More views">
+        {moreTools.map(({ page: destination, label, icon: Icon }) => (
+          <button
+            key={destination}
+            aria-current={page === destination ? "page" : undefined}
+            onClick={() => {
+              setPage(destination);
+              if (toolsRef.current) {
+                toolsRef.current.open = false;
+                toolsRef.current.querySelector("summary")?.focus();
+              }
+            }}
+          >
+            <Icon size={17} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+    </details>
+  );
   return (
     <>
       <div className="app-layout">
@@ -89,60 +144,10 @@ export default function Shell({
                 }}
               >
                 <Icon size={18} strokeWidth={1.8} />
-                <span>{label}</span>
+                <span className="nav-label-desktop">{label}</span>
+                <span className="nav-label-mobile">{label}</span>
               </button>
             ))}
-            <details
-              ref={toolsRef}
-              className={
-                "history-tools " +
-                (!["Home", "Timeline", "Records", "Measurements"].includes(page)
-                  ? "active-tools"
-                  : "")
-              }
-              onKeyDown={(event) => {
-                if (event.key === "Escape" && toolsRef.current?.open) {
-                  toolsRef.current.open = false;
-                  toolsRef.current.querySelector("summary")?.focus();
-                }
-              }}
-              onBlur={(event) => {
-                if (
-                  !event.currentTarget.contains(
-                    event.relatedTarget as Node | null,
-                  )
-                )
-                  event.currentTarget.open = false;
-              }}
-            >
-              <summary>
-                <MoreHorizontal size={18} />
-                <span>Past views</span>
-              </summary>
-              <div
-                className="history-tools-menu"
-                aria-label="Past views and activity"
-              >
-                {historyTools.map(
-                  ({ page: destination, label, icon: Icon }) => (
-                    <button
-                      key={destination}
-                      aria-current={page === destination ? "page" : undefined}
-                      onClick={() => {
-                        setPage(destination);
-                        if (toolsRef.current) {
-                          toolsRef.current.open = false;
-                          toolsRef.current.querySelector("summary")?.focus();
-                        }
-                      }}
-                    >
-                      <Icon size={17} />
-                      <span>{label}</span>
-                    </button>
-                  ),
-                )}
-              </div>
-            </details>
           </nav>
           <div className="workspace-label">
             <span className="profile-initial" aria-hidden="true">
@@ -163,6 +168,7 @@ export default function Shell({
               </div>
               <div className="header-actions">
                 <div className="desktop-demo">{demoControl}</div>
+                {moreControl}
                 {page !== "Home" && (
                   <button className="primary" onClick={onImport}>
                     <Plus size={18} />

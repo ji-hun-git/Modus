@@ -1,4 +1,4 @@
-/* Reference-led service composition. The record/review behavior stays in its components. */
+/* Meta-informed clarity and hierarchy, adapted to Modus's dark evidence cards. */
 body {
   background: var(--canvas);
 }
@@ -9,45 +9,45 @@ textarea {
   color: var(--ink);
 }
 ::selection {
-  background: #4d6683;
+  background: #294e81;
   color: #fff;
 }
 h1 {
-  font-weight: 550;
-  letter-spacing: -1.1px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
 }
 .brand {
-  letter-spacing: -1.4px;
-  font-weight: 650;
+  letter-spacing: -0.05em;
+  font-weight: 600;
 }
 .brand::before {
   content: "";
   width: 20px;
   height: 20px;
   margin-right: 4px;
-  border: 2px solid #b4c8c0;
+  border: 2px solid var(--blue);
   border-radius: 6px 2px 6px 2px;
   transform: rotate(-12deg);
   align-self: center;
 }
 .brand > span {
-  font-size: 11px;
+  font-size: 12px;
   margin-left: 2px;
   color: var(--muted);
 }
 .primary {
-  background: #ebefed;
-  color: #1b2120;
-  box-shadow: inset 0 1px #fff;
+  background: var(--action);
+  color: var(--on-action);
+  box-shadow: inset 0 1px #ffffff1f;
 }
 .primary:hover {
-  background: #fff;
+  background: var(--action-hover);
 }
 .secondary {
   background: var(--soft);
 }
 .text-button {
-  font-weight: 500;
+  font-weight: 600;
 }
 .metric-explanation {
   max-width: 46ch;
@@ -59,11 +59,11 @@ h1 {
 .panel,
 .records-workspace,
 .replay-frame {
-  border-radius: 20px;
+  border-radius: var(--radius-card);
 }
 .modal {
   background: var(--surface);
-  border: 1px solid #505459;
+  border: 1px solid var(--line-strong);
   box-shadow: 0 24px 100px #0008;
 }
 .field input,
@@ -72,7 +72,7 @@ h1 {
   background: var(--inset);
 }
 input[type="checkbox"] {
-  accent-color: #91b5ff;
+  accent-color: var(--blue);
 }
 .error-banner {
   color: #ffd0bc;
@@ -84,35 +84,35 @@ input[type="checkbox"] {
   color: var(--warning);
 }
 .page-header {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 .demo-control {
   color: var(--muted);
 }
 .consumer-home {
-  gap: 14px;
+  gap: var(--space-5);
 }
 .history-upload {
-  padding: 18px 20px;
+  padding: var(--space-5);
   gap: 16px;
-  border-radius: 18px;
-  background: #242729;
-  border-color: #3a3e40;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  border-color: var(--line);
 }
 .history-upload-icon {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #333a3b;
-  color: #c1dcd2;
-  border: 1px solid #4a5352;
+  background: var(--selected);
+  color: var(--blue);
+  border: 1px solid var(--line);
 }
 .history-upload h2 {
   font-size: 17px;
   letter-spacing: -0.3px;
 }
 .history-upload p {
-  font-size: 13px;
+  font-size: 14px;
   max-width: none;
   margin-top: 4px;
 }
@@ -127,19 +127,19 @@ input[type="checkbox"] {
   min-height: 40px;
 }
 .home-section-heading h2 {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
   letter-spacing: -0.3px;
 }
 .home-section-heading .text-button {
-  font-size: 12px;
+  font-size: 14px;
 }
 .history-metrics .home-section-heading {
   margin-bottom: 9px;
 }
 .measurement-totals {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 3px;
 }
 .history-heading-actions {
@@ -148,24 +148,24 @@ input[type="checkbox"] {
   gap: 20px;
 }
 .history-heading-actions .home-date-details {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
 }
 .metric-summary-grid {
-  gap: 14px;
+  gap: var(--space-4);
   align-items: stretch;
 }
 .metric-summary {
   display: flex;
   flex-direction: column;
-  padding: 22px 20px 3px;
-  border-radius: 22px;
-  background: #2b2e31;
-  border-color: #404448;
+  padding: 24px 24px 4px;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  border-color: var(--line);
   box-shadow: 0 3px 10px #00000015;
 }
 .metric-summary.expanded {
-  border-color: #92b0d1;
+  border-color: var(--blue);
 }
 .metric-summary header {
   margin-bottom: 7px;
@@ -182,23 +182,23 @@ input[type="checkbox"] {
   height: 30px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #3b4143;
-  border: 1px solid #535b5d;
-  color: #becbc7;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  color: var(--muted);
 }
 .metric-title-row h3 {
   flex: 1;
 }
 .metric-summary h3 {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
   letter-spacing: -0.2px;
   min-height: 30px;
   display: flex;
   align-items: center;
 }
 .metric-summary header > span {
-  font-size: 11px;
+  font-size: 12px;
 }
 .metric-latest-fact > strong {
   font-family: var(--number-font);
@@ -207,10 +207,10 @@ input[type="checkbox"] {
   font-weight: 400;
 }
 .metric-latest-fact > span {
-  font-size: 11px;
+  font-size: 12px;
 }
 .metric-latest-source {
-  font-size: 11px;
+  font-size: 12px;
 }
 .metric-latest-value {
   padding: 5px 0 10px;
@@ -220,21 +220,21 @@ input[type="checkbox"] {
   min-height: 48px;
 }
 .history-plot {
-  --plot-muted: #b3b9bf;
-  background: #222528;
-  padding: 11px 12px;
-  border-radius: 13px;
+  --plot-muted: var(--muted);
+  background: var(--inset);
+  padding: 12px 16px;
+  border-radius: var(--radius-control);
   margin: 7px -7px 12px;
 }
 .history-plot-dates {
-  font-size: 11px;
+  font-size: 12px;
 }
 .history-plot-legend {
   display: flex;
   align-items: center;
   gap: 6px;
   color: var(--warning);
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 8px;
 }
 .history-plot-legend > span {
@@ -245,7 +245,7 @@ input[type="checkbox"] {
   margin: 0 3px;
 }
 .home-measurement-history {
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   background: var(--surface);
 }
 .home-history-fact > strong,
@@ -256,20 +256,21 @@ input[type="checkbox"] {
 .snapshot-counts strong,
 .replay-result-counts strong {
   font-family: var(--number-font);
+  font-variant-numeric: tabular-nums;
   font-weight: 400;
   letter-spacing: -0.8px;
 }
 .history-support-grid {
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-  gap: 14px;
+  gap: var(--space-4);
   margin-top: 4px;
   align-items: stretch;
 }
 .home-records {
-  background: #25282b;
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 22px;
-  padding: 16px 20px 12px;
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
 }
 .home-document-list {
   border-top: 0;
@@ -279,16 +280,16 @@ input[type="checkbox"] {
   padding: 12px 0;
 }
 .home-document-title > strong {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
 }
 .home-document-date {
-  font-size: 11px;
+  font-size: 12px;
 }
 .home-document .document-icon {
-  background: #34393d;
-  color: #b8c7d6;
-  border: 1px solid #444c53;
+  background: var(--soft);
+  color: var(--muted);
+  border: 1px solid var(--line);
   border-radius: 10px;
   width: 36px;
   height: 40px;
@@ -298,48 +299,48 @@ input[type="checkbox"] {
 }
 .home-assistant-secondary .question-panel {
   width: 100%;
-  border-radius: 22px;
-  padding: 22px;
-  background: #25282b;
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  background: var(--surface);
 }
 .home-assistant-secondary .assistant-heading h2 {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
 }
 .assistant-heading {
   flex-wrap: wrap;
 }
 .assistant-heading .execution-label {
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
 }
 .question-form textarea,
 .home-assistant-secondary .question-form textarea {
   min-height: 100px;
-  background: #1c1e20;
-  border-color: #45494c;
+  background: var(--inset);
+  border-color: var(--line-strong);
   padding: 16px 60px 16px 16px;
   border-radius: 16px;
-  font-size: 13px;
+  font-size: 16px;
 }
 .question-form button {
-  background: #77d4b5;
-  color: #153b2f;
+  background: var(--action);
+  color: var(--on-action);
   border-radius: 50%;
 }
 .question-form button:disabled {
-  background: #3e4d48;
-  color: #acbeb6;
+  background: var(--soft);
+  color: var(--muted);
   opacity: 1;
 }
 .question-suggestions button,
 .home-assistant-secondary .question-suggestions button {
-  padding: 8px 10px;
-  min-height: 36px;
-  border-radius: 18px;
-  background: #303438;
-  color: #c3c7cb;
-  border-color: #44494e;
+  padding: 10px 12px;
+  min-height: 44px;
+  border-radius: var(--radius-control);
+  background: var(--soft);
+  color: var(--ink);
+  border-color: var(--line);
 }
 .home-assistant-secondary .question-suggestions {
   gap: 7px;
@@ -353,21 +354,21 @@ input[type="checkbox"] {
 .filter-tabs,
 .metric-selector {
   background: var(--inset);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   padding: 4px;
 }
 .filter-tabs button.selected,
 .metric-selector button.selected {
-  background: #44494e;
+  background: var(--selected);
   color: var(--ink);
   box-shadow: 0 1px 4px #0003;
   border-radius: 9px;
 }
 .document-row.selected {
-  background: #303a45;
+  background: var(--selected);
 }
 .document-row.selected .document-icon {
-  color: #c0d4ec;
+  color: var(--blue);
 }
 .value-button {
   background: #322c24;
@@ -380,12 +381,12 @@ input[type="checkbox"] {
   background: var(--soft);
 }
 .review-card.selected {
-  border-color: #647b96;
+  border-color: var(--blue);
 }
 .scope-panel {
   border-radius: 16px;
 }
 .home-date-details > div {
-  background: #2c3033;
+  background: var(--surface);
   box-shadow: 0 12px 40px #0006;
 }

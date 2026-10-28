@@ -1,30 +1,56 @@
-/* Shared dark service palette: numbers, evidence and controls have distinct contrast. */
+/* Self-hosted Inter 4.1, SIL OFL 1.1. Provenance: research/META_DESIGN_APPLICATION_2026-10-28.md. */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/InterVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Modus tokens: neutral evidence surfaces, blue actions, explicit review states. */
 :root {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif;
-  font-size: 14px;
+  --font-body: "Inter", "Segoe UI Variable", "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --number-font: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-optical-sizing: auto;
   font-synthesis: none;
   color-scheme: dark;
-  color: #f0f1f2;
-  background: #191b1d;
-  --ink: #f0f1f2;
-  --muted: #acb0b6;
-  --line: #3c3f43;
-  --blue: #91b5ff;
-  --blue-hover: #bdd2ff;
-  --soft: #202225;
-  --surface: #292c2f;
-  --canvas: #191b1d;
-  --inset: #1e2022;
-  --hover: #34383c;
+  color: var(--ink);
+  background: var(--canvas);
+  --ink: #f4f7fa;
+  --muted: #b6c2d0;
+  --line: #3d4959;
+  --line-strong: #708198;
+  --blue: #8db7ff;
+  --blue-hover: #c1d7ff;
+  --action: #1769e0;
+  --action-hover: #125bc7;
+  --on-action: #fff;
+  --focus: #8db7ff;
+  --soft: #1c2430;
+  --surface: #222a35;
+  --canvas: #171c24;
+  --inset: #131922;
+  --hover: #303d50;
+  --selected: #263b58;
   --warning: #edc68b;
   --warning-bg: #342d24;
-  --assistant: #232628;
-  --assistant-input: #1c1e20;
-  --assistant-line: #45494c;
-  --assistant-ink: #f0f1f2;
-  --assistant-muted: #acb0b6;
-  --number-font: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --assistant: var(--surface);
+  --assistant-input: var(--inset);
+  --assistant-line: var(--line-strong);
+  --assistant-ink: var(--ink);
+  --assistant-muted: var(--muted);
+  --radius-card: 24px;
+  --radius-control: 12px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
 }
 h1 {
   font-size: 32px;
@@ -85,7 +111,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #76a7f4;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 a {
@@ -96,14 +122,14 @@ a svg {
   flex-shrink: 0;
 }
 small {
-  font-size: 12px;
+  font-size: 13px;
 }
 strong {
   font-weight: 600;
 }
 .eyebrow {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--muted);
   margin-bottom: 9px;
@@ -129,12 +155,12 @@ strong {
 .field {
   display: grid;
   gap: 7px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--muted);
 }
 .field small {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
   line-height: 1.7;
   color: var(--muted);
@@ -143,12 +169,12 @@ strong {
 .field select {
   min-height: 44px;
   padding: 9px 11px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
   color: var(--ink);
   background: var(--surface);
   min-width: 150px;
-  font-size: 13px;
+  font-size: 16px;
 }
 .error-banner,
 .success-banner,
@@ -159,7 +185,7 @@ strong {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
 }
 .error-banner {
@@ -204,7 +230,7 @@ table {
   text-align: left;
 }
 th {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--muted);
   padding: 12px;
@@ -214,7 +240,7 @@ th {
 }
 td {
   padding: 15px 12px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   border-bottom: 1px solid var(--line);
   vertical-align: top;
@@ -237,7 +263,7 @@ td small {
   border-radius: 5px;
   background: var(--soft);
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
 }
 .tag.arrival {
@@ -254,7 +280,7 @@ td small {
   overflow-wrap: anywhere;
   max-height: 260px;
   overflow: auto;
-  font-size: 12px;
+  font-size: 13px;
   padding: 12px;
   border-radius: 6px;
 }
@@ -262,7 +288,7 @@ td small {
   padding: 30px 20px;
   color: var(--muted);
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
 }
 .empty > svg {
@@ -287,7 +313,7 @@ td small {
 .inline-empty > svg,
 .inline-empty strong {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
 }
 .loading {
   display: grid;
@@ -295,7 +321,7 @@ td small {
   gap: 14px;
   padding: 50px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   text-align: center;
 }
 .spin {
@@ -311,14 +337,14 @@ td small {
   justify-content: space-between;
   gap: 16px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
 }
 .table-footer a {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
+  font-size: 13px;
   text-decoration: none;
 }
 .page-footer {
@@ -326,7 +352,7 @@ td small {
   margin-top: 28px;
   padding: 20px 0 28px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 .modal-backdrop {
   position: fixed;
@@ -377,7 +403,7 @@ td small {
   background: var(--soft);
   color: var(--muted);
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
   margin: 16px 0;
 }
@@ -417,7 +443,7 @@ td small {
   border-color: #51565b;
 }
 .upload-zone span {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .upload-zone strong {
@@ -436,13 +462,13 @@ td small {
   color: var(--muted);
 }
 .draft-header strong {
-  font-size: 13px;
+  font-size: 14px;
 }
 .draft-header small {
   display: block;
   margin-top: 5px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
 }
 .review-layout {
@@ -474,7 +500,7 @@ td small {
   color: var(--muted);
 }
 .source-panel .source-meta {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
   color: var(--muted);
 }
@@ -499,11 +525,11 @@ td small {
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 14px;
-  font-size: 12px;
+  font-size: 13px;
 }
 .review-card-top .check-row {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
 }
 .review-fields {
   display: grid;
@@ -511,7 +537,7 @@ td small {
   gap: 12px;
 }
 .review-fields .field {
-  font-size: 12px;
+  font-size: 13px;
   gap: 5px;
 }
 .review-fields input,
@@ -520,11 +546,11 @@ td small {
   min-width: 0;
   padding: 8px 10px;
   min-height: 44px;
-  font-size: 13px;
+  font-size: 14px;
   border: 1px solid var(--line);
 }
 .review-fields small {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   font-weight: 400;
 }
@@ -536,7 +562,7 @@ td small {
   margin-top: 10px;
 }
 .review-card-footer button {
-  font-size: 12px;
+  font-size: 13px;
 }
 .review-actions {
   border-top: 1px solid var(--line);
@@ -564,14 +590,14 @@ td small {
   margin: 22px 0 7px;
 }
 .evidence-value span {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   letter-spacing: 0;
   margin-left: 8px;
   color: var(--muted);
 }
 .evidence-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .evidence-times {
@@ -589,7 +615,7 @@ td small {
   padding: 13px 15px;
   background: var(--soft);
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 13px;
 }
 .evidence-times > div:last-child {
   border-bottom: 0;
@@ -613,7 +639,7 @@ td small {
   color: var(--muted);
 }
 .exact-time {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 11px;
   line-height: 1.7;
@@ -625,11 +651,11 @@ td small {
   display: block;
   overflow-wrap: anywhere;
   margin-top: 8px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
 }
 .safe-note {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   line-height: 1.7;
   margin: 16px 0;
@@ -648,7 +674,7 @@ td small {
   border-top: 1px solid var(--line);
 }
 .provenance-sections h3 {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
 }
 .provenance-sections p {
@@ -667,7 +693,7 @@ td small {
 }
 .about-footer > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
 }
 .sr-only {
@@ -683,7 +709,7 @@ td small {
 }
 .provenance-line {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 8px;
   line-height: 1.6;
@@ -721,7 +747,7 @@ td small {
 }
 .brand span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -755,7 +781,7 @@ td small {
   margin-top: auto;
   padding: 24px 12px 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 .workspace {
   margin-left: 200px;
@@ -788,7 +814,7 @@ main {
   color: var(--muted);
   background: transparent;
   border-radius: 9px;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 .demo-control:hover {
@@ -803,20 +829,20 @@ main {
   justify-content: center;
   gap: 8px;
   min-height: 44px;
-  border-radius: 10px;
-  font-size: 13px;
+  border-radius: var(--radius-control);
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.5;
   text-decoration: none;
 }
 .primary {
-  color: white;
-  background: var(--blue);
+  color: var(--on-action);
+  background: var(--action);
   padding: 10px 16px;
   white-space: nowrap;
 }
 .primary:hover {
-  background: var(--blue-hover);
+  background: var(--action-hover);
 }
 .secondary {
   color: var(--ink);
@@ -868,7 +894,7 @@ main {
 }
 .home-section-heading .text-button {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -916,7 +942,7 @@ main {
   display: block;
   margin-top: 5px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 .home-document > svg {
@@ -943,7 +969,7 @@ main {
 }
 .execution-label {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   margin-top: 12px;
 }
@@ -1000,7 +1026,7 @@ main {
   color: var(--muted);
   border: 1px solid var(--line);
   border-radius: 9px;
-  font-size: 12px;
+  font-size: 13px;
   text-align: left;
 }
 .question-suggestions button:hover {
@@ -1027,12 +1053,12 @@ main {
   overflow-wrap: anywhere;
 }
 .answer-block article .text-button {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
 }
 .answer-block details {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 14px;
 }
 .answer-block summary {
@@ -1048,7 +1074,7 @@ main {
   overflow-wrap: anywhere;
   max-height: 260px;
   overflow: auto;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
   padding: 12px;
   border-radius: 8px;
@@ -1088,7 +1114,7 @@ main {
   gap: 8px 24px;
   flex-wrap: wrap;
   flex: 1;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -1098,7 +1124,7 @@ main {
 }
 
 .scope-summary .text-button {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -1133,7 +1159,7 @@ main {
 
 .scope-note {
   margin-top: 12px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   line-height: 1.6;
 }
@@ -1174,7 +1200,7 @@ main {
 
 .workspace-section-heading > span,
 .workspace-section-heading .text-button {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -1220,7 +1246,7 @@ main {
   border-radius: 8px;
   color: var(--muted);
   background: transparent;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -1258,7 +1284,7 @@ main {
   flex-wrap: wrap;
   gap: 8px 14px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .inventory-count > span:first-child {
@@ -1290,7 +1316,7 @@ main {
 
 .records-toolbar .export-button {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
   font-weight: 500;
 }
@@ -1328,7 +1354,7 @@ main {
   border: 0;
   color: var(--ink);
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .search-box input::placeholder {
@@ -1352,7 +1378,7 @@ main {
   gap: 12px;
   padding: 0 12px 12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .document-row {
@@ -1412,7 +1438,7 @@ main {
   display: block;
   margin-top: 5px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -1420,7 +1446,7 @@ main {
   display: block;
   margin-top: 7px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -1434,7 +1460,7 @@ main {
   align-items: center;
   gap: 5px;
   margin-top: 8px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--warning);
 }
 
@@ -1448,12 +1474,12 @@ main {
   align-items: center;
   gap: 7px;
   margin-bottom: 12px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
 }
 
 .detail-heading-top .text-button {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -1493,12 +1519,12 @@ main {
 
 .document-meta dt {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .document-meta dd {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink);
 }
 
@@ -1508,14 +1534,14 @@ main {
 
 .measurement-table th {
   padding: 11px 8px;
-  font-size: 12px;
+  font-size: 13px;
   background: transparent;
   border-bottom: 1px solid var(--line);
 }
 
 .measurement-table td {
   padding: 18px 8px;
-  font-size: 13px;
+  font-size: 14px;
   vertical-align: middle;
 }
 
@@ -1527,7 +1553,7 @@ main {
 
 .measurement-table td:last-child {
   white-space: nowrap;
-  font-size: 12px;
+  font-size: 13px;
   padding-right: 0;
 }
 
@@ -1541,7 +1567,7 @@ main {
   display: block;
   margin-top: 4px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -1554,7 +1580,7 @@ main {
   border-radius: 9px;
   color: var(--warning);
   background: var(--warning-bg);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -1571,7 +1597,7 @@ main {
   padding: 14px 24px;
   border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .inventory-scope .exact-time {
@@ -1638,7 +1664,7 @@ main {
 
 .measurement-history-heading > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   padding-bottom: 5px;
 }
 
@@ -1661,7 +1687,7 @@ main {
 .measurement-day-heading > span {
   display: block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   margin-bottom: 6px;
 }
 
@@ -1709,7 +1735,7 @@ main {
 }
 
 .history-reading > span {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -1718,7 +1744,7 @@ main {
   align-items: center;
   gap: 5px;
   width: 100%;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--warning);
   margin-top: 6px;
 }
@@ -1738,19 +1764,19 @@ main {
 
 .history-source > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
 .measurement-history-row > button {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
 
 .measurement-history-note {
   color: var(--warning);
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 20px;
   max-width: 700px;
   line-height: 1.6;
@@ -1773,7 +1799,7 @@ main {
   padding: 16px 24px;
   border-bottom: 1px solid var(--line);
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .replay-measurement-bound strong {
@@ -1783,7 +1809,7 @@ main {
 
 .replay-bound-note {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .comparison-grid {
@@ -1802,7 +1828,7 @@ main {
 
 .snapshot-heading .eyebrow {
   margin-bottom: 7px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
 }
 
@@ -1816,7 +1842,7 @@ main {
   display: block;
   margin-top: 7px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -1842,7 +1868,7 @@ main {
 
 .snapshot-counts span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .snapshot-sources {
@@ -1869,7 +1895,7 @@ main {
 .snapshot-sources strong {
   display: block;
   color: var(--ink);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -1880,7 +1906,7 @@ main {
   display: block;
   margin-top: 5px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -1891,7 +1917,7 @@ main {
 .count-label,
 .snapshot-empty {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
   padding: 12px 0;
 }
@@ -1941,7 +1967,7 @@ main {
   display: block;
   margin-top: 16px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -1971,7 +1997,7 @@ main {
 }
 
 .replay-result-counts span {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -2008,7 +2034,7 @@ main {
 .arrival-source small {
   display: block;
   margin-top: 6px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -2048,13 +2074,13 @@ main {
 
 .disagreement-head h3 span {
   color: var(--warning);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
 }
 
 .disagreement-head p {
   color: var(--warning);
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 5px;
 }
 
@@ -2093,7 +2119,7 @@ main {
 
 .conflict-value > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .conflict-source {
@@ -2102,7 +2128,7 @@ main {
   justify-content: space-between;
   gap: 12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -2124,7 +2150,7 @@ main {
 
 .activity-order {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -2138,7 +2164,7 @@ main {
 .activity-day > h3 {
   padding-top: 12px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -2192,7 +2218,7 @@ main {
 
 .activity-status {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .activity-status.issue {
@@ -2212,14 +2238,14 @@ main {
   flex-wrap: wrap;
   gap: 5px 12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   margin-top: 8px;
 }
 
 .activity-details {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 8px;
 }
 
@@ -2253,14 +2279,14 @@ main {
 }
 
 .activity-inspect {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
 
 .activity-scope-note {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 24px;
 }
 
@@ -2280,7 +2306,7 @@ main {
   min-height: 46px;
   padding: 12px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   border-radius: 10px;
@@ -2309,7 +2335,7 @@ main {
   width: 100%;
   gap: 9px;
   min-height: 44px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
   padding: 10px;
 }
@@ -2379,7 +2405,7 @@ main {
   gap: 16px;
   margin-top: -12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .history-context > span {
@@ -2413,7 +2439,7 @@ main {
 }
 
 .home-date-details p {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.7;
 }
 
@@ -2425,14 +2451,14 @@ main {
 .home-date-details code {
   display: block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   overflow-wrap: anywhere;
   margin-top: 12px;
   line-height: 1.7;
 }
 
 .home-date-details .text-button {
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 8px;
 }
 
@@ -2460,12 +2486,12 @@ main {
 
 .history-scope-banner span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
 .history-scope-banner .text-button {
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -2509,7 +2535,7 @@ main {
 
 .metric-summary header > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -2550,7 +2576,7 @@ main {
 
 .metric-latest-fact > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -2563,7 +2589,7 @@ main {
 
 .metric-latest-source {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -2577,7 +2603,7 @@ main {
   align-items: center;
   gap: 5px;
   color: var(--warning);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   margin: 0 0 12px;
 }
@@ -2592,7 +2618,7 @@ main {
   border-top: 1px solid var(--line);
   color: var(--muted);
   background: transparent;
-  font-size: 12px;
+  font-size: 13px;
   text-align: left;
 }
 
@@ -2638,7 +2664,7 @@ main {
 
 .home-history-date > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .home-history-date > strong {
@@ -2682,7 +2708,7 @@ main {
 
 .home-history-fact > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .home-history-source {
@@ -2702,7 +2728,7 @@ main {
 .home-history-source small {
   display: block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   margin-top: 6px;
 }
@@ -2758,7 +2784,7 @@ main {
 
 .home-assistant-secondary .question-suggestions button {
   padding: 8px;
-  font-size: 12px;
+  font-size: 13px;
   background: transparent;
 }
 
@@ -2852,7 +2878,7 @@ main {
     padding: 40px 20px;
   }
   .provenance-line {
-    font-size: 12px;
+    font-size: 13px;
   }
   summary {
     min-height: 36px;
@@ -2908,7 +2934,7 @@ main {
     gap: 5px;
     padding: 7px 2px;
     min-height: 60px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
   }
   .sidebar nav button.active {
@@ -2938,7 +2964,7 @@ main {
     gap: 0;
   }
   .page-header .primary {
-    font-size: 12px;
+    font-size: 13px;
     padding: 10px 12px;
     gap: 6px;
   }
@@ -2954,7 +2980,7 @@ main {
     flex: 1;
     min-height: 44px;
     padding: 8px;
-    font-size: 12px;
+    font-size: 13px;
     white-space: nowrap;
   }
   .question-suggestions button svg {
@@ -3005,11 +3031,11 @@ main {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
-    font-size: 12px;
+    font-size: 13px;
   }
   .scope-summary .text-button {
     min-height: 44px;
-    font-size: 12px;
+    font-size: 13px;
   }
   .scope-form {
     gap: 14px;
@@ -3041,7 +3067,7 @@ main {
     font-size: 20px;
   }
   .workspace-section-heading .text-button {
-    font-size: 12px;
+    font-size: 13px;
   }
   .records-workspace {
     border-radius: 14px;
@@ -3056,11 +3082,11 @@ main {
   }
   .inventory-count > span:first-child {
     flex-basis: 100%;
-    font-size: 12px;
+    font-size: 13px;
   }
   .inventory-count > div {
     gap: 5px;
-    font-size: 12px;
+    font-size: 13px;
   }
   .inventory-count strong {
     font-size: 22px;
@@ -3069,7 +3095,7 @@ main {
     display: none;
   }
   .records-toolbar .export-button {
-    font-size: 12px;
+    font-size: 13px;
     min-width: 44px;
   }
   .library-filters {
@@ -3123,7 +3149,7 @@ main {
   }
   .inventory-scope > span {
     display: block;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.6;
   }
   .inventory-scope .exact-time {
@@ -3235,7 +3261,7 @@ main {
     font-size: 16px;
   }
   .compare-placeholder p {
-    font-size: 13px;
+    font-size: 14px;
     margin-top: 7px;
   }
   .compare-next-step {
@@ -3286,7 +3312,7 @@ main {
   }
   .activity-day > h3 {
     padding: 0 0 10px;
-    font-size: 12px;
+    font-size: 13px;
   }
   .activity-event {
     flex-wrap: wrap;
@@ -3330,7 +3356,7 @@ main {
     gap: 5px;
     min-height: 60px;
     padding: 7px 2px;
-    font-size: 12px;
+    font-size: 13px;
     border-radius: 10px;
   }
   .history-tools > summary svg {
@@ -3382,7 +3408,7 @@ main {
     font-size: 19px;
   }
   .history-upload p {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
   }
   .history-upload .primary {
@@ -3396,10 +3422,10 @@ main {
     gap: 12px;
   }
   .history-context > span {
-    font-size: 12px;
+    font-size: 13px;
   }
   .home-date-details code {
-    font-size: 12px;
+    font-size: 13px;
   }
   .history-scope-banner {
     flex-direction: column;
@@ -3428,7 +3454,7 @@ main {
     font-size: 17px;
   }
   .metric-summary header > span {
-    font-size: 12px;
+    font-size: 13px;
     text-align: right;
   }
   .metric-latest-value {
@@ -3438,7 +3464,7 @@ main {
     font-size: 31px;
   }
   .metric-latest-source {
-    font-size: 12px;
+    font-size: 13px;
   }
   .metric-history-action {
     min-height: 44px;
@@ -3458,7 +3484,7 @@ main {
     margin-bottom: 8px;
   }
   .home-history-date > strong {
-    font-size: 13px;
+    font-size: 14px;
   }
   .home-history-reading {
     flex-wrap: wrap;
@@ -3492,7 +3518,7 @@ main {
     gap: 5px 12px;
   }
   .home-assistant-secondary .assistant-heading .execution-label {
-    font-size: 12px;
+    font-size: 13px;
   }
   .home-assistant-secondary .question-suggestions button {
     flex: 1;

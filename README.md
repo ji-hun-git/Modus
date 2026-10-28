@@ -1,6 +1,6 @@
 # Modus Records
 
-**Your history, with the evidence beside it.** Upload supported medical records, review the extracted entries, and build a history you can inspect and correct. Overview puts test names, exact values, dates and short explanations first. Open any result to inspect its original wording and review edits. Documents keeps one source file per cube.
+**Your history, with the evidence beside it.** Upload supported medical records, review the extracted entries, and build a history you can inspect and correct. Home shows up to four latest result groups, a compact Ask bar and one Add records action. Open any result to inspect its original wording and review edits. Documents keeps one source file per cube.
 
 ![Results and records by date](entry/demo/records-overview.png)
 
@@ -23,14 +23,21 @@ Open **http://127.0.0.1:8011/**. Setup creates an isolated Python environment an
 - Upload up to ten supported files, then review and save each separately. CSV, explicit text and text PDFs have local routes. PNG/JPEG/PDF extraction can use Muse Spark; optional local TeleOCR needs a separately installed environment and checkpoint.
 - Records and Documents retain eight record kinds: measurements, visits, provider-recorded diagnoses, procedures, prescriptions, vaccinations, imaging report text and other recorded text. Original dates, units, partial dates and unknowns remain explicit.
 - Models produce proposals; the owner reviews the selection before a transactional save. Original wording, proposed values and review edits remain distinct. Exact retries do not create duplicate records.
-- Overview selects latest results by occurrence date, retains tied results and separates partial or missing dates. Different results open a side-by-side comparison. Documents keeps a cube shelf and list, with filenames and upload timestamps in source details. Keyboard and phone layouts are supported.
+- Home selects up to four latest result groups by occurrence date and retains tied results. A compact conflict notice opens a side-by-side comparison; See all records opens the complete timeline, including partial or missing dates. Documents keeps a cube shelf and list, with filenames and upload timestamps in source details. Keyboard and phone layouts are supported.
 - Historical views filter both when an event happened and when its reviewed record entered Modus. A late upload cannot appear in an earlier availability view. This is availability in Modus, not proof of when the person or clinician first knew something.
 - Conflicting values remain visible. Neither source is automatically declared correct.
+- Prepare a brief from the records you choose. Review the full selection and any added conflicting values before downloading self-contained HTML or JSON, with dates, source excerpts and internal citations. HTML can be opened in a browser and printed; native PDF export is not implemented. [Brief workflow and limits](entry/docs/RECORD_BRIEF.md).
 - The bounded question agent selects read-only tools and supported claims. Home, Records and Documents now answer questions across all eight reviewed record kinds, including arbitrary measurement names, with literal source search and fixed date/availability bounds. The legacy Trends/Replay interface remains limited to HbA1c, eGFR and LDL.
 
-Try **Add records → review → save → open a result → inspect evidence**, then use **Past views** to compare an earlier availability cutoff with today's records. Supplied examples are authored synthetic records. No personal medical records are distributed.
+Try **Add records → review → save → open a result → inspect evidence**, then use **More → Replay** to compare an earlier availability cutoff with today's records. Supplied examples are authored synthetic records. No personal medical records are distributed.
+
+Home, Records and Ask are the three primary destinations. **More** contains Brief, Trends, Documents, Replay and Changes. Date controls collapse into a single **View as of** chip. [Current review and remaining work](entry/docs/REVIEW_READINESS_2026-10-28.md).
 
 ## Verification and Meta evidence
+
+The reviewed-brief milestone passes **1,042 backend / 926 entry / 55 frontend tests**, both builds and offline evaluations. Actual browser checks cover four newly authored uploads, all eight record kinds, selection, source inspection, review, HTML/JSON downloads, and stale-preview rejection. Ten selected records produce eleven exported records because a conflicting laboratory copy is explicitly retained. [Browser evidence](eval/record-brief-browser-20261028.json). These changes made zero provider requests and did not access held-outs or frozen baselines. User-value testing remains proposed, not completed.
+
+The shared interface uses self-hosted Inter, a restrained blue action palette, clearer hierarchy and responsive controls. [Meta design research and font provenance](research/META_DESIGN_APPLICATION_2026-10-28.md) distinguishes the official sources from Modus's own design choices.
 
 The whole-history extension passes **994 backend / 878 entry / 48 frontend tests**, both builds and offline evaluations. On 16 newly authored development cases, the unchanged legacy path passes 4/16 and the new path 16/16; these deliberately measure expanded coverage, not independent superiority. [Agent and limits](entry/docs/WHOLE_HISTORY_AGENT.md) · [Measured development results](eval/history-agent-development.json).
 

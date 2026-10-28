@@ -41,7 +41,13 @@ function ScopeText({ scope }: { scope: HistoryView["scope"] }) {
   );
 }
 
-export default function HistoryQuestionPanel({ view }: { view: HistoryView }) {
+export default function HistoryQuestionPanel({
+  view,
+  compact = false,
+}: {
+  view: HistoryView;
+  compact?: boolean;
+}) {
   const inputId = useId();
   const [question, setQuestion] = useState("");
   const [compareDate, setCompareDate] = useState("");
@@ -137,15 +143,18 @@ export default function HistoryQuestionPanel({ view }: { view: HistoryView }) {
 
   return (
     <section
-      className="history-question-panel"
+      className={`history-question-panel${compact ? " history-question-compact" : ""}`}
       aria-label="Ask about your history"
     >
-      <header>
-        <h2>Find something in your history</h2>
-        <p>
-          Search visits, prescriptions, vaccinations, reports and measurements.
-        </p>
-      </header>
+      {!compact && (
+        <header>
+          <h2>Find something in your history</h2>
+          <p>
+            Search visits, prescriptions, vaccinations, reports and
+            measurements.
+          </p>
+        </header>
+      )}
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -157,11 +166,26 @@ export default function HistoryQuestionPanel({ view }: { view: HistoryView }) {
         </label>
         <textarea
           id={inputId}
-          rows={2}
+          rows={compact ? 1 : 2}
           maxLength={2000}
-          placeholder="Find a record, its original wording, or what was added…"
+          placeholder={
+            compact
+              ? "Ask about your records…"
+              : "Find a record, its original wording, or what was added…"
+          }
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
+          onKeyDown={(event) => {
+            if (
+              compact &&
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
+            ) {
+              event.preventDefault();
+              void ask();
+            }
+          }}
         />
         <button
           type="submit"
@@ -175,65 +199,69 @@ export default function HistoryQuestionPanel({ view }: { view: HistoryView }) {
           )}
         </button>
       </form>
-      <div
-        className="history-question-examples"
-        aria-label="Example history questions"
-      >
-        {suggestions.map(([label, query]) => (
-          <button
-            type="button"
-            key={label}
-            disabled={pending}
-            onClick={() => setQuestion(query)}
-            aria-label={`Use question: ${query}`}
-          >
-            {label}
-            <ArrowUpRight size={13} />
-          </button>
-        ))}
-      </div>
-      <details className="history-question-dates">
-        <summary>Dates used for this question</summary>
-        <p>
-          <ScopeText scope={view.scope} />
-        </p>
-        <label className="field">
-          Compare additions from date
-          <input
-            type="date"
-            aria-label="Compare additions from date"
-            value={compareDate}
-            onChange={(event) => setCompareDate(event.target.value)}
-          />
-        </label>
-        <p>
-          Optional. Compare records available at the end of this UTC date with
-          the view above.
-        </p>
-        {compareDate && (
-          <div className="history-question-compare-actions">
+      {!compact && (
+        <div
+          className="history-question-examples"
+          aria-label="Example history questions"
+        >
+          {suggestions.map(([label, query]) => (
             <button
               type="button"
-              className="text-button"
+              key={label}
               disabled={pending}
-              onClick={() =>
-                setQuestion(
-                  "Which records became available between these views?",
-                )
-              }
+              onClick={() => setQuestion(query)}
+              aria-label={`Use question: ${query}`}
             >
-              Ask what was added
+              {label}
+              <ArrowUpRight size={13} />
             </button>
-            <button
-              type="button"
-              className="text-button"
-              onClick={() => setCompareDate("")}
-            >
-              Clear comparison
-            </button>
-          </div>
-        )}
-      </details>
+          ))}
+        </div>
+      )}
+      {!compact && (
+        <details className="history-question-dates">
+          <summary>Dates used for this question</summary>
+          <p>
+            <ScopeText scope={view.scope} />
+          </p>
+          <label className="field">
+            Compare additions from date
+            <input
+              type="date"
+              aria-label="Compare additions from date"
+              value={compareDate}
+              onChange={(event) => setCompareDate(event.target.value)}
+            />
+          </label>
+          <p>
+            Optional. Compare records available at the end of this UTC date with
+            the view above.
+          </p>
+          {compareDate && (
+            <div className="history-question-compare-actions">
+              <button
+                type="button"
+                className="text-button"
+                disabled={pending}
+                onClick={() =>
+                  setQuestion(
+                    "Which records became available between these views?",
+                  )
+                }
+              >
+                Ask what was added
+              </button>
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => setCompareDate("")}
+              >
+                Clear comparison
+              </button>
+            </div>
+          )}
+        </details>
+      )}
       <div className="sr-only" role="status">
         {pending
           ? "Searching records in this view."

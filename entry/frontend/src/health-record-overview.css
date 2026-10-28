@@ -1,9 +1,9 @@
 .health-record-overview {
-  --overview-ink: #f0f1f4;
-  --overview-muted: #b5b8c1;
-  --overview-blue: #a8c8ff;
+  --overview-ink: var(--ink);
+  --overview-muted: var(--muted);
+  --overview-blue: var(--blue);
   display: grid;
-  gap: 26px;
+  gap: var(--space-4);
 }
 .health-record-home {
   display: grid;
@@ -70,6 +70,11 @@
   font-size: 14px;
   margin: 0;
 }
+.health-overview-toolbar h2 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
 .health-overview-toolbar .primary {
   min-height: 44px;
   border-radius: 24px;
@@ -102,66 +107,69 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px 14px;
-  border-left: 2px solid #a8c8ff;
+  border-left: 2px solid var(--blue);
   padding: 12px 16px;
-  background: #242a35;
-  font-size: 13px;
-  color: #d4dfef;
+  background: var(--surface);
+  font-size: 14px;
+  color: var(--muted);
 }
 .overview-review-reminder strong {
   font-weight: 550;
 }
-.overview-differences {
-  padding: 18px 20px;
-  border: 1px solid #625345;
-  border-radius: 16px;
-  background: #292723;
-}
-.overview-difference {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
-  padding-top: 4px;
-}
-.overview-difference + .overview-difference {
-  border-top: 1px solid #ffffff13;
-  padding-top: 16px;
-  margin-top: 16px;
-}
-.overview-difference > svg {
-  color: #e2cba4;
-}
-.overview-difference h3 {
+.overview-conflict-banner {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  align-items: baseline;
-  font-size: 16px;
-  font-weight: 550;
-  margin: 0 0 7px;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 4px 16px;
+  border: 1px solid #67533b;
+  border-radius: var(--radius-control);
+  background: var(--warning-bg);
+  color: var(--warning);
 }
-.overview-difference h3 > span {
-  color: #cbc4b9;
+.overview-conflict-banner > svg {
+  flex: 0 0 auto;
+}
+.overview-conflict-banner p {
+  flex: 1;
   font-size: 14px;
-  font-weight: 400;
 }
-.overview-difference p {
-  margin: 0;
-  color: #d7cdbd;
-  font-size: 13px;
-  line-height: 1.7;
+.overview-conflict-banner .text-button {
+  flex-shrink: 0;
+  color: var(--warning);
 }
-.overview-difference p > span {
-  font-family: "SFMono-Regular", Consolas, monospace;
-  font-variant-numeric: tabular-nums;
+.overview-comparison-select {
+  max-width: 420px;
+  margin-bottom: 16px;
 }
-.overview-difference .secondary {
+.overview-records-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.overview-records-link > span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.overview-records-link .text-button {
+  color: var(--blue);
+}
+.health-record-overview .overview-result-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}
+.health-record-overview .latest-result-card {
+  background: var(--surface);
+  border-color: var(--line);
+  border-radius: var(--radius-card);
+}
+.health-record-overview .latest-result-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.health-record-overview .latest-result-card footer .text-button {
   min-height: 44px;
-  font-size: 13px;
-  border-radius: 22px;
-  background: #37332d;
-  border-color: #665b4c;
+  font-size: 14px;
 }
 .overview-comparison-panel:focus {
   outline: 2px solid var(--overview-blue);
@@ -262,22 +270,22 @@
   white-space: nowrap;
 }
 .overview-empty {
-  padding: 52px 24px;
-  border: 1px solid #ffffff15;
-  border-radius: 18px;
-  background: #24262a;
+  padding: 40px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
   text-align: center;
 }
 .overview-empty > svg {
   color: #a8bddb;
 }
-.overview-empty h2 {
-  font-size: 20px;
-  font-weight: 500;
+.overview-empty h3 {
+  font-size: 18px;
+  font-weight: 600;
   margin: 18px 0 10px;
 }
 .overview-empty p {
-  color: #b5bcc8;
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -326,13 +334,44 @@
   color: #a8c8ff;
   min-height: 36px;
 }
-@media (max-width: 960px) {
-  .overview-difference {
-    grid-template-columns: 20px minmax(0, 1fr);
+/* Keep the desktop question bar near the results without clipping record content. */
+@media (min-width: 1100px) {
+  main.home-page {
+    padding-top: 20px;
   }
-  .overview-difference .secondary {
-    grid-column: 2;
-    justify-self: start;
+  .home-page .page-header {
+    margin-bottom: 16px;
+  }
+  .home-page .health-record-home,
+  .home-page .health-record-overview {
+    gap: 12px;
+  }
+  .home-page .history-question-panel.history-question-compact {
+    margin-top: 0;
+  }
+  .home-page .overview-conflict-banner {
+    min-height: 46px;
+    padding-block: 0;
+  }
+  .home-page .latest-result-card {
+    padding: 16px;
+  }
+  .home-page .latest-result-card h3 {
+    margin-bottom: 8px;
+  }
+  .home-page .latest-result-date {
+    margin-top: 8px;
+  }
+  .home-page .latest-result-description {
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .home-page .latest-result-multiple {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+  .home-page .latest-result-card footer {
+    padding-top: 4px;
   }
 }
 @media (max-width: 600px) {
@@ -351,11 +390,12 @@
     font-size: 13px;
     padding: 10px 14px;
   }
-  .overview-differences {
-    padding: 16px;
+  .overview-conflict-banner {
+    gap: 8px;
+    padding-inline: 12px;
   }
-  .overview-difference {
-    gap: 12px;
+  .overview-conflict-banner p {
+    font-size: 13px;
   }
   .overview-recent-record {
     grid-template-columns: 18px minmax(0, 1fr) 16px;

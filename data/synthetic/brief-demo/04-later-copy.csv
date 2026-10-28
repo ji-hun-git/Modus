@@ -1,0 +1,3 @@
+kind,label,value,unit,date,facility
+measurement,Ferritin,29.5,ng/mL,2024-03-12,Example laboratory copy
+recorded_text,Copy note,This copy was obtained later; the earlier document is retained,,2024-03-12,Example laboratory copy
