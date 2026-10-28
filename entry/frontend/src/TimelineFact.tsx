@@ -1,6 +1,9 @@
 import { AlertCircle, ArrowUpRight, FileText } from "lucide-react";
+import { useRef, useState } from "react";
 import { dateLabel, timeLabel } from "./ui";
 import { metricLabel } from "./types";
+import { unitLabel, facilityLabel } from "./recordPresentation.mjs";
+import RecordConflictComparison from "./RecordConflictComparison";
 import {
   factKindLabels,
   type HistoryFact,
@@ -32,6 +35,11 @@ export default function TimelineFact({
   conflictReason?: string;
 }) {
   const source = view.sources.find((item) => item.id === fact.source_id);
+  const [comparing, setComparing] = useState(false);
+  const comparisonTrigger = useRef<HTMLButtonElement>(null);
+  const conflictGroup = view.conflicts.find((item) =>
+    item.fact_ids.includes(fact.id),
+  );
   const recordedDate = exactDate(fact);
   const originalQuery = new URLSearchParams({ known_at: view.scope.known_at });
   if (view.scope.as_of !== null) originalQuery.set("as_of", view.scope.as_of);
@@ -55,7 +63,9 @@ export default function TimelineFact({
         {fact.value_withheld
           ? "Hidden by date filter"
           : (fact.value ?? "Not recorded")}
-        {!fact.value_withheld && fact.unit && <span> {fact.unit}</span>}
+        {!fact.value_withheld && fact.unit && (
+          <span> {unitLabel(fact.unit)}</span>
+        )}
       </p>
       <div className="timeline-fact-meta">
         <span>
@@ -63,9 +73,31 @@ export default function TimelineFact({
             ? dateLabel(recordedDate)
             : fact.occurred_on || "Date not recorded"}
         </span>
-        {fact.facility && <span>{fact.facility}</span>}
+        {facilityLabel(fact.facility) && (
+          <span>{facilityLabel(fact.facility)}</span>
+        )}
         {fact.age_years != null && <span>Age {fact.age_years}</span>}
       </div>
+      {conflictGroup && (
+        <button
+          ref={comparisonTrigger}
+          className="text-button"
+          onClick={() => setComparing(!comparing)}
+          aria-expanded={comparing}
+        >
+          Compare records <ArrowUpRight size={13} />
+        </button>
+      )}
+      {comparing && conflictGroup && (
+        <RecordConflictComparison
+          view={view}
+          conflictId={conflictGroup.id}
+          onClose={() => {
+            setComparing(false);
+            requestAnimationFrame(() => comparisonTrigger.current?.focus());
+          }}
+        />
+      )}
       {fact.normalization?.status === "converted" &&
         fact.normalization.normalized && (
           <p className="timeline-normalized">
@@ -79,7 +111,7 @@ export default function TimelineFact({
         )}
       <details className="timeline-source">
         <summary>
-          <FileText size={13} /> {source?.title || "Source record"}
+          <FileText size={13} /> Source details
           {fact.page ? ` · p. ${fact.page}` : ""}
           <ArrowUpRight size={12} />
         </summary>
@@ -91,12 +123,12 @@ export default function TimelineFact({
         </blockquote>
         <dl>
           <div>
-            <dt>Available in Modus</dt>
+            <dt>Added to Modus</dt>
             <dd>{timeLabel(fact.available_at)}</dd>
           </div>
           <div>
-            <dt>Source</dt>
-            <dd>{fact.source_id}</dd>
+            <dt>Source document</dt>
+            <dd>{source?.title || "Not recorded"}</dd>
           </div>
         </dl>
         {source?.original_available && (

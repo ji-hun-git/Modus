@@ -1716,6 +1716,86 @@
       "source": "eval/source-cubes-live-image-20261028.json",
       "destination": "eval/source-cubes-live-image-20261028.json",
       "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/recordPresentation.mjs",
+      "destination": "entry/frontend/src/recordPresentation.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/recordPresentation.d.mts",
+      "destination": "entry/frontend/src/recordPresentation.d.mts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/recordPresentation.test.mjs",
+      "destination": "entry/frontend/tests/recordPresentation.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HealthRecordOverview.tsx",
+      "destination": "entry/frontend/src/HealthRecordOverview.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/LatestResultCard.tsx",
+      "destination": "entry/frontend/src/LatestResultCard.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/OverviewRecordDetails.tsx",
+      "destination": "entry/frontend/src/OverviewRecordDetails.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/OverviewRecordLists.tsx",
+      "destination": "entry/frontend/src/OverviewRecordLists.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/overviewRecords.ts",
+      "destination": "entry/frontend/src/overviewRecords.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/health-record-overview.css",
+      "destination": "entry/frontend/src/health-record-overview.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/latest-results.css",
+      "destination": "entry/frontend/src/latest-results.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/overviewRecords.test.mjs",
+      "destination": "entry/frontend/tests/overviewRecords.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/RecordConflictComparison.tsx",
+      "destination": "entry/frontend/src/RecordConflictComparison.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/record-conflict-comparison.css",
+      "destination": "entry/frontend/src/record-conflict-comparison.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/sourceDisplay.ts",
+      "destination": "entry/frontend/src/sourceDisplay.ts",
+      "behavior": true
+    },
+    {
+      "source": "research/UX_TRUST_ACCEPTANCE_2026-10-28.md",
+      "destination": "research/UX_TRUST_ACCEPTANCE_2026-10-28.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/records-overview.png",
+      "destination": "entry/demo/records-overview.png",
+      "behavior": false
     }
   ]
 }

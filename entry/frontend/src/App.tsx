@@ -111,7 +111,7 @@ function EvidenceInspector({
                     </strong>
                   </div>
                   <div>
-                    <span>Available in Modus</span>
+                    <span>Added to Modus</span>
                     <strong>
                       {timeLabel(o.available_at || source.available_at)}
                     </strong>
@@ -386,7 +386,7 @@ export default function App() {
   const questions = (
     <section className="panel question-panel">
       <div className="assistant-heading">
-        <h2>Ask about recorded measurements</h2>
+        <h2>Ask about a result</h2>
         {page === "Home" && (
           <span className="execution-label">{executionLabel}</span>
         )}
@@ -399,7 +399,7 @@ export default function App() {
         }}
       >
         <label className="sr-only" htmlFor="record-question">
-          Ask about these records
+          Your question
         </label>
         <textarea
           id="record-question"
@@ -558,7 +558,7 @@ export default function App() {
               <p>
                 {saved.duplicate
                   ? "No records were added again. Original availability: "
-                  : `${saved.inserted} reviewed ${saved.fact_ids ? "field" : "measurement"}${saved.inserted === 1 ? "" : "s"} added · Available in Modus: `}
+                  : `${saved.inserted} reviewed ${saved.fact_ids ? "record" : "measurement"}${saved.inserted === 1 ? "" : "s"} saved · Added to Modus: `}
                 {timeLabel(saved.available_at)}
               </p>
               {(mode !== "latest" || !!pair || asOf !== currentDay) && (
@@ -777,10 +777,13 @@ export default function App() {
               <MeasurementsWorkspace view={displayed} onInspect={inspect} />
             )}
             {page === "Timeline" && displayed && (
-              <HistoryTimeline scope={displayed.scope} onLatest={() => {
-                setMode("latest");
-                if (mode === "latest") void refresh();
-              }} />
+              <HistoryTimeline
+                scope={displayed.scope}
+                onLatest={() => {
+                  setMode("latest");
+                  if (mode === "latest") void refresh();
+                }}
+              />
             )}
             {page === "Replay" && (
               <ReplayWorkspace
@@ -797,10 +800,16 @@ export default function App() {
             )}
             {page === "Records" && displayed && (
               <>
-                <HistoryTimeline scope={displayed.scope} viewMode="files" onLatest={() => {
-                  setMode("latest");
-                  if (mode === "latest") void refresh();
-                }} />
+                <HistoryTimeline
+                  scope={displayed.scope}
+                  viewMode="files"
+                  onImport={() => setImportOpen(true)}
+                  hasDraft={hasDraft}
+                  onLatest={() => {
+                    setMode("latest");
+                    if (mode === "latest") void refresh();
+                  }}
+                />
                 <div className="records-question">{questions}</div>
               </>
             )}

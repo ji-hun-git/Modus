@@ -12,16 +12,21 @@ import TimelineFact, { exactDate } from "./TimelineFact";
 import TimelineSettings from "./TimelineSettings";
 import HistoryFiles from "./HistoryFiles";
 import useHistoryView from "./useHistoryView";
+import { facilityLabel } from "./recordPresentation.mjs";
 import "./history-timeline.css";
 
 export default function HistoryTimeline({
   scope,
   onLatest,
   viewMode = "timeline",
+  onImport,
+  hasDraft = false,
 }: {
   scope: Scope;
   onLatest: () => void;
   viewMode?: "timeline" | "files";
+  onImport?: () => void;
+  hasDraft?: boolean;
 }) {
   const [kind, setKind] = useState("all");
   const [facility, setFacility] = useState("all");
@@ -73,7 +78,14 @@ export default function HistoryTimeline({
     </div>
   );
   if (viewMode === "files")
-    return <HistoryFiles view={view} dateControl={dateControl} />;
+    return (
+      <HistoryFiles
+        view={view}
+        dateControl={dateControl}
+        onImport={onImport}
+        hasDraft={hasDraft}
+      />
+    );
   const matches = (fact: HistoryFact) =>
     (kind === "all" || fact.kind === kind) &&
     (facility === "all" || fact.facility === facility);
@@ -95,7 +107,7 @@ export default function HistoryTimeline({
   const facilities = [
     ...new Set(
       [...view.facts, ...view.undated_facts].flatMap((fact) =>
-        fact.facility ? [fact.facility] : [],
+        facilityLabel(fact.facility) ? [fact.facility!] : [],
       ),
     ),
   ].sort();
@@ -103,13 +115,13 @@ export default function HistoryTimeline({
     view.conflicts.flatMap((conflict) => conflict.fact_ids || []),
   );
   return (
-    <section className="history-timeline" aria-label="Lifetime record timeline">
+    <section className="history-timeline" aria-label="Record timeline">
       <header className="timeline-heading">
         <div>
           <h2>Recorded history</h2>
           <p>
-            {visibleFileCount} file{visibleFileCount === 1 ? "" : "s"} ·{" "}
-            {dated.length} dated fields
+            {visibleFileCount} document{visibleFileCount === 1 ? "" : "s"} ·{" "}
+            {dated.length} dated records
             {undated.length ? ` · ${undated.length} without an exact date` : ""}
           </p>
         </div>

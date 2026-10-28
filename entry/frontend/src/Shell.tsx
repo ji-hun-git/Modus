@@ -7,7 +7,7 @@ import {
   History,
   House,
   Info,
-  ListFilter,
+  ChartNoAxesCombined,
   MoreHorizontal,
   Plus,
 } from "lucide-react";
@@ -16,29 +16,25 @@ import { Brand, Modal } from "./ui";
 export type Page =
   "Home" | "Timeline" | "Replay" | "Records" | "Measurements" | "Changes";
 const pages = [
-  { page: "Home" as const, label: "Your history", icon: House },
-  { page: "Timeline" as const, label: "Timeline", icon: CalendarDays },
-  { page: "Records" as const, label: "Files", icon: Files },
+  { page: "Home" as const, label: "Overview", icon: House },
+  { page: "Timeline" as const, label: "Records", icon: CalendarDays },
+  { page: "Measurements" as const, label: "Trends", icon: ChartNoAxesCombined },
+  { page: "Records" as const, label: "Documents", icon: Files },
 ];
 const historyTools = [
   {
-    page: "Measurements" as const,
-    label: "All measurements",
-    icon: ListFilter,
-  },
-  {
     page: "Replay" as const,
-    label: "Dates & comparisons",
+    label: "View past records",
     icon: GitCompareArrows,
   },
-  { page: "Changes" as const, label: "Activity", icon: History },
+  { page: "Changes" as const, label: "Upload activity", icon: History },
 ];
 const pageTitle = {
-  Home: "Your history",
-  Timeline: "Lifetime timeline",
-  Records: "Files",
-  Measurements: "Measurements",
-  Replay: "Earlier records",
+  Home: "Your health records",
+  Timeline: "Your records",
+  Records: "Your documents",
+  Measurements: "Measurement history",
+  Replay: "Past records",
   Changes: "Activity",
 };
 
@@ -100,7 +96,7 @@ export default function Shell({
               ref={toolsRef}
               className={
                 "history-tools " +
-                (!["Home", "Timeline", "Records"].includes(page)
+                (!["Home", "Timeline", "Records", "Measurements"].includes(page)
                   ? "active-tools"
                   : "")
               }
@@ -121,9 +117,12 @@ export default function Shell({
             >
               <summary>
                 <MoreHorizontal size={18} />
-                <span>History tools</span>
+                <span>Past views</span>
               </summary>
-              <div className="history-tools-menu" aria-label="History tools">
+              <div
+                className="history-tools-menu"
+                aria-label="Past views and activity"
+              >
                 {historyTools.map(
                   ({ page: destination, label, icon: Icon }) => (
                     <button
@@ -167,7 +166,7 @@ export default function Shell({
                 {page !== "Home" && (
                   <button className="primary" onClick={onImport}>
                     <Plus size={18} />
-                    {hasDraft ? "Resume uploads" : "Upload records"}
+                    {hasDraft ? "Continue review" : "Add records"}
                   </button>
                 )}
               </div>
@@ -208,9 +207,9 @@ export default function Shell({
               <p>
                 Local text extraction runs without a model. Optional Local OCR
                 runs the TeleOCR model on this computer. Meta extraction is a
-                separate, explicit choice when configured; no live Meta
-                execution has been verified. Every extracted draft requires your
-                review before it is added.
+                separate, explicit choice when configured and sends the selected
+                document to Meta. Every extracted draft requires your review
+                before it is added.
               </p>
             </section>
             <section>

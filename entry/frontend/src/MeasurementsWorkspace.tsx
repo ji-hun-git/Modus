@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { AlertCircle, ArrowUpRight } from "lucide-react";
 import { dateLabel, timeLabel } from "./ui";
-import { metricLabel, type Observation, type View } from "./types";
+import {
+  metricLabel,
+  metricDescription,
+  type Observation,
+  type View,
+} from "./types";
+import { unitLabel } from "./recordPresentation.mjs";
+import HistoryPlot from "./HistoryPlot";
 
 export default function MeasurementsWorkspace({
   view,
@@ -39,12 +46,28 @@ export default function MeasurementsWorkspace({
       <div className="measurement-history-heading">
         <div>
           <h2>{metricLabel(metric)}</h2>
+          <p className="metric-explanation">{metricDescription(metric)}</p>
         </div>
         <span>
           {readings.length} recorded value{readings.length === 1 ? "" : "s"} ·
           newest first
         </span>
       </div>
+      {readings.length > 1 && (
+        <HistoryPlot
+          observations={readings}
+          disputedIds={
+            new Set(
+              view.conflicts.flatMap((item) =>
+                item.observations.map((row) => row.id),
+              ),
+            )
+          }
+          label={metricLabel(metric)}
+          connect={false}
+          onInspect={(ids) => onInspect(view, ids)}
+        />
+      )}
       <div className="measurement-history">
         {dates.map((date) => (
           <section className="measurement-day" key={date}>
@@ -69,7 +92,7 @@ export default function MeasurementsWorkspace({
                     >
                       <div className="history-reading">
                         <strong>{reading.value}</strong>
-                        <span>{reading.unit}</span>
+                        <span>{unitLabel(reading.unit)}</span>
                         {disputed && (
                           <small>
                             <AlertCircle size={12} />
@@ -79,7 +102,9 @@ export default function MeasurementsWorkspace({
                       </div>
                       <div className="history-source">
                         <strong>{source?.title || "Recorded source"}</strong>
-                        <span>Available {timeLabel(reading.available_at)}</span>
+                        <span>
+                          Added to Modus {timeLabel(reading.available_at)}
+                        </span>
                       </div>
                       <button
                         className="text-button"

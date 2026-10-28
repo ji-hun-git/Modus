@@ -1,15 +1,9 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { recordDateLabel } from "./recordPresentation.mjs";
 
-export const dateLabel = (value: string) =>
-  new Date(
-    value.length === 10 ? value + "T12:00:00Z" : value,
-  ).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+export const dateLabel = recordDateLabel;
 export const timeLabel = (value: string) =>
   new Date(value).toLocaleString("en-GB", {
     day: "numeric",
@@ -45,6 +39,12 @@ export function Modal({
   const latest = useRef({ busy, onClose });
   latest.current = { busy, onClose };
   useEffect(() => {
+    // Review stages can replace the focused control without unmounting.
+    if (!ref.current?.contains(document.activeElement)) {
+      (ref.current?.querySelector<HTMLElement>('button:not(:disabled)') || ref.current)?.focus();
+    }
+  });
+  useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     const background = document.querySelector<HTMLElement>(".app-layout");
     if (background) background.inert = true;
@@ -69,6 +69,9 @@ export function Modal({
         if (!first) {
           event.preventDefault();
           ref.current?.focus();
+        } else if (!ref.current?.contains(document.activeElement)) {
+          event.preventDefault();
+          first.focus();
         } else if (event.shiftKey && document.activeElement === first) {
           event.preventDefault();
           last?.focus();
@@ -86,7 +89,7 @@ export function Modal({
       previous?.focus();
     };
   }, []);
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={() => !busy && onClose()}>
       <section
         ref={ref}
@@ -112,6 +115,7 @@ export function Modal({
         </header>
         {children}
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }

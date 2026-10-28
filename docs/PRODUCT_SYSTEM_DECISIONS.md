@@ -1,3 +1,9 @@
+## Current interaction revision — 28 October 2026
+
+The owner’s detailed UX review supersedes the previous cube-first Home decision. Overview now leads with exact results, occurrence dates, separate explanations, real discrepancy comparisons and recent events. Cubes remain in Documents as a source-exploration view. Source details preserve filenames, availability timestamps and raw metadata without making them the main reading task. No anatomy illustration is required to understand or trace the records.
+
+The UX change does not establish production readiness. Authentication, encryption, deletion/amendments, broad extraction accuracy and questions beyond the three supported measurement families remain separate work. See research/UX_TRUST_ACCEPTANCE_2026-10-28.md.
+
 # Product and system decisions — 28 October 2026
 
 ## Product we are building

@@ -1,8 +1,8 @@
 # Modus Records
 
-**Your history, with the evidence beside it.** Upload supported medical records, review the extracted entries, and build a history you can inspect and correct. One source file becomes one cube. Select it to see recorded values, original wording, review edits and the original file.
+**Your history, with the evidence beside it.** Upload supported medical records, review the extracted entries, and build a history you can inspect and correct. Overview puts test names, exact values, dates and short explanations first. Open any result to inspect its original wording and review edits. Documents keeps one source file per cube.
 
-![Source-file cubes and evidence](entry/demo/source-cubes-home.png)
+![Results and records by date](entry/demo/records-overview.png)
 
 This repository contains the bounded record-reconciliation application prepared for the Meta Global AI Developer Hackathon. It preserves recorded information and disagreements; it does not generate diagnosis, treatment or medical advice. Organizer eligibility of this concrete health-record workflow remains unconfirmed.
 
@@ -21,24 +21,24 @@ Open **http://127.0.0.1:8011/**. Setup creates an isolated Python environment an
 ## What works
 
 - Upload up to ten supported files, then review and save each separately. CSV, explicit text and text PDFs have local routes. PNG/JPEG/PDF extraction can use Muse Spark; optional local TeleOCR needs a separately installed environment and checkpoint.
-- Timeline and Files retain eight record kinds: measurements, visits, provider-recorded diagnoses, procedures, prescriptions, vaccinations, imaging report text and other recorded text. Original dates, units, partial dates and unknowns remain explicit.
+- Records and Documents retain eight record kinds: measurements, visits, provider-recorded diagnoses, procedures, prescriptions, vaccinations, imaging report text and other recorded text. Original dates, units, partial dates and unknowns remain explicit.
 - Models produce proposals; the owner reviews the selection before a transactional save. Original wording, proposed values and review edits remain distinct. Exact retries do not create duplicate records.
-- One file produces one cube with real saved-value previews. Selecting it opens source evidence and the permitted original download. Keyboard and phone layouts are supported.
+- Overview selects latest results by occurrence date, retains tied results and separates partial or missing dates. Different results open a side-by-side comparison. Documents keeps a cube shelf and list, with filenames and upload timestamps in source details. Keyboard and phone layouts are supported.
 - Historical views filter both when an event happened and when its reviewed record entered Modus. A late upload cannot appear in an earlier availability view. This is availability in Modus, not proof of when the person or clinician first knew something.
 - Conflicting values remain visible. Neither source is automatically declared correct.
 - The bounded question agent selects read-only tools and supported claims. Its current question tools cover HbA1c, eGFR and LDL; generic questions over all eight record kinds are still pending.
 
-Try **Add files → review → save → select a cube → open evidence**, then use **History tools** to compare an earlier availability cutoff with today's records. Supplied examples are authored synthetic records. No personal medical records are distributed.
+Try **Add records → review → save → open a result → inspect evidence**, then use **Past views** to compare an earlier availability cutoff with today's records. Supplied examples are authored synthetic records. No personal medical records are distributed.
 
 ## Verification and Meta evidence
 
-The 28 October source-cube workspace passed **920 backend tests, 804 entry tests and 25 frontend tests**, both builds and the offline evaluations. Its clean bounded extract passed **802 tests with two expected compatibility skips**, 25 frontend tests, temporal checks 6/6 and routing 5/5. The skipped compatibility tests require the broader research application, which is intentionally absent here.
+The 28 October result-centered UI workspace passed **920 backend tests, 804 entry tests and 42 frontend tests**, both builds and the offline evaluations. The previous public import passed a fresh anonymous clone check (**802 tests + two expected compatibility skips**) and GitHub Actions on Windows and Ubuntu. The two skipped compatibility tests require the broader research application, intentionally absent here. Inspect the current commit's Actions run for its independent result.
 
 An authored image completed real **muse-spark-1.3** extraction, a separate source check and a bounded record-tool loop: **four successful requests**, 17.25 seconds, with no automatic commit. [The retained trace](eval/source-cubes-live-image-20261028.json) includes model/request metadata, usage and stage outcomes. Its estimated uncached usage was $0.02921125; actual billing is unknown. This is one synthetic smoke case, not broad extraction accuracy or a best-workflow result.
 
 The [development comparison](entry/docs/BENCHMARK.md) retains its frozen baseline and distinguishes development tuning from held-out performance. Private held-out inputs and labels are excluded and remain untouched. Software test counts do not establish clinical validation or SOTA superiority.
 
-GitHub Actions is configured to run the entry checks on Windows and Ubuntu with provider access disabled. A configuration file alone does not establish that remote CI has passed; inspect the actual run.
+GitHub Actions is configured to run the entry checks on Windows and Ubuntu with provider access disabled. [Inspect actual CI runs](https://github.com/ji-hun-git/Modus/actions).
 
 ## Current limits
 

@@ -49,6 +49,13 @@ h1 {
 .text-button {
   font-weight: 500;
 }
+.metric-explanation {
+  max-width: 46ch;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
 .panel,
 .records-workspace,
 .replay-frame {

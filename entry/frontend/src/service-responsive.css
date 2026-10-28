@@ -112,6 +112,18 @@
   }
 }
 @media (max-width: 760px) {
+  .sidebar nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .sidebar nav > button,
+  .history-tools > summary {
+    min-width: 0;
+    font-size: 11px;
+  }
+  .sidebar .history-tools {
+    padding-left: 0;
+    border-left: 0;
+  }
   main {
     padding: 80px 16px calc(100px + env(safe-area-inset-bottom));
   }

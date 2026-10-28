@@ -138,3 +138,30 @@
     height: 44px;
   }
 }
+
+.history-plot-series {
+  padding-left: 42px;
+}
+.history-plot-scale {
+  position: absolute;
+  inset: 0 auto 0 -42px;
+  width: 36px;
+  color: var(--muted);
+  font-family: var(--number-font);
+  font-size: 12px;
+  text-align: right;
+}
+.history-plot-scale span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+}
+.history-plot-scale .high {
+  top: 20%;
+}
+.history-plot-scale .low {
+  top: 80%;
+}
+.history-plot-scale .single {
+  top: 50%;
+}

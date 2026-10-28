@@ -181,9 +181,8 @@ export type ProviderCall = {
     total_tokens?: number | null;
   } | null;
 };
-export const metricLabel = (metric: string) =>
-  ({
-    egfr: "Kidney filtering (eGFR)",
-    hba1c: "Average blood sugar (HbA1c)",
-    ldl: "Cholesterol (LDL)",
-  })[metric] || metric;
+export {
+  metricLabel,
+  metricDescription,
+  recordLabel,
+} from "./recordPresentation.mjs";

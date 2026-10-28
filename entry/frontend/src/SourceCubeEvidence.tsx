@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   AlertCircle,
   ArrowDownToLine,
@@ -7,71 +7,92 @@ import {
 } from "lucide-react";
 import type { HistoryFact, HistoryView } from "./historyTypes";
 import { factKindLabels } from "./historyTypes";
-import { metricLabel } from "./types";
-import { dateLabel, timeLabel } from "./ui";
+import { metricDescription, recordLabel } from "./types";
+import { timeLabel } from "./ui";
+import { unitLabel, facilityLabel } from "./recordPresentation.mjs";
+import {
+  originalDownloadUrl,
+  recordedDate,
+  reviewedFieldLabel,
+  sourceDateRange,
+  sourceExcerpt,
+  sourceTitle,
+  sourcePage,
+} from "./sourceDisplay";
+import RecordConflictComparison from "./RecordConflictComparison";
 import "./source-cube-evidence.css";
-
-const friendlyLabel = (label: string) => {
-  const known: Record<string, string> = {
-    hba1c: "hba1c",
-    egfr: "egfr",
-    ldl: "ldl",
-    "ldl-c": "ldl",
-    "ldl cholesterol": "ldl",
-  };
-  return known[label.trim().toLowerCase()]
-    ? metricLabel(known[label.trim().toLowerCase()])
-    : label;
-};
-
 export default function SourceCubeEvidence({
-  source,
+  source: requestedSource,
   facts,
   view,
+  initialFactId,
 }: {
   source: HistoryView["sources"][number];
   facts: HistoryFact[];
   view: HistoryView;
+  initialFactId?: string;
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selected = facts.find((fact) => fact.id === selectedId) || facts[0];
+  const [selectedId, setSelectedId] = useState<string | null>(
+    initialFactId || null,
+  );
+  const [comparisonId, setComparisonId] = useState<string | null>(null);
+  const proofId = useId();
+  const comparison = useRef<HTMLDivElement>(null);
+  const comparisonTrigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    setSelectedId(initialFactId || null);
+    setComparisonId(null);
+  }, [requestedSource.id, initialFactId]);
+  // Never trust a selection retained from a previous source or historical scope.
+  const source = view.sources.find((item) => item.id === requestedSource.id);
+  const requestedIds = new Set(facts.map((fact) => fact.id));
+  const visibleFacts = [...view.facts, ...view.undated_facts].filter(
+    (fact) =>
+      fact.source_id === requestedSource.id && requestedIds.has(fact.id),
+  );
+  const selected =
+    visibleFacts.find((fact) => fact.id === selectedId) || visibleFacts[0];
   const conflict = selected
     ? view.conflicts.find((item) => item.fact_ids.includes(selected.id))
     : null;
   const edited = selected?.reviewed_fields || [];
-  const query = new URLSearchParams({ known_at: view.scope.known_at });
-  if (view.scope.as_of !== null) query.set("as_of", view.scope.as_of);
+  const title = sourceTitle(visibleFacts);
+  if (!source)
+    return (
+      <section className="source-cube-evidence">
+        <p>This document is not available in the selected view.</p>
+      </section>
+    );
   return (
     <section
       className="source-cube-evidence"
-      aria-label={`Evidence from ${source.title}`}
+      aria-label={`Evidence for ${title}`}
     >
       <header className="source-evidence-heading">
-        <span className="source-evidence-icon">
+        <span className="source-evidence-icon" aria-hidden="true">
           <FileText size={18} />
         </span>
         <div>
-          <span className="source-cube-kicker">Inside this file</span>
-          <h3>{source.title}</h3>
+          <h3>{title}</h3>
+          <p>{sourceDateRange(visibleFacts)}</p>
         </div>
       </header>
-      <div className="source-evidence-facts" aria-label="Recorded entries">
-        {facts.map((fact) => (
+      <div className="source-evidence-facts" aria-label="Select a record">
+        {visibleFacts.map((fact) => (
           <button
             key={fact.id}
             type="button"
             className={`source-evidence-fact ${selected?.id === fact.id ? "is-selected" : ""}`}
             aria-pressed={selected?.id === fact.id}
-            aria-controls="source-cube-quote"
-            onClick={() => setSelectedId(fact.id)}
+            aria-controls={proofId}
+            onClick={() => {
+              setSelectedId(fact.id);
+              setComparisonId(null);
+            }}
           >
             <span>
-              <strong>{friendlyLabel(fact.label)}</strong>
-              <small>
-                {fact.date
-                  ? dateLabel(fact.date)
-                  : fact.occurred_on || "Date not recorded"}
-              </small>
+              <strong>{recordLabel(fact.label)}</strong>
+              <small>{recordedDate(fact)}</small>
             </span>
             <span
               className={
@@ -82,81 +103,162 @@ export default function SourceCubeEvidence({
             >
               {fact.value_withheld
                 ? "Hidden by date filter"
-                : (fact.value ?? "Not recorded")}
-              {!fact.value_withheld && fact.unit && <small> {fact.unit}</small>}
+                : (fact.value ?? "Value not recorded")}
+              {!fact.value_withheld && fact.unit && (
+                <small>{unitLabel(fact.unit)}</small>
+              )}
             </span>
-            <ArrowRight size={14} />
+            <ArrowRight size={14} aria-hidden="true" />
           </button>
         ))}
-        {!facts.length && (
-          <p>No entries are available from this file in the selected view.</p>
+        {!visibleFacts.length && (
+          <p className="source-evidence-empty">
+            No records from this document are available in the selected view.
+          </p>
         )}
       </div>
       {selected && (
-        <div className="source-evidence-proof" id="source-cube-quote">
-          <div className="source-evidence-proof-heading">
-            <span>From the file</span>
-            <span>
-              {selected.page ? `Page ${selected.page}` : "Page not recorded"}
-            </span>
-          </div>
-          <blockquote>
-            {selected.source_quote ||
-              (selected.source_quote_withheld
-                ? "This excerpt may include records outside the date filter. Open the complete history to read it."
-                : "No excerpt was saved. The original file may contain more detail.")}
-          </blockquote>
-          <div className="source-evidence-proof-meta">
+        <div className="source-evidence-proof" id={proofId}>
+          <div className="source-evidence-result-heading">
+            <div>
+              <h4>{recordLabel(selected.label)}</h4>
+              <p>Recorded {recordedDate(selected)}</p>
+            </div>
             <span>{factKindLabels[selected.kind]}</span>
+          </div>
+          {metricDescription(selected.label) && (
+            <p className="source-evidence-description">
+              {metricDescription(selected.label)}
+            </p>
+          )}
+          <div
+            className={`source-evidence-full-value${selected.kind === "measurement" ? " is-measurement" : ""}`}
+          >
+            {selected.value_withheld
+              ? "Hidden by date filter"
+              : (selected.value ?? "Value not recorded")}
+            {!selected.value_withheld && selected.unit && (
+              <span>{unitLabel(selected.unit)}</span>
+            )}
+          </div>
+          {conflict && (
+            <div className="source-evidence-conflict">
+              <div>
+                <AlertCircle size={16} />
+                <span>
+                  {conflict.reason === "different_recorded_units"
+                    ? "Another record uses a different unit."
+                    : "Another record has a different value."}
+                </span>
+              </div>
+              <button
+                ref={comparisonTrigger}
+                type="button"
+                className="secondary"
+                onClick={() => {
+                  setComparisonId(conflict.id);
+                  requestAnimationFrame(() => {
+                    comparison.current?.focus({ preventScroll: true });
+                    comparison.current?.scrollIntoView({
+                      block: "nearest",
+                      behavior: "instant",
+                    });
+                  });
+                }}
+              >
+                Compare records <ArrowRight size={14} />
+              </button>
+            </div>
+          )}
+          <div className="source-evidence-proof-heading">
+            <span>Source excerpt</span>
+            {sourcePage(selected, source) != null && (
+              <span>Page {sourcePage(selected, source)}</span>
+            )}
+          </div>
+          <blockquote>{sourceExcerpt(selected)}</blockquote>
+          <div className="source-evidence-proof-meta">
             {selected.age_years != null && (
               <span>Age {selected.age_years}</span>
             )}
-            {selected.facility && <span>{selected.facility}</span>}
+            {facilityLabel(selected.facility) && (
+              <span>{facilityLabel(selected.facility)}</span>
+            )}
           </div>
-          {edited.length > 0 && (
+          {!!edited.length && (
             <p className="source-evidence-note">
-              Edited during review: {edited.join(", ")}. The excerpt keeps the
-              original wording.
-            </p>
-          )}
-          {conflict && (
-            <p className="source-evidence-conflict">
-              <AlertCircle size={14} />{" "}
-              {conflict.reason === "different_recorded_units"
-                ? "Another entry records a different unit."
-                : "Another entry records a different value."}{" "}
-              Both remain in your history.
+              Edited during review: {edited.map(reviewedFieldLabel).join(", ")}.
+              The excerpt retains the original wording.
             </p>
           )}
         </div>
       )}
       <footer className="source-evidence-footer">
-        <span>
-          Available in Modus
-          <br />
-          <strong>{timeLabel(source.available_at)}</strong>
-        </span>
         {source.original_available ? (
           <a
             className="secondary"
-            href={`/api/history/sources/${encodeURIComponent(source.id)}/original?${query}`}
+            href={originalDownloadUrl(source.id, view.scope)}
             download
           >
-            <ArrowDownToLine size={14} /> Original
+            <ArrowDownToLine size={14} /> Download original
           </a>
         ) : (
           <span className="source-evidence-original-missing">
-            Original not available
-            <br />
-            in this view
+            Original unavailable in this view
           </span>
         )}
+        <details className="source-evidence-details">
+          <summary>Source details</summary>
+          <dl>
+            <div>
+              <dt>Filename / source title</dt>
+              <dd>{source.title}</dd>
+            </div>
+            <div>
+              <dt>Source note</dt>
+              <dd>{source.provider || "Not recorded"}</dd>
+            </div>
+            <div>
+              <dt>Added to Modus</dt>
+              <dd>{timeLabel(source.available_at)}</dd>
+            </div>
+            {selected?.unit && (
+              <div>
+                <dt>Unit as recorded</dt>
+                <dd>{selected.unit}</dd>
+              </div>
+            )}
+            {selected?.facility && (
+              <div>
+                <dt>Facility / source note as recorded</dt>
+                <dd>{selected.facility}</dd>
+              </div>
+            )}
+            {selected?.occurred_on && (
+              <div>
+                <dt>Date as recorded</dt>
+                <dd>{selected.occurred_on}</dd>
+              </div>
+            )}
+          </dl>
+        </details>
       </footer>
+      {comparisonId && (
+        <div ref={comparison} tabIndex={-1}>
+          <RecordConflictComparison
+            view={view}
+            conflictId={comparisonId}
+            onClose={() => {
+              setComparisonId(null);
+              requestAnimationFrame(() => comparisonTrigger.current?.focus());
+            }}
+          />
+        </div>
+      )}
       <span role="status" className="sr-only">
-        Showing {facts.length} entries from {source.title}.{" "}
         {selected
-          ? `Source excerpt for ${friendlyLabel(selected.label)} selected.`
-          : ""}
+          ? `Showing the source excerpt for ${recordLabel(selected.label)}, ${recordedDate(selected)}.`
+          : "No record selected."}
       </span>
     </section>
   );

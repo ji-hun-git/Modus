@@ -1,203 +1,206 @@
 import { useRef, useState } from "react";
-import { ArrowUpRight, Box, FileText, Plus } from "lucide-react";
-import type { HistoryFact, HistoryView } from "./historyTypes";
-import { metricLabel } from "./types";
+import { AlertCircle, ArrowUpRight, FileText, Plus } from "lucide-react";
+import type { HistoryView } from "./historyTypes";
+import { recordLabel } from "./types";
+import { unitLabel } from "./recordPresentation.mjs";
 import SourceCubeEvidence from "./SourceCubeEvidence";
+import RecordConflictComparison from "./RecordConflictComparison";
+import { sourceDateRange, sourceTitle } from "./sourceDisplay";
 import "./source-cubes.css";
-
-const sourceDates = (facts: HistoryFact[]) => {
-  const years = facts
-    .flatMap((fact) => {
-      if (fact.date) return [fact.date.slice(0, 4)];
-      const partial = /^(\d{4})(?:-(0[1-9]|1[0-2]))?$/.exec(
-        fact.occurred_on || "",
-      );
-      return partial && Number(partial[1]) > 0 ? [partial[1]] : [];
-    })
-    .sort();
-  if (!years.length)
-    return facts.some((fact) => fact.occurred_on)
-      ? "Date not fully known"
-      : "Date not recorded";
-  const first = years[0],
-    last = years.at(-1)!;
-  return first === last ? first : `${first}–${last}`;
-};
-const previewLabel = (label: string) => {
-  const known: Record<string, string> = {
-    hba1c: "hba1c",
-    egfr: "egfr",
-    ldl: "ldl",
-    "ldl-c": "ldl",
-    "ldl cholesterol": "ldl",
-  };
-  return known[label.trim().toLowerCase()]
-    ? metricLabel(known[label.trim().toLowerCase()])
-    : label;
-};
-
 export default function SourceCubeOverview({
   view,
   onImport,
   hasDraft,
   onNavigate,
+  showImport = true,
+  sourceIds,
 }: {
   view: HistoryView;
   onImport: () => void;
   hasDraft: boolean;
   onNavigate?: (page: "Timeline" | "Records") => void;
+  showImport?: boolean;
+  sourceIds?: string[];
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [comparisonId, setComparisonId] = useState<string | null>(null);
   const [limit, setLimit] = useState(12);
   const evidence = useRef<HTMLDivElement>(null);
-  const sources = [...view.sources].sort(
-    (a, b) =>
-      b.available_at.localeCompare(a.available_at) || a.id.localeCompare(b.id),
-  );
+  const comparison = useRef<HTMLDivElement>(null);
+  const comparisonTrigger = useRef<HTMLButtonElement | null>(null);
   const allFacts = [...view.facts, ...view.undated_facts];
+  const factsFor = (id: string) =>
+    allFacts.filter((fact) => fact.source_id === id);
+  const latestRecorded = (id: string) =>
+    factsFor(id)
+      .flatMap((fact) =>
+        fact.date
+          ? [fact.date]
+          : /^(?!0000)\d{4}(?:-(?:0[1-9]|1[0-2]))?$/.test(
+                fact.occurred_on || "",
+              )
+            ? [fact.occurred_on!]
+            : [],
+      )
+      .sort()
+      .at(-1) || "";
+  const sources = view.sources
+    .filter(
+      (source) => sourceIds === undefined || sourceIds.includes(source.id),
+    )
+    .sort(
+      (a, b) =>
+        latestRecorded(b.id).localeCompare(latestRecorded(a.id)) ||
+        a.id.localeCompare(b.id),
+    );
   const selected =
     sources.find((source) => source.id === selectedId) || sources[0];
-  const selectedFacts = selected
-    ? allFacts.filter((fact) => fact.source_id === selected.id)
-    : [];
-  const conflicts = new Set(view.conflicts.flatMap((item) => item.fact_ids));
+  const selectedFacts = selected ? factsFor(selected.id) : [];
+  const reveal = (element: HTMLDivElement | null) => {
+    element?.focus({ preventScroll: true });
+    element?.scrollIntoView({
+      block: "start",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
+  };
   const select = (id: string) => {
     setSelectedId(id);
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      requestAnimationFrame(() =>
-        evidence.current?.scrollIntoView({
-          block: "start",
-          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-            .matches
-            ? "instant"
-            : "smooth",
-        }),
-      );
-    }
+    setComparisonId(null);
+    if (window.matchMedia("(max-width: 760px)").matches)
+      requestAnimationFrame(() => reveal(evidence.current));
   };
   return (
     <section
       className="source-cube-workspace"
-      aria-label="Your files and their evidence"
+      aria-label="Documents and source evidence"
     >
       <div className="source-cube-heading">
         <div>
-          <span className="source-cube-kicker">Your record stack</span>
-          <h2>
-            <span>{sources.length}</span> file{sources.length === 1 ? "" : "s"}
-            <small>
-              {allFacts.length} saved{" "}
-              {allFacts.length === 1 ? "entry" : "entries"}
-            </small>
-          </h2>
+          <h2>Documents</h2>
+          <p>
+            {sources.length} document{sources.length === 1 ? "" : "s"} in this
+            view
+          </p>
         </div>
-        <button className="primary" onClick={onImport}>
-          <Plus size={17} /> {hasDraft ? "Continue review" : "Add files"}
-        </button>
+        {showImport && (
+          <button className="primary" onClick={onImport}>
+            <Plus size={17} /> {hasDraft ? "Continue review" : "Add files"}
+          </button>
+        )}
       </div>
+      {comparisonId && (
+        <div
+          ref={comparison}
+          tabIndex={-1}
+          className="source-document-comparison"
+        >
+          <RecordConflictComparison
+            view={view}
+            conflictId={comparisonId}
+            onClose={() => {
+              setComparisonId(null);
+              requestAnimationFrame(() => comparisonTrigger.current?.focus());
+            }}
+          />
+        </div>
+      )}
       {!sources.length ? (
         <div className="source-cube-empty">
-          <Box size={34} strokeWidth={1.4} />
-          <h3>Your first file starts the stack</h3>
+          <FileText size={32} strokeWidth={1.4} />
+          <h3>
+            {view.sources.length
+              ? "No documents match this search"
+              : "No documents in this view"}
+          </h3>
           <p>
-            Add a report, review its entries, and keep the original beside them.
+            {view.sources.length
+              ? "Try a different name or clear your search."
+              : "Add a document or check the selected dates to see your records."}
           </p>
-          <button className="secondary" onClick={onImport}>
-            Choose a file
-          </button>
+          {!view.sources.length && (
+            <button className="secondary" onClick={onImport}>
+              Choose a file
+            </button>
+          )}
         </div>
       ) : (
         <div className="source-cube-layout">
-          <section
-            className="source-cube-shelf"
-            aria-label="Choose a source file"
-          >
+          <section className="source-cube-shelf" aria-label="Choose a document">
             <div className="source-cube-shelf-caption">
-              <span>One cube, one file</span>
-              <span>Latest added first</span>
+              <span>By recorded date</span>
+              <span>Newest first</span>
             </div>
-            <div className="source-cube-grid">
-              {sources.slice(0, limit).map((source, index) => {
-                const facts = allFacts.filter(
-                  (fact) => fact.source_id === source.id,
+            <div className="source-document-list">
+              {sources.slice(0, limit).map((source) => {
+                const facts = factsFor(source.id);
+                const conflict = view.conflicts.find((item) =>
+                  facts.some((fact) => item.fact_ids.includes(fact.id)),
                 );
-                const preview = facts.slice(0, 2);
-                const hasConflict = facts.some((fact) =>
-                  conflicts.has(fact.id),
-                );
+                const title = sourceTitle(facts);
                 return (
-                  <button
+                  <article
+                    className={`source-document-card${selected.id === source.id ? " is-selected" : ""}`}
                     key={source.id}
-                    type="button"
-                    className={`source-cube ${selected.id === source.id ? "is-selected" : ""}`}
-                    aria-pressed={selected.id === source.id}
-                    aria-controls="source-cube-evidence"
-                    aria-label={`Open ${source.title}, ${facts.length} recorded ${facts.length === 1 ? "entry" : "entries"}${hasConflict ? ", has different recorded values" : ""}`}
-                    aria-describedby={`source-cube-preview-${index}`}
-                    onClick={() => select(source.id)}
                   >
-                    <span className="source-cube-top" aria-hidden="true" />
-                    <span className="source-cube-side" aria-hidden="true" />
-                    <span className="source-cube-face">
-                      <span className="source-cube-face-top">
-                        <span>{sourceDates(facts)}</span>
-                        <FileText size={14} strokeWidth={1.5} />
-                      </span>
-                      <strong className="source-cube-name" title={source.title}>
-                        {source.title}
-                      </strong>
-                      <span
-                        className="source-cube-preview"
-                        id={`source-cube-preview-${index}`}
-                      >
-                        {preview.map((fact) => (
-                          <span
-                            className="source-cube-preview-row"
-                            key={fact.id}
-                          >
-                            <span
-                              className="source-cube-preview-label"
-                              title={previewLabel(fact.label)}
-                            >
-                              {previewLabel(fact.label)}
-                            </span>
-                            <span
-                              className={`source-cube-preview-value${fact.kind === "measurement" && !fact.value_withheld ? " is-number" : ""}`}
-                              title={
-                                fact.value_withheld
-                                  ? "Hidden by date filter"
-                                  : fact.value || "Not recorded"
-                              }
-                            >
-                              <b>
-                                {fact.value_withheld
-                                  ? "Hidden by dates"
-                                  : (fact.value ?? "Not recorded")}
-                              </b>
+                    <button
+                      type="button"
+                      className="source-document-choose"
+                      aria-pressed={selected.id === source.id}
+                      aria-controls="source-cube-evidence"
+                      onClick={() => select(source.id)}
+                    >
+                      <div className="source-document-date">
+                        <span>{sourceDateRange(facts)}</span>
+                        <FileText size={16} aria-hidden="true" />
+                      </div>
+                      <h3>{title}</h3>
+                      <div className="source-document-preview">
+                        {facts.slice(0, 2).map((fact) => (
+                          <div key={fact.id}>
+                            <span>{recordLabel(fact.label)}</span>
+                            <span>
+                              {fact.value_withheld
+                                ? "Hidden by date filter"
+                                : (fact.value ?? "Value not recorded")}
                               {!fact.value_withheld && fact.unit && (
-                                <small>{fact.unit}</small>
+                                <small>{unitLabel(fact.unit)}</small>
                               )}
                             </span>
-                          </span>
+                          </div>
                         ))}
+                      </div>
+                      <span className="source-document-count">
+                        {facts.length} recorded{" "}
+                        {facts.length === 1 ? "item" : "items"}
+                        <ArrowUpRight size={14} aria-hidden="true" />
                       </span>
-                      <span className="source-cube-face-bottom">
+                    </button>
+                    {conflict && (
+                      <button
+                        type="button"
+                        className="source-document-discrepancy"
+                        onClick={(event) => {
+                          comparisonTrigger.current = event.currentTarget;
+                          setComparisonId(conflict.id);
+                          requestAnimationFrame(() =>
+                            reveal(comparison.current),
+                          );
+                        }}
+                      >
+                        <AlertCircle size={14} />
                         <span>
-                          <b>{facts.length}</b>{" "}
-                          {facts.length === 1 ? "entry" : "entries"}
+                          {conflict.reason === "different_recorded_units"
+                            ? "Different recorded units"
+                            : "Different recorded values"}
                         </span>
-                        {hasConflict ? (
-                          <i
-                            className="source-cube-conflict"
-                            title="Different recorded values"
-                            aria-label="Different recorded values"
-                          />
-                        ) : (
-                          <ArrowUpRight size={14} />
-                        )}
-                      </span>
-                    </span>
-                  </button>
+                        <span>
+                          Compare <ArrowUpRight size={12} />
+                        </span>
+                      </button>
+                    )}
+                  </article>
                 );
               })}
             </div>
@@ -206,7 +209,7 @@ export default function SourceCubeOverview({
                 className="text-button source-cube-show-more"
                 onClick={() => setLimit((value) => value + 12)}
               >
-                Show {Math.min(12, sources.length - limit)} more files
+                Show {Math.min(12, sources.length - limit)} more documents
               </button>
             )}
             {onNavigate && (
@@ -215,13 +218,7 @@ export default function SourceCubeOverview({
                   className="text-button"
                   onClick={() => onNavigate("Timeline")}
                 >
-                  Open lifetime timeline <ArrowUpRight size={13} />
-                </button>
-                <button
-                  className="text-button"
-                  onClick={() => onNavigate("Records")}
-                >
-                  All files <ArrowUpRight size={13} />
+                  View record history <ArrowUpRight size={13} />
                 </button>
               </div>
             )}
@@ -229,6 +226,7 @@ export default function SourceCubeOverview({
           <div
             id="source-cube-evidence"
             ref={evidence}
+            tabIndex={-1}
             className="source-cube-evidence-anchor"
           >
             <SourceCubeEvidence
