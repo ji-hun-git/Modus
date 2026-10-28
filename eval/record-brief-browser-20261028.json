@@ -57,5 +57,17 @@
     "entry/demo/simple-home-meta.png",
     "entry/demo/record-brief-review.png",
     "entry/demo/record-brief-export.png"
-  ]
+  ],
+  "main_store_after_restart": {
+    "documents": 4,
+    "facts": 10
+  },
+  "final_checks": {
+    "backend": 1042,
+    "entry": 926,
+    "frontend": 55,
+    "both_frontend_builds": "passed",
+    "offline_evaluations": "passed",
+    "log": "release/record-brief-meta-final-gate-20261028.log"
+  }
 }
