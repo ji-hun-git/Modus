@@ -1,8 +1,8 @@
-import type { ReactNode } from "react";
 import { AlertCircle, ArrowRight, History, LoaderCircle } from "lucide-react";
 import type { Page } from "./Shell";
 import type { View } from "./types";
 import HealthRecordOverview from "./HealthRecordOverview";
+import HistoryQuestionPanel from "./HistoryQuestionPanel";
 import useHistoryView from "./useHistoryView";
 import { dateLabel, timeLabel } from "./ui";
 
@@ -13,7 +13,6 @@ export default function SourceCubeHome({
   historical,
   onCurrent,
   onNavigate,
-  children,
 }: {
   view: View;
   onImport: () => void;
@@ -21,7 +20,6 @@ export default function SourceCubeHome({
   historical: boolean;
   onCurrent: () => void;
   onNavigate: (page: Page) => void;
-  children: ReactNode;
 }) {
   // Generic facts use the same captured availability as the existing tools.
   // An earlier date view never silently expands to all recorded dates.
@@ -64,14 +62,8 @@ export default function SourceCubeHome({
         hasDraft={hasDraft}
         onNavigate={onNavigate}
       />
+      <HistoryQuestionPanel view={history.view} />
       <div className="overview-followup">
-        <details className="overview-assistant">
-          <summary>
-            Ask about measurements <ArrowRight size={16} />
-          </summary>
-          <p>Questions currently cover HbA1c, eGFR and LDL cholesterol.</p>
-          {children}
-        </details>
         <button
           className="text-button"
           onClick={() => onNavigate("Measurements")}

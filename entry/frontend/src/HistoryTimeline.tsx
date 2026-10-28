@@ -11,6 +11,7 @@ import { factKindLabels, type HistoryFact } from "./historyTypes";
 import TimelineFact, { exactDate } from "./TimelineFact";
 import TimelineSettings from "./TimelineSettings";
 import HistoryFiles from "./HistoryFiles";
+import HistoryQuestionPanel from "./HistoryQuestionPanel";
 import useHistoryView from "./useHistoryView";
 import { facilityLabel } from "./recordPresentation.mjs";
 import "./history-timeline.css";
@@ -79,12 +80,15 @@ export default function HistoryTimeline({
   );
   if (viewMode === "files")
     return (
-      <HistoryFiles
-        view={view}
-        dateControl={dateControl}
-        onImport={onImport}
-        hasDraft={hasDraft}
-      />
+      <>
+        <HistoryQuestionPanel view={view} />
+        <HistoryFiles
+          view={view}
+          dateControl={dateControl}
+          onImport={onImport}
+          hasDraft={hasDraft}
+        />
+      </>
     );
   const matches = (fact: HistoryFact) =>
     (kind === "all" || fact.kind === kind) &&
@@ -130,6 +134,7 @@ export default function HistoryTimeline({
         </button>
       </header>
       {dateControl}
+      <HistoryQuestionPanel view={view} />
       <div className="timeline-filters">
         <label className="field">
           Record type

@@ -27,6 +27,13 @@ class ChatRequest(ScopeRequest):
     message: str = Field(min_length=1, max_length=2000)
 
 
+class HistoryChatRequest(Strict):
+    as_of: date | None = None
+    known_at: AwareDatetime | None = None
+    compare_from: AwareDatetime | None = None
+    message: str = Field(min_length=1, max_length=2000)
+
+
 class ExportRequest(ScopeRequest):
     known_at: AwareDatetime
 

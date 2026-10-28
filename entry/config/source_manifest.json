@@ -1796,6 +1796,106 @@
       "source": "entry/demo/records-overview.png",
       "destination": "entry/demo/records-overview.png",
       "behavior": false
+    },
+    {
+      "source": "backend/modus_entry/history_agent.py",
+      "destination": "backend/modus_entry/history_agent.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_tools.py",
+      "destination": "backend/modus_entry/history_tools.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/conftest.py",
+      "destination": "backend/tests/conftest.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_history_tools.py",
+      "destination": "backend/tests/test_entry_history_tools.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_history_agent_adversarial.py",
+      "destination": "backend/tests/test_entry_history_agent_adversarial.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/prompts/history.md",
+      "destination": "entry/prompts/history.md",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HistoryQuestionPanel.tsx",
+      "destination": "entry/frontend/src/HistoryQuestionPanel.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/history-question.css",
+      "destination": "entry/frontend/src/history-question.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/historyQuestionScope.mjs",
+      "destination": "entry/frontend/src/historyQuestionScope.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/historyQuestionScope.d.mts",
+      "destination": "entry/frontend/src/historyQuestionScope.d.mts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/historyQuestionScope.test.mjs",
+      "destination": "entry/frontend/tests/historyQuestionScope.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_history_selection_limits.py",
+      "destination": "backend/tests/test_entry_history_selection_limits.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/evaluate_history_agent.py",
+      "destination": "scripts/evaluate_history_agent.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_history_development.py",
+      "destination": "backend/tests/test_entry_history_development.py",
+      "behavior": true
+    },
+    {
+      "source": "eval/history-agent-development.json",
+      "destination": "eval/history-agent-development.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/docs/WHOLE_HISTORY_AGENT.md",
+      "destination": "entry/docs/WHOLE_HISTORY_AGENT.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/history-agent-live-20261028.json",
+      "destination": "eval/history-agent-live-20261028.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/history-agent-browser-20261028.json",
+      "destination": "eval/history-agent-browser-20261028.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/history-agent-test-isolation-incident-20261028.json",
+      "destination": "eval/history-agent-test-isolation-incident-20261028.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/whole-history-evidence.png",
+      "destination": "entry/demo/whole-history-evidence.png",
+      "behavior": false
     }
   ]
 }

@@ -144,9 +144,9 @@ def result(context, execution, claims, trace, telemetry=None):
     return response
 
 
-def execute(context, name, args, execution, trace):
+def execute(context, name, args, execution, trace, *, tool_dispatch=None):
     started = perf_counter()
-    value = dispatch(context, name, args)
+    value = (tool_dispatch or dispatch)(context, name, args)
     trace.append({'name': name, 'arguments': args, 'result': value, 'status': 'completed',
         'duration_ms': round((perf_counter() - started) * 1000, 2),
         'executor': 'local deterministic tool' if execution['mode'] == 'offline' else 'Meta-selected local tool',
@@ -165,12 +165,19 @@ def offline_chat(context, message):
 
 
 async def live_chat(context, message, telemetry, *, request=None):
+    permitted = {n: a for n, a in ARGUMENTS.items() if n != 'compare_record_snapshots' or context['comparison'] is not None}
+    return await live_selection(context, message, telemetry, arguments=permitted,
+        descriptions=DESCRIPTIONS, tool_dispatch=dispatch, prompt=PROMPT, request=request)
+
+
+async def live_selection(context, message, telemetry, *, arguments, descriptions, tool_dispatch, prompt, request=None):
+    """Shared bounded protocol; callers supply only code-owned tool registries."""
     model = provider_status()['model']
     execution = execution_context('meta', model)
     telemetry['execution'] = execution
-    permitted = {n: a for n, a in ARGUMENTS.items() if n != 'compare_record_snapshots' or context['comparison'] is not None}
-    tool_specs = [{'type': 'function', 'function': {'name': n, 'description': DESCRIPTIONS[n], 'parameters': a.model_json_schema()}} for n, a in permitted.items()]
-    messages = [{'role': 'system', 'content': PROMPT + '\nFixed scope: ' + json.dumps(context['view']['scope'])}, {'role': 'user', 'content': message}]
+    permitted = arguments
+    tool_specs = [{'type': 'function', 'function': {'name': n, 'description': descriptions[n], 'parameters': a.model_json_schema()}} for n, a in permitted.items()]
+    messages = [{'role': 'system', 'content': prompt + '\nFixed scope: ' + json.dumps(context['view']['scope'])}, {'role': 'user', 'content': message}]
     trace, known, call_count = [], {}, 0
     for _ in range(POLICY.max_rounds):
         response = await measured_request({'model': model, 'messages': messages, 'tools': tool_specs,
@@ -202,7 +209,7 @@ async def live_chat(context, message, telemetry, *, request=None):
                     raise ValueError('Unsupported claim selection')
                 chosen = [known[key] for key in dict.fromkeys(args['claim_ids'])]
                 return result(context, execution, chosen, trace, telemetry)
-            value = execute(context, name, args, execution, trace)
+            value = execute(context, name, args, execution, trace, tool_dispatch=tool_dispatch)
             known.update({c['id']: c for c in value['claims']})
             encoded = json.dumps(value)
             if len(encoded) > 128000:

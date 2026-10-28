@@ -769,9 +769,7 @@ export default function App() {
                   setMode("latest");
                   if (asOf === currentDay && mode === "latest") void refresh();
                 }}
-              >
-                {questions}
-              </SourceCubeHome>
+              />
             )}
             {page === "Measurements" && displayed && (
               <MeasurementsWorkspace view={displayed} onInspect={inspect} />
@@ -810,7 +808,6 @@ export default function App() {
                     if (mode === "latest") void refresh();
                   }}
                 />
-                <div className="records-question">{questions}</div>
               </>
             )}
             {page === "Changes" && displayed && (

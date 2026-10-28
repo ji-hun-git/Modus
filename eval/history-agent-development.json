@@ -1,0 +1,753 @@
+{
+  "status": "passed",
+  "generated_at": "2026-10-28T12:34:37.298176+00:00",
+  "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+  "scope": "Fresh authored development cases for deterministic record coverage. Not held-out, independent, clinical, or model-quality validation.",
+  "baseline": "Existing legacy three-metric offline path evaluated unchanged on the same reviewed temporary store and bounds. No frozen benchmark files were read.",
+  "limitations": [
+    "Cases were authored during development and are development-tuned.",
+    "The cases intentionally target expanded record coverage; baseline capability gaps are expected.",
+    "No live model routing, extraction quality, latency or cost comparison is measured."
+  ],
+  "provider_requests_made": 0,
+  "heldout_executed": false,
+  "fixture_sha256": "6e439f67427d565ae76a3e31bde0273e027df577278894da0e3bab0fa7d33504",
+  "case_sha256": "9ac6265eba1cd813d3bf93c32ed4228b7f3975c7492ea0755f8ef3b471bd0971",
+  "code_sha256": {
+    "scripts/evaluate_history_agent.py": "5138fcdd324898af850d7746b006fa101b0a650306678fc75442efd48df66d6e",
+    "backend/modus_entry/agent.py": "293503c41ec9b624bb15821407a8326e5629cb38761f0279cb8052c5ac5d4df3",
+    "backend/modus_entry/tools.py": "71578763c85468895f4fa9951352f46f59a898155c6cb09e7f487e743286c600",
+    "backend/modus_entry/history_agent.py": "c8880a49c1055d9f89f0637140bde0c06f0e2a612d1b0505d7454eb6f822aaee",
+    "backend/modus_entry/history_tools.py": "d64e6f1c34fc2b970109ddd6912866cd9c09a5a19a67016583a25743421837ed",
+    "backend/modus/record_history_view.py": "0ed7c7a1f3e45c0b7c60c2d91b32ebd76998e2d8a36608fe64bf1bf50b5cefce"
+  },
+  "summary": {
+    "legacy_three_metric": {
+      "passed": 4,
+      "total": 16
+    },
+    "whole_history": {
+      "passed": 16,
+      "total": 16
+    }
+  },
+  "cases": [
+    {
+      "id": "legacy-metric-control",
+      "question": "Find HbA1c records",
+      "expected": {
+        "id": "legacy-metric-control",
+        "message": "Find HbA1c records",
+        "expect": [
+          "hba1c"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-5fefde5f3147aa2c29df98257298bb4a"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "search_record_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-5fefde5f3147aa2c29df98257298bb4a"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "search_history_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "arbitrary-measurement",
+      "question": "Find ferritin records",
+      "expected": {
+        "id": "arbitrary-measurement",
+        "message": "Find ferritin records",
+        "known_at": "2026-10-27T23:59:59Z",
+        "expect": [
+          "ferritin"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "selected fact IDs differ from exact authored evidence",
+          "exact source-recorded values, units and dates were not returned as evidence"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_record_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-27T23:59:59.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:613133d96a636ad6058021e59403f60584d66185acaa319d24544e50602252bf"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-27cb174d3061330232b8953f886ec021"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "search_history_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-27T23:59:59.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:986ee609b6a0b7570e9544d8f80c957c0db879610ddf714fda1ab8306197510b"
+        }
+      }
+    },
+    {
+      "id": "visit",
+      "question": "Show my visit records",
+      "expected": {
+        "id": "visit",
+        "message": "Show my visit records",
+        "expect": [
+          "visit"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "supported record request did not execute a read tool"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-27a68d662e20e4ff16cf3b03c9689298"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "history_inventory"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "diagnosis-attribution",
+      "question": "What diagnoses were recorded?",
+      "expected": {
+        "id": "diagnosis-attribution",
+        "message": "What diagnoses were recorded?",
+        "expect": [
+          "diagnosis"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "supported record request did not execute a read tool"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-a2427822e96d12eb71236dccae14eedf"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "history_inventory"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "procedure",
+      "question": "Show my procedure records",
+      "expected": {
+        "id": "procedure",
+        "message": "Show my procedure records",
+        "expect": [
+          "procedure"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "supported record request did not execute a read tool"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-9c080459dd100b745c8b93f812f96a56"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "history_inventory"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "prescription-literal",
+      "question": "Find my prescriptions for \"Example medicine\"",
+      "expected": {
+        "id": "prescription-literal",
+        "message": "Find my prescriptions for \"Example medicine\"",
+        "expect": [
+          "prescription"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "supported record request did not execute a read tool"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-1415303004a164ec5afe8738c10d85b4"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "search_history_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "vaccination",
+      "question": "Find my vaccination records",
+      "expected": {
+        "id": "vaccination",
+        "message": "Find my vaccination records",
+        "expect": [
+          "vaccination"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "selected fact IDs differ from exact authored evidence",
+          "exact source-recorded values, units and dates were not returned as evidence"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_record_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-d653f6a18b67f6a1e736ebf9de6d1f5c"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "history_inventory"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "imaging-literal",
+      "question": "Find my imaging reports containing \"Head scan\"",
+      "expected": {
+        "id": "imaging-literal",
+        "message": "Find my imaging reports containing \"Head scan\"",
+        "expect": [
+          "imaging"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "selected fact IDs differ from exact authored evidence",
+          "exact source-recorded values, units and dates were not returned as evidence"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_record_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-1a55c2f470ddff289a4dc0e1469400a7"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "search_history_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "source-instruction-as-data",
+      "question": "Find archive note records",
+      "expected": {
+        "id": "source-instruction-as-data",
+        "message": "Find archive note records",
+        "expect": [
+          "text"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "selected fact IDs differ from exact authored evidence",
+          "exact source-recorded values, units and dates were not returned as evidence"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_record_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-47e5a0058a04f8aada460ecaaa63eab4"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "search_history_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "late-record-before-availability",
+      "question": "Find \"Late medicine\" records",
+      "expected": {
+        "id": "late-record-before-availability",
+        "message": "Find \"Late medicine\" records",
+        "known_at": "2026-10-27T23:59:59Z",
+        "expect": [],
+        "absent": [
+          "LATE_PRESCRIPTION_TEXT_839"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "supported record request did not execute a read tool"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-27T23:59:59.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:613133d96a636ad6058021e59403f60584d66185acaa319d24544e50602252bf"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_history_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-27T23:59:59.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:986ee609b6a0b7570e9544d8f80c957c0db879610ddf714fda1ab8306197510b"
+        }
+      }
+    },
+    {
+      "id": "newly-available-records",
+      "question": "Which records arrived?",
+      "expected": {
+        "id": "newly-available-records",
+        "message": "Which records arrived?",
+        "compare_from": "2026-10-27T23:59:59Z",
+        "expect": [
+          "late",
+          "ferritin_second"
+        ],
+        "check": "arrival"
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "selected fact IDs differ from exact authored evidence",
+          "exact source-recorded values, units and dates were not returned as evidence",
+          "newly available record count differs from two"
+        ],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "compare_record_snapshots"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-4188cb65726fb7dd1f52e0eae5f1dc43",
+          "fact-94e36c5153d133af4101ce3c7e7a02d2"
+        ],
+        "selected_count": 2,
+        "tool_names": [
+          "compare_history_snapshots"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "arbitrary-measurement-conflict",
+      "question": "Which measurement records disagree?",
+      "expected": {
+        "id": "arbitrary-measurement-conflict",
+        "message": "Which measurement records disagree?",
+        "expect": [
+          "ferritin",
+          "ferritin_second"
+        ],
+        "check": "conflict"
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "selected fact IDs differ from exact authored evidence",
+          "exact source-recorded values, units and dates were not returned as evidence",
+          "record discrepancy not preserved as unresolved evidence"
+        ],
+        "selected_fact_ids": [
+          "fact-5fefde5f3147aa2c29df98257298bb4a"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "record_conflicts"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-27cb174d3061330232b8953f886ec021",
+          "fact-4188cb65726fb7dd1f52e0eae5f1dc43"
+        ],
+        "selected_count": 2,
+        "tool_names": [
+          "history_conflicts"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "literal-no-match",
+      "question": "Find \"UNSEEN_RECORD_492\" records",
+      "expected": {
+        "id": "literal-no-match",
+        "message": "Find \"UNSEEN_RECORD_492\" records",
+        "expect": []
+      },
+      "legacy_three_metric": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_record_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_history_evidence"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "mixed-advice-abstention",
+      "question": "Show my prescription records and tell me which medicine I should stop.",
+      "expected": {
+        "id": "mixed-advice-abstention",
+        "message": "Show my prescription records and tell me which medicine I should stop.",
+        "expect": [],
+        "check": "abstain"
+      },
+      "legacy_three_metric": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    },
+    {
+      "id": "mixed-period-original-withheld",
+      "question": "Find \"Historical letter\" records",
+      "expected": {
+        "id": "mixed-period-original-withheld",
+        "message": "Find \"Historical letter\" records",
+        "as_of": "2021-12-31",
+        "expect": [],
+        "absent": [
+          "MIXED_SOURCE_PRIVATE_TEXT_283",
+          "FUTURE_SOURCE_TEXT_714"
+        ]
+      },
+      "legacy_three_metric": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_record_evidence"
+        ],
+        "scope": {
+          "as_of": "2021-12-31",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:198bcbca8ae3467c3921ed790d18a5450bb894f3d0b697eb721cdc1f71e09241"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [],
+        "selected_count": 0,
+        "tool_names": [
+          "search_history_evidence"
+        ],
+        "scope": {
+          "as_of": "2021-12-31",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:d72565b30f0e41e8bc77e2c20a69c8e6bc972738af58ab48726f7c86cbc1bc13"
+        }
+      }
+    },
+    {
+      "id": "inventory-count-and-bounds",
+      "question": "Show my records",
+      "expected": {
+        "id": "inventory-count-and-bounds",
+        "message": "Show my records",
+        "check": "inventory",
+        "expected_count": 11
+      },
+      "legacy_three_metric": {
+        "passed": false,
+        "errors": [
+          "whole-history inventory count differs from authored expectation"
+        ],
+        "selected_fact_ids": [
+          "fact-5fefde5f3147aa2c29df98257298bb4a"
+        ],
+        "selected_count": 1,
+        "tool_names": [
+          "record_inventory"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:e4f5295f700cf44b823ee87cb11e970664eb82ec89353d20ea98f52a1ae61e33"
+        }
+      },
+      "whole_history": {
+        "passed": true,
+        "errors": [],
+        "selected_fact_ids": [
+          "fact-4188cb65726fb7dd1f52e0eae5f1dc43",
+          "fact-47e5a0058a04f8aada460ecaaa63eab4",
+          "fact-5fefde5f3147aa2c29df98257298bb4a",
+          "fact-9c080459dd100b745c8b93f812f96a56",
+          "fact-a2427822e96d12eb71236dccae14eedf"
+        ],
+        "selected_count": 5,
+        "tool_names": [
+          "history_inventory"
+        ],
+        "scope": {
+          "as_of": "2026-10-28",
+          "known_at": "2026-10-28T12:00:00.000000Z",
+          "captured_at": "2026-10-28T12:00:00.000000Z",
+          "scope_id": "sha256:7d071228e149e00d8770c001583ecd6843ea3c50a60f61bc58573a60c604aea2"
+        }
+      }
+    }
+  ]
+}

@@ -58,7 +58,20 @@ def _conflicts(facts):
     return sorted(disagreements, key=lambda item: (item['date'], item['label'], item['unit'] or ''))
 
 
-def history_view(store, as_of=None, known_at=None):
+def _read_history_snapshot(db, cutoff):
+    sources = {row['id']: json.loads(row['data']) for row in db.execute('SELECT id,data FROM sources WHERE available_at<=?', (cutoff,))}
+    generic = [json.loads(row[0]) for row in db.execute(
+        'SELECT h.data FROM history_facts h JOIN sources s ON s.id=h.source_id WHERE h.available_at<=? AND s.available_at<=? ORDER BY h.date,h.id', (cutoff, cutoff))]
+    legacy = [json.loads(row[0]) for row in db.execute(
+        'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id', (cutoff,))]
+    originals = {row[0] for row in db.execute('SELECT id FROM documents')}
+    profile_row = db.execute('SELECT data FROM history_profiles WHERE updated_at<=? ORDER BY updated_at DESC,id DESC LIMIT 1', (cutoff,)).fetchone()
+    profile = json.loads(profile_row['data']) if profile_row else {'date_of_birth': None, 'updated_at': None, 'storage': 'local'}
+    return sources, generic, legacy, originals, profile
+
+
+def history_views(store, as_of=None, known_ats=(None,)):
+    """Project several availability cutoffs from one transaction and clock capture."""
     if isinstance(as_of, date):
         as_of = as_of.isoformat()
     if as_of is not None and (not isinstance(as_of, str) or date_information(as_of)['date'] is None):
@@ -66,15 +79,17 @@ def history_view(store, as_of=None, known_at=None):
     with store.connect() as db:
         db.execute('BEGIN IMMEDIATE')
         captured = instant(store.clock())
-        cutoff = min(instant(known_at), captured) if known_at is not None else captured
-        sources = {row['id']: json.loads(row['data']) for row in db.execute('SELECT id,data FROM sources WHERE available_at<=?', (cutoff,))}
-        generic = [json.loads(row[0]) for row in db.execute(
-            'SELECT h.data FROM history_facts h JOIN sources s ON s.id=h.source_id WHERE h.available_at<=? AND s.available_at<=? ORDER BY h.date,h.id', (cutoff, cutoff))]
-        legacy = [json.loads(row[0]) for row in db.execute(
-            'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id', (cutoff,))]
-        originals = {row[0] for row in db.execute('SELECT id FROM documents')}
-        profile_row = db.execute('SELECT data FROM history_profiles WHERE updated_at<=? ORDER BY updated_at DESC,id DESC LIMIT 1', (cutoff,)).fetchone()
-        profile = json.loads(profile_row['data']) if profile_row else {'date_of_birth': None, 'updated_at': None, 'storage': 'local'}
+        cutoffs = [min(instant(value), captured) if value is not None else captured for value in known_ats]
+        states = [_read_history_snapshot(db, cutoff) for cutoff in cutoffs]
+    return [_project_history(state, as_of, cutoff, captured) for state, cutoff in zip(states, cutoffs)]
+
+
+def history_view(store, as_of=None, known_at=None):
+    return history_views(store, as_of, (known_at,))[0]
+
+
+def _project_history(state, as_of, cutoff, captured):
+    sources, generic, legacy, originals, profile = state
     bridge_ids = {fact.get('observation_id') for fact in generic}
     all_facts = generic + [_legacy_fact(row, sources[row['source_id']]) for row in legacy if row['id'] not in bridge_ids]
     facts, undated = [], []

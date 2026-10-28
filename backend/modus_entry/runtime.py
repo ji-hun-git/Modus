@@ -9,7 +9,8 @@ SHARED = ('__init__.py', 'record_models.py', 'record_store.py', 'record_conflict
           'ingest.py', 'temporal.py', 'policy.py', 'bundle.py', 'provider.py', 'extraction.py')
 paths = [ROOT / 'backend/modus' / name for name in SHARED]
 paths += list((ROOT / 'backend/modus_entry').glob('*.py'))
-paths += [ROOT / 'prompts/extract.md', ROOT / 'entry/prompts/records.md', ROOT / 'config/agent-policy.json', ROOT / 'backend/requirements.lock.txt']
+paths += [ROOT / 'prompts/extract.md', ROOT / 'entry/prompts/records.md', ROOT / 'entry/prompts/history.md', ROOT / 'config/agent-policy.json', ROOT / 'backend/requirements.lock.txt']
+paths += [ROOT / 'backend/modus' / name for name in ('record_history.py', 'record_history_view.py', 'record_history_models.py', 'record_units.py')]
 paths += [ROOT / name for name in ('config/teleocr.json', 'scripts/teleocr_runtime.py',
     'scripts/teleocr_document_worker.py', 'scripts/teleocr_assets.py', 'scripts/requirements-ocr.lock.txt')]
 BUNDLE_ID = identity(hashes(ROOT, paths))

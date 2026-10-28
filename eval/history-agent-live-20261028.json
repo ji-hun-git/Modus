@@ -1,0 +1,411 @@
+{
+  "status": "passed",
+  "execution_class": "live_provider_smoke",
+  "tested_at": "2026-10-28T12:35:45.050902+00:00",
+  "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+  "data_origin": "fresh authored development fixture in temporary reviewed store",
+  "question": "Find my prescriptions for \"Example medicine\"",
+  "max_requests": 2,
+  "retries": 0,
+  "heldout_executed": false,
+  "scope": "One synthetic record question; no model-quality or clinical accuracy measurement.",
+  "telemetry": {
+    "execution": {
+      "run_id": "facd4ae9-c331-4784-bd0f-afb72512435a",
+      "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+      "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+      "started_at": "2026-10-28T12:35:45.069427+00:00",
+      "mode": "meta",
+      "requested_model": "muse-spark-1.3",
+      "model_version_basis": "mutable provider identifier; immutable version unverified",
+      "runtime": {
+        "python": "3.12.10",
+        "platform": "Windows",
+        "dependencies": {
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "certifi": "2026.10.23",
+          "click": "8.5.0",
+          "colorama": "0.4.6",
+          "fastapi": "0.162.0",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.1",
+          "opentelemetry-api": "1.45.1",
+          "packaging": "26.3",
+          "pillow": "13.0.0",
+          "pluggy": "1.7.0",
+          "pydantic": "2.14.1",
+          "pydantic-core": "2.50.1",
+          "pygments": "2.21.0",
+          "pypdf": "6.21.2",
+          "pypdfium2": "5.14.0",
+          "pytest": "9.1.1",
+          "python-dotenv": "1.2.4",
+          "python-multipart": "0.0.32",
+          "starlette": "1.10.0",
+          "typing-extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "uvicorn": "0.54.0"
+        }
+      }
+    },
+    "calls": [
+      {
+        "model": "muse-spark-1.3",
+        "status": "completed",
+        "usage": {
+          "prompt_tokens": 1266,
+          "completion_tokens": 271,
+          "total_tokens": 1537
+        },
+        "response_id": "chatcmpl-01a18282-6c11-739d-9b0a-3dfd8ef52772",
+        "request_id": "13e23815-c7b6-4a0f-877a-30ede71fae16",
+        "http_status": 200,
+        "finish_reason": "tool_calls",
+        "error_kind": null,
+        "run_id": "facd4ae9-c331-4784-bd0f-afb72512435a",
+        "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+        "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+        "returned_model": "muse-spark-1.3",
+        "duration_ms": 2551.93
+      },
+      {
+        "model": "muse-spark-1.3",
+        "status": "completed",
+        "usage": {
+          "prompt_tokens": 1995,
+          "completion_tokens": 339,
+          "total_tokens": 2334
+        },
+        "response_id": "chatcmpl-01a18282-7438-7613-a633-9f2b2c5b5da1",
+        "request_id": "508028c9-b4c6-4657-a1dc-0d4dc6985f35",
+        "http_status": 200,
+        "finish_reason": "tool_calls",
+        "error_kind": null,
+        "run_id": "facd4ae9-c331-4784-bd0f-afb72512435a",
+        "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+        "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+        "returned_model": "muse-spark-1.3",
+        "duration_ms": 2103.45
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 3261,
+      "completion_tokens": 610,
+      "total_tokens": 3871
+    }
+  },
+  "answer": {
+    "mode": "meta",
+    "answer": "Recorded prescription record \"Example medicine\": \"Archived prescription wording\"; recorded date 2024-05-01. This historical prescription record does not establish current medication use.",
+    "claims": [
+      {
+        "id": "history-95f7d23c92b3c5a7-fact-c1f4963e5d4f569b86fbfb4af13641c9",
+        "text": "Recorded prescription record \"Example medicine\": \"Archived prescription wording\"; recorded date 2024-05-01. This historical prescription record does not establish current medication use.",
+        "evidence_ids": [
+          "fact-c1f4963e5d4f569b86fbfb4af13641c9",
+          "import-f0256bf23c2b9700e2e5"
+        ],
+        "tool_name": "search_history_evidence",
+        "status": "observed"
+      }
+    ],
+    "trace": [
+      {
+        "name": "search_history_evidence",
+        "arguments": {
+          "query": "Find my prescriptions for \"Example medicine\"",
+          "kind": "prescription",
+          "limit": 5
+        },
+        "result": {
+          "scope": {
+            "as_of": null,
+            "known_at": "2026-10-28T12:00:00.000000Z",
+            "captured_at": "2026-10-28T12:00:00.000000Z",
+            "scope_id": "sha256:d6d21e3ce8ffe3d4beee41a7ae34072a01bfa2253e235814451605bc2857ab66"
+          },
+          "facts": [
+            {
+              "id": "fact-c1f4963e5d4f569b86fbfb4af13641c9",
+              "source_id": "import-f0256bf23c2b9700e2e5",
+              "kind": "prescription",
+              "label": "Example medicine",
+              "value": "Archived prescription wording",
+              "unit": null,
+              "occurred_on": "2024-05-01",
+              "date": "2024-05-01",
+              "date_precision": "day",
+              "facility": "Authored clinic",
+              "source_quote": "prescription,Example medicine,Archived prescription wording,,2024-05-01,Authored clinic",
+              "source_quote_withheld": false,
+              "value_withheld": false,
+              "page": null,
+              "bbox": null,
+              "available_at": "2026-10-28T12:00:00.000000Z",
+              "availability_basis": "review_commit",
+              "reviewed_fields": [],
+              "original_available": true,
+              "within_date_scope": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "import-f0256bf23c2b9700e2e5",
+              "title": "authored-whole-history.csv",
+              "type": "Document",
+              "provider": "Imported synthetic document",
+              "date": "2024-05-01",
+              "available_at": "2026-10-28T12:00:00.000000Z",
+              "availability_basis": "review_commit",
+              "historical_projection": false,
+              "original_available": true,
+              "fact_count": 9
+            }
+          ],
+          "method": "literal_terms_and_phrases_v1",
+          "match_count": 1,
+          "truncated": false,
+          "warnings": [],
+          "conflict_ids": [],
+          "required_claim_ids": [],
+          "claims": [
+            {
+              "id": "history-95f7d23c92b3c5a7-fact-c1f4963e5d4f569b86fbfb4af13641c9",
+              "text": "Recorded prescription record \"Example medicine\": \"Archived prescription wording\"; recorded date 2024-05-01. This historical prescription record does not establish current medication use.",
+              "evidence_ids": [
+                "fact-c1f4963e5d4f569b86fbfb4af13641c9",
+                "import-f0256bf23c2b9700e2e5"
+              ],
+              "tool_name": "search_history_evidence",
+              "status": "observed"
+            }
+          ]
+        },
+        "status": "completed",
+        "duration_ms": 0.53,
+        "executor": "Meta-selected local tool",
+        "run_id": "facd4ae9-c331-4784-bd0f-afb72512435a",
+        "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+        "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f"
+      }
+    ],
+    "execution": {
+      "run_id": "facd4ae9-c331-4784-bd0f-afb72512435a",
+      "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+      "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+      "started_at": "2026-10-28T12:35:45.069427+00:00",
+      "mode": "meta",
+      "requested_model": "muse-spark-1.3",
+      "model_version_basis": "mutable provider identifier; immutable version unverified",
+      "runtime": {
+        "python": "3.12.10",
+        "platform": "Windows",
+        "dependencies": {
+          "annotated-doc": "0.0.5",
+          "annotated-types": "0.8.0",
+          "anyio": "4.15.1",
+          "certifi": "2026.10.23",
+          "click": "8.5.0",
+          "colorama": "0.4.6",
+          "fastapi": "0.162.0",
+          "h11": "0.16.0",
+          "httpcore": "1.0.9",
+          "httpx": "0.28.1",
+          "idna": "3.20",
+          "iniconfig": "2.3.1",
+          "opentelemetry-api": "1.45.1",
+          "packaging": "26.3",
+          "pillow": "13.0.0",
+          "pluggy": "1.7.0",
+          "pydantic": "2.14.1",
+          "pydantic-core": "2.50.1",
+          "pygments": "2.21.0",
+          "pypdf": "6.21.2",
+          "pypdfium2": "5.14.0",
+          "pytest": "9.1.1",
+          "python-dotenv": "1.2.4",
+          "python-multipart": "0.0.32",
+          "starlette": "1.10.0",
+          "typing-extensions": "4.16.0",
+          "typing-inspection": "0.4.4",
+          "uvicorn": "0.54.0"
+        }
+      }
+    },
+    "scope": {
+      "as_of": null,
+      "known_at": "2026-10-28T12:00:00.000000Z",
+      "captured_at": "2026-10-28T12:00:00.000000Z",
+      "scope_id": "sha256:d6d21e3ce8ffe3d4beee41a7ae34072a01bfa2253e235814451605bc2857ab66"
+    },
+    "telemetry": {
+      "execution": {
+        "run_id": "facd4ae9-c331-4784-bd0f-afb72512435a",
+        "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+        "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+        "started_at": "2026-10-28T12:35:45.069427+00:00",
+        "mode": "meta",
+        "requested_model": "muse-spark-1.3",
+        "model_version_basis": "mutable provider identifier; immutable version unverified",
+        "runtime": {
+          "python": "3.12.10",
+          "platform": "Windows",
+          "dependencies": {
+            "annotated-doc": "0.0.5",
+            "annotated-types": "0.8.0",
+            "anyio": "4.15.1",
+            "certifi": "2026.10.23",
+            "click": "8.5.0",
+            "colorama": "0.4.6",
+            "fastapi": "0.162.0",
+            "h11": "0.16.0",
+            "httpcore": "1.0.9",
+            "httpx": "0.28.1",
+            "idna": "3.20",
+            "iniconfig": "2.3.1",
+            "opentelemetry-api": "1.45.1",
+            "packaging": "26.3",
+            "pillow": "13.0.0",
+            "pluggy": "1.7.0",
+            "pydantic": "2.14.1",
+            "pydantic-core": "2.50.1",
+            "pygments": "2.21.0",
+            "pypdf": "6.21.2",
+            "pypdfium2": "5.14.0",
+            "pytest": "9.1.1",
+            "python-dotenv": "1.2.4",
+            "python-multipart": "0.0.32",
+            "starlette": "1.10.0",
+            "typing-extensions": "4.16.0",
+            "typing-inspection": "0.4.4",
+            "uvicorn": "0.54.0"
+          }
+        }
+      },
+      "calls": [
+        {
+          "model": "muse-spark-1.3",
+          "status": "completed",
+          "usage": {
+            "prompt_tokens": 1266,
+            "completion_tokens": 271,
+            "total_tokens": 1537
+          },
+          "response_id": "chatcmpl-01a18282-6c11-739d-9b0a-3dfd8ef52772",
+          "request_id": "13e23815-c7b6-4a0f-877a-30ede71fae16",
+          "http_status": 200,
+          "finish_reason": "tool_calls",
+          "error_kind": null,
+          "run_id": "facd4ae9-c331-4784-bd0f-afb72512435a",
+          "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+          "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+          "returned_model": "muse-spark-1.3",
+          "duration_ms": 2551.93
+        },
+        {
+          "model": "muse-spark-1.3",
+          "status": "completed",
+          "usage": {
+            "prompt_tokens": 1995,
+            "completion_tokens": 339,
+            "total_tokens": 2334
+          },
+          "response_id": "chatcmpl-01a18282-7438-7613-a633-9f2b2c5b5da1",
+          "request_id": "508028c9-b4c6-4657-a1dc-0d4dc6985f35",
+          "http_status": 200,
+          "finish_reason": "tool_calls",
+          "error_kind": null,
+          "run_id": "facd4ae9-c331-4784-bd0f-afb72512435a",
+          "bundle_id": "sha256:479212cb79341930bb42fd21d1be49f3f49965988e0dd589840289a77946dd07",
+          "config_id": "sha256:650bddad4f54ca86b54a51b0b75300226c2d09475d55b0b518f6d03fdfb9764f",
+          "returned_model": "muse-spark-1.3",
+          "duration_ms": 2103.45
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3261,
+        "completion_tokens": 610,
+        "total_tokens": 3871
+      }
+    },
+    "history_evidence": {
+      "scope": {
+        "as_of": null,
+        "known_at": "2026-10-28T12:00:00.000000Z",
+        "captured_at": "2026-10-28T12:00:00.000000Z",
+        "scope_id": "sha256:d6d21e3ce8ffe3d4beee41a7ae34072a01bfa2253e235814451605bc2857ab66"
+      },
+      "facts": [
+        {
+          "id": "fact-c1f4963e5d4f569b86fbfb4af13641c9",
+          "source_id": "import-f0256bf23c2b9700e2e5",
+          "kind": "prescription",
+          "label": "Example medicine",
+          "value": "Archived prescription wording",
+          "unit": null,
+          "occurred_on": "2024-05-01",
+          "date": "2024-05-01",
+          "date_precision": "day",
+          "facility": "Authored clinic",
+          "source_quote": "prescription,Example medicine,Archived prescription wording,,2024-05-01,Authored clinic",
+          "source_quote_withheld": false,
+          "value_withheld": false,
+          "page": null,
+          "bbox": null,
+          "available_at": "2026-10-28T12:00:00.000000Z",
+          "availability_basis": "review_commit",
+          "reviewed_fields": [],
+          "original_available": true,
+          "within_date_scope": true
+        }
+      ],
+      "undated_facts": [],
+      "sources": [
+        {
+          "id": "import-f0256bf23c2b9700e2e5",
+          "title": "authored-whole-history.csv",
+          "type": "Document",
+          "provider": "Imported synthetic document",
+          "date": "2024-05-01",
+          "available_at": "2026-10-28T12:00:00.000000Z",
+          "availability_basis": "review_commit",
+          "historical_projection": false,
+          "original_available": true,
+          "fact_count": 9
+        }
+      ],
+      "conflicts": [],
+      "counts": {
+        "facts": 1,
+        "sources": 1,
+        "measurements": 0,
+        "undated_facts": 0,
+        "conflicts": 0
+      },
+      "truncated": false,
+      "projection": "selected_answer_evidence"
+    }
+  },
+  "records_unchanged": true,
+  "provider_requests_attempted": 2,
+  "successful_responses": 2,
+  "blocked_requests": 0,
+  "cost": {
+    "pricing_basis": {
+      "checked_at": "2026-10-28",
+      "currency": "USD",
+      "input_per_million": 1.25,
+      "output_per_million": 4.25,
+      "cached_input_per_million": 0.15,
+      "source": "https://dev.meta.ai/docs/pricing-rate-limits"
+    },
+    "billed_cost_usd": null,
+    "uncached_usage_estimate_usd": 0.00666875,
+    "basis": "Reported usage at uncached Standard rates; upper estimate if cached tokens were discounted, not an invoice."
+  }
+}

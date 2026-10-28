@@ -21,11 +21,13 @@ from modus.record_history import commit_history, history_view, get_profile, upda
 from modus.provider import provider_status
 from modus.record_extraction import extract_record_document
 from modus import local_ocr
-from .models import RELEASE, CompareRequest, ChatRequest, ExportRequest, CommitRequest, HistoryCommitRequest, ProfileRequest
+from .models import RELEASE, CompareRequest, ChatRequest, HistoryChatRequest, ExportRequest, CommitRequest, HistoryCommitRequest, ProfileRequest
 from .seed import initial_data
 from .runtime import ROOT, BUNDLE_ID, ENVIRONMENT, execution_context
 from .tools import capture, source, observation
 from . import agent
+from . import history_agent
+from .history_tools import capture_history
 from .extraction_review import review_draft
 
 load_dotenv(ROOT / '.env')
@@ -279,6 +281,28 @@ def create_entry_app(database=None, clock=None):
             recorded_run('question', status='failed', scope=context['view']['scope'], mode='meta',
                 error='No validated record answer was produced.', execution=telemetry.get('execution'), telemetry=telemetry)
             raise HTTPException(502, 'The record agent could not complete a validated response. No records changed and no local fallback was used.') from None
+
+    @app.post('/api/history/chat')
+    async def history_chat(request: HistoryChatRequest):
+        try:
+            context = await run_in_threadpool(capture_history, store,
+                request.as_of.isoformat() if request.as_of else None,
+                request.known_at, request.compare_from)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+        telemetry = {}
+        try:
+            response = (await history_agent.live_chat(context, request.message, telemetry)
+                if provider_status()['mode'] == 'meta' else history_agent.offline_chat(context, request.message))
+            recorded_run('question', status='completed' if response['claims'] else 'abstained',
+                message=request.message, scope=response['scope'],
+                comparison=response.get('history_comparison'), answer=response['answer'],
+                mode=response['mode'], execution=response['execution'], telemetry=response.get('telemetry', {}))
+            return response
+        except Exception:
+            recorded_run('question', status='failed', scope=context['view']['scope'], mode=provider_status()['mode'],
+                error='No validated history answer was produced.', execution=telemetry.get('execution'), telemetry=telemetry)
+            raise HTTPException(502, 'The history agent could not complete a validated response. No records changed and no local fallback was used.') from None
 
     @app.get('/api/changes')
     def changes(known_at: AwareDatetime | None = None):

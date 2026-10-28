@@ -26,11 +26,15 @@ Open **http://127.0.0.1:8011/**. Setup creates an isolated Python environment an
 - Overview selects latest results by occurrence date, retains tied results and separates partial or missing dates. Different results open a side-by-side comparison. Documents keeps a cube shelf and list, with filenames and upload timestamps in source details. Keyboard and phone layouts are supported.
 - Historical views filter both when an event happened and when its reviewed record entered Modus. A late upload cannot appear in an earlier availability view. This is availability in Modus, not proof of when the person or clinician first knew something.
 - Conflicting values remain visible. Neither source is automatically declared correct.
-- The bounded question agent selects read-only tools and supported claims. Its current question tools cover HbA1c, eGFR and LDL; generic questions over all eight record kinds are still pending.
+- The bounded question agent selects read-only tools and supported claims. Home, Records and Documents now answer questions across all eight reviewed record kinds, including arbitrary measurement names, with literal source search and fixed date/availability bounds. The legacy Trends/Replay interface remains limited to HbA1c, eGFR and LDL.
 
 Try **Add records → review → save → open a result → inspect evidence**, then use **Past views** to compare an earlier availability cutoff with today's records. Supplied examples are authored synthetic records. No personal medical records are distributed.
 
 ## Verification and Meta evidence
+
+The whole-history extension passes **994 backend / 878 entry / 48 frontend tests**, both builds and offline evaluations. On 16 newly authored development cases, the unchanged legacy path passes 4/16 and the new path 16/16; these deliberately measure expanded coverage, not independent superiority. [Agent and limits](entry/docs/WHOLE_HISTORY_AGENT.md) · [Measured development results](eval/history-agent-development.json).
+
+A new whole-history prescription question passed with **two real Muse Spark requests**, exact source-linked findings and an unchanged temporary store. [Live trace](eval/history-agent-live-20261028.json). Two additional synthetic calls occurred when a direct legacy pytest invocation inherited local provider configuration; the incident is retained and ordinary pytest now forces offline credentials. [Incident](eval/history-agent-test-isolation-incident-20261028.json). Cumulative provider evidence is 24 requests, 22 successful responses and two earlier HTTP errors. No broad extraction or model-quality claim follows from these smokes.
 
 The 28 October result-centered UI workspace passed **920 backend tests, 804 entry tests and 42 frontend tests**, both builds and the offline evaluations. The previous public import passed a fresh anonymous clone check (**802 tests + two expected compatibility skips**) and GitHub Actions on Windows and Ubuntu. The two skipped compatibility tests require the broader research application, intentionally absent here. Inspect the current commit's Actions run for its independent result.
 
@@ -42,7 +46,7 @@ GitHub Actions is configured to run the entry checks on Windows and Ubuntu with 
 
 ## Current limits
 
-This is a synthetic research prototype. Storage is not encrypted and authenticated owner sessions, cloud-disclosure controls, complete deletion, durable amendments and general undo are unfinished. Do not treat it as a production service for personal medical records. Broad file-layout accuracy, folder/ZIP intake, generic-fact questions and native desktop delivery remain unqualified or incomplete.
+This is a synthetic research prototype. Storage is not encrypted and authenticated owner sessions, cloud-disclosure controls, complete deletion, durable amendments and general undo are unfinished. Do not treat it as a production service for personal medical records. Broad file-layout accuracy, folder/ZIP intake and native desktop delivery remain unqualified or incomplete.
 
 Models cannot execute shell commands, SQL, arbitrary URLs, record writes or permission changes. Imported text and model tool arguments are untrusted. Numerical and temporal boundaries are enforced by typed code; a citation ID alone does not prove that a sentence is supported.
 

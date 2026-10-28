@@ -2,6 +2,8 @@
 
 **There is no evidence that Modus uses the universally “best” AI workflow.** The current choice is a strong, inspectable baseline for this job: deterministic record handling, a human review boundary, and one bounded model loop where tool selection is useful. It must earn improvements through measured comparisons. More agents or a newer model name alone do not establish better results.
 
+28 October: Home, Records and Documents now use the [whole-history record agent](WHOLE_HISTORY_AGENT.md). Code binds the factual request and arguments before Meta access; the model invokes that read tool and selects exact supported claims. This extends access to all eight reviewed kinds while legacy Trends/Replay keeps its three-concept scope.
+
 ## The workflow to verify
 
 ```text

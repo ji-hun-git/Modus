@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "checked_at": "2026-10-28T12:41:33.715998+00:00",
+  "service": "http://127.0.0.1:8011/",
+  "isolated_browser_service": "http://127.0.0.1:8013/",
+  "data_origin": "previously authored synthetic eight-kind review store; no real records",
+  "main_store": {
+    "documents": 4,
+    "facts": 10,
+    "unchanged": true
+  },
+  "isolated_store": {
+    "documents": 6,
+    "facts": 21,
+    "unchanged": true
+  },
+  "checks": [
+    "Home remains results/date first; question panel after records",
+    "Prescription question returns original wording and source dialog",
+    "Vaccination question preserves year-only dates",
+    "Height search returns exact reviewed 112.5 cm with original-source access",
+    "Explicit availability comparison returns 15 added / 6 already present, bounded to five displayed",
+    "Records occurrence filter withholds mixed-period report text",
+    "All-dates toggle clears stale answer and restores allowed text",
+    "Documents questions open imaging-report evidence with exact original download scope",
+    "390px and 320px layouts have no horizontal document overflow",
+    "Main service restarted on checked bundle; no test imports or questions added to main store"
+  ],
+  "screenshots": [
+    "entry/demo/whole-history-evidence.png"
+  ],
+  "provider_requests_from_browser": 0,
+  "heldout_accessed": false,
+  "limits": "Browser checks use authored records; no user-study or clinical quality result."
+}
