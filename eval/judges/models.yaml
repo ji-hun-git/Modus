@@ -16,7 +16,7 @@
       "settings": {
         "reasoning_effort": "minimal"
       },
-      "prior_spend_usd": 0.2370055,
+      "prior_spend_usd": 0.54566725,
       "ceiling_usd": 10,
       "allocation_usd": 1,
       "version_status": "Exact requested release ID; immutable underlying weights not established. Returned ID retained.",

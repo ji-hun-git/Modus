@@ -27,13 +27,15 @@ Open **http://127.0.0.1:8011/**. Setup creates an isolated Python environment an
 - Historical views filter both when an event happened and when its reviewed record entered Modus. A late upload cannot appear in an earlier availability view. This is availability in Modus, not proof of when the person or clinician first knew something.
 - Conflicting values remain visible. Neither source is automatically declared correct.
 - Prepare a brief from the records you choose. Review the full selection and any added conflicting values before downloading self-contained HTML or JSON, with dates, source excerpts and internal citations. HTML can be opened in a browser and printed; native PDF export is not implemented. [Brief workflow and limits](entry/docs/RECORD_BRIEF.md).
-- The bounded question agent selects read-only tools and supported claims. Home, Records and Documents now answer questions across all eight reviewed record kinds, including arbitrary measurement names, with literal source search and fixed date/availability bounds. The legacy Trends/Replay interface remains limited to HbA1c, eGFR and LDL.
+- The bounded question agent selects read-only tools and supported claims. Home, Records and Documents now answer questions across all eight reviewed record kinds, including arbitrary measurement names, with literal source search and fixed date/availability bounds. Trends remains limited to HbA1c, eGFR and LDL; Replay now compares all eight record kinds with exact availability timestamps.
 
 Try **Add records → review → save → open a result → inspect evidence**, then use **More → Replay** to compare an earlier availability cutoff with today's records. Supplied examples are authored synthetic records. No personal medical records are distributed.
 
-Home, Records and Ask are the three primary destinations. **More** contains Brief, Trends, Documents, Replay and Changes. Date controls collapse into a single **View as of** chip. [Current review and remaining work](entry/docs/REVIEW_READINESS_2026-10-28.md).
+Home, Records and More are the three primary destinations. **More** contains Ask, Brief, Trends, Documents, Replay and Changes. Date controls collapse into a single **View as of** chip. [Current review and remaining work](entry/docs/REVIEW_READINESS_2026-10-28.md).
 
 ## Verification and Meta evidence
+
+The latest full local gate passes **1,301 backend /1,099 entry /61 frontend tests**, both builds and offline checks. Eight-kind Replay was verified through actual upload, review, save, source inspection and comparison download. [Replay browser evidence](eval/replay-browser-20261029.json). These regression checks are separate from model-quality results.
 
 **29 October update:** Modus runs entirely on Meta models. Its evaluation uses a cross-provider judge panel (Meta Muse, Anthropic Claude, OpenAI) to avoid single-model self-preference. The evaluator is isolated under `eval/judges`; deterministic text reading and typed tools remain ordinary software. Five fresh synthetic browser cases received fifteen valid judgments. Five earlier Claude API failures are retained; the corrected run reused Muse/OpenAI results and a subsequent exact rerun made zero requests. Human labels are not supplied. [Current scoreboard, costs and limitations](SCOREBOARD.md).
 
@@ -51,7 +53,7 @@ The 28 October result-centered UI workspace passed **920 backend tests, 804 entr
 
 An authored image completed real **muse-spark-1.3** extraction, a separate source check and a bounded record-tool loop: **four successful requests**, 17.25 seconds, with no automatic commit. [The retained trace](eval/source-cubes-live-image-20261028.json) includes model/request metadata, usage and stage outcomes. Its estimated uncached usage was $0.02921125; actual billing is unknown. This is one synthetic smoke case, not broad extraction accuracy or a best-workflow result.
 
-The [development comparison](entry/docs/BENCHMARK.md) retains its frozen baseline and distinguishes development tuning from held-out performance. Private held-out inputs and labels are excluded and remain untouched. Software test counts do not establish clinical validation or SOTA superiority.
+The [development comparison](entry/docs/BENCHMARK.md) retains its frozen baseline. On 29 October, the owner-authorized held-out run executed once on frozen source: workflow Muse 17/24 versus local 5/24; documents single-pass Muse 8/8, extract+verify 8/8, local parser 1/8 (including three unsupported images). The verifier showed no exact-accuracy gain. [Full results and limitations](eval/heldout-contest-20261029.md). Private inputs and labels remain excluded from publication and unchanged. Gold is AI-authored and awaits human review; these legacy three-metric scores do not establish whole-history accuracy or SOTA superiority.
 
 GitHub Actions is configured to run the entry checks on Windows and Ubuntu with provider access disabled. [Inspect actual CI runs](https://github.com/ji-hun-git/Modus/actions).
 

@@ -133,11 +133,11 @@ def make_history_draft(filename, raw, *, ocr_pages=None):
         if reader.is_encrypted or len(reader.pages) > 30:
             raise ValueError('Use an unencrypted PDF with at most 30 pages')
         if any(_has_page_images(page) for page in reader.pages):
-            raise ValueError('This PDF includes images. Choose local OCR or Meta to retain all page content.')
+            raise ValueError('This PDF includes images. Choose an image-capable reader to retain all page content.')
         pages = [{'page': n, 'text': p.extract_text(extraction_mode='layout', layout_mode_space_vertically=False) or ''}
                  for n, p in enumerate(reader.pages, 1)]
         if any(not p['text'].strip() for p in pages):
-            raise ValueError('This PDF has pages without readable text. Choose local OCR or Meta to retain every page.')
+            raise ValueError('This PDF has pages without readable text. Choose an image-capable reader to retain every page.')
         facts = _text_facts(pages, 'local-pdf-text')
     else:
         raise ValueError('Use CSV, text, PDF, or an available image reader')

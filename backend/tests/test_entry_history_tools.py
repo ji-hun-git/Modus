@@ -74,6 +74,9 @@ def test_all_kinds_inventory_exact_values_and_labels(memory):
     vaccination = dispatch(context, 'history_inventory', {'kind': 'vaccination'})
     assert vaccination['facts'][0]['occurred_on'] == '2012'
     assert '2012-01-01' not in json.dumps(vaccination)
+    imaging = dispatch(context, 'history_inventory', {'kind': 'imaging_text'})
+    assert '; date not recorded.' in imaging['claims'][1]['text']
+    assert 'recorded date date' not in imaging['claims'][1]['text']
 
 
 @pytest.mark.parametrize('query,kind,label', [
@@ -199,14 +202,18 @@ def test_large_inventory_and_discrepancies_have_bounded_inspectable_pages(memory
     assert conflicts['required_claim_ids'] == [conflicts['claims'][0]['id']]
 
 
-def test_oversized_record_never_cuts_value_or_exceeds_tool_budget(memory):
+@pytest.mark.parametrize('day', ['2021-04-05', None])
+def test_oversized_record_never_cuts_value_or_exceeds_tool_budget(memory, day):
     store, _ = memory
     huge = '한' * 15000
-    commit(store, [field('recorded_text', 'Long authored note', huge, None, source_quote=huge)])
+    commit(store, [field('recorded_text', 'Long authored note', huge, None, day, source_quote=huge)])
     result = dispatch(capture_history(store), 'history_inventory', {})
     assert result['facts'][0]['content_omitted'] is True
     assert result['facts'][0]['value'] is None and result['facts'][0]['source_quote'] is None
     assert 'exceed this tool response budget' in result['claims'][1]['text']
+    assert 'recorded date date' not in result['claims'][1]['text']
+    if day is None:
+        assert '; date not recorded.' in result['claims'][1]['text']
     assert result['truncated'] and 'long recorded values' in result['claims'][0]['text']
     assert result['required_claim_ids'] == [result['claims'][0]['id']]
     assert len(json.dumps(result).encode()) < 100000

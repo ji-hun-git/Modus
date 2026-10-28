@@ -122,7 +122,11 @@ export default function SourceCubeEvidence({
           <div className="source-evidence-result-heading">
             <div>
               <h4>{recordLabel(selected.label)}</h4>
-              <p>Recorded {recordedDate(selected)}</p>
+              <p>
+                {selected.date || selected.occurred_on
+                  ? `Recorded ${recordedDate(selected)}`
+                  : "Date not recorded"}
+              </p>
             </div>
             <span>{factKindLabels[selected.kind]}</span>
           </div>

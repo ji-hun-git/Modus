@@ -7,7 +7,11 @@ import {
 } from "lucide-react";
 import { dateLabel, timeLabel } from "./ui";
 import type { Scope } from "./types";
-import { factKindLabels, type HistoryFact } from "./historyTypes";
+import {
+  factKindLabels,
+  type HistoryFact,
+  type HistoryView,
+} from "./historyTypes";
 import TimelineFact, { exactDate } from "./TimelineFact";
 import TimelineSettings from "./TimelineSettings";
 import HistoryFiles from "./HistoryFiles";
@@ -22,12 +26,14 @@ export default function HistoryTimeline({
   viewMode = "timeline",
   onImport,
   hasDraft = false,
+  onScope,
 }: {
   scope: Scope;
   onLatest: () => void;
   viewMode?: "timeline" | "files";
   onImport?: () => void;
   hasDraft?: boolean;
+  onScope?: (scope: HistoryView["scope"]) => void;
 }) {
   const [kind, setKind] = useState("all");
   const [facility, setFacility] = useState("all");
@@ -44,6 +50,9 @@ export default function HistoryTimeline({
     }
   }, [scope.as_of]);
   const { view, error, refresh } = useHistoryView(scope, effectiveAllDates);
+  useEffect(() => {
+    if (view) onScope?.(view.scope);
+  }, [view, onScope]);
   if (error)
     return (
       <div className="panel empty" role="alert">

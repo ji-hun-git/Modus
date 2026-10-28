@@ -28,7 +28,7 @@ Pairwise binary Cohen κ is **undefined** for all three pairs because all five b
 
 | Provider | Successful jury usage estimate | Retained unknown failure reservations | Cumulative accounted including earlier product work | Ceiling |
 |---|---:|---:|---:|---:|
-| Meta | $0.026807 | $0 in this jury | $0.263812 | $10 |
+| Meta | $0.026807 | $0 in this jury | $0.572474 after held-out run | $10 |
 | Anthropic | $0.061482 | $0.827850 | $0.889332 | $10 |
 | OpenAI | $0.094460 | $0 | $0.094460 | $10 |
 
@@ -38,4 +38,10 @@ These are conservative estimates, not invoices. Claude's reservation is not a cl
 
 [Actual browser evidence](eval/product-meta-only-browser-20261029.json): pure Meta extract+verify, three reviewed fields saved, intentional Pulse72→73 correction preserved beside the original72 quote, original download byte match, two-call bounded Ask and zero-call injection refusal. The first mixed local-OCR run and the later token-limit failure remain failures/qualified evidence; they are not relabelled as current success.
 
-Replay's legacy comparison still supports only three metrics; the new Pulse record is not covered there. Human annotation review, representative difficult/adversarial judge controls, responsive/accessibility qualification, production privacy, license choice and final contest eligibility remain open. Held-out suites remain unopened at this jury milestone and cannot be used to tune this panel.
+Replay's legacy comparison at the jury snapshot supported only three metrics. A subsequent revision adds exact eight-kind comparisons; its browser/regression verification is separate from these jury scores. Human annotation review, representative difficult/adversarial judge controls, responsive/accessibility qualification, production privacy, license choice and final contest eligibility remain open. The jury used no held-out inputs or labels.
+
+## Separate frozen held-out result
+
+The subsequently authorized once-only run measured workflow Muse17/24 versus fixed local5/24. Documents: single-pass Muse8/8, extract+verify8/8, local parser1/8. There is no measured verifier accuracy advantage. This added67 successful Muse requests and an estimated$0.308662. Labels remain AI-authored, and the suites cover the legacy workflow/three-metric contract. [Results and retained failures](eval/heldout-contest-20261029.md). The sets are closed to reruns and panel tuning; later UI/replay changes do not inherit these quality scores.
+
+The five original synthetic pilot screenshots, authored source image and artifact manifest are published in [eval/jury-pilot-20261029](eval/jury-pilot-20261029/manifest.json). A default `python -m eval.judges.cli --input eval/jury-pilot-20261029/manifest.json` prepares hashes/configuration with zero calls. Network evaluation requires explicit flags and process credentials. These inputs are independent of the closed held-out sets.

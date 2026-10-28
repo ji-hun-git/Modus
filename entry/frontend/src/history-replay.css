@@ -1,0 +1,129 @@
+.history-replay {
+  display: grid;
+  gap: 24px;
+}
+.history-replay .panel {
+  min-width: 0;
+  padding: 28px;
+}
+.history-replay-intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+}
+.history-replay-intro > div {
+  flex: 1;
+  min-width: 220px;
+}
+.history-replay h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+.history-replay p {
+  line-height: 1.6;
+  margin: 8px 0;
+}
+.history-replay-intro p,
+.history-replay-snapshots p,
+.history-replay-arrivals header p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.history-replay-bounds {
+  flex-basis: 100%;
+}
+.history-replay summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+.history-replay-bounds dl {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.history-replay-bounds dt {
+  color: var(--muted);
+  font-size: 14px;
+}
+.history-replay-bounds dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+.history-replay-snapshots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  min-width: 0;
+}
+.history-replay-snapshots > section {
+  min-width: 0;
+}
+.history-replay-snapshots h2 span {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.history-replay-records {
+  display: grid;
+  gap: 0;
+}
+.history-replay-record {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.history-replay-record > div {
+  flex: 1;
+  min-width: min(220px, 100%);
+  overflow-wrap: anywhere;
+}
+.history-replay-record h3 {
+  margin: 8px 0;
+  font-size: 16px;
+}
+.history-replay-kind {
+  color: var(--muted);
+  font-size: 14px;
+}
+.history-replay .history-replay-value {
+  font-size: 22px;
+  color: var(--ink);
+}
+.history-replay-value span {
+  font-size: 14px;
+}
+.history-replay .history-replay-date,
+.history-replay .history-replay-edited {
+  font-size: 14px;
+  color: var(--muted);
+}
+.history-replay .text-button {
+  min-height: 44px;
+}
+.history-replay-conflict {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+}
+@media (max-width: 760px) {
+  .history-replay-snapshots {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .history-replay .panel {
+    padding: 20px;
+  }
+  .history-replay-intro > div {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+}

@@ -27,6 +27,7 @@ from .tools import capture, source, observation
 from . import agent
 from . import history_agent
 from .history_tools import capture_history
+from .history_compare import HistoryCompareRequest, compare_history
 from .briefs import (BriefRequest, BriefExportRequest, BriefChangedError,
                      build_brief, validate_export, render_html, render_json)
 from .extraction_review import review_draft
@@ -142,6 +143,13 @@ def create_entry_app(database=None, clock=None):
     @app.get('/api/history/view')
     def lifelong_history(as_of: date | None = None, known_at: AwareDatetime | None = None):
         return history_view(store, as_of.isoformat() if as_of else None, known_at)
+
+    @app.post('/api/history/compare')
+    def history_compare(request: HistoryCompareRequest):
+        try:
+            return compare_history(store, request)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
 
     @app.post('/api/history/commit')
     def save_history(request: HistoryCommitRequest):

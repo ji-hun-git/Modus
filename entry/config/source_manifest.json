@@ -983,11 +983,6 @@
       "behavior": false
     },
     {
-      "source": "entry/frontend/src/RecordsWorkspace.tsx",
-      "destination": "entry/frontend/src/RecordsWorkspace.tsx",
-      "behavior": true
-    },
-    {
       "source": "entry/docs/DATA.md",
       "destination": "entry/docs/DATA.md",
       "behavior": false
@@ -1041,11 +1036,6 @@
       "source": "entry/demo/design-v2-comparison.json",
       "destination": "entry/demo/design-v2-comparison.json",
       "behavior": false
-    },
-    {
-      "source": "entry/frontend/src/HomeWorkspace.tsx",
-      "destination": "entry/frontend/src/HomeWorkspace.tsx",
-      "behavior": true
     },
     {
       "source": "entry/frontend/src/MeasurementsWorkspace.tsx",
@@ -1206,11 +1196,6 @@
       "source": "eval/ontology-rag-e2e.json",
       "destination": "eval/ontology-rag-e2e.json",
       "behavior": false
-    },
-    {
-      "source": "entry/frontend/src/ReplayWorkspace.tsx",
-      "destination": "entry/frontend/src/ReplayWorkspace.tsx",
-      "behavior": true
     },
     {
       "source": "entry/frontend/src/ChangesWorkspace.tsx",
@@ -1758,11 +1743,6 @@
       "behavior": true
     },
     {
-      "source": "entry/frontend/src/OverviewRecordLists.tsx",
-      "destination": "entry/frontend/src/OverviewRecordLists.tsx",
-      "behavior": true
-    },
-    {
       "source": "entry/frontend/src/overviewRecords.ts",
       "destination": "entry/frontend/src/overviewRecords.ts",
       "behavior": true
@@ -2225,6 +2205,96 @@
     {
       "source": "eval/jury-runs/b86bf354013644bcabd96443b2676432/config.json",
       "destination": "eval/jury-runs/b86bf354013644bcabd96443b2676432/config.json",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus_entry/history_compare.py",
+      "destination": "backend/modus_entry/history_compare.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_history_compare_api.py",
+      "destination": "backend/tests/test_entry_history_compare_api.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HistoryReplayWorkspace.tsx",
+      "destination": "entry/frontend/src/HistoryReplayWorkspace.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/history-replay.css",
+      "destination": "entry/frontend/src/history-replay.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/historyReplay.mjs",
+      "destination": "entry/frontend/src/historyReplay.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/historyReplay.d.mts",
+      "destination": "entry/frontend/src/historyReplay.d.mts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/historyReplay.test.mjs",
+      "destination": "entry/frontend/tests/historyReplay.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "eval/heldout-contest-20261029.json",
+      "destination": "eval/heldout-contest-20261029.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/heldout-contest-20261029.md",
+      "destination": "eval/heldout-contest-20261029.md",
+      "behavior": false
+    },
+    {
+      "source": "eval/heldout-calls-20261029.json",
+      "destination": "eval/heldout-calls-20261029.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-pilot-20261029/ask.png",
+      "destination": "eval/jury-pilot-20261029/ask.png",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-pilot-20261029/documents.png",
+      "destination": "eval/jury-pilot-20261029/documents.png",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-pilot-20261029/draft.png",
+      "destination": "eval/jury-pilot-20261029/draft.png",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-pilot-20261029/guard.png",
+      "destination": "eval/jury-pilot-20261029/guard.png",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-pilot-20261029/home.png",
+      "destination": "eval/jury-pilot-20261029/home.png",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-pilot-20261029/manifest.json",
+      "destination": "eval/jury-pilot-20261029/manifest.json",
+      "behavior": false
+    },
+    {
+      "source": "eval/jury-pilot-20261029/record.png",
+      "destination": "eval/jury-pilot-20261029/record.png",
+      "behavior": false
+    },
+    {
+      "source": "eval/replay-browser-20261029.json",
+      "destination": "eval/replay-browser-20261029.json",
       "behavior": false
     }
   ]

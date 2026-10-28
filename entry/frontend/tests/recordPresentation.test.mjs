@@ -8,18 +8,29 @@ import {
   facilityLabel,
 } from "../src/recordPresentation.mjs";
 
-test("HbA1c names the test; its separate explanation does not relabel a percentage as glucose", () => {
-  assert.equal(recordLabel("HbA1c"), "HbA1c");
+test("plain-language HbA1c display retains the exact test name and average-period explanation", () => {
+  assert.equal(recordLabel("HbA1c"), "Average blood sugar (HbA1c)");
+  assert.equal(recordLabel(" hba1c "), "Average blood sugar (HbA1c)");
   assert.match(metricDescription("HbA1c"), /blood test/);
   assert.match(metricDescription("HbA1c"), /about 3 months/);
 });
 test("LDL stays distinct from unspecified cholesterol and unknown test names", () => {
-  assert.equal(recordLabel("LDL-C"), "LDL cholesterol");
+  for (const alias of ["LDL", "LDL-C", "LDL cholesterol"])
+    assert.equal(recordLabel(alias), "Cholesterol (LDL)");
   assert.equal(recordLabel("Cholesterol"), "Cholesterol");
   assert.equal(metricDescription("Cholesterol"), "");
   assert.equal(recordLabel("HbA1c (IFCC)"), "HbA1c (IFCC)");
+  for (const label of [
+    "eGFR (creatinine)",
+    "LDL, calculated",
+    "Glucose",
+    "Kidney function",
+    "HbA1c target",
+  ])
+    assert.equal(recordLabel(label), label);
 });
 test("eGFR explanation retains estimated meaning without a health judgment", () => {
+  assert.equal(recordLabel("eGFR"), "Kidney filtration (eGFR)");
   assert.match(metricDescription("eGFR"), /^An estimate/);
   assert.doesNotMatch(
     metricDescription("eGFR"),

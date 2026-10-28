@@ -1,15 +1,15 @@
 const metrics = {
   hba1c: {
-    label: "HbA1c",
+    label: "Average blood sugar (HbA1c)",
     description:
       "A blood test that reflects average blood sugar over about 3 months.",
   },
   egfr: {
-    label: "eGFR",
+    label: "Kidney filtration (eGFR)",
     description: "An estimate of how quickly the kidneys filter blood.",
   },
   ldl: {
-    label: "LDL cholesterol",
+    label: "Cholesterol (LDL)",
     description: "The cholesterol carried by LDL particles in the blood.",
   },
 };

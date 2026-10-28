@@ -72,3 +72,14 @@ export type HistoryView = {
   conflicts: { id: string; fact_ids: string[]; reason?: string }[];
   profile?: { date_of_birth: string | null; updated_at?: string | null };
 };
+
+export type HistoryComparison = {
+  format: "modus-history-comparison-v1";
+  before: HistoryView;
+  after: HistoryView;
+  added: HistoryFact[];
+  added_counts: { total: number; dated: number; undated: number };
+  unchanged_count: number;
+  new_conflicts: HistoryView["conflicts"];
+  captured_at: string;
+};

@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-29",
+  "status": "passed",
+  "data": "Fresh authored synthetic CSV; independent of closed held-out sets",
+  "model_requests": 0,
+  "flow": [
+    "Upload CSV",
+    "Review three fields",
+    "Human commit",
+    "View updated history",
+    "Compare with previous view",
+    "Open childhood vaccination source",
+    "Download comparison",
+    "Change comparison dates"
+  ],
+  "before": {
+    "facts": 12,
+    "dated_facts": 9,
+    "undated_facts": 3,
+    "sources": 4,
+    "documents": 4,
+    "undated": 3,
+    "measurements": 9,
+    "conflicts": 0
+  },
+  "after": {
+    "facts": 15,
+    "dated_facts": 10,
+    "undated_facts": 5,
+    "sources": 5,
+    "documents": 5,
+    "undated": 5,
+    "measurements": 10,
+    "conflicts": 0
+  },
+  "added_counts": {
+    "total": 3,
+    "dated": 1,
+    "undated": 2
+  },
+  "before_known_at": "2026-10-28T17:47:31.671000Z",
+  "after_known_at": "2026-10-28T17:49:21.819917Z",
+  "same_occurrence_scope": true,
+  "export_matches_actual_browser_response": true,
+  "export_sha256": "969926b65aa39ab76e5a0d0602f667df03197cfc471657b2e3097a02facc7105",
+  "unknown_and_year_only_dates_preserved": true,
+  "focus_checks": {
+    "comparison_heading": true,
+    "reset_date_input": true
+  },
+  "qualification": "Desktop browser flow. No mobile accessibility certification or new model-quality score. Earlier jury screenshots remain a separate snapshot.",
+  "final_ui": {
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "navigation": [
+      "Home",
+      "Records",
+      "More"
+    ],
+    "latest_result_cards": 4,
+    "plain_names_with_original_abbreviations": true,
+    "panel_padding_px": 28,
+    "manual_date_cutoff_verified": "2026-10-27T23:59:59.999999Z",
+    "date_control_observation": "The automation fill operation did not commit the React date change. Native keyboard editing committed it, showed loading, and produced the matching comparison boundary. No product patch was required."
+  },
+  "regression": {
+    "backend_passed": 1301,
+    "entry_passed": 1099,
+    "frontend_passed": 61,
+    "both_frontend_builds": "passed",
+    "offline_evaluations": "passed"
+  },
+  "new_provider_requests": 0
+}

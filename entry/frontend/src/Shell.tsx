@@ -27,9 +27,9 @@ export type Page =
 const pages = [
   { page: "Home" as const, label: "Home", icon: House },
   { page: "Timeline" as const, label: "Records", icon: CalendarDays },
-  { page: "Ask" as const, label: "Ask", icon: MessageCircle },
 ];
 const moreTools = [
+  { page: "Ask" as const, label: "Ask your records", icon: MessageCircle },
   { page: "Brief" as const, label: "Brief", icon: FileText },
   { page: "Measurements" as const, label: "Trends", icon: ChartNoAxesCombined },
   { page: "Records" as const, label: "Documents", icon: Files },
@@ -81,7 +81,7 @@ export default function Shell({
     <details
       ref={toolsRef}
       className={
-        "history-tools header-more " +
+        "history-tools nav-more " +
         (!pages.some((item) => item.page === page) ? "active-tools" : "")
       }
       onKeyDown={(event) => {
@@ -95,7 +95,7 @@ export default function Shell({
           event.currentTarget.open = false;
       }}
     >
-      <summary aria-label="More tools">
+      <summary aria-label="More: Ask, Brief, Trends, Documents, Replay, Changes">
         <MoreHorizontal size={18} />
         <span>More</span>
       </summary>
@@ -148,6 +148,7 @@ export default function Shell({
                 <span className="nav-label-mobile">{label}</span>
               </button>
             ))}
+            {moreControl}
           </nav>
           <div className="workspace-label">
             <span className="profile-initial" aria-hidden="true">
@@ -168,7 +169,6 @@ export default function Shell({
               </div>
               <div className="header-actions">
                 <div className="desktop-demo">{demoControl}</div>
-                {moreControl}
                 {page !== "Home" && (
                   <button className="primary" onClick={onImport}>
                     <Plus size={18} />
@@ -211,9 +211,8 @@ export default function Shell({
             <section>
               <h3>How documents are read</h3>
               <p>
-                Local text extraction runs without a model. Optional Local OCR
-                runs the TeleOCR model on this computer. Meta extraction is a
-                separate, explicit choice when configured and sends the selected
+                Local text extraction runs without a model. Meta extraction is
+                an explicit choice when configured and sends the selected
                 document to Meta. Every extracted draft requires your review
                 before it is added.
               </p>

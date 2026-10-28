@@ -133,13 +133,13 @@ def scope_text(scope):
 
 def fact_claim(row, tool, prefix):
     label = json.dumps(row['label'], ensure_ascii=False)
+    recorded_date = f"recorded date {row['occurred_on']}" if row.get('occurred_on') else 'date not recorded'
     if row.get('content_omitted'):
-        text = (f"Recorded {KIND_LABELS[row['kind']]} {label}; recorded date {row.get('occurred_on') or 'date not recorded'}. "
+        text = (f"Recorded {KIND_LABELS[row['kind']]} {label}; {recorded_date}. "
                 'The complete recorded value and excerpt exceed this tool response budget; inspect the source-linked record for their text.')
         return claim(prefix + '-' + row['id'], text, [row['id'], row['source_id']], tool)
     value = json.dumps(row['value'], ensure_ascii=False)
     unit = f" {row['unit']}" if row.get('unit') else ''
-    day = row.get('occurred_on') or 'date not recorded'
     suffix = ''
     if row['kind'] == 'prescription':
         suffix = ' This historical prescription record does not establish current medication use.'
@@ -147,7 +147,7 @@ def fact_claim(row, tool, prefix):
         suffix = ' This is the source-recorded statement, not a diagnosis made by Modus.'
     elif row['kind'] == 'imaging_text':
         suffix = ' This is recorded report text, not an interpretation of scan images.'
-    text = f"Recorded {KIND_LABELS[row['kind']]} {label}: {value}{unit}; recorded date {day}.{suffix}"
+    text = f"Recorded {KIND_LABELS[row['kind']]} {label}: {value}{unit}; {recorded_date}.{suffix}"
     return claim(prefix + '-' + row['id'], text, [row['id'], row['source_id']], tool)
 
 

@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { AlertCircle, ArrowRight, History, LoaderCircle } from "lucide-react";
+import type { HistoryView } from "./historyTypes";
 import type { Page } from "./Shell";
 import type { View } from "./types";
 import HealthRecordOverview from "./HealthRecordOverview";
@@ -13,6 +15,7 @@ export default function SourceCubeHome({
   historical,
   onCurrent,
   onNavigate,
+  onScope,
 }: {
   view: View;
   onImport: () => void;
@@ -20,10 +23,14 @@ export default function SourceCubeHome({
   historical: boolean;
   onCurrent: () => void;
   onNavigate: (page: Page) => void;
+  onScope: (scope: HistoryView["scope"]) => void;
 }) {
   // Generic facts use the same captured availability as the existing tools.
   // An earlier date view never silently expands to all recorded dates.
   const history = useHistoryView(view.scope, !historical);
+  useEffect(() => {
+    if (history.view) onScope(history.view.scope);
+  }, [history.view, onScope]);
   if (history.error)
     return (
       <section className="panel empty" role="alert">
