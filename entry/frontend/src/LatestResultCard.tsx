@@ -24,9 +24,15 @@ export default function LatestResultCard({
   onCompare: (id: string) => void;
 }) {
   return (
-    <article className="home-result-row">
+    <article className="home-result-row home-selected-result">
       <div className="home-result-reading">
-        <h3>{recordLabel(group.label)}</h3>
+        <div className="home-selected-heading">
+          <h3>{recordLabel(group.label)}</h3>
+          <p className="home-result-date">
+            Latest recorded ·{" "}
+            <time dateTime={group.date}>{dateLabel(group.date)}</time>
+          </p>
+        </div>
         <div className="home-result-values">
           {group.latest.map((fact) => (
             <button
@@ -54,9 +60,6 @@ export default function LatestResultCard({
           </p>
         )}
         <div className="home-result-actions">
-          <p className="home-result-date">
-            <time dateTime={group.date}>{dateLabel(group.date)}</time>
-          </p>
           <button type="button" className="text-button" onClick={onHistory}>
             Full history <ArrowUpRight size={14} />
           </button>
