@@ -165,7 +165,11 @@ class RecordStore:
             observations = [json.loads(row[0]) for row in db.execute(
                 'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id',
                 (cutoff,))]
-        return self._build_snapshot(captured_at, cutoff, sources, observations)
+            from .record_revisions import read_amendments
+            amendments = read_amendments(db, cutoff)
+        snapshot = self._build_snapshot(captured_at, cutoff, sources, observations)
+        snapshot._amendments = amendments
+        return snapshot
 
     def observations(self, as_of='9999-12-31', known_at=None):
         return self.snapshot(known_at).observations(as_of)
@@ -322,6 +326,7 @@ class RecordSnapshot:
         if self.known_at > self.captured_at:
             raise ValueError('A record scope cannot extend beyond its capture')
         self._sources = {source['id']: deepcopy(source) for source in sources}
+        self._amendments = []
         self._observations = [
             {**deepcopy(observation), 'available_at': self._sources[observation['source_id']]['available_at'],
              'availability_basis': self._sources[observation['source_id']]['availability_basis']}
@@ -340,10 +345,13 @@ class RecordSnapshot:
         cutoff = min(instant(known_at), self.known_at) if known_at is not None else self.known_at
         sources = [source for source in self._sources.values() if source['available_at'] <= cutoff]
         ids = {source['id'] for source in sources}
-        return self._derive_snapshot(cutoff, sources, [row for row in self._observations if row['source_id'] in ids])
+        result = self._derive_snapshot(cutoff, sources, [row for row in self._observations if row['source_id'] in ids])
+        result._amendments = deepcopy([row for row in self._amendments if row['available_at'] <= cutoff and row['source_id'] in ids])
+        return result
 
     def observations(self, as_of='9999-12-31'):
-        rows = deepcopy([observation for observation in self._observations if observation['date'] <= as_of])
+        from .record_revisions import revised_observations
+        rows = [observation for observation in revised_observations(self._observations, self._amendments, self.known_at) if observation['date'] <= as_of]
         for observation in rows:
             source = self._sources[observation['source_id']]
             partial = not temporal_original_allowed(source, as_of)

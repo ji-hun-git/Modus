@@ -56,11 +56,17 @@ def capture(store, as_of, known_at=None, compare_from=None):
     if before['scope']['known_at'] > after['scope']['known_at']:
         raise ValueError('The earlier availability bound must not follow the later bound')
     before_ids = {r['id'] for r in before['observations']}
+    before_rows = {r['id']: r for r in before['observations']}
+    after_ids = {r['id'] for r in after['observations']}
+    updated = [{'before': before_rows[r['id']], 'after': r} for r in after['observations']
+               if r['id'] in before_rows and any(r.get(k) != before_rows[r['id']].get(k) for k in ('value', 'unit', 'metric', 'date', 'available_at'))]
+    updated_ids = {r['after']['id'] for r in updated}
     before_groups = {g['id']: {r['id'] for r in g['observations']} for g in before['conflicts']}
-    new_conflicts = [g for g in after['conflicts'] if {r['id'] for r in g['observations']} != before_groups.get(g['id'], set())]
+    new_conflicts = [g for g in after['conflicts'] if {r['id'] for r in g['observations']} != before_groups.get(g['id'], set()) or updated_ids.intersection(r['id'] for r in g['observations'])]
     comparison = {'before': before, 'after': after, 'captured_at': frozen.captured_at,
         'added': [r for r in after['observations'] if r['id'] not in before_ids],
-        'unchanged_count': sum(r['id'] in before_ids for r in after['observations']), 'new_conflicts': new_conflicts}
+        'updated': updated, 'removed_from_scope': [r for r in before['observations'] if r['id'] not in after_ids],
+        'unchanged_count': sum(r['id'] in before_ids and r['id'] not in updated_ids for r in after['observations']), 'new_conflicts': new_conflicts}
     return {'view': after, 'comparison': comparison}
 
 

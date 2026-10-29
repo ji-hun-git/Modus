@@ -1,17 +1,7 @@
 const metrics = {
-  hba1c: {
-    label: "Average blood sugar (HbA1c)",
-    description:
-      "A blood test that reflects average blood sugar over about 3 months.",
-  },
-  egfr: {
-    label: "Kidney filtration (eGFR)",
-    description: "An estimate of how quickly the kidneys filter blood.",
-  },
-  ldl: {
-    label: "Cholesterol (LDL)",
-    description: "The cholesterol carried by LDL particles in the blood.",
-  },
+  hba1c: { label: "HbA1c" },
+  egfr: { label: "eGFR" },
+  ldl: { label: "LDL" },
 };
 const aliases = {
   hba1c: "hba1c",
@@ -26,7 +16,8 @@ const metric = (label) => metrics[aliases[label.trim().toLowerCase()]];
 // labels stay intact; presentation never infers a medical concept from a word.
 export const recordLabel = (label) => metric(label)?.label ?? label;
 export const metricLabel = recordLabel;
-export const metricDescription = (label) => metric(label)?.description ?? "";
+// Retain the presentation API without adding interpretation to recorded labels.
+export const metricDescription = (_label) => "";
 const provenancePlaceholders = new Set([
   "authored synthetic example",
   "imported synthetic document",

@@ -66,7 +66,7 @@ export default function HistoryReplayWorkspace({
               </p>
               {!!fact.reviewed_fields?.length && (
                 <p className="history-replay-edited">
-                  Edited during review:{" "}
+                  {fact.previous_revision_id ? "Corrected after saving" : "Edited during review"}:{" "}
                   {fact.reviewed_fields.map(reviewedFieldLabel).join(", ")}.
                   Original wording is retained in the source.
                 </p>
@@ -195,7 +195,7 @@ export default function HistoryReplayWorkspace({
                 <p>
                   {pair.added_counts.dated} with an exact recorded date ·{" "}
                   {pair.added_counts.undated} with partial or unknown dates ·{" "}
-                  {pair.unchanged_count} already available
+                  {pair.unchanged_count} unchanged · {pair.updated?.length || 0} corrected
                 </p>
               </div>
             </header>
@@ -218,6 +218,19 @@ export default function HistoryReplayWorkspace({
               </p>
             )}
           </section>
+          {!!pair.updated?.length && <section className="panel">
+            <h2>Saved-record corrections</h2>
+            {pair.updated.map(change => <div key={change.after.id}>
+              <h3>{recordLabel(change.after.label)}</h3>
+              <p>Earlier saved version</p>{rows([change.before], pair.before)}
+              <p>Later saved version</p>{rows([change.after], pair.after)}
+            </div>)}
+          </section>}
+          {!!pair.removed_from_scope?.length && <section className="panel">
+            <h2>Records that left this date scope</h2>
+            <p>A correction changed which records match this view. Their earlier versions are preserved.</p>
+            {rows(pair.removed_from_scope, pair.before)}
+          </section>}
         </>
       )}
       {inspected && source && (

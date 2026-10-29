@@ -24,6 +24,7 @@ FACT_FIELDS = (
     'date_precision', 'facility', 'source_quote', 'source_quote_withheld',
     'value_withheld', 'page', 'bbox', 'available_at', 'availability_basis',
     'reviewed_fields', 'original_available', 'within_date_scope',
+    'revision_id', 'previous_revision_id', 'first_available_at',
 )
 SOURCE_FIELDS = (
     'id', 'title', 'type', 'provider', 'date', 'available_at', 'availability_basis',
@@ -53,13 +54,19 @@ def capture_history(store, as_of=None, known_at=None, compare_from=None):
     if before['scope']['known_at'] > after['scope']['known_at']:
         raise ValueError('The earlier availability bound must not follow the later bound')
     before_ids = {row['id'] for row in all_facts(before)}
+    before_rows = {row['id']: row for row in all_facts(before)}
+    after_ids = {row['id'] for row in all_facts(after)}
+    updated = [{'before': before_rows[row['id']], 'after': row} for row in all_facts(after)
+               if row['id'] in before_rows and row.get('revision_id', row['id']) != before_rows[row['id']].get('revision_id', row['id'])]
+    updated_ids = {item['after']['id'] for item in updated}
     before_groups = {group['id']: set(group['fact_ids']) for group in before['conflicts']}
     added = [row for row in all_facts(after) if row['id'] not in before_ids]
     return {'view': after, 'comparison': {
         'before': before, 'after': after, 'added': added,
-        'unchanged_count': sum(row['id'] in before_ids for row in all_facts(after)),
+        'updated': updated, 'removed_from_scope': [row for row in all_facts(before) if row['id'] not in after_ids],
+        'unchanged_count': sum(row['id'] in before_ids and row['id'] not in updated_ids for row in all_facts(after)),
         'new_conflicts': [group for group in after['conflicts']
-                          if set(group['fact_ids']) != before_groups.get(group['id'], set())],
+                          if set(group['fact_ids']) != before_groups.get(group['id'], set()) or updated_ids.intersection(group['fact_ids'])],
         'captured_at': after['scope']['captured_at'],
     }}
 
@@ -147,6 +154,8 @@ def fact_claim(row, tool, prefix):
         suffix = ' This is the source-recorded statement, not a diagnosis made by Modus.'
     elif row['kind'] == 'imaging_text':
         suffix = ' This is recorded report text, not an interpretation of scan images.'
+    if row.get('previous_revision_id'):
+        suffix += f" This saved value was corrected in Modus at {row['available_at']}; original source wording is retained."
     text = f"Recorded {KIND_LABELS[row['kind']]} {label}: {value}{unit}; {recorded_date}.{suffix}"
     return claim(prefix + '-' + row['id'], text, [row['id'], row['source_id']], tool)
 
@@ -346,20 +355,25 @@ def dispatch(context, name, arguments):
     after = [row for row in all_facts(pair['after']) if matches_filter(row, args) and available_fact(row)]
     before_ids = {row['id'] for row in before}
     added = [row for row in after if row['id'] not in before_ids]
-    page = bounded_facts(added, 5)
-    count = sum(row['id'] in before_ids for row in after)
+    before_rows = {row['id']: row for row in before}
+    updated = [row for row in after if row['id'] in before_rows and row.get('revision_id', row['id']) != before_rows[row['id']].get('revision_id', row['id'])]
+    updated_ids = {row['id'] for row in updated}
+    removed = [row for row in before if row['id'] not in {item['id'] for item in after}]
+    page = bounded_facts(added + updated, 5)
+    count = sum(row['id'] in before_ids and row['id'] not in updated_ids for row in after)
     text = (f"{len(added)} matching records became available between {pair['before']['scope']['known_at']} and "
-            f"{pair['after']['scope']['known_at']}; {count} were already present. The occurrence cutoff is unchanged. "
-            f"Showing {len(page)} newly available records. This describes records entering Modus, not changes in health or current medication use.")
+            f"{pair['after']['scope']['known_at']}; {len(updated)} saved records were corrected, {count} were unchanged, "
+            f"and {len(removed)} left the selected date or label scope. The occurrence cutoff is unchanged. "
+            f"Showing {len(page)} added or corrected records. This describes changes to records in Modus, not changes in health or current medication use.")
     warnings = content_warning(page)
-    if len(page) < len(added):
+    if len(page) < len(added) + len(updated):
         warnings.insert(0, 'More newly available matching records exist than are shown; narrow the exact-label filter or inspect the record list.')
     if warnings:
         text += ' ' + ' '.join(warnings)
     return {**evidence(view, page), 'comparison': {'before': deepcopy(pair['before']['scope']),
                 'after': deepcopy(pair['after']['scope']), 'captured_at': pair['captured_at']},
-            'added_count': len(added), 'unchanged_count': count,
-            'truncated': len(page) < len(added) or bool(warnings), 'warnings': warnings,
+            'added_count': len(added), 'updated_count': len(updated), 'removed_from_scope_count': len(removed), 'unchanged_count': count,
+            'truncated': len(page) < len(added) + len(updated) or bool(warnings), 'warnings': warnings,
             'required_claim_ids': [key + '-count'] if warnings else [],
             'claims': [claim(key + '-count', text, [row['id'] for row in page], name)] +
                 [fact_claim(row, name, key) for row in page]}

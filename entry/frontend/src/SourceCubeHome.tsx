@@ -4,7 +4,6 @@ import type { HistoryView } from "./historyTypes";
 import type { Page } from "./Shell";
 import type { View } from "./types";
 import HealthRecordOverview from "./HealthRecordOverview";
-import HistoryQuestionPanel from "./HistoryQuestionPanel";
 import useHistoryView from "./useHistoryView";
 import { dateLabel, timeLabel } from "./ui";
 
@@ -34,7 +33,7 @@ export default function SourceCubeHome({
   if (history.error)
     return (
       <section className="panel empty" role="alert">
-        <AlertCircle size={24} />
+        <AlertCircle strokeWidth={1.5} aria-hidden="true" focusable="false" size={24} />
         <h2>Your records could not be loaded</h2>
         <p>{history.error}</p>
         <button className="secondary" onClick={history.refresh}>
@@ -45,20 +44,20 @@ export default function SourceCubeHome({
   if (!history.view)
     return (
       <section className="panel loading" role="status">
-        <LoaderCircle size={24} className="spin" /> Loading your records…
+        <LoaderCircle strokeWidth={1.5} aria-hidden="true" focusable="false" size={24} className="spin" /> Loading your records…
       </section>
     );
   return (
     <div className="health-record-home">
       {historical && (
         <div className="historical-notice" role="status">
-          <History size={17} />
+          <History strokeWidth={1.5} aria-hidden="true" focusable="false" size={17} />
           <span>
             Records through {dateLabel(view.scope.as_of)}. Files available
             through {timeLabel(view.scope.known_at)}.
           </span>
           <button className="text-button" onClick={onCurrent}>
-            Return to today <ArrowRight size={14} />
+            Return to today <ArrowRight strokeWidth={1.5} aria-hidden="true" focusable="false" size={14} />
           </button>
         </div>
       )}
@@ -69,7 +68,6 @@ export default function SourceCubeHome({
         hasDraft={hasDraft}
         onNavigate={onNavigate}
       />
-      <HistoryQuestionPanel view={history.view} compact />
     </div>
   );
 }

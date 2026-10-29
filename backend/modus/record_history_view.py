@@ -10,6 +10,7 @@ from .record_history_models import date_information, numeric_value, temporal_ori
 from .record_models import METRICS
 from .record_units import normalize_recorded_value
 from .temporal import instant
+from .record_revisions import read_amendments, revised_facts
 
 
 def _legacy_fact(observation, source):
@@ -67,7 +68,7 @@ def _read_history_snapshot(db, cutoff):
     originals = {row[0] for row in db.execute('SELECT id FROM documents')}
     profile_row = db.execute('SELECT data FROM history_profiles WHERE updated_at<=? ORDER BY updated_at DESC,id DESC LIMIT 1', (cutoff,)).fetchone()
     profile = json.loads(profile_row['data']) if profile_row else {'date_of_birth': None, 'updated_at': None, 'storage': 'local'}
-    return sources, generic, legacy, originals, profile
+    return sources, generic, legacy, originals, profile, read_amendments(db, cutoff)
 
 
 def history_views(store, as_of=None, known_ats=(None,)):
@@ -88,10 +89,15 @@ def history_view(store, as_of=None, known_at=None):
     return history_views(store, as_of, (known_at,))[0]
 
 
-def _project_history(state, as_of, cutoff, captured):
-    sources, generic, legacy, originals, profile = state
+def raw_history_facts(state):
+    sources, generic, legacy, _, _, amendments = state
     bridge_ids = {fact.get('observation_id') for fact in generic}
-    all_facts = generic + [_legacy_fact(row, sources[row['source_id']]) for row in legacy if row['id'] not in bridge_ids]
+    return revised_facts(generic + [_legacy_fact(row, sources[row['source_id']]) for row in legacy if row['id'] not in bridge_ids], amendments)
+
+
+def _project_history(state, as_of, cutoff, captured):
+    sources, generic, legacy, originals, profile, amendments = state
+    all_facts = raw_history_facts(state)
     facts, undated = [], []
     for original in all_facts:
         fact = deepcopy(original)

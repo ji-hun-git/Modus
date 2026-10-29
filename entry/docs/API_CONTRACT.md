@@ -73,6 +73,20 @@ Meta preview now uses text/image preparation and extract-then-verify. Every resu
 
 Server Meta authentication prefers `MODUS_META_KEY`; `MODEL_API_KEY` remains a compatibility fallback. Claude and OpenAI keys/adapters are used only by the separate evaluation jury. They are not part of this API or its tool capabilities. Test and check subprocesses strip all four key variables and disable dotenv loading.
 
+## Saved-record corrections
+
+`GET /api/history/facts/{fact_id}/revisions?known_at=...&as_of=...` returns the original saved version followed by append-only corrections admitted by that availability cutoff. The optional exact event-date filter applies to each version; original text/value withholding still applies. Correction reasons are omitted from date-filtered history. Unknown/unavailable facts return 404. At most 1,000 versions are returned; larger histories reject explicitly. `local-owner` is a local review label, not authenticated identity.
+
+`POST /api/history/amendments/preview` accepts exactly `{expected_revision_id, corrected: ReviewedFact, reason}`. `corrected.id` is the stable saved fact ID. It returns a content-bound `preview_id`, current saved record, proposed editable fields and exact before/after changes. Only kind, label, value, unit, occurrence date and facility are editable. Source file, quotation, page, original proposal, availability and actor are server-owned. No-op/unknown/invalid edits reject. Stale revisions return 409. Preview is read-only and invokes no model.
+
+`POST /api/history/amendments/commit` takes the identical payload plus `{preview_id, reviewed:true}` (actual boolean). It validates the current revision inside a SQLite write transaction, then appends a revision and activity event atomically. Server time must strictly follow the preceding revision. The original source, document bytes, draft, original fact and original observation rows are unchanged. Retries of the identical correction return its original receipt, even after later amendments; changed retries or stale previews reject. The hash binds content; it is not authentication or proof a human read the preview.
+
+Current facts retain their stable `id`, a `revision_id`, `previous_revision_id` when amended, and `first_available_at`. `available_at` is the admission time of the selected version. Both generic and legacy measurement tools select the revision available at their frozen cutoff. Incompatible legacy projections disappear only from current measurement views; the exact generic fact and earlier chart version remain available. Original source dates/availability never change.
+
+History comparison now includes `updated:[{before,after}]` and `removed_from_scope:[fact]`; `unchanged_count` excludes corrected records. A corrected occurrence date can move a record outside the selected scope without deleting it. Briefs and Ask use the same versioned projection. Historical briefs remain valid for their original bounds. Correction reasons and reviewer identities do not enter model tools. The model has no amendment tool.
+
+Source details offers latest-version editing, a required reason, before/after review and explicit save. Choosing to edit latest is separate from inspecting a historical version. Saving preserves the open historical view; **Open updated history** explicitly loads current records. An unconfirmed save retries the exact body. General retractions, erasure, authentication and production privacy remain unimplemented.
+
 ## Whole-history questions
 
 `POST /api/history/chat` takes `{message: string(1..2000), as_of?: YYYY-MM-DD|null, known_at?: aware timestamp|null, compare_from?: aware timestamp|null}`. Null occurrence cutoff means all recorded dates. The server captures one clock and SQLite transaction for both availability views, caps future availability at that capture and rejects reversed resolved bounds. Extra authority fields are rejected. This route reads reviewed facts of all eight kinds, including arbitrary measurement names; it does not change the legacy three-metric `/api/agent/chat` contract or Trends charts.

@@ -2331,6 +2331,76 @@
       "source": "docs/PROMPT_IMPLEMENTATION_AUDIT_2026-10-29.md",
       "destination": "docs/PROMPT_IMPLEMENTATION_AUDIT_2026-10-29.md",
       "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/HomeReportComparison.tsx",
+      "destination": "entry/frontend/src/HomeReportComparison.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HomeSourceEvidence.tsx",
+      "destination": "entry/frontend/src/HomeSourceEvidence.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HomeHistoryTrail.tsx",
+      "destination": "entry/frontend/src/HomeHistoryTrail.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/homeReportData.ts",
+      "destination": "entry/frontend/src/homeReportData.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/homeReportData.test.mjs",
+      "destination": "entry/frontend/tests/homeReportData.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/svg/BrandMark.tsx",
+      "destination": "entry/frontend/src/svg/BrandMark.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/svg/SourceGlyph.tsx",
+      "destination": "entry/frontend/src/svg/SourceGlyph.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/svg/Lifeline.tsx",
+      "destination": "entry/frontend/src/svg/Lifeline.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/homeReportRendering.test.mjs",
+      "destination": "entry/frontend/tests/homeReportRendering.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_revisions.py",
+      "destination": "backend/modus/record_revisions.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_amendments.py",
+      "destination": "backend/modus/record_amendments.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_amendments.py",
+      "destination": "backend/tests/test_entry_amendments.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/RecordCorrection.tsx",
+      "destination": "entry/frontend/src/RecordCorrection.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/demo/saved-record-correction.png",
+      "destination": "entry/demo/saved-record-correction.png",
+      "behavior": false
     }
   ]
 }

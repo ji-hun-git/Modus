@@ -20,6 +20,7 @@ import {
   sourcePage,
 } from "./sourceDisplay";
 import RecordConflictComparison from "./RecordConflictComparison";
+import RecordCorrection from "./RecordCorrection";
 import "./source-cube-evidence.css";
 export default function SourceCubeEvidence({
   source: requestedSource,
@@ -191,10 +192,11 @@ export default function SourceCubeEvidence({
           </div>
           {!!edited.length && (
             <p className="source-evidence-note">
-              Edited during review: {edited.map(reviewedFieldLabel).join(", ")}.
+              {selected.previous_revision_id ? "Corrected after saving" : "Edited during review"}: {edited.map(reviewedFieldLabel).join(", ")}.
               The excerpt retains the original wording.
             </p>
           )}
+          <RecordCorrection key={`${selected.id}:${view.scope.scope_id}`} fact={selected} scope={view.scope} />
         </div>
       )}
       <footer className="source-evidence-footer">

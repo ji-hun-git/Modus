@@ -361,3 +361,8 @@
     gap: 3px;
   }
 }
+.record-correction { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.record-correction fieldset { border: 0; padding: 0; display: grid; gap: 12px; }
+.record-correction label { display: grid; gap: 5px; }
+.record-correction input:not([type="checkbox"]), .record-correction select { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface, white); color: inherit; }
+.record-correction dd { margin: 4px 0 12px; overflow-wrap: anywhere; }

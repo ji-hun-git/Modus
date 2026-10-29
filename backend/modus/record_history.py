@@ -19,12 +19,14 @@ def initialize_history(db):
         'CREATE TABLE IF NOT EXISTS history_commits (draft_id TEXT PRIMARY KEY REFERENCES drafts(id), review_digest TEXT NOT NULL, data TEXT NOT NULL)',
         'CREATE TABLE IF NOT EXISTS history_profiles (id INTEGER PRIMARY KEY, updated_at TEXT NOT NULL, data TEXT NOT NULL)',
         'CREATE INDEX IF NOT EXISTS history_fact_scope ON history_facts(available_at,date,source_id)',
+        'CREATE TABLE IF NOT EXISTS history_amendments (sequence INTEGER PRIMARY KEY, id TEXT UNIQUE NOT NULL, fact_id TEXT NOT NULL, source_id TEXT NOT NULL REFERENCES sources(id), available_at TEXT NOT NULL, data TEXT NOT NULL)',
+        'CREATE INDEX IF NOT EXISTS history_amendment_scope ON history_amendments(fact_id,available_at)',
     ):
         db.execute(sql)
 
 
 def reset_history(db):
-    for table in ('history_commits', 'history_facts', 'history_profiles'):
+    for table in ('history_amendments', 'history_commits', 'history_facts', 'history_profiles'):
         db.execute('DELETE FROM ' + table)
 
 

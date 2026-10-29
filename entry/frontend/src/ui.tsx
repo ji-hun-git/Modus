@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import BrandMark from "./svg/BrandMark";
 import { recordDateLabel } from "./recordPresentation.mjs";
 
 export const dateLabel = recordDateLabel;
@@ -16,8 +17,8 @@ export const timeLabel = (value: string) =>
 export const endOfDay = (value: string) => value + "T23:59:59.999999Z";
 export function Brand() {
   return (
-    <div className="brand" aria-label="Modus Records">
-      modus<span>records</span>
+    <div className="brand" aria-label="Modus">
+      <BrandMark />modus
     </div>
   );
 }

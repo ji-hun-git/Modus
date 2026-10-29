@@ -278,6 +278,14 @@ export default function App() {
   const canCompare = mode !== "latest" || !!saved;
   const today = new Date();
   const currentDay = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  useEffect(() => {
+    const showCurrent = () => {
+      setMode("latest"); setAsOf(currentDay); setPage("Home"); setInspector(null);
+      if (mode === "latest" && asOf === currentDay) void refresh();
+    };
+    window.addEventListener("modus:show-current-history", showCurrent);
+    return () => window.removeEventListener("modus:show-current-history", showCurrent);
+  }, [mode, asOf, currentDay]);
   const captureDisplayedScope = useCallback(
     (scope: HistoryView["scope"]) => {
       displayedHistory.current = { key, page, scope };

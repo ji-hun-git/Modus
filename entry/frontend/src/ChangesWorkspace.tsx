@@ -58,6 +58,7 @@ export default function ChangesWorkspace({
           {[
             { key: "all", label: "All activity" },
             { key: "import", label: "Records" },
+            { key: "amendment", label: "Corrections" },
             { key: "extraction", label: "Drafts" },
             { key: "question", label: "Questions" },
             { key: "extraction_failure", label: "Reading issues" },
@@ -111,7 +112,7 @@ export default function ChangesWorkspace({
                             ? "Document reading did not finish"
                             : change.kind === "question"
                               ? "Record question"
-                              : "Recorded action";
+                              : change.kind === "amendment" ? "Saved record corrected" : "Recorded action";
                     const count =
                       change.fact_count ?? change.observation_ids?.length ?? 0;
                     const itemLabel =
@@ -151,7 +152,7 @@ export default function ChangesWorkspace({
                             {change.kind === "import"
                               ? source?.title ||
                                 `${count} ${itemLabel}${count === 1 ? "" : "s"} added`
-                              : change.message ||
+                              : change.kind === "amendment" ? "A new reviewed version was saved. The original and earlier versions are preserved." : change.message ||
                                 change.error ||
                                 "Recorded workspace action"}
                           </p>

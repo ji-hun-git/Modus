@@ -1,3 +1,5 @@
+/* The folio mark shares the same stroke as navigation icons. */
+.brand > svg { flex-shrink:0; }
 /* One responsive shell: quiet top navigation, accessible mobile bottom bar. */
 .nav-label-mobile { display: none; }
 .sidebar {
@@ -40,7 +42,7 @@
 .nav-more .history-tools-menu {
   position: absolute;
   z-index: 30;
-  inset: calc(100% + 8px) auto auto 0;
+  inset: calc(100% + 8px) 0 auto auto;
   width: 230px;
   max-width: calc(100vw - 32px);
   padding: 8px;
@@ -50,9 +52,9 @@
   background: var(--surface);
   box-shadow: var(--shadow-overlay);
 }
-.sidebar nav .history-tools-menu button { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; min-height: 44px; width: 100%; padding: 10px 12px; border-radius: var(--radius-control); background: transparent; color: var(--ink); font-size: 14px; text-align: left; }
-.sidebar nav .history-tools-menu button:hover { background: var(--soft); }
-.sidebar nav .history-tools-menu button[aria-current="page"] { background: var(--selected); color: var(--action); }
+.sidebar .history-tools-menu button { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; min-height: 44px; width: 100%; padding: 10px 12px; border-radius: var(--radius-control); background: transparent; color: var(--ink); font-size: 14px; text-align: left; }
+.sidebar .history-tools-menu button:hover { background: var(--soft); }
+.sidebar .history-tools-menu button[aria-current="page"] { background: var(--selected); color: var(--action); }
 .workspace-label { justify-self: end; display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; color: var(--muted); white-space: nowrap; font-size: 14px; }
 .profile-initial { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 8px; color: var(--action); background: var(--selected); font-size: 14px; }
 .workspace-about { margin-left: 2px; }
@@ -74,7 +76,6 @@ main { width: 100%; max-width: 1200px; margin: 0 auto; padding: 40px 0 64px; }
   .sidebar { gap: 16px; padding-inline: 24px; }
   .sidebar nav { gap: 20px; }
   .workspace { padding-inline: 24px; }
-  .workspace-label > span:nth-child(2) { display: none; }
   main { padding-top: 32px; }
 }
 @media (max-width: 767px) {
@@ -84,14 +85,15 @@ main { width: 100%; max-width: 1200px; margin: 0 auto; padding: 40px 0 64px; }
   .mobile-header .brand { padding: 0; font-size: 24px; }
   .mobile-header .demo-control { min-height: 44px; font-size: 13px; }
   .sidebar { position: fixed; inset: auto 0 0; display: block; min-height: 64px; height: auto; padding: 4px 16px calc(4px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); background: var(--surface); }
-  .sidebar > .brand, .sidebar .workspace-label, .desktop-demo { display: none; }
+  .sidebar > .brand, .desktop-demo { display: none; }
+  .sidebar .workspace-label { position:fixed; top:6px; right:16px; display:flex; gap:12px; }
   .sidebar nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 12px; }
   .sidebar nav > button, .sidebar .history-tools.nav-more > summary { flex-direction: column; gap: 4px; min-height: 52px; padding: 6px; border-bottom: 0; border-top: 2px solid transparent; font-size: 14px; line-height: 20px; }
   .sidebar nav > button > svg { display: block; width: 20px; height: 20px; }
   .sidebar nav > button.active, .sidebar .history-tools.nav-more.active-tools > summary { border-top-color: var(--action); background: transparent; }
-  .sidebar .history-tools.nav-more > summary { width: 100%; }
-  .sidebar .nav-more .history-tools-menu { inset: auto 0 calc(100% + 12px) auto; width: 250px; max-height: calc(100dvh - 132px); overflow-y: auto; }
-  .sidebar nav .history-tools-menu button { min-height: 48px; }
+  .sidebar .history-tools.nav-more > summary { flex-direction:row; gap:6px; min-height:44px; padding:6px 0; border:0; }
+  .sidebar .nav-more .history-tools-menu { inset: calc(100% + 8px) 0 auto auto; width: 250px; max-height: calc(100dvh - 132px); overflow-y: auto; }
+  .sidebar .history-tools-menu button { min-height: 48px; }
   .workspace { margin: 0; padding: 0 16px; }
   main { padding: 24px 0 calc(96px + env(safe-area-inset-bottom)); }
   .page-header { gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }

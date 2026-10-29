@@ -38,6 +38,9 @@ export type HistoryFact = Omit<DraftFact, "source_quote" | "value"> & {
   within_date_scope?: boolean;
   age_years?: number | null;
   reviewed_fields?: string[];
+  revision_id?: string;
+  previous_revision_id?: string;
+  first_available_at?: string;
   normalization?: {
     status: "identity" | "converted" | "unresolved";
     normalized: {
@@ -78,6 +81,8 @@ export type HistoryComparison = {
   before: HistoryView;
   after: HistoryView;
   added: HistoryFact[];
+  updated?: { before: HistoryFact; after: HistoryFact }[];
+  removed_from_scope?: HistoryFact[];
   added_counts: { total: number; dated: number; undated: number };
   unchanged_count: number;
   new_conflicts: HistoryView["conflicts"];

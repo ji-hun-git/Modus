@@ -18,6 +18,8 @@ from modus.record_store import RecordStore
 from modus.ingest import make_draft, MAX_BYTES, NoObservationsError
 from modus.history_ingest import make_history_draft
 from modus.record_history import commit_history, history_view, get_profile, update_profile
+from modus.record_amendments import (AmendmentRequest, AmendmentCommitRequest, AmendmentConflict,
+                                    preview_amendment, commit_amendment, revision_history)
 from modus.provider import provider_status
 from modus.record_extraction import extract_record_document
 from .models import RELEASE, CompareRequest, ChatRequest, HistoryChatRequest, ExportRequest, CommitRequest, HistoryCommitRequest, ProfileRequest
@@ -35,7 +37,7 @@ from .document_guard import screen_untrusted
 
 load_dotenv(ROOT / '.env')
 CHANGE_FIELDS = {'id', 'created_at', 'kind', 'status', 'draft_id', 'source_id', 'available_at',
-                 'observation_ids', 'fact_count', 'scope', 'comparison', 'message', 'answer', 'mode', 'error', 'execution', 'telemetry'}
+                 'observation_ids', 'fact_count', 'fact_id', 'revision_id', 'scope', 'comparison', 'message', 'answer', 'mode', 'error', 'execution', 'telemetry'}
 
 
 def projection(value, fields):
@@ -169,6 +171,27 @@ def create_entry_app(database=None, clock=None):
         if document is None:
             raise HTTPException(404, 'Original is unavailable')
         return attachment(document)
+
+    @app.get('/api/history/facts/{fact_id}/revisions')
+    def revisions(fact_id: str, known_at: AwareDatetime | None = None, as_of: date | None = None):
+        try:
+            return revision_history(store, fact_id, known_at, as_of.isoformat() if as_of else None)
+        except ValueError as error:
+            raise HTTPException(404 if str(error) == 'Saved record not found' else 422, str(error)) from None
+
+    @app.post('/api/history/amendments/preview')
+    def amendment_preview(request: AmendmentRequest):
+        try:
+            return preview_amendment(store, request)
+        except ValueError as error:
+            raise HTTPException(409 if isinstance(error, AmendmentConflict) else 422, str(error)) from None
+
+    @app.post('/api/history/amendments/commit')
+    def amendment_commit(request: AmendmentCommitRequest):
+        try:
+            return {**commit_amendment(store, request), 'bundle_id': BUNDLE_ID}
+        except ValueError as error:
+            raise HTTPException(409 if isinstance(error, AmendmentConflict) else 422, str(error)) from None
 
     @app.get('/api/profile')
     def profile(known_at: AwareDatetime | None = None):
@@ -344,7 +367,7 @@ def create_entry_app(database=None, clock=None):
         rows = store.history(known_at)
         return {'changes': [projected_change(row)
             for row in rows if row.get('schema') == 'modus-entry-change-v1'
-            and row.get('kind') in {'import', 'question', 'extraction', 'extraction_failure'}]}
+            and row.get('kind') in {'import', 'question', 'extraction', 'extraction_failure', 'amendment'}]}
 
     @app.post('/api/records/export')
     def export(request: ExportRequest):

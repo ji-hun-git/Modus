@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "test": "node --test tests/importQueue.test.mjs tests/historyPlot.test.mjs tests/recordPresentation.test.mjs tests/overviewRecords.test.mjs tests/historyQuestionScope.test.mjs tests/briefSelection.test.mjs tests/historyReplay.test.mjs tests/homeRecordSeries.test.mjs",
+    "test": "node --test tests/importQueue.test.mjs tests/historyPlot.test.mjs tests/recordPresentation.test.mjs tests/overviewRecords.test.mjs tests/historyQuestionScope.test.mjs tests/briefSelection.test.mjs tests/historyReplay.test.mjs tests/homeRecordSeries.test.mjs tests/homeReportData.test.mjs tests/homeReportRendering.test.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1"
   },

@@ -9,8 +9,8 @@
 
 /* Modus light service system. Brand colour denotes interaction, never health. */
 :root {
-  --font-body: "Inter", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
-  --font-display: Georgia, "Times New Roman", serif;
+  --font-body: Inter, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
   --number-font: var(--font-body);
   font-family: var(--font-body);
   font-size: 16px;
@@ -20,31 +20,31 @@
   color-scheme: light;
   color: var(--ink);
   background: var(--canvas);
-  --ink: #19231e;
-  --muted: #4e5b53;
-  --faint: #606c64;
-  --line: #d9ded8;
-  --line-strong: #77817a;
-  --blue: #355d50;
-  --blue-hover: #294b40;
-  --action: #355d50;
-  --action-hover: #294b40;
-  --on-action: #fff;
-  --focus: #245e87;
-  --soft: #efede7;
-  --surface: #ffffff;
-  --canvas: #f6f5f1;
-  --inset: #efede7;
-  --hover: #efede7;
-  --selected: #e5ece7;
+  --ink: #1A1814;
+  --muted: #7A7268;
+  --faint: #7A7268;
+  --line: #E2DACB;
+  --line-strong: #C9BFAE;
+  --blue: var(--action);
+  --blue-hover: var(--action-hover);
+  --action: #1A1814;
+  --action-hover: #3F3A34;
+  --on-action: #FFFCF7;
+  --focus: #B45309;
+  --soft: #EDE6D8;
+  --surface: #FFFCF7;
+  --canvas: #F4F0E6;
+  --inset: #EDE6D8;
+  --hover: #E2DACB;
+  --selected: #EDE6D8;
   --warning: #795218;
   --warning-bg: #f5ebdd;
   --error: #9c443d;
   --error-bg: #faece8;
   --info: #345f7a;
   --info-bg: #eaf1f5;
-  --shadow-card: 0 1px 2px rgb(25 35 30 / 4%);
-  --shadow-overlay: 0 12px 40px rgb(25 35 30 / 14%);
+  --shadow-card: none;
+  --shadow-overlay: none;
   --motion-press: 80ms;
   --motion-fast: 120ms;
   --motion-standard: 180ms;
@@ -55,8 +55,8 @@
   --assistant-line: var(--line-strong);
   --assistant-ink: var(--ink);
   --assistant-muted: var(--muted);
-  --radius-card: 12px;
-  --radius-control: 8px;
+  --radius-card: 10px;
+  --radius-control: 9px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -65,6 +65,11 @@
   --space-6: 32px;
   --space-7: 48px;
   --space-8: 64px;
+  --surface-2: #EDE6D8;
+  --ink-soft: #3F3A34;
+  --mark: #355D50;
+  --mark-soft: #A8C4B8;
+  --svg-stroke: 1.5;
 }
 h1 {
   font-size: 32px;

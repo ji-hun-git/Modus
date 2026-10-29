@@ -20,6 +20,8 @@ Open **http://127.0.0.1:8011/**. Setup creates an isolated Python environment an
 
 ## What works
 
+- Correct a saved record from its source details: load the latest saved version, enter a reason, review the before/after values and explicitly save. The original file and excerpt stay unchanged. Earlier availability shows the earlier revision; current Home, factual Ask, briefs and legacy measurements use the correction. View saved versions exposes the history. This is an append-only amendment, not deletion or clinical verification.
+
 - Upload up to ten supported files, then review and save each separately. CSV, explicit text and text PDFs have deterministic local routes. Explicitly selected PNG/JPEG/PDF model extraction uses Muse Spark. Local OCR is disabled in the contest entry, including during Meta document preparation.
 - Records and Documents retain eight record kinds: measurements, visits, provider-recorded diagnoses, procedures, prescriptions, vaccinations, imaging report text and other recorded text. Original dates, units, partial dates and unknowns remain explicit.
 - Models produce proposals; the owner reviews the selection before a transactional save. Original wording, proposed values and review edits remain distinct. Exact retries do not create duplicate records.
@@ -34,6 +36,8 @@ Try **Add records → review → save → open a result → inspect evidence**, 
 Home, Records and More are the three primary destinations. **More** contains Ask, Brief, Trends, Documents, Replay and Changes. Date controls collapse into a single **View as of** chip. [Current review and remaining work](entry/docs/REVIEW_READINESS_2026-10-28.md).
 
 ## Verification and Meta evidence
+
+Saved-record corrections pass **1,329 backend / 1,127 entry / 87 frontend tests**, both builds and the existing offline checks. A fresh authored browser record was corrected from72 to73 with the original72 excerpt and both saved versions preserved. Historical views, current factual answers and briefs were checked separately. [Correction example](entry/demo/saved-record-correction.png). This milestone made zero model requests and did not access the closed held-outs.
 
 The latest full local gate passes **1,301 backend /1,099 entry /70 frontend tests**, both builds and offline checks. Eight-kind Replay was verified through actual upload, review, save, source inspection and comparison download. [Replay browser evidence](eval/replay-browser-20261029.json). These regression checks are separate from model-quality results.
 
@@ -59,7 +63,7 @@ GitHub Actions is configured to run the entry checks on Windows and Ubuntu with 
 
 ## Current limits
 
-This is a synthetic research prototype. Storage is not encrypted and authenticated owner sessions, cloud-disclosure controls, complete deletion, durable amendments and general undo are unfinished. Do not treat it as a production service for personal medical records. Broad file-layout accuracy, folder/ZIP intake and native desktop delivery remain unqualified or incomplete.
+This is a synthetic research prototype. Storage is not encrypted and authenticated owner sessions, cloud-disclosure controls, complete deletion, retractions and general undo are unfinished. Reviewed append-only corrections are implemented. Do not treat it as a production service for personal medical records. Broad file-layout accuracy, folder/ZIP intake and native desktop delivery remain unqualified or incomplete.
 
 Models cannot execute shell commands, SQL, arbitrary URLs, record writes or permission changes. Imported text and model tool arguments are untrusted. Numerical and temporal boundaries are enforced by typed code; a citation ID alone does not prove that a sentence is supported.
 

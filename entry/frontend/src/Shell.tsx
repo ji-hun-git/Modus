@@ -27,9 +27,9 @@ export type Page =
 const pages = [
   { page: "Home" as const, label: "Home", icon: House },
   { page: "Timeline" as const, label: "Records", icon: CalendarDays },
+  { page: "Ask" as const, label: "Ask", icon: MessageCircle },
 ];
 const moreTools = [
-  { page: "Ask" as const, label: "Ask your records", icon: MessageCircle },
   { page: "Brief" as const, label: "Brief", icon: FileText },
   { page: "Measurements" as const, label: "Trends", icon: ChartNoAxesCombined },
   { page: "Records" as const, label: "Documents", icon: Files },
@@ -74,7 +74,7 @@ export default function Shell({
       aria-label="Demo data: about this data"
       title="About this example workspace"
     >
-      <Info size={15} />
+      <Info size={15} strokeWidth={1.5} aria-hidden="true" focusable="false" />
       <span>Demo data</span>
     </button>
   );
@@ -96,8 +96,8 @@ export default function Shell({
           event.currentTarget.open = false;
       }}
     >
-      <summary aria-label="More: Ask, Brief, Trends, Documents, Replay, Changes">
-        <MoreHorizontal size={18} />
+      <summary aria-label="More: Brief, Trends, Documents, Replay, Changes">
+        <MoreHorizontal size={18} strokeWidth={1.5} aria-hidden="true" focusable="false" />
         <span>More</span>
       </summary>
       <div className="history-tools-menu" role="group" aria-label="More views">
@@ -113,7 +113,7 @@ export default function Shell({
               }
             }}
           >
-            <Icon size={17} />
+            <Icon size={17} strokeWidth={1.5} aria-hidden="true" focusable="false" />
             <span>{label}</span>
           </button>
         ))}
@@ -128,7 +128,6 @@ export default function Shell({
         </a>
         <header className="mobile-header">
           <Brand />
-          {demoControl}
         </header>
         <aside className="sidebar">
           <Brand />
@@ -144,18 +143,14 @@ export default function Shell({
                   if (toolsRef.current) toolsRef.current.open = false;
                 }}
               >
-                <Icon size={18} strokeWidth={1.8} />
+                <Icon size={18} strokeWidth={1.5} aria-hidden="true" focusable="false" />
                 <span className="nav-label-desktop">{label}</span>
                 <span className="nav-label-mobile">{label}</span>
               </button>
             ))}
-            {moreControl}
           </nav>
           <div className="workspace-label">
-            <span className="profile-initial" aria-hidden="true">
-              A
-            </span>
-            <span>Alex’s record</span>
+            {moreControl}
             <span className="workspace-about">{demoControl}</span>
           </div>
         </aside>
@@ -171,7 +166,7 @@ export default function Shell({
               </div>
               <div className="header-actions">
                   <button className="primary" onClick={onImport}>
-                    <Plus size={18} />
+                    <Plus size={18} strokeWidth={1.5} aria-hidden="true" focusable="false" />
                     {hasDraft ? "Continue review" : "Add records"}
                   </button>
               </div>
@@ -236,7 +231,7 @@ export default function Shell({
               Record review and replay · No health interpretation or advice
             </span>
             <button className="text-button" onClick={() => setAboutOpen(false)}>
-              Back to workspace <ArrowUpRight size={14} />
+              Back to workspace <ArrowUpRight size={14} strokeWidth={1.5} aria-hidden="true" focusable="false" />
             </button>
           </div>
         </Modal>
