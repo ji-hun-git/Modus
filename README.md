@@ -2,7 +2,7 @@
 
 **Your history, with the evidence beside it.** Upload supported medical records, review the extracted entries, and build a history you can inspect and correct. Home shows up to four latest result groups, a compact Ask bar and one Add records action. Open any result to inspect its original wording and review edits. Documents keeps one source file per cube.
 
-![Results and records by date](entry/demo/records-overview.png)
+![Your record with dated history and selectable file evidence](entry/demo/home-after.png)
 
 This repository contains the bounded record-reconciliation application prepared for the Meta Global AI Developer Hackathon. It preserves recorded information and disagreements; it does not generate diagnosis, treatment or medical advice. Organizer eligibility of this concrete health-record workflow remains unconfirmed.
 
@@ -35,7 +35,7 @@ Home, Records and More are the three primary destinations. **More** contains Ask
 
 ## Verification and Meta evidence
 
-The latest full local gate passes **1,301 backend /1,099 entry /61 frontend tests**, both builds and offline checks. Eight-kind Replay was verified through actual upload, review, save, source inspection and comparison download. [Replay browser evidence](eval/replay-browser-20261029.json). These regression checks are separate from model-quality results.
+The latest full local gate passes **1,301 backend /1,099 entry /70 frontend tests**, both builds and offline checks. Eight-kind Replay was verified through actual upload, review, save, source inspection and comparison download. [Replay browser evidence](eval/replay-browser-20261029.json). These regression checks are separate from model-quality results.
 
 **29 October update:** Modus runs entirely on Meta models. Its evaluation uses a cross-provider judge panel (Meta Muse, Anthropic Claude, OpenAI) to avoid single-model self-preference. The evaluator is isolated under `eval/judges`; deterministic text reading and typed tools remain ordinary software. Five fresh synthetic browser cases received fifteen valid judgments. Five earlier Claude API failures are retained; the corrected run reused Muse/OpenAI results and a subsequent exact rerun made zero requests. Human labels are not supplied. [Current scoreboard, costs and limitations](SCOREBOARD.md).
 
@@ -43,7 +43,7 @@ The current browser rehearsal verified pure Meta extract→verify, explicit corr
 
 The reviewed-brief milestone passes **1,042 backend / 926 entry / 55 frontend tests**, both builds and offline evaluations. Actual browser checks cover four newly authored uploads, all eight record kinds, selection, source inspection, review, HTML/JSON downloads, and stale-preview rejection. Ten selected records produce eleven exported records because a conflicting laboratory copy is explicitly retained. [Browser evidence](eval/record-brief-browser-20261028.json). These changes made zero provider requests and did not access held-outs or frozen baselines. User-value testing remains proposed, not completed.
 
-The shared interface uses self-hosted Inter, a restrained blue action palette, clearer hierarchy and responsive controls. [Meta design research and font provenance](research/META_DESIGN_APPLICATION_2026-10-28.md) distinguishes the official sources from Modus's own design choices.
+The active interface uses off-white surfaces, deep-green actions, self-hosted Inter and a personal serif Home heading. Home plots actual dated observations; each hexagonal file cell opens its own evidence. No clinical range or continuous trajectory is inferred. [Before](entry/demo/home-before.png) · [After](entry/demo/home-after.png) · [Master-prompt implementation and missing work](docs/PROMPT_IMPLEMENTATION_AUDIT_2026-10-29.md). The earlier blue design research remains historical. [Meta design research and font provenance](research/META_DESIGN_APPLICATION_2026-10-28.md) distinguishes the official sources from Modus's own design choices.
 
 The whole-history extension passes **994 backend / 878 entry / 48 frontend tests**, both builds and offline evaluations. On 16 newly authored development cases, the unchanged legacy path passes 4/16 and the new path 16/16; these deliberately measure expanded coverage, not independent superiority. [Agent and limits](entry/docs/WHOLE_HISTORY_AGENT.md) · [Measured development results](eval/history-agent-development.json).
 

@@ -2296,6 +2296,41 @@
       "source": "eval/replay-browser-20261029.json",
       "destination": "eval/replay-browser-20261029.json",
       "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/HomeEvidenceStack.tsx",
+      "destination": "entry/frontend/src/HomeEvidenceStack.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HomeRecordSeries.tsx",
+      "destination": "entry/frontend/src/HomeRecordSeries.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/homeSeriesData.ts",
+      "destination": "entry/frontend/src/homeSeriesData.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/homeRecordSeries.test.mjs",
+      "destination": "entry/frontend/tests/homeRecordSeries.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/demo/home-before.png",
+      "destination": "entry/demo/home-before.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/home-after.png",
+      "destination": "entry/demo/home-after.png",
+      "behavior": false
+    },
+    {
+      "source": "docs/PROMPT_IMPLEMENTATION_AUDIT_2026-10-29.md",
+      "destination": "docs/PROMPT_IMPLEMENTATION_AUDIT_2026-10-29.md",
+      "behavior": false
     }
   ]
 }

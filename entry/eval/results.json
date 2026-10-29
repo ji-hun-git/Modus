@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "generated_at": "2026-10-28T18:01:03.377012+00:00",
+  "generated_at": "2026-10-29T01:58:01.215116+00:00",
   "bundle_id": "sha256:b4f1fa60955f40873fac6339ce84149543eec63c9c52558553fd9ca35d8e2adf",
   "scope": "Six authored temporal and five deterministic routing development cases; no independent quality benchmark or live model call.",
   "temporal": [

@@ -39,12 +39,6 @@ export function Modal({
   const latest = useRef({ busy, onClose });
   latest.current = { busy, onClose };
   useEffect(() => {
-    // Review stages can replace the focused control without unmounting.
-    if (!ref.current?.contains(document.activeElement)) {
-      (ref.current?.querySelector<HTMLElement>('button:not(:disabled)') || ref.current)?.focus();
-    }
-  });
-  useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     const background = document.querySelector<HTMLElement>(".app-layout");
     if (background) background.inert = true;
@@ -89,6 +83,13 @@ export function Modal({
       previous?.focus();
     };
   }, []);
+  useEffect(() => {
+    // Run after the mount effect captures the opener. Review stages can replace
+    // the focused control without unmounting the dialog.
+    if (!ref.current?.contains(document.activeElement)) {
+      (ref.current?.querySelector<HTMLElement>('button:not(:disabled)') || ref.current)?.focus();
+    }
+  });
   return createPortal(
     <div className="modal-backdrop" onClick={() => !busy && onClose()}>
       <section

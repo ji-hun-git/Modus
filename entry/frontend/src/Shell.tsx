@@ -41,7 +41,7 @@ const moreTools = [
   { page: "Changes" as const, label: "Changes", icon: History },
 ];
 const pageTitle = {
-  Home: "Your health records",
+  Home: "Your records",
   Timeline: "Your records",
   Records: "Your documents",
   Measurements: "Measurement history",
@@ -72,6 +72,7 @@ export default function Shell({
       onClick={() => setAboutOpen(true)}
       aria-haspopup="dialog"
       aria-label="Demo data: about this data"
+      title="About this example workspace"
     >
       <Info size={15} />
       <span>Demo data</span>
@@ -154,7 +155,8 @@ export default function Shell({
             <span className="profile-initial" aria-hidden="true">
               A
             </span>
-            <span>Alex’s history</span>
+            <span>Alex’s record</span>
+            <span className="workspace-about">{demoControl}</span>
           </div>
         </aside>
         <div className="workspace">
@@ -163,20 +165,17 @@ export default function Shell({
             className={page === "Home" ? "home-page" : undefined}
             tabIndex={-1}
           >
-            <div className="page-header">
+            {page !== "Home" && <div className="page-header">
               <div>
                 <h1>{pageTitle[page]}</h1>
               </div>
               <div className="header-actions">
-                <div className="desktop-demo">{demoControl}</div>
-                {page !== "Home" && (
                   <button className="primary" onClick={onImport}>
                     <Plus size={18} />
                     {hasDraft ? "Continue review" : "Add records"}
                   </button>
-                )}
               </div>
-            </div>
+            </div>}
             {children}
           </main>
         </div>

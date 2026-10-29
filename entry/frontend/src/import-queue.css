@@ -13,7 +13,7 @@
 .import-queue-limits,
 .import-queue-memory {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 12px;
 }
 .import-queue {
@@ -51,7 +51,7 @@
 }
 .import-queue-number {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   flex-shrink: 0;
 }
 .import-queue-name {
@@ -59,16 +59,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: 14px;
 }
 .import-queue-name small {
   display: block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 2px;
 }
 .import-queue-total {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
   margin-bottom: 18px;
 }
@@ -103,7 +103,7 @@
 }
 .import-review-heading > span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
 }
 .import-review-heading h3 {
   font-size: 16px;
@@ -114,11 +114,11 @@
   gap: 3px;
   margin: 0 0 16px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
 }
 .import-review-status strong {
   color: var(--ink);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
 }
 .import-review-layout {
@@ -226,7 +226,7 @@
     align-items: flex-start;
   }
   .import-queue-heading p {
-    font-size: 13px;
+    font-size: 14px;
   }
   .import-queue {
     grid-template-columns: 1fr;
