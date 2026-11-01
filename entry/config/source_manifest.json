@@ -2706,6 +2706,11 @@
       "source": "entry/demo/correction-evidence.png",
       "destination": "entry/demo/correction-evidence.png",
       "behavior": false
+    },
+    {
+      "source": "entry/docs/COMPETITION_CHECKLIST.md",
+      "destination": "COMPETITION_CHECKLIST.md",
+      "behavior": false
     }
   ]
 }

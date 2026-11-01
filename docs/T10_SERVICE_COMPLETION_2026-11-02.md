@@ -46,6 +46,8 @@ The wider workspace runner also passed 990 backend tests before the final fronte
 
 The public candidate uses the exact source allowlist, excluding protected evaluation artifacts from this synchronization. Historical published evaluation files remain as they were. Current CI runs **offline service regression** on Windows and Ubuntu; it must not be described as the full release gate. The release-check scripts remain available and unchanged in purpose. A full release check has not qualified this source revision.
 
+Service code commit `f2b5e63` passed both Windows and Ubuntu: [CI run](https://github.com/ji-hun-git/Modus/actions/runs/41335182841). Subsequent documentation changes do not extend this claim to a new full release gate.
+
 The README describes the actual owner flow, Meta's role, current evidence, privacy limits and license status. Screenshots show the authored synthetic browser exercise. No credentials, databases, private reference kit or raw user history belong in this source update.
 
 ## Still missing

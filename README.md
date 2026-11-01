@@ -1,5 +1,7 @@
 # Modus Records
 
+[![Offline service checks](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml)
+
 **Ask your history. See the original. Keep every correction.**
 
 Medical records arrive across years, files and institutions. Modus brings their recorded facts into one inspectable timeline. Ask for a past result, follow it to its source, and correct a transcription without erasing what the original said.
@@ -75,6 +77,7 @@ The competition source is selected by `entry/config/source_manifest.json`; broad
 **LICENSE: undecided.** Jason must select a first-party license before final submission. No open-source license is granted by this README. [Third-party notices](THIRD_PARTY_NOTICES.md) retain their own terms.
 
 - [API contract](entry/docs/API_CONTRACT.md)
+- [Competition readiness and remaining blockers](COMPETITION_CHECKLIST.md)
 - [Agent workflow](entry/docs/AGENT_WORKFLOW.md)
 - [Original goals and prompt continuity](entry/docs/GOALS_AND_PROMPTS.md)
 - [Data provenance](entry/docs/DATA.md)
