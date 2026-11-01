@@ -51,20 +51,14 @@ export type HistoryFact = Omit<DraftFact, "source_quote" | "value"> & {
   } | null;
 };
 export type HistoryView = {
+  retrieval?: import('./TerminologyDetails').RetrievalInfo | null;
+  page?: { snapshot_id: string; section: string; offset: number; limit: number; returned: number; total: number; matched_sources: number; next_offset: number | null; previous_offset: number | null };
+  fields?: { kind: FactKind; label: string; count: number }[];
+  facets?: { kinds: FactKind[]; facilities: string[]; facilities_truncated: boolean; date_bounds: string[] };
   scope: Omit<Scope, "as_of"> & { as_of: string | null };
   facts: HistoryFact[];
   undated_facts: HistoryFact[];
-  sources: Pick<
-    Source,
-    | "id"
-    | "title"
-    | "type"
-    | "provider"
-    | "date"
-    | "available_at"
-    | "availability_basis"
-    | "original_available"
-  >[];
+  sources: PagedSource[];
   counts: {
     facts: number;
     sources: number;
@@ -87,4 +81,8 @@ export type HistoryComparison = {
   unchanged_count: number;
   new_conflicts: HistoryView["conflicts"];
   captured_at: string;
+};
+
+export type PagedSource = Pick<Source, "id" | "title" | "type" | "provider" | "date" | "available_at" | "availability_basis" | "original_available"> & {
+  fact_count?: number; latest_date?: string | null; first_date?: string | null; has_undated?: boolean; display_label?: string;
 };

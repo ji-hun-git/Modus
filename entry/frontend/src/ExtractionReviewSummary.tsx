@@ -1,6 +1,7 @@
-import { AlertCircle, FileCheck2, FileText } from "lucide-react";
+import { AlertCircle, FileCheck2 } from "lucide-react";
 import { metricLabel, type ExtractionReview } from "./types";
 import "./extraction-review.css";
+import ReportCoverageSummary from "./ReportCoverageSummary";
 
 const documentLabels: Record<string, string> = {
   lab: "Lab report",
@@ -53,22 +54,25 @@ export default function ExtractionReviewSummary({
       aria-label="Extracted fields and source checks"
     >
       <header>
-        <span className="extraction-review-icon">
-          <FileText size={18} />
-        </span>
         <div>
-          <h3>{documentLabels[review.document_type] || "Document"}</h3>
-          <p>
-            {count} field{count === 1 ? "" : "s"} found
-          </p>
+          <h3>
+            {count
+              ? `${count} field${count === 1 ? "" : "s"} found`
+              : "No fields found"}
+          </h3>
+          <p>{documentLabels[review.document_type] || "Document"}</p>
         </div>
         {flagged.length > 0 && (
           <span className="extraction-review-count">
-            <AlertCircle size={14} /> {flagged.length} to check closely
+            <AlertCircle size={14} /> {flagged.length}{" "}
+            {flagged.length === 1 ? "needs" : "need"} a closer look
           </span>
         )}
       </header>
       <div className="extraction-review-inner">
+        {review.coverage && (
+          <ReportCoverageSummary coverage={review.coverage} />
+        )}
         <p className="extraction-review-check">
           {flagged.length ? (
             <AlertCircle size={15} />
@@ -84,11 +88,11 @@ export default function ExtractionReviewSummary({
             {unsupported.length === 1 ? " is" : "s are"} shown here for
             reference. This version cannot add{" "}
             {unsupported.length === 1 ? "it" : "them"} to your history yet. Only
-            the editable measurements below can be saved.
+            the editable fields below can be saved.
           </p>
         )}
-        <details open={unsupported.length > 0 || flagged.length > 0}>
-          <summary>Fields and source excerpts</summary>
+        <details>
+          <summary>All source checks and excerpts</summary>
           <ol className="extraction-review-facts">
             {review.facts.map((fact) => (
               <li key={fact.id}>

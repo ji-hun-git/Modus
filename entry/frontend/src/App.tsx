@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Shell, { type Page } from "./Shell";
 import ImportWorkflow from "./ImportWorkflow";
+import CorrectionRecoveryNotice from "./CorrectionRecoveryNotice";
 import SourceCubeHome from "./SourceCubeHome";
 import MeasurementsWorkspace from "./MeasurementsWorkspace";
 import HistoryReplayWorkspace from "./HistoryReplayWorkspace";
@@ -23,6 +24,7 @@ import ChangesWorkspace from "./ChangesWorkspace";
 import HistoryTimeline from "./HistoryTimeline";
 import RecordBrief from "./RecordBrief";
 import HistoryQuestionPanel from "./HistoryQuestionPanel";
+import { localCalendarDay } from "./recordPresentation.mjs";
 import useHistoryView from "./useHistoryView";
 import { api, post } from "./api";
 import { Modal, dateLabel, timeLabel, endOfDay } from "./ui";
@@ -188,10 +190,14 @@ function AskWorkspace({
   view,
   historical,
   onScope,
+  seed,
+  onSeedUsed,
 }: {
   view: View;
   historical: boolean;
   onScope: (scope: HistoryView["scope"]) => void;
+  seed: {message: string; afterKnownAt: string} | null;
+  onSeedUsed: () => void;
 }) {
   const history = useHistoryView(view.scope, !historical);
   useEffect(() => {
@@ -216,12 +222,13 @@ function AskWorkspace({
     );
   return (
     <div className="ask-workspace">
-      <HistoryQuestionPanel view={history.view} />
+      <HistoryQuestionPanel view={history.view} seed={seed} onSeedUsed={onSeedUsed} />
     </div>
   );
 }
 
 export default function App() {
+  const [askSeed, setAskSeed] = useState<{message: string; afterKnownAt: string} | null>(null);
   const [page, setPage] = useState<Page>("Home");
   const [asOf, setAsOf] = useState(() => {
     const today = new Date();
@@ -251,6 +258,14 @@ export default function App() {
   const [inspector, setInspector] = useState<Inspector | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [homeDates, setHomeDates] = useState<string[]>([]);
+  const captureHomeDates = useCallback((dates: string[]) => {
+    setHomeDates((previous) => JSON.stringify(previous) === JSON.stringify(dates) ? previous : dates);
+  }, []);
+  const captureDrafts = useCallback((pending: boolean, count: number) => {
+    setHasDraft(pending); setPendingCount(count);
+  }, []);
   const [saved, setSaved] = useState<Commit | null>(null);
   const displayedHistory = useRef<{
     key: string;
@@ -276,15 +291,36 @@ export default function App() {
   const ready = !!displayed && !loading && !comparing;
   const scopeExpanded = page === "Replay" || scopeOpen;
   const canCompare = mode !== "latest" || !!saved;
-  const today = new Date();
-  const currentDay = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const [currentDay, setCurrentDay] = useState(localCalendarDay);
+  useEffect(() => {
+    const updateDay = () => {
+      const next = localCalendarDay();
+      if (next === currentDay) return;
+      if (mode === "latest" && asOf === currentDay) setAsOf(next);
+      setCurrentDay(next);
+    };
+    const timer = window.setInterval(updateDay, 60000);
+    window.addEventListener("focus", updateDay);
+    return () => { window.clearInterval(timer); window.removeEventListener("focus", updateDay); };
+  }, [currentDay, mode, asOf]);
   useEffect(() => {
     const showCurrent = () => {
       setMode("latest"); setAsOf(currentDay); setPage("Home"); setInspector(null);
       if (mode === "latest" && asOf === currentDay) void refresh();
     };
     window.addEventListener("modus:show-current-history", showCurrent);
-    return () => window.removeEventListener("modus:show-current-history", showCurrent);
+    const askCurrent = (event: Event) => {
+      const seed = (event as CustomEvent).detail;
+      if (!seed || typeof seed.message !== "string" || seed.message.length > 2000 || !Number.isFinite(Date.parse(seed.afterKnownAt))) return;
+      setAskSeed({message: seed.message, afterKnownAt: seed.afterKnownAt});
+      setMode("latest"); setAsOf(currentDay); setPage("Ask"); setInspector(null);
+      if (mode === "latest" && asOf === currentDay) void refresh();
+    };
+    window.addEventListener("modus:ask-current-history", askCurrent);
+    return () => {
+      window.removeEventListener("modus:show-current-history", showCurrent);
+      window.removeEventListener("modus:ask-current-history", askCurrent);
+    };
   }, [mode, asOf, currentDay]);
   const captureDisplayedScope = useCallback(
     (scope: HistoryView["scope"]) => {
@@ -423,6 +459,7 @@ export default function App() {
         onImport={openImport}
         hasDraft={hasDraft}
       >
+        <CorrectionRecoveryNotice />
         {saved && (
           <div className="success-banner" role="status">
             <Check size={18} />
@@ -492,13 +529,9 @@ export default function App() {
                 >
                   <Clock3 size={15} />
                   <span>
-                    View as of{" "}
+                    Files available{" "}
                     <strong>
-                      {displayed
-                        ? dateLabel(displayed.scope.known_at.slice(0, 10))
-                        : mode === "latest"
-                          ? "now"
-                          : dateLabel(mode === "then" ? asOf : knownDate)}
+                      {mode === "latest" ? "now" : dateLabel(mode === "then" ? asOf : knownDate) + " UTC"}
                     </strong>
                   </span>
                   <ChevronDown size={14} aria-hidden="true" />
@@ -636,6 +669,9 @@ export default function App() {
             {page === "Home" && displayed && (
               <SourceCubeHome
                 view={displayed}
+                dates={homeDates} currentDay={currentDay} knowledge={mode}
+                pendingCount={pendingCount} onDates={captureHomeDates}
+                onDate={(date, knowledge) => { setAsOf(date); setMode(knowledge); }}
                 onScope={captureDisplayedScope}
                 onNavigate={setPage}
                 onImport={openImport}
@@ -649,10 +685,12 @@ export default function App() {
               />
             )}
             {page === "Measurements" && displayed && (
-              <MeasurementsWorkspace view={displayed} onInspect={inspect} />
+              <MeasurementsWorkspace scope={displayed.scope}
+                historical={mode !== "latest" || asOf !== currentDay} onScope={captureDisplayedScope} />
             )}
             {page === "Ask" && displayed && (
               <AskWorkspace
+                seed={askSeed} onSeedUsed={() => setAskSeed(null)}
                 onScope={captureDisplayedScope}
                 view={displayed}
                 historical={mode !== "latest" || asOf !== currentDay}
@@ -725,7 +763,7 @@ export default function App() {
         open={importOpen}
         onClose={() => setImportOpen(false)}
         health={health}
-        onDraftChange={setHasDraft}
+        onDraftChange={captureDrafts}
         onCommitted={committed}
       />
       {inspector && ready && !importOpen && (

@@ -32,6 +32,7 @@ class HistoryChatRequest(Strict):
     known_at: AwareDatetime | None = None
     compare_from: AwareDatetime | None = None
     message: str = Field(min_length=1, max_length=2000)
+    continuation_token: str | None = Field(default=None, min_length=1, max_length=100, strict=True)
 
 
 class ExportRequest(ScopeRequest):

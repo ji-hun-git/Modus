@@ -87,7 +87,7 @@ export default function HomeRecordSeries({
           <div className="home-series-unit" key={group.unit}>
             <div className="home-series-caption">
               <span>
-                {group.points.length} points ·{" "}
+                {group.points.length} {group.points.length === 1 ? "point" : "points"} ·{" "}
                 {unitLabel(group.unit) || "Unit not recorded"}
               </span>
               <span>

@@ -19,6 +19,8 @@ import { Modal, dateLabel, timeLabel } from "./ui";
 import { recordedDate, sourceDateRange, sourceTitle } from "./sourceDisplay";
 import { unitLabel } from "./recordPresentation.mjs";
 import useHistoryView from "./useHistoryView";
+import HistoryPager from './HistoryPager';
+import {RetrievalFeedback} from './TerminologyDetails';
 import SourceCubeEvidence from "./SourceCubeEvidence";
 import {
   MAX_BRIEF_SELECTION,
@@ -61,7 +63,10 @@ export default function RecordBrief({
   historical: boolean;
   onImport: () => void;
 }) {
-  const { view, error, refresh } = useHistoryView(scope, !historical);
+  const [find, setFind] = useState('');
+  const [recordKind,setRecordKind] = useState('all');
+  const { view: loaded, metadata, error, refresh, setOffset } = useHistoryView(scope, !historical, {query:find,kind:recordKind === 'all' ? undefined : recordKind});
+  const view = loaded || metadata;
   if (error)
     return (
       <section className="panel empty" role="alert">
@@ -82,18 +87,32 @@ export default function RecordBrief({
     );
   // A new captured view starts a new selection and cancels the old draft.
   return (
-    <BriefBuilder key={view.scope.scope_id} view={view} onImport={onImport} />
+    <><label>Find records for your brief<input aria-label="Find records for your brief" value={find} onChange={e => setFind(e.target.value)} /></label>
+      <RetrievalFeedback retrieval={loaded?.retrieval} onChoose={setFind} />
+      <label>Record type for brief<select aria-label="Record type for brief" value={recordKind} onChange={e => setRecordKind(e.target.value)}>
+        <option value="all">All record types</option>{Object.entries(factKindLabels).map(([key,name]) => <option key={key} value={key}>{name}</option>)}
+      </select></label>
+      <HistoryPager view={view} onPage={setOffset} />
+      <BriefBuilder key={view.scope.scope_id} view={view} onImport={onImport} />
+      <HistoryPager view={view} onPage={setOffset} /></>
   );
 }
 
 function BriefBuilder({
-  view,
+  view: pageView,
   onImport,
 }: {
   view: HistoryView;
   onImport: () => void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
+  const retained = useRef<HistoryView | null>(null);
+  const currentIds = new Set([...pageView.facts,...pageView.undated_facts].map(f => f.id));
+  const prior = retained.current;
+  const view: HistoryView = { ...pageView,
+    facts: [...pageView.facts,...(prior?.facts || []).filter(f => selected.includes(f.id) && !currentIds.has(f.id))],
+    undated_facts: [...pageView.undated_facts,...(prior?.undated_facts || []).filter(f => selected.includes(f.id) && !currentIds.has(f.id))],
+    sources: [...pageView.sources,...(prior?.sources || []).filter(s => !pageView.sources.some(row => row.id === s.id))] };
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<FactKind | "all">("all");
   const [title, setTitle] = useState("Record brief");
@@ -131,6 +150,7 @@ function BriefBuilder({
       facts: eligible.filter(
         (fact) =>
           fact.source_id === source.id &&
+          currentIds.has(fact.id) &&
           (kind === "all" || fact.kind === kind) &&
           (!filter ||
             [
@@ -179,6 +199,10 @@ function BriefBuilder({
       );
       return;
     }
+    const keepFacts = [...view.facts,...view.undated_facts].filter(f => next.has(f.id));
+    const keepSources = new Set(keepFacts.map(f => f.source_id));
+    retained.current = {...view, facts:keepFacts.filter(f => f.date),undated_facts:keepFacts.filter(f => !f.date),
+      sources:view.sources.filter(s => keepSources.has(s.id))};
     setSelected([...next]);
     setPrepared(null);
     setReviewed(false);
@@ -397,7 +421,7 @@ function BriefBuilder({
               className="brief-record-picker"
               aria-label="Choose records for your brief"
             >
-              <div className="brief-filter-row">
+              {!pageView.page && <div className="brief-filter-row">
                 <label className="brief-search">
                   <Search size={18} />
                   <span className="sr-only">Find records for your brief</span>
@@ -424,7 +448,7 @@ function BriefBuilder({
                     ))}
                   </select>
                 </label>
-              </div>
+              </div>}
               <div className="brief-selection-count">
                 <span>
                   {selected.length} selected · {shown} shown

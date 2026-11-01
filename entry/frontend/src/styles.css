@@ -9,6 +9,17 @@
 
 /* Modus light service system. Brand colour denotes interaction, never health. */
 :root {
+  --void: #000000;
+  --void-2: #0B0B0C;
+  --star: #F0F0FA;
+  --dim: #545457;
+  --gun: #404040;
+  --signal: #FF5A36;
+  --orbit-line: #29292D;
+  --orbit-muted: #A3A3AA;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-move: cubic-bezier(.77, 0, .175, 1);
   --font-body: Inter, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
   --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
   --number-font: var(--font-body);
@@ -1691,6 +1702,28 @@ main {
 .measurement-history {
   border-top: 1px solid var(--line);
 }
+
+.history-field-controls { display:flex; flex-wrap:wrap; gap:16px; }
+.history-field-controls label { display:grid; gap:6px; font-size:12px; color:var(--muted); min-width:180px; flex:1; }
+.history-field-controls select { width:100%; min-width:0; max-width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--line-strong); border-radius:var(--radius-control); color:var(--ink); background:var(--surface); font:inherit; font-size:14px; }
+.history-field-row .history-reading > time { width:100%; color:var(--muted); font-size:12px; margin-bottom:5px; }
+.history-field-row .history-reading > strong { font-size:20px; white-space:pre-wrap; }
+.measurements-workspace .home-record-series { margin:24px 0; }
+.measurements-workspace .home-series-unit { margin-bottom:16px; }
+.measurements-workspace .home-series-caption,
+.measurements-workspace .home-series-dates { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; color:var(--muted); font:12px var(--mono); }
+.measurements-workspace .home-series-canvas { position:relative; height:200px; margin-top:12px; }
+.measurements-workspace .home-series-canvas > svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.measurements-workspace .home-series-canvas line { stroke:var(--line); stroke-width:1; vector-effect:non-scaling-stroke; }
+.measurements-workspace .home-series-canvas .home-series-stem { stroke:var(--line-strong); }
+.measurements-workspace .home-series-point { position:absolute; display:grid; place-items:center; width:44px; height:44px; min-width:0; padding:0; border:0; border-radius:50%; background:transparent; color:var(--ink); transform:translate(-50%,-50%); }
+.measurements-workspace .home-series-point > span { display:block; width:10px; height:10px; border:2px solid var(--ink); border-radius:50%; background:var(--ink); }
+.measurements-workspace .home-series-point.is-disputed > span { border-radius:2px; background:var(--surface); transform:rotate(45deg); }
+.measurements-workspace .home-series-point:is(:hover,:focus-visible,.is-active) { outline:2px solid var(--focus); outline-offset:-5px; }
+.measurements-workspace .home-series-value-label { position:absolute; bottom:34px; white-space:nowrap; font:12px var(--mono); pointer-events:none; }
+.measurements-workspace .home-series-readout { min-height:20px; margin:8px 0; font:12px var(--mono); }
+.measurements-workspace .home-series-note,
+.measurements-workspace .home-series-empty { margin:16px 0; color:var(--muted); font-size:13px; }
 
 .measurement-day {
   display: grid;

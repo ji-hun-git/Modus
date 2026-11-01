@@ -1798,6 +1798,21 @@
       "behavior": true
     },
     {
+      "source": "backend/modus_entry/blood_pressure.py",
+      "destination": "backend/modus_entry/blood_pressure.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_blood_pressure.py",
+      "destination": "backend/tests/test_entry_blood_pressure.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/eval/blood-pressure-lookup.json",
+      "destination": "entry/eval/blood-pressure-lookup.json",
+      "behavior": false
+    },
+    {
       "source": "backend/tests/conftest.py",
       "destination": "backend/tests/conftest.py",
       "behavior": true
@@ -2343,6 +2358,11 @@
       "behavior": true
     },
     {
+      "source": "entry/frontend/src/HomeIntegrityTools.tsx",
+      "destination": "entry/frontend/src/HomeIntegrityTools.tsx",
+      "behavior": true
+    },
+    {
       "source": "entry/frontend/src/HomeHistoryTrail.tsx",
       "destination": "entry/frontend/src/HomeHistoryTrail.tsx",
       "behavior": true
@@ -2400,6 +2420,291 @@
     {
       "source": "entry/demo/saved-record-correction.png",
       "destination": "entry/demo/saved-record-correction.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T0-before.png",
+      "destination": "entry/demo/attack/T0-before.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T0-after.png",
+      "destination": "entry/demo/attack/T0-after.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T0-region-after.png",
+      "destination": "entry/demo/attack/T0-region-after.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/OrbitMap.tsx",
+      "destination": "entry/frontend/src/OrbitMap.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/demo/attack/T1-after.png",
+      "destination": "entry/demo/attack/T1-after.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T1-before.png",
+      "destination": "entry/demo/attack/T1-before.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T1-home-full.png",
+      "destination": "entry/demo/attack/T1-home-full.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T1-mobile.png",
+      "destination": "entry/demo/attack/T1-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T1-motion/frame-1.png",
+      "destination": "entry/demo/attack/T1-motion/frame-1.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T1-motion/frame-2.png",
+      "destination": "entry/demo/attack/T1-motion/frame-2.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T1-motion/frame-3.png",
+      "destination": "entry/demo/attack/T1-motion/frame-3.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T1-motion/frames.json",
+      "destination": "entry/demo/attack/T1-motion/frames.json",
+      "behavior": false
+    },
+    {
+      "source": "backend/tests/test_entry_history_expansion.py",
+      "destination": "backend/tests/test_entry_history_expansion.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/historyFields.ts",
+      "destination": "entry/frontend/src/historyFields.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/whole-history.csv",
+      "destination": "entry/frontend/public/examples/whole-history.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/demo/attack/T2-review.png",
+      "destination": "entry/demo/attack/T2-review.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T2-orbit.png",
+      "destination": "entry/demo/attack/T2-orbit.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T2-trends.png",
+      "destination": "entry/demo/attack/T2-trends.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/attack/T2-trends-mobile.png",
+      "destination": "entry/demo/attack/T2-trends-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus/whole_report.py",
+      "destination": "backend/modus/whole_report.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/report_coverage.py",
+      "destination": "backend/modus_entry/report_coverage.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/investigation.py",
+      "destination": "backend/modus_entry/investigation.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/investigation_policy.py",
+      "destination": "backend/modus_entry/investigation_policy.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_whole_report_reader.py",
+      "destination": "backend/tests/test_whole_report_reader.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_whole_report_flow.py",
+      "destination": "backend/tests/test_entry_whole_report_flow.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_investigation_flow.py",
+      "destination": "backend/tests/test_entry_investigation_flow.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ReportCoverageSummary.tsx",
+      "destination": "entry/frontend/src/ReportCoverageSummary.tsx",
+      "behavior": true
+    },
+    {
+      "source": "docs/design/DESIGN_STRATEGY.md",
+      "destination": "docs/design/DESIGN_STRATEGY.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/HistoryAnswerView.tsx",
+      "destination": "entry/frontend/src/HistoryAnswerView.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/correctionSession.ts",
+      "destination": "entry/frontend/src/correctionSession.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/CorrectionRecoveryNotice.tsx",
+      "destination": "entry/frontend/src/CorrectionRecoveryNotice.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/correctionSession.test.mjs",
+      "destination": "entry/frontend/tests/correctionSession.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_concurrency.py",
+      "destination": "backend/tests/test_entry_concurrency.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_pages.py",
+      "destination": "backend/modus_entry/history_pages.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HistoryPager.tsx",
+      "destination": "entry/frontend/src/HistoryPager.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/PagedFiles.tsx",
+      "destination": "entry/frontend/src/PagedFiles.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/PagedRecordList.tsx",
+      "destination": "entry/frontend/src/PagedRecordList.tsx",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_history_pages.py",
+      "destination": "backend/tests/test_entry_history_pages.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/historyPagination.test.mjs",
+      "destination": "entry/frontend/tests/historyPagination.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/medical_terms.py",
+      "destination": "backend/modus_entry/medical_terms.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_retrieval.py",
+      "destination": "backend/modus_entry/history_retrieval.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/TerminologyDetails.tsx",
+      "destination": "entry/frontend/src/TerminologyDetails.tsx",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_medical_retrieval.py",
+      "destination": "backend/tests/test_entry_medical_retrieval.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/terminology.test.mjs",
+      "destination": "entry/frontend/tests/terminology.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "docs/T5_SERVICE_AUDIT_2026-10-30.md",
+      "destination": "docs/T5_SERVICE_AUDIT_2026-10-30.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/T6_CORRECTION_RECOVERY_2026-10-30.md",
+      "destination": "docs/T6_CORRECTION_RECOVERY_2026-10-30.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/T7_HISTORY_PAGINATION_2026-10-30.md",
+      "destination": "docs/T7_HISTORY_PAGINATION_2026-10-30.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/T8_MEDICAL_TERMINOLOGY_2026-10-30.md",
+      "destination": "docs/T8_MEDICAL_TERMINOLOGY_2026-10-30.md",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus_entry/record_topics.py",
+      "destination": "backend/modus_entry/record_topics.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_natural_history.py",
+      "destination": "backend/tests/test_entry_natural_history.py",
+      "behavior": true
+    },
+    {
+      "source": "docs/T9_NATURAL_HISTORY_2026-10-30.md",
+      "destination": "docs/T9_NATURAL_HISTORY_2026-10-30.md",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus_entry/history_conversation.py",
+      "destination": "backend/modus_entry/history_conversation.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_history_conversation.py",
+      "destination": "backend/tests/test_entry_history_conversation.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/check_service.py",
+      "destination": "scripts/check_service.py",
+      "behavior": true
+    },
+    {
+      "source": "docs/T10_SERVICE_COMPLETION_2026-11-02.md",
+      "destination": "docs/T10_SERVICE_COMPLETION_2026-11-02.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/history-conversation.png",
+      "destination": "entry/demo/history-conversation.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/correction-evidence.png",
+      "destination": "entry/demo/correction-evidence.png",
       "behavior": false
     }
   ]

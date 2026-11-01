@@ -1,204 +1,117 @@
-import { useRef, useState } from "react";
-import { AlertCircle, ArrowRight, Plus } from "lucide-react";
+import { useState } from "react";
+import { AlertCircle, ArrowUpRight, Plus } from "lucide-react";
 import type { Page } from "./Shell";
 import type { HistoryFact, HistoryView } from "./historyTypes";
-import { dateLabel, timeLabel, Modal } from "./ui";
+import { Modal, dateLabel } from "./ui";
 import { scopedDifferences } from "./overviewRecords";
-import {
-  reportSummaries,
-  recordHistory,
-  isLatestReport,
-} from "./homeReportData";
-import { sourceDateRange, sourceTitle } from "./sourceDisplay";
+import { reportSummaries, recordHistory } from "./homeReportData";
+import { recordedDate, sourceDateRange } from "./sourceDisplay";
+import { recordLabel } from "./types";
 import HomeReportComparison from "./HomeReportComparison";
-import HomeEvidenceStack from "./HomeEvidenceStack";
+import HomeSourceEvidence from "./HomeSourceEvidence";
+import OrbitMap from "./OrbitMap";
 import OverviewRecordDetails from "./OverviewRecordDetails";
 import RecordConflictComparison from "./RecordConflictComparison";
+import HomeIntegrityTools, { type KnowledgeMode } from "./HomeIntegrityTools";
 import "./health-record-overview.css";
+import useHistoryView from './useHistoryView';
+import HistoryPager from './HistoryPager';
+import PagedRecordList from './PagedRecordList';
 
 export default function HealthRecordOverview({
-  view,
-  hasDraft,
-  onImport,
-  onNavigate,
+  view, hasDraft, onImport, onNavigate, dates, currentDay, knowledge, pendingCount, onDate,
 }: {
   view: HistoryView;
   hasDraft: boolean;
   onImport: () => void;
   onNavigate: (page: Page) => void;
+  dates: string[];
+  currentDay: string;
+  knowledge: KnowledgeMode;
+  pendingCount: number;
+  onDate: (date: string, knowledge: KnowledgeMode) => void;
 }) {
   const [sourceId, setSourceId] = useState<string | null>(null);
   const [anchorId, setAnchorId] = useState<string | null>(null);
   const [evidenceId, setEvidenceId] = useState<string | null>(null);
   const [inspected, setInspected] = useState<HistoryFact | null>(null);
   const [comparison, setComparison] = useState<string | null>(null);
-  const reportHeading = useRef<HTMLHeadingElement>(null);
   const reports = reportSummaries(view);
-  const report =
-    reports.find((item) => item.source.id === sourceId) || reports[0];
-  const facts = report
-    ? [...report.facts].sort(
-        (a, b) =>
-          a.label.localeCompare(b.label) ||
-          (b.date || "").localeCompare(a.date || "") ||
-          a.id.localeCompare(b.id),
-      )
-    : [];
+  const report = reports.find((item) => item.source.id === sourceId) || reports[0];
+  const detail = useHistoryView(view.scope, view.scope.as_of === null, { snapshot_id: view.page?.snapshot_id,
+    source_id: report?.source.id, enabled: !!view.page && !!report, limit: 50 });
+  const detailView = view.page ? detail.view : view;
+  const [earlierOpen, setEarlierOpen] = useState(false);
+  const reportFacts = view.page ? (detailView ? [...detailView.facts, ...detailView.undated_facts] : []) : report?.facts || [];
+  const facts = report ? [...reportFacts].sort((a, b) => a.label.localeCompare(b.label) ||
+    (b.date || "").localeCompare(a.date || "") || a.id.localeCompare(b.id)) : [];
   const anchor = facts.find((fact) => fact.id === anchorId) || facts[0];
-  const evidence = anchor
-    ? [anchor, ...recordHistory(view, anchor)].find(
-        (fact) => fact.id === evidenceId,
-      ) || anchor
-    : undefined;
-  const differences = scopedDifferences(view);
-  const isLatest = report ? isLatestReport(reports, report) : false;
-  const selectReport = (id: string) => {
-    setSourceId(id);
-    setAnchorId(null);
-    setEvidenceId(null);
-    requestAnimationFrame(() => {
-      reportHeading.current?.scrollIntoView({ block: "start" });
-      reportHeading.current?.focus({ preventScroll: true });
-    });
-  };
+  const evidence = anchor ? [anchor, ...recordHistory(detailView || view, anchor)].find((fact) => fact.id === evidenceId) || anchor : undefined;
+  const differences = scopedDifferences(detailView || view);
+  const differenceCount = view.page ? view.counts.conflicts : differences.length;
+  const selectReport = (id: string) => { setSourceId(id); setAnchorId(null); setEvidenceId(null); };
   const selectEvidence = (current: HistoryFact, selected: HistoryFact) => {
-    setAnchorId(current.id);
-    setEvidenceId(selected.id);
+    setAnchorId(current.id); setEvidenceId(selected.id);
   };
   return (
-    <div className="health-record-overview">
-      <header className="home-report-hero">
-        <div>
-          <span className="home-report-eyebrow">
-            {report
-              ? isLatest && report.latestDate
-                ? "Your latest recorded results"
-                : "From your history"
-              : "Your history starts here"}
-          </span>
-          <h1 ref={reportHeading} tabIndex={-1}>
-            {report ? sourceDateRange(facts) : "Bring your records together."}
-          </h1>
-          <p>
-            {report ? (
-              <>
-                {sourceTitle(facts)} <span>·</span> {facts.length} recorded{" "}
-                {facts.length === 1 ? "item" : "items"}
-              </>
-            ) : (
-              "Add a report. Keep every detail connected to its source."
-            )}
-          </p>
-        </div>
-        <div className="home-report-actions">
-          <button className="primary" onClick={onImport}>
-            <Plus
-              size={18}
-              strokeWidth={1.5}
-              aria-hidden="true"
-              focusable="false"
-            />
-            {hasDraft ? "Continue review" : "Add records"}
-          </button>
-          <details className="home-captured-scope">
-            <summary>
-              View as of {dateLabel(view.scope.known_at.slice(0, 10))}
-            </summary>
-            <dl>
-              <dt>Recorded dates</dt>
-              <dd>
-                {view.scope.as_of
-                  ? "Through " + dateLabel(view.scope.as_of)
-                  : "All recorded dates"}
-              </dd>
-              <dt>Files available through</dt>
-              <dd>
-                {timeLabel(view.scope.known_at)}
-                <br />
-                <code>{view.scope.known_at}</code>
-              </dd>
-            </dl>
-          </details>
-        </div>
-      </header>
-      {!isLatest && reports[0] && (
-        <button
-          className="text-button home-return-latest"
-          onClick={() => selectReport(reports[0].source.id)}
-        >
-          Return to latest recorded results{" "}
-          <ArrowRight
-            size={15}
-            strokeWidth={1.5}
-            aria-hidden="true"
-            focusable="false"
-          />
+    <div className="health-record-overview orbit-overview">
+      <header className="orbit-hero">
+        <div><span className="orbit-eyebrow">{dateLabel(currentDay)}</span><h1>Your health history</h1></div>
+        <button className="primary orbit-add" onClick={onImport}>
+          <Plus size={16} strokeWidth={1.25} aria-hidden="true" />
+          {hasDraft ? "Continue review" : "Add records"}
         </button>
-      )}
-      {hasDraft && (
-        <p className="overview-review-reminder">
-          Your review is still open. Continue when you’re ready.
-        </p>
-      )}
-      {!!differences.length && (
-        <div className="overview-conflict-banner">
-          <AlertCircle
-            size={17}
-            strokeWidth={1.5}
-            aria-hidden="true"
-            focusable="false"
-          />
-          <p>Some records don’t match. Both versions are preserved.</p>
-          <button
-            className="text-button"
-            onClick={() => setComparison(differences[0].id)}
-          >
-            Compare{" "}
-            <ArrowRight
-              size={15}
-              strokeWidth={1.5}
-              aria-hidden="true"
-              focusable="false"
-            />
-          </button>
-        </div>
-      )}
-      {report && (
-        <HomeReportComparison
-          facts={facts}
-          view={view}
-          anchor={anchor}
-          evidence={evidence}
-          onSelect={selectEvidence}
-          onOpen={setInspected}
-          onCompare={setComparison}
-        />
-      )}
-      {!!reports.length && (
-        <HomeEvidenceStack
-          view={view}
-          selectedId={report?.source.id}
-          onSelect={selectReport}
-          onBrowse={() => onNavigate("Timeline")}
-        />
-      )}
-      <OverviewRecordDetails
-        view={view}
-        selection={null}
-        inspected={inspected}
-        onInspect={setInspected}
-        onCloseSource={() => setInspected(null)}
-        onCloseSelection={() => {}}
-      />
-      {comparison && (
-        <Modal
-          title="Compare recorded values"
-          onClose={() => setComparison(null)}
-          wide
-        >
-          <RecordConflictComparison view={view} conflictId={comparison} />
-        </Modal>
-      )}
+      </header>
+      {!!differenceCount && <div className="overview-conflict-banner">
+        <AlertCircle size={16} aria-hidden="true" />
+        <p>{differenceCount === 1 ? "Recorded values differ." : `${differenceCount} recorded differences to review.`}</p>
+        <button className="text-button" onClick={() => setComparison(view.page ? 'all' : differences[0].id)}>Compare <ArrowUpRight size={14} /></button>
+      </div>}
+      <div className="orbit-workspace">
+        <OrbitMap reports={reports} total={view.page?.total} selectedId={report?.source.id} onSelect={selectReport} />
+        <aside className="orbit-proof-rail" aria-label="Selected file evidence">
+          <header className="orbit-proof-header"><span>In this report</span><span>{report?.count ?? facts.length} entries</span></header>
+          {report ? <>
+            <div className="orbit-file-heading"><h2>{report.dateRange || sourceDateRange(facts)}</h2><p title={report.source.title}>{report.source.title}</p></div>
+            {view.page && !detailView && <p role={detail.error ? 'alert' : 'status'}>{detail.error || 'Loading this file…'}</p>}
+            {detailView && <HistoryPager view={detailView} onPage={detail.setOffset} noun="items" />}
+            <label className="orbit-record-select"><span className="sr-only">Choose a recorded item</span>
+              <select aria-label="Choose a recorded item" value={anchor?.id || ''} disabled={!facts.length} onChange={(event) => {
+                const selected = facts.find((fact) => fact.id === event.target.value);
+                if (selected) selectEvidence(selected, selected);
+              }}>
+                {facts.map((fact) => <option key={fact.id} value={fact.id}>
+                  {recordLabel(fact.label)}{facts.filter((other) => other.label === fact.label).length > 1 &&
+                    ` · ${recordedDate(fact)} · ${fact.value_withheld ? 'Hidden by date filter' : [fact.value, fact.unit].filter(Boolean).join(' ')}`}
+                </option>)}
+              </select>
+            </label>
+            {evidence ? <div key={evidence.id} className="orbit-proof-content">
+              {evidence.source_id !== report.source.id && <p className="orbit-evidence-origin">Earlier evidence · {view.sources.find((source) => source.id === evidence.source_id)?.title} · {recordedDate(evidence)}</p>}
+              <HomeSourceEvidence fact={evidence} view={detailView || view} onOpen={setInspected} />
+            </div> : <p className="orbit-empty-proof">No recorded items are visible from this file.</p>}
+          </> : <div className="orbit-empty-proof"><h2>Your first record starts here.</h2><p>Add a report to keep its dates, results and original together.</p></div>}
+        </aside>
+      </div>
+      <div className="sr-only" role="status">{report ? `Selected file: ${report.source.title}. ${facts.length} recorded items.` : 'No source files in this view.'}</div>
+      <HomeIntegrityTools scope={view.scope} dates={dates} currentDay={currentDay}
+        knowledge={knowledge} pendingCount={pendingCount} onDate={onDate}
+        onNavigate={onNavigate} onReview={onImport} orbit />
+      {report && <details className="orbit-report-detail" onToggle={event => setEarlierOpen(event.currentTarget.open)}><summary>Earlier results <span>Compare this report with your history</span></summary>
+        {view.page ? earlierOpen && anchor && <PagedRecordList parent={view} chart={anchor.kind === 'measurement'}
+          filters={{kind: anchor.kind, label: anchor.label, through: anchor.date || undefined}} /> :
+          <HomeReportComparison facts={facts} view={view} anchor={anchor} evidence={evidence}
+            onSelect={selectEvidence} onOpen={setInspected} onCompare={setComparison} />}
+      </details>}
+      <OverviewRecordDetails view={detailView || view} selection={null} inspected={inspected} onInspect={setInspected}
+        onCloseSource={() => setInspected(null)} onCloseSelection={() => {}} />
+      {comparison && <Modal title="Compare recorded values" onClose={() => setComparison(null)} wide>
+        {differences.length > 1 && <div className="home-integrity-actions" aria-label="Choose a conflict">
+          {differences.map((item, index) => <button key={item.id} type="button" className="secondary"
+            aria-pressed={comparison === item.id} onClick={() => setComparison(item.id)}>Conflict {index + 1}</button>)}
+        </div>}
+        {view.page ? <PagedRecordList parent={view} filters={{conflicts_only:true}} /> : <RecordConflictComparison view={view} conflictId={comparison} />}
+      </Modal>}
     </div>
   );
 }

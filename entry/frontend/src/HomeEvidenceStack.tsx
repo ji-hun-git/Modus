@@ -70,9 +70,7 @@ export default function HomeEvidenceStack({
               <span>{sourceTitle(facts)}</span>
               <small>
                 {[...new Set(facts.map((fact) => recordLabel(fact.label)))]
-                  .slice(0, 3)
                   .join(" · ") || "No items in this view"}
-                {new Set(facts.map((f) => f.label)).size > 3 ? " …" : ""}
               </small>
             </button>
           );

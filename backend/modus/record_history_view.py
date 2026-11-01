@@ -10,7 +10,8 @@ from .record_history_models import date_information, numeric_value, temporal_ori
 from .record_models import METRICS
 from .record_units import normalize_recorded_value
 from .temporal import instant
-from .record_revisions import read_amendments, revised_facts
+from .record_revisions import revised_facts
+from .record_store import packed_json_rows
 
 
 def _legacy_fact(observation, source):
@@ -59,19 +60,33 @@ def _conflicts(facts):
     return sorted(disagreements, key=lambda item: (item['date'], item['label'], item['unit'] or ''))
 
 
-def _read_history_snapshot(db, cutoff):
-    sources = {row['id']: json.loads(row['data']) for row in db.execute('SELECT id,data FROM sources WHERE available_at<=?', (cutoff,))}
-    generic = [json.loads(row[0]) for row in db.execute(
-        'SELECT h.data FROM history_facts h JOIN sources s ON s.id=h.source_id WHERE h.available_at<=? AND s.available_at<=? ORDER BY h.date,h.id', (cutoff, cutoff))]
-    legacy = [json.loads(row[0]) for row in db.execute(
-        'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id', (cutoff,))]
+def _read_history_rows(db, cutoff):
+    """Copy SQLite rows while locked; decoding/projection belongs outside the lock."""
+    sources = packed_json_rows(db, 'SELECT data FROM sources WHERE available_at<=?', (cutoff,))
+    generic = packed_json_rows(db,
+        'SELECT h.data FROM history_facts h JOIN sources s ON s.id=h.source_id WHERE h.available_at<=? AND s.available_at<=? ORDER BY h.date,h.id', (cutoff, cutoff))
+    legacy = packed_json_rows(db,
+        'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id', (cutoff,))
     originals = {row[0] for row in db.execute('SELECT id FROM documents')}
     profile_row = db.execute('SELECT data FROM history_profiles WHERE updated_at<=? ORDER BY updated_at DESC,id DESC LIMIT 1', (cutoff,)).fetchone()
-    profile = json.loads(profile_row['data']) if profile_row else {'date_of_birth': None, 'updated_at': None, 'storage': 'local'}
-    return sources, generic, legacy, originals, profile, read_amendments(db, cutoff)
+    amendments = packed_json_rows(db, 'SELECT data FROM history_amendments WHERE available_at<=? ORDER BY available_at,sequence', (cutoff,))
+    return sources, generic, legacy, originals, profile_row, amendments
 
 
-def history_views(store, as_of=None, known_ats=(None,)):
+def _decode_history_rows(rows):
+    sources, generic, legacy, originals, profile, amendments = rows
+    return ({row['id']: row for row in json.loads(sources)},
+            json.loads(generic), json.loads(legacy), originals,
+            json.loads(profile['data']) if profile else {'date_of_birth': None, 'updated_at': None, 'storage': 'local'},
+            json.loads(amendments))
+
+
+def _read_history_snapshot(db, cutoff):
+    # Write transactions still prepare and validate their amendment atomically.
+    return _decode_history_rows(_read_history_rows(db, cutoff))
+
+
+def history_views(store, as_of=None, known_ats=(None,), *, include_revision=False):
     """Project several availability cutoffs from one transaction and clock capture."""
     if isinstance(as_of, date):
         as_of = as_of.isoformat()
@@ -81,8 +96,10 @@ def history_views(store, as_of=None, known_ats=(None,)):
         db.execute('BEGIN IMMEDIATE')
         captured = instant(store.clock())
         cutoffs = [min(instant(value), captured) if value is not None else captured for value in known_ats]
-        states = [_read_history_snapshot(db, cutoff) for cutoff in cutoffs]
-    return [_project_history(state, as_of, cutoff, captured) for state, cutoff in zip(states, cutoffs)]
+        rows = [_read_history_rows(db, cutoff) for cutoff in cutoffs]
+        revision = db.execute("SELECT value FROM record_store_meta WHERE key='history_revision'").fetchone()[0]
+    views = [_project_history(_decode_history_rows(state), as_of, cutoff, captured) for state, cutoff in zip(rows, cutoffs)]
+    return (views, revision) if include_revision else views
 
 
 def history_view(store, as_of=None, known_at=None):

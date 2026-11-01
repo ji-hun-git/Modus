@@ -11,7 +11,9 @@ export type ScopeRequest = {
   known_at: string;
   compare_from?: string | null;
 };
-export type Observation = {
+// Compatibility projection for the original /records API. Active import,
+// review and Trends use DraftFact/HistoryFact with open-ended labels instead.
+export type LegacyObservation = {
   id: string;
   metric: "hba1c" | "egfr" | "ldl";
   value: number;
@@ -26,6 +28,7 @@ export type Observation = {
   available_at: string;
   availability_basis?: string | null;
 };
+export type Observation = LegacyObservation;
 export type Source = {
   id: string;
   title: string;
@@ -90,6 +93,24 @@ export type ExtractionReview = {
   document_type: string;
   verification_status: string;
   facts: ExtractedFactReview[];
+  coverage?: ReportCoverage;
+};
+export type ReportCoverage = {
+  version: "whole-report-v1";
+  status: "completed" | "failed";
+  completeness: "not_established";
+  page_count: number;
+  processed_pages: number;
+  request_count: number;
+  pages: {
+    page: number;
+    status: "not_run" | "processed" | "no_fields" | "failed";
+    field_count: number;
+    verification_status: "not_run" | "completed" | "unavailable";
+    readability: "text_available" | "image_only" | "unreadable";
+    text_available: boolean;
+    vision_supplied: boolean;
+  }[];
 };
 export type ReviewRow = Observation & { keep: boolean; valueText: string };
 export type Reviewed = Pick<

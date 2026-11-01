@@ -42,6 +42,9 @@ input::placeholder, textarea::placeholder { color: var(--faint); opacity: 1; }
 .error-banner { color: var(--error); background: var(--error-bg); border-color: var(--error); }
 .success-banner, .info-banner { background: var(--surface); color: var(--muted); border-color: var(--line); }
 .success-banner > svg { color: var(--action); }
+.correction-recovery { position: sticky; top: 12px; z-index: 20; flex-wrap: wrap; }
+.correction-recovery > div { min-width: 0; overflow-wrap: anywhere; }
+.history-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 0; font-size: 12px; }
 .tag { border-radius: 6px; }
 .tag.warning, .detail-warning, .row-disagreement, .metric-disagreement { color: var(--warning); }
 .tag.warning { background: var(--warning-bg); }
@@ -102,6 +105,39 @@ td { color: var(--ink); }
 .record-brief p, .record-brief label { line-height: 1.5; }
 .history-replay h2 { font-size: 24px; line-height: 32px; }
 .history-replay-record h3 { font-size: 18px; line-height: 26px; }
+/* The reading surfaces share Home's contrast and hierarchy. */
+.orbit-ask main { max-width: 1000px; padding-bottom: 90px; }
+.orbit-ask .page-header { margin-bottom: 12px; }
+.orbit-ask .page-header h1 { font-weight: 450; letter-spacing: -.035em; }
+.orbit-ask .header-actions .primary { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
+.orbit-ask .scope-panel { margin-bottom: 20px; }
+.orbit-ask .scope-chip { border: 0; padding-left: 0; min-height: 36px; font-size: 12px; }
+.orbit-ask .history-question-panel { padding: 0; border: 0; background: transparent; }
+.history-question-intro { margin: 0 0 16px; color: var(--muted); font-size: 15px; }
+.orbit-ask .history-question-panel form { padding: 16px; background: var(--surface-2); }
+.orbit-ask .history-question-panel textarea { min-height: 68px; font-size: 18px; line-height: 1.5; }
+.orbit-ask .history-question-examples { margin: 12px 0 8px; gap: 8px 18px; }
+.orbit-ask .history-question-examples button { border: 0; border-bottom: 1px solid var(--line); padding: 8px 0; background: none; font-size: 13px; }
+.orbit-ask .history-question-examples button:hover { border-color: var(--ink); }
+.orbit-ask .history-question-dates { font-size: 12px; }
+.history-question-suggestions { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
+.history-question-panel .history-answer-claim { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 20px 0; }
+.history-question-panel .history-answer-claim p { margin: 6px 0; }
+.history-citation { min-height: 44px; padding: 8px 10px; white-space: nowrap; background: transparent; border: 1px solid var(--line); border-radius: var(--radius-control); color: var(--muted); font-size: 12px; }
+.history-citation:hover { border-color: var(--ink); color: var(--ink); }
+.history-answer-message { margin: 22px 0; font-size: 19px; line-height: 1.5; }
+.orbit-ask .history-answer-heading h3 { font-size: 20px; font-weight: 500; }
+.orbit-ask .history-answer-scope { font-size: 12px; }
+.orbit-ask .history-answer-trace { font-size: 12px; }
+.modal:has(.import-workflow) { border: 1px solid var(--line-strong); }
+.modal:has(.import-workflow) input, .modal:has(.import-workflow) textarea, .modal:has(.import-workflow) select { color-scheme: dark; }
+@media (max-width: 600px) {
+  .orbit-ask .page-header h1 { font-size: 28px; }
+  .orbit-ask .history-question-panel form { padding: 12px; }
+  .orbit-ask .history-question-panel textarea { font-size: 16px; }
+  .history-question-panel .history-answer-claim { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .history-citation { justify-self: start; padding-inline: 12px; }
+}
 @keyframes modus-dialog-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

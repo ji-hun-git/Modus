@@ -44,11 +44,11 @@ const pageTitle = {
   Home: "Your records",
   Timeline: "Your records",
   Records: "Your documents",
-  Measurements: "Measurement history",
+  Measurements: "Your history over time",
   Replay: "Past records",
   Changes: "Activity",
   Brief: "Prepare a brief",
-  Ask: "Ask your records",
+  Ask: "Ask your history",
 };
 
 export default function Shell({
@@ -122,7 +122,7 @@ export default function Shell({
   );
   return (
     <>
-      <div className="app-layout">
+      <div className={`app-layout mission-shell${page === "Home" || page === "Ask" ? " orbit-theme" : ""}${page === "Home" ? " orbit-home" : page === "Ask" ? " orbit-ask" : ""}`}>
         <a className="skip-link" href="#main-content">
           Skip to main content
         </a>

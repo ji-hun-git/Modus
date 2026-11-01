@@ -1,0 +1,20 @@
+{
+  "kind": "actual-browser-frame-sequence",
+  "reduced_motion": true,
+  "note": "OS reduced-motion is enabled. Selection updates are captured; animations are intentionally suppressed. No simulated interpolation.",
+  "duration_ms": 881,
+  "frames": [
+    {
+      "file": "frame-1.png",
+      "elapsed_ms": 292
+    },
+    {
+      "file": "frame-2.png",
+      "elapsed_ms": 573
+    },
+    {
+      "file": "frame-3.png",
+      "elapsed_ms": 852
+    }
+  ]
+}

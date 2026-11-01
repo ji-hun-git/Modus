@@ -1,3 +1,22 @@
+.import-workflow {
+  color: var(--ink);
+}
+.import-workflow button,
+.import-workflow .field input,
+.import-workflow .field select,
+.import-workflow .field textarea {
+  border-radius: 3px;
+}
+.import-workflow .field {
+  font-size: 13px;
+  color: var(--muted);
+}
+.import-workflow .field input,
+.import-workflow .field select,
+.import-workflow .field textarea {
+  color: var(--ink);
+  background: var(--inset);
+}
 .import-queue-heading {
   display: flex;
   align-items: center;
@@ -38,13 +57,13 @@
   text-align: left;
   padding: 9px 12px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 3px;
   background: var(--surface);
   color: var(--ink);
 }
 .import-queue button[aria-current="step"] {
-  border-color: var(--blue);
-  background: #283343;
+  border-color: var(--action);
+  background: var(--selected);
 }
 .import-queue button:disabled {
   opacity: 0.5;
@@ -82,7 +101,8 @@
   margin-bottom: 4px;
 }
 .import-files-disclosure {
-  margin-bottom: 12px;
+  margin: 2px 0 18px;
+  border-bottom: 1px solid var(--line);
 }
 .import-files-disclosure > summary {
   min-height: 44px;
@@ -90,11 +110,7 @@
   color: var(--muted);
   align-content: center;
 }
-.import-files-disclosure.expanded > summary {
-  display: none;
-}
-.import-files-disclosure.compact[open] {
-  border-bottom: 1px solid var(--line);
+.import-files-disclosure[open] {
   padding-bottom: 8px;
 }
 .import-review-heading {
@@ -106,7 +122,9 @@
   font-size: 14px;
 }
 .import-review-heading h3 {
-  font-size: 16px;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 .import-review-status {
@@ -121,58 +139,9 @@
   font-size: 14px;
   font-weight: 500;
 }
-.import-review-layout {
-  grid-template-areas: "source editor";
-}
-.import-review-editor {
-  grid-area: editor;
-  min-width: 0;
-}
-.import-review-source {
-  grid-area: source;
-  scroll-margin-top: 14px;
-}
-.import-source-return {
-  margin-bottom: 12px;
-}
-.import-review-editor .review-actions {
-  align-items: flex-start;
-  gap: 8px;
-}
-.import-review-editor .review-actions > p {
-  display: none;
-}
-.import-review-editor .review-actions > div {
-  width: 100%;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-.import-review-editor .review-card {
-  scroll-margin-top: 14px;
-}
-@media (max-width: 760px) {
-  .import-review-editor .metric-field {
-    grid-column: 1 / -1;
-  }
-  .import-review-layout {
-    grid-template-areas: "editor" "source";
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .import-review-source {
-    position: static;
-    margin-top: 6px;
-  }
-  .import-review-editor .review-actions > div {
-    justify-content: stretch;
-  }
-  .import-review-editor .review-actions button {
-    flex: 1 1 auto;
-  }
-}
 .import-queue-read,
 .import-queue-result {
-  border-top: 1px solid var(--line);
-  padding-top: 18px;
+  padding-top: 2px;
   display: grid;
   gap: 14px;
 }
@@ -182,7 +151,7 @@
 }
 .import-queue-read details {
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 3px;
   padding: 4px 12px;
 }
 .import-queue-read summary {
@@ -209,12 +178,144 @@
 .import-queue-empty {
   display: grid;
   gap: 12px;
-  padding: 30px 0 10px;
+  padding: 16px 0 10px;
   color: var(--muted);
 }
 .import-queue-empty h3 {
   color: var(--ink);
-  font-size: 18px;
+  font-size: 25px;
+  font-weight: 500;
+}
+.import-queue-empty > p {
+  max-width: 43ch;
+}
+.import-queue-empty > button {
+  justify-self: start;
+  margin: 8px 0 0;
+}
+.import-queue-empty .import-queue-limits {
+  margin-top: 0;
+  font-size: 12px;
+}
+.import-examples {
+  border-top: 1px solid var(--line);
+  margin-top: 12px;
+}
+.import-examples summary {
+  align-content: center;
+  font-size: 13px;
+}
+.import-examples .table-footer {
+  padding-top: 6px;
+  border: 0;
+}
+.import-workflow .review-card {
+  border-radius: 3px;
+  margin: 0;
+  padding: 20px;
+}
+.import-workflow .review-card-top {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.import-workflow .review-name-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  background: var(--inset);
+  font: inherit;
+  font-weight: 500;
+}
+.import-workflow .review-card-top .check-row {
+  flex-shrink: 0;
+}
+.review-fact-comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.review-fact-comparison > div {
+  min-width: 0;
+}
+.import-workflow .generic-fact-fields {
+  gap: 12px;
+  margin: 12px 0 4px;
+}
+.import-workflow .generic-fact-fields textarea {
+  min-height: 48px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.import-workflow .generic-fact-source {
+  margin: 14px 0 0;
+  padding: 0 0 0 18px;
+  background: transparent;
+  border-left: 1px solid var(--line-strong);
+  border-radius: 0;
+}
+.import-workflow .generic-fact-source .review-source-label {
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.import-workflow .generic-fact-source blockquote {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.review-field-details {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.review-field-details > summary {
+  min-height: 44px;
+  align-content: center;
+}
+.review-field-details > p {
+  padding: 12px 0 8px;
+  overflow-wrap: anywhere;
+}
+.import-workflow .review-actions {
+  margin-top: 8px;
+  padding-top: 20px;
+}
+.import-workflow .review-actions > p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.import-workflow .review-actions button {
+  min-height: 44px;
+}
+.import-workflow .generic-fact-review > .text-button {
+  justify-self: end;
+  min-height: 44px;
+}
+@media (max-width: 760px) {
+  .review-fact-comparison {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .import-workflow .generic-fact-source {
+    margin-top: 14px;
+  }
+  .import-workflow .review-card {
+    padding: 16px;
+  }
+  .import-workflow .review-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .import-workflow .review-actions > div {
+    justify-content: stretch;
+  }
+  .import-workflow .review-actions button {
+    flex: 1 1 auto;
+  }
 }
 .import-queue-memory {
   border-top: 1px solid var(--line);

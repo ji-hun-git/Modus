@@ -23,6 +23,13 @@ def initialize_history(db):
         'CREATE INDEX IF NOT EXISTS history_amendment_scope ON history_amendments(fact_id,available_at)',
     ):
         db.execute(sql)
+    # A transaction-owned cache generation, shared across processes. Audit logs
+    # and drafts do not invalidate saved history; evidence/profile changes do.
+    db.execute("INSERT OR IGNORE INTO record_store_meta VALUES ('history_revision','0')")
+    for table in ('sources', 'observations', 'documents', 'history_facts', 'history_profiles', 'history_amendments'):
+        for operation in ('INSERT', 'UPDATE', 'DELETE'):
+            db.execute(f"CREATE TRIGGER IF NOT EXISTS history_revision_{table}_{operation} AFTER {operation} ON {table} "
+                       "BEGIN UPDATE record_store_meta SET value=CAST(value AS INTEGER)+1 WHERE key='history_revision'; END")
 
 
 def reset_history(db):

@@ -85,7 +85,7 @@ def test_all_kinds_inventory_exact_values_and_labels(memory):
     ('Find my imaging reports containing "Head scan"', 'imaging_text', 'Head scan'),
     ('Find vaccination records for MMR', 'vaccination', 'MMR'),
     ('MMR 2012', None, 'MMR'),
-    ('페리틴 기록 찾아줘', None, '페리틴'),
+    ('"페리틴" 기록 찾아줘', None, '페리틴'),
 ])
 def test_named_search_preserves_literal_filter(memory, query, kind, label):
     store, _ = memory

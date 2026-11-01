@@ -9,6 +9,10 @@ from .document_guard import QUARANTINED, REQUEST_QUARANTINED
 from .runtime import execution_context
 from .tools import SelectionArgs
 from .history_tools import ARGUMENTS, DESCRIPTIONS, dispatch
+from .blood_pressure import parse_question, clarification
+from .investigation import investigate, offline_investigate, clarify_response
+from .investigation_policy import request_bounds, COMPOUND, LATEST
+from .medical_terms import ambiguous_request, mentions
 
 PROMPT = (Path(__file__).resolve().parents[2] / 'entry/prompts/history.md').read_text(encoding='utf-8')
 UNSUPPORTED = ('I can find recorded measurements, visits, prescriptions, vaccinations, procedures, '
@@ -43,7 +47,8 @@ UNSAFE = re.compile(
 COUNT = re.compile(r'\b(?:count|how many|number of|total)\b|몇\s*개|개수',re.I)
 ARRIVAL = re.compile(r'\b(?:arrived|added|newly available|became available|what changed|compare .{0,30}(?:views|snapshots))\b|새로\s*추가|추가된|무엇이\s*바뀌|변경된\s*기록',re.I)
 CONFLICT = re.compile(r'\b(?:conflict\w*|disagree\w*|mismatch\w*|contradict\w*)\b|불일치|상충|충돌',re.I)
-READ = re.compile(r'\b(?:show|list|find|search|retrieve|look up|what|which|count|how many|records?|history|reports?|values?|readings?)\b|보여|찾|검색|기록|내역|보고서|몇\s*개',re.I)
+READ = re.compile(r'\b(?:show|list|find|search|retrieve|look up|what|which|when|count|how many|records?|history|reports?|values?|readings?)\b|보여|찾|검색|기록|내역|보고서|몇\s*개|언제',re.I)
+NATURAL_READ = re.compile(r'^\s*(?:(?:please|can you|could you)\s+)?(?:have i ever had\b|pull up\b|bring up\b|tell me about\b)', re.I)
 
 
 def _outside_quotes(message):
@@ -52,11 +57,14 @@ def _outside_quotes(message):
 
 def allowed_request(message):
     text = _outside_quotes(message)
-    return bool(READ.search(text)) and not UNSAFE.search(text)
+    return bool(READ.search(text) or NATURAL_READ.search(text)) and not UNSAFE.search(text)
 
 
 def offline_route(context, message):
     """Conservative intent parsing, without inferring clinical relationships."""
+    pressure = parse_question(message)
+    if pressure:
+        return ('last_recorded_blood_pressure', pressure) if pressure['component'] else None
     if not allowed_request(message):
         return None
     text = re.sub(r'\s+', ' ', _outside_quotes(message).lower()).strip()
@@ -68,7 +76,11 @@ def offline_route(context, message):
     if len(kinds)>1:
         return None
     kind = kinds[0] if kinds else None
-    arrival, conflict, count = bool(ARRIVAL.search(text)), bool(CONFLICT.search(text)), bool(COUNT.search(text))
+    # "white blood cell count" names a test, not an instruction to count rows.
+    intent_text, named = mentions(text)
+    for start, end, _, _ in reversed(named):
+        intent_text = intent_text[:start] + ' ' * (end-start) + intent_text[end:]
+    arrival, conflict, count = bool(ARRIVAL.search(intent_text)), bool(CONFLICT.search(intent_text)), bool(COUNT.search(intent_text))
     if arrival and conflict:
         return None
     # Remove only recognized syntax. Remaining words are literal source filters,
@@ -79,7 +91,7 @@ def offline_route(context, message):
     remaining = ARRIVAL.sub(' ',CONFLICT.sub(' ',COUNT.sub(' ',remaining)))
     remaining = re.sub(r'\b(?:show|list|find|search|retrieve|look|up|what|which|were|was|are|is|has|have|been|'
         r'my|me|the|a|an|all|whole|medical|health|recorded|records?|history|reports?|entries|sources?|'
-        r'documents?|available|in|between|these|views?|snapshots?|please|of|for|to)\b', ' ', remaining)
+        r'documents?|available|in|between|these|views?|snapshots?|please|of|for|to|tell|about|pull|bring|can|could|you|had|ever|i)\b', ' ', remaining)
     remaining = re.sub(r'보여\s*줘|보여주세요|찾아\s*줘|찾아주세요|검색해\s*줘|내\s*|나의|모든|전체|기록|내역|보고서|문서|목록|알려\s*줘|있나요|있어', ' ',remaining)
     remaining = re.sub(r'[\s?.!,]+',' ',remaining).strip()
     if arrival or conflict or count:
@@ -130,18 +142,77 @@ def decorate(context, response):
                     selected.add(key)
     response['answer'] = '\n'.join(claim['text'] for claim in response['claims'])
     response['history_evidence']=evidence_view(context,response['claims'])
+    # Reference links explain code-owned terminology, never support a personal
+    # finding. Only attach mappings from a selected tool's actual result.
+    mappings = {}
+    for step in response['trace']:
+        value = step['result']
+        if selected.intersection(item['id'] for item in value.get('claims', [])):
+            for mapping in value.get('retrieval', {}).get('mappings', []):
+                mappings[mapping['concept_id']] = deepcopy(mapping)
+    if mappings:
+        response['terminology'] = list(mappings.values())
     if not response['claims']:
         guard = response.get('document_guard', {})
-        response['answer'] = (REQUEST_QUARANTINED if guard.get('boundary') == 'request' else QUARANTINED) if guard.get('status') == 'quarantined' else UNSUPPORTED
+        response['answer'] = ((REQUEST_QUARANTINED if guard.get('boundary') == 'request' else QUARANTINED)
+            if guard.get('status') == 'quarantined' else
+            response['clarification']['question'] if response.get('clarification') else UNSUPPORTED)
     if context.get('comparison'):
         response['history_comparison']={key:context['comparison'][key]['scope'] for key in ('before','after')}
     return response
+
+
+def clarify_pressure(context, message):
+    pressure = parse_question(message)
+    if not pressure or pressure['component']:
+        return None
+    response = decorate(context, result(context, execution_context('request_guard'), [], []))
+    response['clarification'] = clarification(pressure)
+    response.update(answer=response['clarification']['question'], provider_requests_made=0)
+    return response
+
+
+def clarify_term(context, message):
+    if not allowed_request(message):
+        return None
+    question = ambiguous_request(message)
+    if not question:
+        return None
+    response = result(context, execution_context('request_guard'), [], [])
+    response.update(clarification=question, provider_requests_made=0)
+    return decorate(context, response)
+
+
+def investigation_bounds(context, message):
+    """Keep ordinary exact routes stable; expand only explicit factual tasks."""
+    if parse_question(message) or not allowed_request(message):
+        return False, None
+    text = _outside_quotes(message)
+    kinds = [kind for kind, pattern in KIND_PATTERNS.items() if re.search(pattern, text, re.I)]
+    candidate = len(kinds) > 1 or bool(COMPOUND.search(text)) or bool(LATEST.search(text))
+    return candidate, request_bounds(context, message, KIND_PATTERNS, CONFLICT, ARRIVAL) if candidate else None
 
 
 def offline_chat(context, message):
     guarded = quarantine_request(context, message, {})
     if guarded:
         return decorate(context, guarded)
+    clarification_response = clarify_pressure(context, message) or clarify_term(context, message)
+    if clarification_response:
+        return clarification_response
+    candidate, bounds = investigation_bounds(context, message)
+    if candidate:
+        if bounds is None:
+            return decorate(context, clarify_response(context, 'unsupported_filter', offline=True))
+        if bounds.wants_comparison and context.get('comparison') is None:
+            return decorate(context, clarify_response(context, 'comparison_date', offline=True))
+        try:
+            expanded = offline_investigate(context, bounds)
+        except ValueError:
+            expanded = None
+        if expanded:
+            return decorate(context, expanded)
+        return decorate(context, clarify_response(context, 'record_name', offline=True))
     execution=execution_context('offline')
     trace=[]
     route=offline_route(context,message)
@@ -149,13 +220,25 @@ def offline_chat(context, message):
     if route:
         name,args=route
         claims=execute(context,name,args,execution,trace,tool_dispatch=dispatch)['claims']
-    return decorate(context,result(context,execution,claims,trace))
+    response = result(context,execution,claims,trace)
+    response['provider_requests_made'] = 0
+    return decorate(context,response)
 
 
 async def live_chat(context, message, telemetry, *, request=None):
     guarded = quarantine_request(context, message, telemetry)
     if guarded:
         return decorate(context, guarded)
+    clarification_response = clarify_pressure(context, message) or clarify_term(context, message)
+    if clarification_response:
+        return clarification_response
+    candidate, bounds = investigation_bounds(context, message)
+    if candidate:
+        if bounds is None:
+            return decorate(context, clarify_response(context, 'unsupported_filter'))
+        if bounds.wants_comparison and context.get('comparison') is None:
+            return decorate(context, clarify_response(context, 'comparison_date'))
+        return decorate(context, await investigate(context, message, bounds, telemetry, request=request))
     route=offline_route(context,message)
     if route is None:
         response=decorate(context,result(context,execution_context('request_guard'),[],[]))

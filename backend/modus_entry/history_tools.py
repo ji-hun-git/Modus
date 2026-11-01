@@ -4,13 +4,14 @@ from copy import deepcopy
 from decimal import Decimal
 from hashlib import sha256
 import json
-import re
 
 from pydantic import Field, field_validator
 
 from modus.record_history_models import FactKind
 from modus.record_history_view import history_views
 from .models import Strict
+from .blood_pressure import LastBloodPressureArgs, last_match
+from .history_retrieval import retrieve, METHOD
 
 
 KIND_LABELS = {
@@ -46,7 +47,8 @@ def safe_view(view):
 
 def capture_history(store, as_of=None, known_at=None, compare_from=None):
     bounds = (known_at,) if compare_from is None else (known_at, compare_from)
-    captured = history_views(store, as_of, bounds)
+    captured = ([store.history_pages.view(as_of, known_at)] if compare_from is None and hasattr(store, 'history_pages')
+                else history_views(store, as_of, bounds))
     after = safe_view(captured[0])
     if compare_from is None:
         return {'view': after, 'comparison': None}
@@ -102,14 +104,16 @@ class SearchArgs(Strict):
 
 
 ARGUMENTS = {
+    'last_recorded_blood_pressure': LastBloodPressureArgs,
     'history_inventory': InventoryArgs,
     'search_history_evidence': SearchArgs,
     'history_conflicts': FilterArgs,
     'compare_history_snapshots': FilterArgs,
 }
 DESCRIPTIONS = {
+    'last_recorded_blood_pressure': 'Find the latest fully dated exact systolic or diastolic blood-pressure match in the captured view. Explicit mmHg units only; preserve ties, unknown dates, corrections and unlike same-day readings. No interpretation or inference of absence.',
     'history_inventory': 'List and count recorded facts across all eight kinds in the captured history. Optional kind and exact case-insensitive label filters; bounded page. Records are source statements, not current medication use or new diagnoses.',
-    'search_history_evidence': 'Find literal recorded names, text or source words across all eight kinds. Quoted phrases and source:"title" narrow matches. No inferred medical relationships, interpretation or scope changes. Empty means no supported match, not missing care.',
+    'search_history_evidence': 'Find recorded names/text across all eight kinds. Fixed versioned vocabularies map medical/everyday aliases to exact measurement labels or named procedure/imaging/vaccination topics in saved labels of the matching kind. Never infer administration, diagnoses or related tests. Quoted phrases and source:"title" narrow matches. No medical interpretation or scope changes. Empty means no supported match, not missing care.',
     'history_conflicts': 'Inspect only backend-declared same-day measurement discrepancies. Optional kind/exact-label filters. Both values remain recorded; sample equivalence is unknown. Other record kinds have no implemented conflict detector.',
     'compare_history_snapshots': 'Count newly available records of any kind between the already bound history views. Dates and availability remain server-owned. An old prescription appearing now does not establish current use, adherence, treatment effect or missed care.',
 }
@@ -189,68 +193,10 @@ def content_warning(rows):
             if any(row.get('content_omitted') for row in rows) else [])
 
 
-# Literal matching strips only request grammar. Medical terms are not expanded.
-STOP_WORDS = set('a an and any are as at available be by can containing contains could do does entries entry evidence find for from give has have history i in is it list look me mentioning mentions mention my of on or please record recorded records report reports result results retrieve search show source sources that the their these this to up value values was were what which with would you your 기록 기록을 내 나의 찾아줘 찾아주세요 보여줘 보여주세요'.split())
-KIND_REQUEST_WORDS = {
-    'measurement': {'measurement', 'measurements', '측정', '측정값'},
-    'encounter': {'encounter', 'encounters', 'visit', 'visits', '방문', '진료'},
-    'recorded_diagnosis': {'diagnosis', 'diagnoses', '진단'},
-    'procedure': {'procedure', 'procedures', '시술', '수술'},
-    'prescription': {'prescription', 'prescriptions', '처방'},
-    'vaccination': {'vaccination', 'vaccinations', '예방접종', '접종'},
-    'imaging_text': {'imaging', '영상'},
-    'recorded_text': {'text', 'texts', '문서'},
-}
-
-
-def _tokens(text):
-    return re.findall(r"[\w]+", text.casefold(), re.UNICODE)
-
-
 def search_rows(view, args):
-    query = args['query']
-    if query.count('"') % 2:
-        return [], ['Unclosed quoted phrase; no records were selected.']
-    source_phrases, phrases = [], []
-    pattern = re.compile(r'(?:(source|title|document|from)\s*:?\s*)?(?:"([^"]+)"|(?<!\w)\x27([^\x27]+)\x27(?!\w))', re.I)
-    def remove_phrase(match):
-        (source_phrases if match[1] else phrases).append((match[2] or match[3]).casefold())
-        return ' '
-    remaining = pattern.sub(remove_phrase, query)
-    dates = re.findall(r'(?<!\w)(?:19|20)\d{2}(?:-\d{2}(?:-\d{2})?)?(?!\w)', remaining)
-    for day in dates:
-        remaining = remaining.replace(day, ' ')
-    grammar = STOP_WORDS | KIND_REQUEST_WORDS.get(args.get('kind'), set())
-    terms = [word for word in _tokens(remaining) if word not in grammar]
-    sources = {source['id']: source for source in view['sources']}
-    if not terms and not phrases and not source_phrases and not dates:
-        return [], ['No literal search terms were supplied; use the inventory tool to list records.']
-    hits = []
-    for row in all_facts(view):
-        if not available_fact(row) or not matches_filter(row, args):
-            continue
-        source = sources[row['source_id']]
-        if source_phrases and not all(phrase in (source.get('title') or '').casefold() for phrase in source_phrases):
-            continue
-        occurred = row.get('occurred_on') or ''
-        if dates and (row.get('date_precision') not in {'day', 'month', 'year'} or
-                      not all(occurred.startswith(day) for day in dates)):
-            continue
-        permitted_quote = '' if row.get('source_quote_withheld') else row.get('source_quote') or ''
-        text = ' '.join(str(value) for value in (
-            row['label'], row['value'], row.get('unit') or '', row.get('facility') or '',
-            permitted_quote, source.get('title') or '', source.get('provider') or '',
-        )).casefold()
-        if phrases and not all(phrase in text for phrase in phrases):
-            continue
-        words = set(_tokens(text))
-        if terms and not all(word in words for word in terms):
-            continue
-        label_words = set(_tokens(row['label']))
-        score = sum(3 if word in label_words else 1 for word in terms) + 2 * len(phrases)
-        hits.append((score, row))
-    hits.sort(key=lambda item: (item[0], item[1].get('date') or '', item[1]['id']), reverse=True)
-    return [row for _, row in hits], []
+    # Compatibility helper for callers that only need records and warnings.
+    rows, warnings, _ = retrieve(view, args)
+    return rows, warnings
 
 
 def dispatch(context, name, arguments):
@@ -259,6 +205,8 @@ def dispatch(context, name, arguments):
     args = ARGUMENTS[name].model_validate(arguments).model_dump()
     view = context['view']
     key = 'history-' + sha256(json.dumps([name, args, view['scope']['scope_id']], sort_keys=True).encode()).hexdigest()[:16]
+    if name == 'last_recorded_blood_pressure':
+        return last_match(context, args, key)
     rows = [row for row in all_facts(view) if matches_filter(row, args)]
     visible = [row for row in rows if available_fact(row)]
     withheld = len(rows) - len(visible)
@@ -286,23 +234,23 @@ def dispatch(context, name, arguments):
                 'claims': [claim(key + '-count', text, [row['id'] for row in page], name)] +
                     [fact_claim(row, name, key) for row in page]}
     if name == 'search_history_evidence':
-        found, warnings = search_rows(view, args)
+        found, warnings, retrieval = retrieve(view, args)
         page = bounded_facts(found, args['limit'])
         ids = {row['id'] for row in page}
         conflict_ids = [group['id'] for group in view['conflicts'] if ids.intersection(group['fact_ids'])]
         if len(page) < len(found):
-            warnings.append('More literal matches exist than are shown; narrow the search or inspect the record list.')
+            warnings.append('More matching records exist than are shown; narrow the search or inspect the record list.')
         if conflict_ids:
             warnings.append('Some matches belong to recorded discrepancies. This search does not resolve them; inspect history_conflicts for all matching discrepancy groups.')
         omitted = content_warning(page)
         warnings.extend(omitted)
         claims = [fact_claim(row, name, key) for row in page]
         if not claims:
-            claims = [claim(key + '-empty', f"No visible recorded fact matched this literal search ({scope_text(view['scope'])}). This does not establish that care was missed or that a condition is absent.", [], name)]
+            claims = [claim(key + '-empty', f"No visible recorded fact matched this record search ({scope_text(view['scope'])}). This does not establish that care was missed or that a condition is absent.", [], name)]
         if warnings:
-            claims.insert(0, claim(key + '-limits', f"Showing {len(page)} of {len(found)} literal matching records. " + ' '.join(warnings),
+            claims.insert(0, claim(key + '-limits', f"Showing {len(page)} of {len(found)} matching records. " + ' '.join(warnings),
                                    [row['id'] for row in page], name))
-        return {**evidence(view, page), 'method': 'literal_terms_and_phrases_v1',
+        return {**evidence(view, page), 'method': METHOD, 'retrieval': retrieval,
                 'match_count': len(found), 'truncated': len(page) < len(found) or bool(omitted),
                 'warnings': warnings, 'conflict_ids': conflict_ids,
                 'required_claim_ids': [key + '-limits'] if warnings else [], 'claims': claims}

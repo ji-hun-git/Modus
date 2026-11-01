@@ -13,7 +13,22 @@ import {
 } from "./sourceDisplay";
 import { unitLabel, facilityLabel } from "./recordPresentation.mjs";
 import "./record-conflict-comparison.css";
-export default function RecordConflictComparison({
+import useHistoryView from './useHistoryView';
+import HistoryPager from './HistoryPager';
+
+type ComparisonProps = {view: HistoryView; conflictId: string; onClose?: () => void};
+export default function RecordConflictComparison(props: ComparisonProps) {
+  return props.view.page ? <PagedComparison {...props} /> : <ComparisonBody {...props} />;
+}
+function PagedComparison({view, conflictId, onClose}: ComparisonProps) {
+  const page = useHistoryView(view.scope, view.scope.as_of === null,
+    {snapshot_id:view.page?.snapshot_id,conflict_id:conflictId});
+  if (page.error) return <div role="alert">{page.error}<button onClick={page.refresh}>Reopen this date view</button></div>;
+  if (!page.view) return <p role="status">Loading conflicting records…</p>;
+  return <><HistoryPager view={page.view} onPage={page.setOffset} noun="conflicting records" />
+    <ComparisonBody view={page.view} conflictId={conflictId} onClose={onClose} /></>;
+}
+function ComparisonBody({
   view,
   conflictId,
   onClose,
@@ -52,14 +67,14 @@ export default function RecordConflictComparison({
           </button>
         )}
       </header>
-      {!group || facts.length < 2 ? (
+      {!group || !facts.length ? (
         <p className="record-comparison-intro">
           Both records are not available in this selected view.
         </p>
       ) : (
         <>
           <p className="record-comparison-intro">
-            {facts.length} records have different{" "}
+            {view.page ? `${facts.length} records on this page belong to a group with different` : `${facts.length} records have different`}{" "}
             {group.reason === "different_recorded_units" ? "units" : "values"}.
             Each is preserved separately. Compare their dates, units and
             original wording.

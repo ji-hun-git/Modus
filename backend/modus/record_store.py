@@ -13,6 +13,17 @@ from .temporal import instant, utc_now
 from .record_history_models import date_information, temporal_original_allowed
 
 
+def packed_json_rows(db, query, parameters=()):
+    """Copy JSON records in one SQLite result, then decode after the transaction.
+
+    Row-by-row fetches repeatedly reacquire Python's GIL while holding SQLite's
+    writer reservation. Under concurrent history projection that can starve the
+    lock holder. All queries here are internal SQL; values stay bound parameters.
+    """
+    return db.execute("SELECT '[' || coalesce(group_concat(data, ','), '') || ']' FROM (" + query + ")",
+                      parameters).fetchone()[0]
+
+
 class RecordStore:
     """A separately identified store whose initial records are explicitly supplied.
 
@@ -160,13 +171,15 @@ class RecordStore:
             db.execute('BEGIN IMMEDIATE')
             captured_at = instant(self.clock())
             cutoff = min(instant(known_at), captured_at) if known_at is not None else captured_at
-            sources = [json.loads(row[0]) for row in db.execute(
-                'SELECT data FROM sources WHERE available_at<=?', (cutoff,))]
-            observations = [json.loads(row[0]) for row in db.execute(
+            source_rows = packed_json_rows(db,
+                'SELECT data FROM sources WHERE available_at<=?', (cutoff,))
+            observation_rows = packed_json_rows(db,
                 'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id',
-                (cutoff,))]
-            from .record_revisions import read_amendments
-            amendments = read_amendments(db, cutoff)
+                (cutoff,))
+            amendment_rows = packed_json_rows(db, 'SELECT data FROM history_amendments WHERE available_at<=? ORDER BY available_at,sequence', (cutoff,))
+        sources = json.loads(source_rows)
+        observations = json.loads(observation_rows)
+        amendments = json.loads(amendment_rows)
         snapshot = self._build_snapshot(captured_at, cutoff, sources, observations)
         snapshot._amendments = amendments
         return snapshot

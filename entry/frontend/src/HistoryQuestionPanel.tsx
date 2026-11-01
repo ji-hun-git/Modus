@@ -1,52 +1,44 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { ArrowUp, ArrowUpRight, FileText, LoaderCircle } from "lucide-react";
+import { ArrowUp, LoaderCircle } from "lucide-react";
 import { api } from "./api";
-import type { Answer, Claim } from "./types";
 import type { HistoryView } from "./historyTypes";
-import { Modal, dateLabel, endOfDay, timeLabel } from "./ui";
-import SourceCubeEvidence from "./SourceCubeEvidence";
+import { endOfDay } from "./ui";
+import HistoryAnswerView, { ScopeText, type HistoryAnswer } from "./HistoryAnswerView";
 import {
   historyAnswerMatches,
-  historyClaimEvidence,
   historyQuestionKey,
   historyQuestionRequest,
+  visibleHistoryAnswer,
 } from "./historyQuestionScope.mjs";
 import "./history-question.css";
 
-type HistoryAnswer = Omit<Answer, "scope" | "comparison"> & {
-  scope: HistoryView["scope"];
-  history_evidence: HistoryView;
-  history_comparison?: {
-    before: HistoryView["scope"];
-    after: HistoryView["scope"];
-  } | null;
-};
-
-const suggestions = [
-  ["Prescriptions", "Show my prescription records"],
-  ["Vaccinations", "Find my vaccination records"],
-  ["Imaging reports", "Find my imaging reports"],
-  ["Visits", "Show my visit records"],
-  ["A measurement", 'Find records mentioning "Height"'],
-];
-
-function ScopeText({ scope }: { scope: HistoryView["scope"] }) {
-  return (
-    <>
-      {scope.as_of
-        ? `Records through ${dateLabel(scope.as_of)}`
-        : "All recorded dates"}
-      {" · "}Files available through {timeLabel(scope.known_at)}
-    </>
-  );
+export function historySuggestions(view: HistoryView): [string, string][] {
+  const rows = [...view.facts, ...view.undated_facts].filter(row => !row.value_withheld && row.within_date_scope !== false);
+  const kinds = new Set(view.facets?.kinds || rows.map(row => row.kind));
+  const choices: [string, string][] = [];
+  if (rows.some(row => row.label.toLowerCase() === "blood pressure"))
+    choices.push(["Last blood pressure record", "When was Blood pressure last recorded?"]);
+  if (kinds.has("encounter") && kinds.has("prescription"))
+    choices.push(["Visits and prescriptions", "Show my visits and prescriptions"]);
+  else if (kinds.has("encounter")) choices.push(["My visits", "Show my visit records"]);
+  else if (kinds.has("prescription")) choices.push(["My prescriptions", "Show my prescription records"]);
+  if (view.conflicts.length || (view.page && view.counts.conflicts)) choices.push(["Recorded differences", "Which records disagree?"]);
+  if (kinds.has("vaccination")) choices.push(["Vaccination records", "Find my vaccination records"]);
+  if (kinds.has("imaging_text")) choices.push(["Imaging reports", "Find my imaging reports"]);
+  if (kinds.has("measurement")) choices.push(["My measurements", "Show my measurement records"]);
+  return choices.slice(0, 3);
 }
 
 export default function HistoryQuestionPanel({
   view,
   compact = false,
+  seed,
+  onSeedUsed,
 }: {
   view: HistoryView;
   compact?: boolean;
+  seed?: {message: string; afterKnownAt: string} | null;
+  onSeedUsed?: () => void;
 }) {
   const inputId = useId();
   const [question, setQuestion] = useState("");
@@ -55,36 +47,54 @@ export default function HistoryQuestionPanel({
   const [error, setError] = useState("");
   const [returned, setReturned] = useState<{
     key: string;
+    message: string;
     answer: HistoryAnswer;
   } | null>(null);
-  const [inspected, setInspected] = useState<Claim | null>(null);
   const controller = useRef<AbortController | null>(null);
   const sequence = useRef(0);
   const compareFrom = compareDate ? endOfDay(compareDate) : null;
   const key = historyQuestionKey(view.scope, compareFrom);
   const currentKey = useRef(key);
   currentKey.current = key;
-  const answer = returned?.key === key ? returned.answer : null;
-  const evidence =
-    answer && inspected
-      ? historyClaimEvidence(answer.history_evidence, inspected.evidence_ids)
-      : [];
+  const answer = visibleHistoryAnswer(returned, key, question) as HistoryAnswer | null;
+  const conversation = useRef<{key: string; value: HistoryAnswer['continuation']} | null>(null);
+  const continuation = conversation.current?.key === key ? conversation.current.value : undefined;
+  const usedSeed = useRef<string | null>(null);
+  const suggestions = historySuggestions(view);
 
   useEffect(() => {
     controller.current?.abort();
     sequence.current++;
     setPending(false);
     setReturned(null);
-    setInspected(null);
     setError("");
+    conversation.current = null;
     return () => {
       controller.current?.abort();
       sequence.current++;
     };
   }, [key]);
 
-  async function ask() {
-    if (pending || !question.trim()) return;
+  useEffect(() => {
+    if (!seed || view.scope.as_of !== null || Date.parse(view.scope.known_at) <= Date.parse(seed.afterKnownAt)) return;
+    const identity = JSON.stringify(seed);
+    if (usedSeed.current === identity) return;
+    usedSeed.current = identity;
+    setQuestion(seed.message);
+    void ask(seed.message);
+    onSeedUsed?.();
+  }, [seed, key]);
+
+  function editQuestion(message: string) {
+    controller.current?.abort();
+    sequence.current++;
+    setPending(false);
+    setError("");
+    setQuestion(message);
+  }
+
+  async function ask(message = question) {
+    if (pending || !message.trim()) return;
     if (
       compareFrom &&
       Date.parse(compareFrom) > Date.parse(view.scope.known_at)
@@ -101,14 +111,13 @@ export default function HistoryQuestionPanel({
     controller.current = active;
     setPending(true);
     setReturned(null);
-    setInspected(null);
     setError("");
     try {
       const result = await api<HistoryAnswer>("/history/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
-          historyQuestionRequest(view.scope, question, compareFrom),
+          historyQuestionRequest(view.scope, message, compareFrom, continuation),
         ),
         signal: active.signal,
       });
@@ -123,7 +132,8 @@ export default function HistoryQuestionPanel({
           "The answer did not match this record view. Please ask again.",
         );
       }
-      setReturned({ key: requestKey, answer: result });
+      setReturned({ key: requestKey, message: message.trim(), answer: result });
+      conversation.current = {key: requestKey, value: result.continuation};
     } catch (cause) {
       if (
         !active.signal.aborted &&
@@ -147,13 +157,7 @@ export default function HistoryQuestionPanel({
       aria-label="Ask about your history"
     >
       {!compact && (
-        <header>
-          <h2>Find something in your history</h2>
-          <p>
-            Search visits, prescriptions, vaccinations, reports and
-            measurements.
-          </p>
-        </header>
+        <p className="history-question-intro">Find a past result, visit or report.</p>
       )}
       <form
         onSubmit={(event) => {
@@ -171,10 +175,10 @@ export default function HistoryQuestionPanel({
           placeholder={
             compact
               ? "Ask about your records…"
-              : "Find a record, its original wording, or what was added…"
+              : "What would you like to find in your history?"
           }
           value={question}
-          onChange={(event) => setQuestion(event.target.value)}
+          onChange={(event) => editQuestion(event.target.value)}
           onKeyDown={(event) => {
             if (
               compact &&
@@ -199,7 +203,7 @@ export default function HistoryQuestionPanel({
           )}
         </button>
       </form>
-      {!compact && (
+      {!compact && !answer && suggestions.length > 0 && (
         <div
           className="history-question-examples"
           aria-label="Example history questions"
@@ -209,18 +213,17 @@ export default function HistoryQuestionPanel({
               type="button"
               key={label}
               disabled={pending}
-              onClick={() => setQuestion(query)}
+              onClick={() => editQuestion(query)}
               aria-label={`Use question: ${query}`}
             >
               {label}
-              <ArrowUpRight size={13} />
             </button>
           ))}
         </div>
       )}
       {!compact && (
         <details className="history-question-dates">
-          <summary>Dates used for this question</summary>
+          <summary>Dates and comparison{compareDate ? " · comparison set" : ""}</summary>
           <p>
             <ScopeText scope={view.scope} />
           </p>
@@ -274,103 +277,16 @@ export default function HistoryQuestionPanel({
           {error}
         </p>
       )}
-      {answer && (
-        <div className="history-question-answer" aria-label="History answer">
-          <div className="history-answer-heading">
-            <h3>From your records</h3>
-            <span>
-              {answer.mode === "meta"
-                ? "Meta selected record findings"
-                : "Local result · no model called"}
-            </span>
-          </div>
-          <p className="history-answer-scope">
-            <ScopeText scope={answer.scope} />
-          </p>
-          {answer.history_comparison && (
-            <p className="history-answer-scope">
-              Compared with files available through{" "}
-              {timeLabel(answer.history_comparison.before.known_at)}.
-            </p>
-          )}
-          {answer.claims.length ? (
-            answer.claims.map((claim) => (
-              <article key={claim.id}>
-                <p>{claim.text}</p>
-                {!!historyClaimEvidence(
-                  answer.history_evidence,
-                  claim.evidence_ids,
-                ).length && (
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => setInspected(claim)}
-                  >
-                    <FileText size={14} /> View supporting records{" "}
-                    <ArrowUpRight size={13} />
-                  </button>
-                )}
-              </article>
-            ))
-          ) : (
-            <p>
-              {answer.answer ||
-                "No supported record finding was returned for this question."}
-            </p>
-          )}
-          <details className="history-answer-trace">
-            <summary>How this answer was made</summary>
-            {answer.trace.map((step, index) => (
-              <details key={`${step.name}-${index}`}>
-                <summary>
-                  {step.name} · {step.status} · {step.duration_ms.toFixed(0)} ms
-                </summary>
-                <pre>
-                  {JSON.stringify(
-                    {
-                      executor: step.executor,
-                      arguments: step.arguments,
-                      result: step.result,
-                    },
-                    null,
-                    2,
-                  )}
-                </pre>
-              </details>
-            ))}
-            <pre>
-              {JSON.stringify(
-                { execution: answer.execution, telemetry: answer.telemetry },
-                null,
-                2,
-              )}
-            </pre>
-          </details>
-        </div>
-      )}
-      {answer && inspected && evidence.length > 0 && (
-        <Modal
-          title="Supporting records"
-          onClose={() => setInspected(null)}
-          wide
-        >
-          <p className="history-answer-scope">
-            <ScopeText scope={answer.scope} />
-          </p>
-          <p className="history-evidence-intro">{inspected.text}</p>
-          <div className="history-answer-evidence">
-            {evidence.map(({ source, facts }) => (
-              <SourceCubeEvidence
-                key={source.id}
-                source={source}
-                facts={facts}
-                view={answer.history_evidence}
-                initialFactId={facts[0]?.id}
-              />
-            ))}
-          </div>
-        </Modal>
-      )}
+      {answer && <HistoryAnswerView answer={answer} pending={pending}
+        onRefreshAnswer={() => window.dispatchEvent(new CustomEvent("modus:ask-current-history", {detail: {
+          message: answer.followup?.subject || answer.continuation?.subject || returned!.message,
+          afterKnownAt: answer.scope.known_at,
+        }}))}
+        onClarify={message => { setQuestion(message); void ask(message); }} />}
+      {answer?.continuation && <button className="text-button" disabled={pending}
+        onClick={() => { const message = answer.continuation!.suggested_question; setQuestion(message); void ask(message); }}>
+        Show the earlier record
+      </button>}
     </section>
   );
 }

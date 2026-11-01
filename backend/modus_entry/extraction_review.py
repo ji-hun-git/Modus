@@ -7,6 +7,7 @@ from hashlib import sha256
 
 from modus.ingest import make_draft
 from modus.history_ingest import attach_facts
+from .report_coverage import public_coverage
 
 
 LABELS = {
@@ -58,6 +59,11 @@ def review_draft(filename, raw, result):
         'verification_status': result['verification']['status'],
         'facts': facts, 'review_required': True,
     }
+    coverage = public_coverage(result.get('coverage'))
+    if coverage:
+        draft['extraction_review']['coverage'] = coverage
+        if not result['fields']:
+            draft['facts'] = []  # Read-only review of an empty proposal; commits still reject.
     # Preserve exact model proposals, checks and non-calibrated confidence for
     # later review without exposing them as committed or historically known facts.
     draft['extraction_proposal'] = result

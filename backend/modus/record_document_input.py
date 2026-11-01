@@ -159,17 +159,21 @@ async def prepare_document(raw, filename, mime, telemetry, *, use_local_ocr=Fals
     text_sizes = [len(p['text']) + (len(p.get('ocr_text', '')) if p['text_source'] != 'local_teleocr' else 0) for p in pages]
     if any(size > MAX_PAGE_TEXT for size in text_sizes) or sum(text_sizes) > MAX_TOTAL_TEXT:
         raise ValueError('Combined source text limit exceeded')
-    parts = []
+    parts, page_parts = [], []
     for page in pages:
         number = page['page']
-        parts.append({'type': 'text', 'text': f"UNTRUSTED SOURCE PAGE {number}; transcription={page['text_source']}\n{page['text']}"})
+        current = [{'type': 'text', 'text': f"UNTRUSTED SOURCE PAGE {number}; transcription={page['text_source']}\n{page['text']}"}]
         if page.get('ocr_text') and page['text_source'] != 'local_teleocr':
-            parts.append({'type': 'text', 'text': f"UNTRUSTED LOCAL OCR FOR PAGE {number}\n{page['ocr_text']}"})
+            current.append({'type': 'text', 'text': f"UNTRUSTED LOCAL OCR FOR PAGE {number}\n{page['ocr_text']}"})
         if number in images:
-            parts.append({'type': 'image_url', 'image_url': {
+            current.append({'type': 'image_url', 'image_url': {
                 'url': 'data:image/jpeg;base64,' + base64.b64encode(images[number]).decode()}})
+        # Keep the trusted page boundary separate from untrusted source text.
+        # Readers must never recover group boundaries by parsing document prose.
+        page_parts.append({'page': number, 'parts': current})
+        parts.extend(current)
     mode = 'pdf_text' if not images else 'pdf_text_and_vision' if any(p['text_source'] == 'pdf_text' for p in pages) else 'vision'
-    return {'pages': pages, 'parts': parts, 'metadata': {
+    return {'pages': pages, 'parts': parts, 'page_parts': page_parts, 'metadata': {
         'mode': mode, 'input_sha256': hashlib.sha256(raw).hexdigest(), 'page_count': len(pages),
         'pages': [{'page': p['page'], 'text_source': p['text_source'], 'vision_supplied': p['page'] in images,
                    'image': _image_metadata(images[p['page']]) if p['page'] in images else None} for p in pages],

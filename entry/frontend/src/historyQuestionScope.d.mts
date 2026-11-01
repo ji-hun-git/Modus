@@ -8,12 +8,15 @@ export function historyQuestionRequest(
   scope: Scope,
   message: string,
   compareFrom?: string | null,
+  continuation?: {token: string} | null,
 ): {
   as_of: string | null;
   known_at: string;
   compare_from?: string;
   message: string;
+  continuation_token?: string;
 };
+export function visibleHistoryAnswer<T>(returned: {key: string; message: string; answer: T} | null, key: string, question: string): T | null;
 export function historyAnswerMatches(
   answer: {
     scope: Scope;

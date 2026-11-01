@@ -4,7 +4,7 @@ import {
   type FactKind,
   type FactReviewRow,
 } from "./historyTypes";
-import { metricLabel, type Draft } from "./types";
+import { type Draft } from "./types";
 import "./generic-records.css";
 
 export default function GenericFactReview({
@@ -48,19 +48,41 @@ export default function GenericFactReview({
         )}
       {rows.map((row, index) => {
         const original = draft.facts?.find((fact) => fact.id === row.id);
+        const reasons =
+          draft.extraction_review?.facts.find((fact) => fact.id === row.id)
+            ?.review_reasons || [];
+        const changed =
+          !!original &&
+          (!row.keep ||
+            (
+              [
+                "kind",
+                "label",
+                "value",
+                "unit",
+                "occurred_on",
+                "facility",
+              ] as const
+            ).some((field) => (row[field] ?? "") !== (original[field] ?? "")));
         return (
           <article
             className={`review-card generic-fact-card ${row.keep ? "" : "excluded"}`}
             key={row.id}
           >
             <div className="review-card-top">
-              <strong>
-                {["hba1c", "egfr", "ldl"].includes(
-                  row.label.trim().toLowerCase(),
-                )
-                  ? metricLabel(row.label.trim().toLowerCase())
-                  : `Field ${index + 1}`}
-              </strong>
+              <input
+                className="review-name-input"
+                aria-label={`Name ${index + 1}`}
+                title="Name as recorded"
+                placeholder={`Name of field ${index + 1}`}
+                required
+                maxLength={200}
+                value={row.label}
+                disabled={locked || !row.keep}
+                onChange={(event) =>
+                  onChange(row.id, { label: event.target.value })
+                }
+              />
               <label className="check-row">
                 <input
                   type="checkbox"
@@ -74,129 +96,153 @@ export default function GenericFactReview({
                 {row.keep ? "Include" : "Excluded"}
               </label>
             </div>
-            <fieldset
-              disabled={locked || !row.keep}
-              className="generic-fact-fields"
-            >
-              <label className="field">
-                Type
-                <select
-                  aria-label={`Type ${index + 1}`}
-                  value={row.kind}
-                  onChange={(event) =>
-                    onChange(row.id, { kind: event.target.value as FactKind })
-                  }
+            {reasons.length > 0 && (
+              <ul
+                className="extraction-review-reasons"
+                aria-label={`Check ${row.label} against the original`}
+              >
+                {reasons.map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ul>
+            )}
+            <div className="review-fact-comparison">
+              <div>
+                <fieldset
+                  disabled={locked || !row.keep}
+                  className="generic-fact-fields"
                 >
-                  {Object.entries(factKindLabels).map(([kind, label]) => (
-                    <option key={kind} value={kind}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                Name as recorded
-                <input
-                  aria-label={`Name ${index + 1}`}
-                  required
-                  maxLength={200}
-                  value={row.label}
-                  onChange={(event) =>
-                    onChange(row.id, { label: event.target.value })
-                  }
-                />
-              </label>
-              <label className="field generic-wide-field">
-                Value or text as recorded
-                <textarea
-                  aria-label={`Recorded value ${index + 1}`}
-                  required
-                  maxLength={800}
-                  rows={2}
-                  value={row.value}
-                  onChange={(event) =>
-                    onChange(row.id, { value: event.target.value })
-                  }
-                />
-              </label>
-              <label className="field">
-                Unit as printed
-                <input
-                  aria-label={`Printed unit ${index + 1}`}
-                  maxLength={80}
-                  value={row.unit || ""}
-                  placeholder="Leave blank if not recorded"
-                  onChange={(event) =>
-                    onChange(row.id, { unit: event.target.value || null })
-                  }
-                />
-              </label>
-              <label className="field">
-                Date as recorded
-                <input
-                  aria-label={`Recorded date ${index + 1}`}
-                  maxLength={100}
-                  value={row.occurred_on || ""}
-                  placeholder="Exact, partial, or leave blank"
-                  onChange={(event) =>
-                    onChange(row.id, {
-                      occurred_on: event.target.value || null,
-                    })
-                  }
-                />
-              </label>
-              <label className="field generic-wide-field">
-                Facility as recorded
-                <input
-                  aria-label={`Facility ${index + 1}`}
-                  maxLength={200}
-                  value={row.facility || ""}
-                  placeholder="Leave blank if not recorded"
-                  onChange={(event) =>
-                    onChange(row.id, { facility: event.target.value || null })
-                  }
-                />
-              </label>
-            </fieldset>
-            <details className="generic-fact-source">
-              <summary>
-                Source excerpt{row.page ? ` · page ${row.page}` : ""}
-              </summary>
-              <blockquote>
-                {row.source_quote ||
-                  "No excerpt was returned. Compare with the original file."}
-              </blockquote>
-              {original && (
-                <p>
-                  Original proposal: {original.label} · {original.value}
-                  {original.unit ? ` ${original.unit}` : ""} ·{" "}
-                  {original.occurred_on || "Date not recorded"}
+                  <label className="field generic-wide-field">
+                    Value or text as recorded
+                    <textarea
+                      aria-label={`Recorded value ${index + 1}`}
+                      required
+                      maxLength={800}
+                      rows={Math.min(
+                        6,
+                        Math.max(
+                          1,
+                          row.value.split("\n").length,
+                          Math.ceil(row.value.length / 70),
+                        ),
+                      )}
+                      value={row.value}
+                      onChange={(event) =>
+                        onChange(row.id, { value: event.target.value })
+                      }
+                    />
+                  </label>
+                  <label className="field">
+                    Unit as printed
+                    <input
+                      aria-label={`Printed unit ${index + 1}`}
+                      maxLength={80}
+                      value={row.unit || ""}
+                      placeholder="Not recorded"
+                      onChange={(event) =>
+                        onChange(row.id, { unit: event.target.value || null })
+                      }
+                    />
+                  </label>
+                  <label className="field">
+                    Date as recorded
+                    <input
+                      aria-label={`Recorded date ${index + 1}`}
+                      maxLength={100}
+                      value={row.occurred_on || ""}
+                      placeholder="Exact, partial, or leave blank"
+                      onChange={(event) =>
+                        onChange(row.id, {
+                          occurred_on: event.target.value || null,
+                        })
+                      }
+                    />
+                  </label>
+                </fieldset>
+                <details className="review-field-details">
+                  <summary>
+                    Type, facility and proposal{changed ? " · edited" : ""}
+                  </summary>
+                  <fieldset
+                    disabled={locked || !row.keep}
+                    className="generic-fact-fields"
+                  >
+                    <label className="field generic-wide-field">
+                      Type
+                      <select
+                        aria-label={`Type ${index + 1}`}
+                        value={row.kind}
+                        onChange={(event) =>
+                          onChange(row.id, {
+                            kind: event.target.value as FactKind,
+                          })
+                        }
+                      >
+                        {Object.entries(factKindLabels).map(([kind, label]) => (
+                          <option key={kind} value={kind}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="field generic-wide-field">
+                      Facility as recorded
+                      <input
+                        aria-label={`Facility ${index + 1}`}
+                        maxLength={200}
+                        value={row.facility || ""}
+                        placeholder="Leave blank if not recorded"
+                        onChange={(event) =>
+                          onChange(row.id, {
+                            facility: event.target.value || null,
+                          })
+                        }
+                      />
+                    </label>
+                  </fieldset>
+                  {original && (
+                    <p>
+                      Original proposal: {original.label} · {original.value}
+                      {original.unit ? ` ${original.unit}` : ""} ·{" "}
+                      {original.occurred_on || "Date not recorded"}
+                    </p>
+                  )}
+                  {changed && (
+                    <button
+                      type="button"
+                      className="text-button"
+                      disabled={locked || !original}
+                      onClick={() =>
+                        original &&
+                        onChange(row.id, { ...original, keep: true })
+                      }
+                    >
+                      <RotateCcw size={12} /> Restore proposal
+                    </button>
+                  )}
+                </details>
+              </div>
+              <aside
+                className="generic-fact-source"
+                aria-label={`Original excerpt for field ${index + 1}`}
+              >
+                <p className="review-source-label">
+                  In your original{row.page ? ` · page ${row.page}` : ""}
                 </p>
-              )}
-            </details>
-            <button
-              type="button"
-              className="text-button"
-              disabled={locked || !original}
-              onClick={() =>
-                original && onChange(row.id, { ...original, keep: true })
-              }
-            >
-              <RotateCcw size={12} /> Restore proposal
-            </button>
+                <blockquote>
+                  {row.source_quote ||
+                    "No excerpt was returned. Compare with the original file."}
+                </blockquote>
+              </aside>
+            </div>
           </article>
         );
       })}
-      <p className="safe-note">
-        {kept} included · {rows.length - kept} excluded. Partial and unknown
-        dates stay as recorded. Saving keeps your review and the original
-        source.
-      </p>
       <div className="review-actions">
         <p>
-          These are recorded facts.
+          {kept} included · {rows.length - kept} excluded.
           <br />
-          Your review decides what is added.
+          Saving keeps your review and the original.
         </p>
         <div>
           <button

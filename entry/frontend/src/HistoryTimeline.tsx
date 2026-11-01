@@ -14,18 +14,18 @@ import {
 } from "./historyTypes";
 import TimelineFact, { exactDate } from "./TimelineFact";
 import TimelineSettings from "./TimelineSettings";
-import HistoryFiles from "./HistoryFiles";
+import PagedFiles from "./PagedFiles";
+import HistoryPager from "./HistoryPager";
 import HistoryQuestionPanel from "./HistoryQuestionPanel";
 import useHistoryView from "./useHistoryView";
-import { facilityLabel } from "./recordPresentation.mjs";
+import {RetrievalFeedback} from './TerminologyDetails';
+import { facilityLabel, localCalendarDay } from "./recordPresentation.mjs";
 import "./history-timeline.css";
 
 export default function HistoryTimeline({
   scope,
   onLatest,
   viewMode = "timeline",
-  onImport,
-  hasDraft = false,
   onScope,
 }: {
   scope: Scope;
@@ -38,9 +38,10 @@ export default function HistoryTimeline({
   const [kind, setKind] = useState("all");
   const [facility, setFacility] = useState("all");
   const [order, setOrder] = useState("newest");
+  const [query, setQuery] = useState('');
   const previousAsOf = useRef(scope.as_of);
   const [allDates, setAllDates] = useState(
-    () => scope.as_of === new Date().toISOString().slice(0, 10),
+    () => scope.as_of === localCalendarDay(),
   );
   const effectiveAllDates = previousAsOf.current === scope.as_of && allDates;
   useEffect(() => {
@@ -49,7 +50,10 @@ export default function HistoryTimeline({
       setAllDates(false);
     }
   }, [scope.as_of]);
-  const { view, error, refresh } = useHistoryView(scope, effectiveAllDates);
+  const { view: loadedView, metadata, error, refresh, setOffset } = useHistoryView(scope, effectiveAllDates, {
+    section: viewMode === 'files' ? 'sources' : 'facts', limit: viewMode === 'files' ? 12 : 50,
+    kind: kind === 'all' ? undefined : kind, facility: facility === 'all' ? undefined : facility, order, query });
+  const view = loadedView || metadata;
   useEffect(() => {
     if (view) onScope?.(view.scope);
   }, [view, onScope]);
@@ -91,12 +95,12 @@ export default function HistoryTimeline({
     return (
       <>
         <HistoryQuestionPanel view={view} />
-        <HistoryFiles
-          view={view}
-          dateControl={dateControl}
-          onImport={onImport}
-          hasDraft={hasDraft}
-        />
+        {dateControl}
+        <label>Search documents<input aria-label="Search documents" value={query} onChange={e => setQuery(e.target.value)} /></label>
+        <RetrievalFeedback retrieval={loadedView?.retrieval} onChoose={setQuery} />
+        <HistoryPager view={view} onPage={setOffset} noun="files" />
+        <PagedFiles view={view} />
+        <HistoryPager view={view} onPage={setOffset} noun="files" />
       </>
     );
   const matches = (fact: HistoryFact) =>
@@ -117,7 +121,7 @@ export default function HistoryTimeline({
       dated.map((fact) => exactDate(fact)?.slice(0, 4) || "Date not recorded"),
     ),
   ];
-  const facilities = [
+  const facilities = view.facets?.facilities || [
     ...new Set(
       [...view.facts, ...view.undated_facts].flatMap((fact) =>
         facilityLabel(fact.facility) ? [fact.facility!] : [],
@@ -133,9 +137,7 @@ export default function HistoryTimeline({
         <div>
           <h2>Recorded history</h2>
           <p>
-            {visibleFileCount} document{visibleFileCount === 1 ? "" : "s"} ·{" "}
-            {dated.length} dated records
-            {undated.length ? ` · ${undated.length} without an exact date` : ""}
+            {view.page?.matched_sources ?? visibleFileCount} documents · {view.page?.total ?? dated.length + undated.length} matching records
           </p>
         </div>
         <button className="text-button" onClick={refresh}>
@@ -143,6 +145,10 @@ export default function HistoryTimeline({
         </button>
       </header>
       {dateControl}
+      <label>Search records<input aria-label="Search records" value={query} onChange={e => setQuery(e.target.value)} /></label>
+      <RetrievalFeedback retrieval={loadedView?.retrieval} onChoose={setQuery} />
+      <HistoryPager view={view} onPage={setOffset} />
+      {!loadedView && <p role="status">Loading matching records…</p>}
       <HistoryQuestionPanel view={view} />
       <div className="timeline-filters">
         <label className="field">
@@ -161,17 +167,15 @@ export default function HistoryTimeline({
         </label>
         <label className="field">
           Facility
-          <select
-            value={facility}
-            onChange={(event) => setFacility(event.target.value)}
-          >
-            <option value="all">All facilities</option>
+          <input list="history-facilities" value={facility === 'all' ? '' : facility}
+            placeholder="All facilities" onChange={event => setFacility(event.target.value || 'all')} />
+          <datalist id="history-facilities">
             {facilities.map((value) => (
               <option key={value} value={value}>
                 {value}
               </option>
             ))}
-          </select>
+          </datalist>
         </label>
         <label className="field">
           Order
@@ -184,7 +188,7 @@ export default function HistoryTimeline({
           </select>
         </label>
       </div>
-      {!dated.length && !undated.length && (
+      {loadedView && !dated.length && !undated.length && (
         <div className="workspace-empty">
           <CalendarDays size={28} />
           <h3>No matching records in this view</h3>
@@ -246,6 +250,7 @@ export default function HistoryTimeline({
           : "All recorded dates"}{" "}
         · Files available through {timeLabel(scope.known_at)}
       </p>
+      <HistoryPager view={view} onPage={setOffset} />
       <TimelineSettings
         key={scope.known_at}
         dateOfBirth={view.profile?.date_of_birth || null}

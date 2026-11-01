@@ -13,10 +13,25 @@ const compiled = ts.transpileModule(source, {
     target: ts.ScriptTarget.ES2022,
   },
 }).outputText;
-const { reportSummaries, isLatestReport, previousRecords, recordHistory } =
+const { reportSummaries, isLatestReport, previousRecords, recordHistory, sourceRegion, recordedDates, orbitLayout, dateDay, dayDate, archiveElapsed } =
   await import(
     "data:text/javascript;base64," + Buffer.from(compiled).toString("base64")
   );
+
+test("source region rejects invalid geometry and withheld evidence", () => {
+  const fact = { bbox: [0.1, 0.2, 0.8, 0.4] };
+  assert.deepEqual(sourceRegion(fact), fact.bbox);
+  for (const bbox of [null, [0, 0, 1], [0.5, 0, 0.3, 1], [-1, 0, 1, 1], [0, 0, Infinity, 1]]) {
+    assert.equal(sourceRegion({ bbox }), null);
+  }
+  assert.equal(sourceRegion({ ...fact, value_withheld: true }), null);
+  assert.equal(sourceRegion({ ...fact, source_quote_withheld: true }), null);
+});
+
+test("scrub stops use only actual complete dates, deduplicated", () => {
+  assert.deepEqual(recordedDates({facts: [{date:'2024-02-03'}, {date:'2016-05-04'},
+    {date:'2024-02-03'}, {date:null}, {date:'2024-02-31'}, {date:'2012'}]}), ['2016-05-04', '2024-02-03']);
+});
 
 const row = (id, date, extra = {}) => ({
   id,
@@ -46,6 +61,48 @@ const viewOf = (facts, extra = {}) => ({
   ...extra,
 });
 const ids = (facts) => facts.map((fact) => fact.id);
+
+test("orbit preserves every source, including ties and files without a complete date", () => {
+  const reports = reportSummaries(viewOf([
+    row('old', '2016-05-04'), row('a', '2026-10-20'), row('b', '2026-10-20'),
+    row('unknown', null), row('partial', '2012'),
+  ]));
+  const { rings, nodes } = orbitLayout(reports);
+  assert.equal(nodes.length, reports.length);
+  assert.equal(new Set(nodes.map((node) => node.id)).size, reports.length);
+  assert.deepEqual(rings.map((ring) => ring.label), ['2015–2019', '2025–2029']);
+  assert.equal(nodes.filter((node) => node.era === null).length, 2);
+  for (const node of nodes) {
+    assert.ok(Number.isFinite(node.x) && Number.isFinite(node.y));
+    const ring = rings.find((item) => item.era === node.era);
+    if (ring) assert.ok(Math.abs(Math.hypot(node.x - 300, node.y - 222) - ring.radius) < 1e-8);
+  }
+  const byId = (value) => [...value].sort((a, b) => a.id.localeCompare(b.id));
+  assert.deepEqual(byId(orbitLayout([...reports].reverse()).nodes), byId(nodes));
+});
+
+test("empty orbit and a single undated file cannot invent a dated ring", () => {
+  assert.deepEqual(orbitLayout([]), { rings:[], nodes:[] });
+  const layout = orbitLayout(reportSummaries(viewOf([row('unknown', null)])));
+  assert.deepEqual(layout.rings, []);
+  assert.equal(layout.nodes[0].era, null);
+  assert.ok(Number.isFinite(layout.nodes[0].x));
+});
+
+test("timeline uses elapsed UTC days, retaining leap days and uneven gaps", () => {
+  assert.equal(dateDay('2024-03-01') - dateDay('2024-02-28'), 2);
+  assert.equal(dateDay('2024-04-01') - dateDay('2024-03-01'), 31);
+  for (const date of ['1900-01-01', '2024-02-29', '2026-10-29']) assert.equal(dayDate(dateDay(date)), date);
+  for (const date of ['2024', '2024-02-30', '0000-01-01', '2026-10-29T00:00:00Z']) assert.equal(dateDay(date), null);
+});
+
+test("T+ measures complete calendar months, including before-first and unknown history", () => {
+  assert.equal(archiveElapsed('2018-04-09', '2026-10-29'), 'T+ 08Y 06M');
+  assert.equal(archiveElapsed('2018-04-09', '2026-10-08'), 'T+ 08Y 05M');
+  assert.equal(archiveElapsed('2024-02-29', '2024-02-29'), 'T+ 00Y 00M');
+  assert.equal(archiveElapsed('2024-02-29', '2024-02-28'), 'BEFORE FIRST RECORD');
+  assert.equal(archiveElapsed(undefined, '2024-02-29'), 'T+ —');
+});
 
 test("latest reports use recorded fact dates, never late upload times or source metadata", () => {
   const old = row("old", "2018-04-09", {

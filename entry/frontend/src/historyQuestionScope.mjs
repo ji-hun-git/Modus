@@ -7,13 +7,18 @@ export function historyQuestionKey(scope, compareFrom = null) {
   ]);
 }
 
-export function historyQuestionRequest(scope, message, compareFrom = null) {
+export function historyQuestionRequest(scope, message, compareFrom = null, continuation = null) {
   return {
     as_of: scope.as_of,
     known_at: scope.known_at,
     ...(compareFrom ? { compare_from: compareFrom } : {}),
     message: message.trim(),
+    ...(continuation?.token ? {continuation_token: continuation.token} : {}),
   };
+}
+
+export function visibleHistoryAnswer(returned, key, question) {
+  return returned?.key === key && returned.message === question.trim() ? returned.answer : null;
 }
 
 // Bounds come from server-captured views, in the server's canonical form.

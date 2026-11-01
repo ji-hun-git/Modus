@@ -1,5 +1,11 @@
 # Terminology and record retrieval
 
+## Active whole-history path — 30 October 2026
+
+The generic history tools now use `literal_and_medical_aliases_v2`: 24 local medical concepts, selected English/Korean/everyday aliases, fixed NIDDK/MedlinePlus reference links, ambiguity clarification, and the existing occurrence/availability-filtered original evidence. Records, Documents, Trends and Brief use the same alias matcher before pagination. The model cannot invent aliases; source values, names, units and revisions remain unchanged. There is no new clinical-advice capability, embedding model or external clinical-reference retrieval pipeline. See [the exact API contract](API_CONTRACT.md#medical-terminology-retrieval--30-october-2026) and [offline verification](../../docs/T8_MEDICAL_TERMINOLOGY_2026-10-30.md).
+
+The sections below describe the **separate legacy three-metric implementation**. Its nine LOINC variants, BM25 scoring and development scores do not qualify the new generic path. The 24 new concept IDs are local vocabulary entries, not standardized clinical coding. Both paths preserve their original evidence and bounded read-only tools.
+
 Modus searches recorded facts inside one captured measurement/availability view. The existing Home question box is the service interface; there is no additional dashboard or permission to inspect a wider history.
 
 ## Scope

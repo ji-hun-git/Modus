@@ -49,6 +49,15 @@ const draft = (extra = {}) => ({
 });
 const review = () => queue.acceptDraft(selected(), draft());
 
+test("a processed empty report retains review and original access but cannot be saved", () => {
+  const empty = draft({observations:[],facts:[],extraction_review:{facts:[],coverage:{version:'whole-report-v1',status:'completed',page_count:4}}});
+  const item = queue.acceptDraft(selected(),empty);
+  assert.equal(item.status,'review');
+  assert.equal(item.draft,empty);
+  assert.throws(()=>queue.beginFactCommit(item),/at least one recorded fact/);
+  assert.equal(queue.acceptDraft(selected(),draft({observations:[]})).status,'error');
+});
+
 test("contest readers offer Meta as the only model and reject stale OCR selection", () => {
   const pdf = file("record.pdf");
   const readers = queue.readingOptions(pdf, true);

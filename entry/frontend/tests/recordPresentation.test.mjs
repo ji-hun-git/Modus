@@ -70,3 +70,12 @@ test("ambiguous and impossible dates are not silently interpreted or rolled forw
   assert.equal(recordDateLabel("2020-02-30T00:00:00Z"), "2020-02-30T00:00:00Z");
   assert.equal(recordDateLabel("2020-13"), "2020-13");
 });
+import { localCalendarDay } from '../src/recordPresentation.mjs';
+test('local calendar day does not turn early KST morning into yesterday',()=>{
+  const old=process.env.TZ;
+  try {
+    process.env.TZ='Asia/Seoul';
+    assert.equal(localCalendarDay(new Date('2026-11-01T15:30:00Z')),'2026-11-02');
+    assert.equal(localCalendarDay(new Date('2026-11-01T14:59:00Z')),'2026-11-01');
+  } finally { if(old===undefined) delete process.env.TZ; else process.env.TZ=old; }
+});

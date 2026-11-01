@@ -1,0 +1,17 @@
+kind,label,value,unit,date,facility
+measurement,Pulse,72.00,bpm,2016-06-02,Example clinic
+measurement,Pulse,75,bpm,2024-02-03,Example clinic
+measurement,Pulse,76,bpm,2024-02-03,Example clinic
+measurement,Glucose,95,mg/dL,2016-06-02,Example lab
+measurement,Glucose,5.3,mmol/L,2024-02-03,Example lab
+measurement,ALT,<5,U/L,2024-02-03,Example lab
+measurement,Weight,62.00,kg,2024,Example clinic
+measurement,Blood pressure,100/65,mmHg,2016-06-02,Example clinic
+measurement,Custom assay,negative,,,Example lab
+encounter,Annual visit,Visit documented,,2024-02-03,Example clinic
+prescription,Prescription entry,Historical wording only,,2024-02-03,Example clinic
+vaccination,Vaccination entry,Dose documented,,2012,Example clinic
+procedure,Procedure entry,Procedure documented,,2020-02-03,Example clinic
+imaging_text,Imaging report,Verbatim imaging text,,,Example clinic
+recorded_diagnosis,Provider wording,Recorded statement,,2020-02-03,Example clinic
+recorded_text,Appointment note,As printed in the note,,,Example clinic

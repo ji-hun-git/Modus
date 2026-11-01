@@ -27,22 +27,26 @@ export default function SourceCubeEvidence({
   facts,
   view,
   initialFactId,
+  onRefreshAnswer,
 }: {
   source: HistoryView["sources"][number];
   facts: HistoryFact[];
   view: HistoryView;
   initialFactId?: string;
+  onRefreshAnswer?: () => void;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(
     initialFactId || null,
   );
   const [comparisonId, setComparisonId] = useState<string | null>(null);
+  const [listOffset, setListOffset] = useState(() => Math.max(0, Math.floor(facts.findIndex(f => f.id === initialFactId) / 50) * 50));
   const proofId = useId();
   const comparison = useRef<HTMLDivElement>(null);
   const comparisonTrigger = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     setSelectedId(initialFactId || null);
     setComparisonId(null);
+    setListOffset(Math.max(0, Math.floor(facts.findIndex(f => f.id === initialFactId) / 50) * 50));
   }, [requestedSource.id, initialFactId]);
   // Never trust a selection retained from a previous source or historical scope.
   const source = view.sources.find((item) => item.id === requestedSource.id);
@@ -79,7 +83,7 @@ export default function SourceCubeEvidence({
         </div>
       </header>
       <div className="source-evidence-facts" aria-label="Select a record">
-        {visibleFacts.map((fact) => (
+        {visibleFacts.slice(listOffset,listOffset + 50).map((fact) => (
           <button
             key={fact.id}
             type="button"
@@ -118,6 +122,11 @@ export default function SourceCubeEvidence({
           </p>
         )}
       </div>
+      {visibleFacts.length > 50 && <nav className="history-pagination" aria-label="Source record pages">
+        <button className="text-button" disabled={listOffset === 0} onClick={() => {const next=Math.max(0,listOffset-50);setListOffset(next);setSelectedId(visibleFacts[next].id);}}>Previous source records</button>
+        <span>{listOffset+1}–{Math.min(listOffset+50,visibleFacts.length)} of {visibleFacts.length}</span>
+        <button className="text-button" disabled={listOffset+50 >= visibleFacts.length} onClick={() => {const next=listOffset+50;setListOffset(next);setSelectedId(visibleFacts[next].id);}}>Next source records</button>
+      </nav>}
       {selected && (
         <div className="source-evidence-proof" id={proofId}>
           <div className="source-evidence-result-heading">
@@ -196,7 +205,7 @@ export default function SourceCubeEvidence({
               The excerpt retains the original wording.
             </p>
           )}
-          <RecordCorrection key={`${selected.id}:${view.scope.scope_id}`} fact={selected} scope={view.scope} />
+          <RecordCorrection key={`${selected.id}:${view.scope.scope_id}`} fact={selected} scope={view.scope} onRefreshAnswer={onRefreshAnswer} />
         </div>
       )}
       <footer className="source-evidence-footer">

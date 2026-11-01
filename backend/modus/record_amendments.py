@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .record_history import _bridge
 from .record_history_models import ReviewedFact, date_information
-from .record_history_view import _read_history_snapshot, _project_history, raw_history_facts
+from .record_history_view import _read_history_snapshot, _read_history_rows, _decode_history_rows, _project_history, raw_history_facts
 from .temporal import instant
 
 FIELDS = ('kind', 'label', 'value', 'unit', 'occurred_on', 'facility')
@@ -126,7 +126,8 @@ def revision_history(store, fact_id, known_at=None, as_of=None):
         db.execute('BEGIN IMMEDIATE')
         captured = instant(store.clock())
         cutoff = min(instant(known_at), captured) if known_at is not None else captured
-        state = _read_history_snapshot(db, cutoff)
+        rows = _read_history_rows(db, cutoff)
+    state = _decode_history_rows(rows)
     sources, generic, legacy, originals, profile, amendments = state
     baseline = next((row for row in raw_history_facts((*state[:5], [])) if row['id'] == fact_id), None)
     if baseline is None:

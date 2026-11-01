@@ -18,6 +18,9 @@ export const recordLabel = (label) => metric(label)?.label ?? label;
 export const metricLabel = recordLabel;
 // Retain the presentation API without adding interpretation to recorded labels.
 export const metricDescription = (_label) => "";
+export function localCalendarDay(now = new Date()) {
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
 const provenancePlaceholders = new Set([
   "authored synthetic example",
   "imported synthetic document",

@@ -1,4 +1,4 @@
-import type { Commit, Draft, Reviewed, ReviewRow } from "./types";
+import type { Commit, Draft, Reviewed, ReviewRow, ReportCoverage } from "./types";
 import type { FactReviewRow, ReviewedFact } from "./historyTypes";
 
 export const MAX_FILES = 10;
@@ -27,6 +27,7 @@ export type QueueItem = {
   factAttempt?: ReviewedFact[] | null;
   receipt: Commit | null;
   error: string;
+  reportCoverage?: ReportCoverage;
 };
 
 export function extension(file: Pick<File, "name">) {
@@ -98,16 +99,18 @@ export function acceptDraft(item: QueueItem, draft: Draft): QueueItem {
   if (
     !draft.observations.length &&
     !draft.facts?.length &&
-    !draft.extraction_review?.facts.length
+    !draft.extraction_review?.facts.length &&
+    !draft.extraction_review?.coverage
   )
     return {
       ...item,
       status: "error",
-      error: "No supported measurements were found. This file was not saved.",
+      error: "No recorded fields were found. This file was not saved.",
     };
   return {
     ...item,
     draft,
+    reportCoverage: undefined,
     rows: draft.observations.map((row) => ({
       ...row,
       keep: true,

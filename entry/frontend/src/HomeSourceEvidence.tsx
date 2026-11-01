@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowUpRight, FileText } from "lucide-react";
 import type { HistoryFact, HistoryView } from "./historyTypes";
-import { reportSummaries } from "./homeReportData";
+import { reportSummaries, sourceRegion } from "./homeReportData";
 import { recordLabel } from "./types";
 import { unitLabel } from "./recordPresentation.mjs";
 import {
@@ -38,6 +38,9 @@ export default function HomeSourceEvidence({
     sourceKind(source.type, source.title) === "image"
       ? originalDownloadUrl(source.id, view.scope)
       : null;
+  const region = sourceRegion(fact);
+  const imageReady = imageUrl && failedImage !== imageUrl;
+  const canHighlight = imageReady && region && (fact.page == null || fact.page === 1);
   return (
     <section
       className="home-source-proof"
@@ -77,14 +80,25 @@ export default function HomeSourceEvidence({
             excerpt keeps the original wording.
           </p>
         )}
-        {imageUrl && failedImage !== imageUrl && (
-          <img
+        {imageReady && (
+          <figure className="home-proof-page">
+            <img
             className="home-proof-original"
             src={imageUrl}
             alt={"Original image from " + source.title}
             onError={() => setFailedImage(imageUrl)}
-          />
+            />
+            {canHighlight && <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" role="img" aria-label="Recorded source region">
+              <rect x={region[0] * 1000} y={region[1] * 1000} width={(region[2] - region[0]) * 1000}
+                height={(region[3] - region[1]) * 1000} vectorEffect="non-scaling-stroke" />
+            </svg>}
+          </figure>
         )}
+        <p className="home-proof-region-status">
+          {canHighlight ? "Outline marks the saved source region."
+            : region ? "Source region cannot be previewed for this file. Inspect the original page."
+            : "Source region not located."}
+        </p>
         <button
           type="button"
           className="text-button home-proof-open"
@@ -111,7 +125,7 @@ export default function HomeSourceEvidence({
               Download original
             </a>
           ) : (
-            <p>Original file unavailable. Saved excerpts are shown.</p>
+            <p>Original file unavailable in this view.</p>
           )}
         </details>
       </div>

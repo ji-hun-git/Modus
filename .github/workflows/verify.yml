@@ -1,9 +1,9 @@
-name: Verify Modus Records
+name: Offline service checks
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
-  entry:
+  offline-service:
     strategy:
       fail-fast: false
       matrix:
@@ -28,4 +28,4 @@ jobs:
         with:
           node-version: '22'
       - run: python scripts/setup_entry.py
-      - run: python scripts/check_entry.py
+      - run: python scripts/check_service.py

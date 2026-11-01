@@ -1,5 +1,7 @@
 # Why this workflow
 
+2 November active flow: reviewed report → latest factual question → scope-bound previous-record follow-up → original evidence → reviewed correction → explicit rerun in current history. The previous-record step is a typed deterministic read, not a model-generated recollection. It preserves the original query and date group boundaries; context expires after 30 minutes/restart. Generic Trends/Replay now cover arbitrary reviewed measurement names/all eight fact kinds. Older three-metric descriptions below are historical.
+
 **There is no evidence that Modus uses the universally “best” AI workflow.** The current choice is a strong, inspectable baseline for this job: deterministic record handling, a human review boundary, and one bounded model loop where tool selection is useful. It must earn improvements through measured comparisons. More agents or a newer model name alone do not establish better results.
 
 28 October: Home, Records and Documents now use the [whole-history record agent](WHOLE_HISTORY_AGENT.md). Code binds the factual request and arguments before Meta access; the model invokes that read tool and selects exact supported claims. This extends access to all eight reviewed kinds while legacy Trends/Replay keeps its three-concept scope.

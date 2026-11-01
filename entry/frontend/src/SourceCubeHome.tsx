@@ -6,6 +6,9 @@ import type { View } from "./types";
 import HealthRecordOverview from "./HealthRecordOverview";
 import useHistoryView from "./useHistoryView";
 import { dateLabel, timeLabel } from "./ui";
+import { recordedDates } from "./homeReportData";
+import type { KnowledgeMode } from "./HomeIntegrityTools";
+import HistoryPager from './HistoryPager';
 
 export default function SourceCubeHome({
   view,
@@ -15,6 +18,7 @@ export default function SourceCubeHome({
   onCurrent,
   onNavigate,
   onScope,
+  dates, currentDay, knowledge, pendingCount, onDate, onDates,
 }: {
   view: View;
   onImport: () => void;
@@ -23,13 +27,22 @@ export default function SourceCubeHome({
   onCurrent: () => void;
   onNavigate: (page: Page) => void;
   onScope: (scope: HistoryView["scope"]) => void;
+  dates: string[];
+  currentDay: string;
+  knowledge: KnowledgeMode;
+  pendingCount: number;
+  onDate: (date: string, knowledge: KnowledgeMode) => void;
+  onDates: (dates: string[]) => void;
 }) {
   // Generic facts use the same captured availability as the existing tools.
   // An earlier date view never silently expands to all recorded dates.
-  const history = useHistoryView(view.scope, !historical);
+  const history = useHistoryView(view.scope, !historical, { section: 'sources', limit: 12 });
   useEffect(() => {
     if (history.view) onScope(history.view.scope);
   }, [history.view, onScope]);
+  useEffect(() => {
+    if (history.view && !historical) onDates(history.view.facets?.date_bounds || recordedDates(history.view));
+  }, [history.view, historical, onDates]);
   if (history.error)
     return (
       <section className="panel empty" role="alert">
@@ -67,7 +80,10 @@ export default function SourceCubeHome({
         onImport={onImport}
         hasDraft={hasDraft}
         onNavigate={onNavigate}
+        dates={dates} currentDay={currentDay} knowledge={knowledge}
+        pendingCount={pendingCount} onDate={onDate}
       />
+      <HistoryPager view={history.view} onPage={history.setOffset} noun="files" />
     </div>
   );
 }

@@ -93,7 +93,19 @@ def temporal_original_allowed(source, as_of):
 def proposed_facts(draft):
     facts = draft.get('facts')
     if facts is None:
-        facts = draft.get('extraction_proposal', {}).get('fields', [])
+        facts = draft.get('extraction_proposal', {}).get('fields')
+    if facts is None:
+        # Old saved drafts can use the same owner review without re-extracting
+        # or changing their evidence. Numeric spelling already lost in a legacy
+        # float cannot be reconstructed; the original span remains authoritative.
+        facts = [{'id': row['id'], 'kind': 'measurement', 'label': row['metric'],
+                  'value': str(row['value']), 'unit': row['unit'],
+                  'occurred_on': row['date'], 'facility': None,
+                  'source_quote': row['source_span'], 'page': row.get('page'),
+                  'bbox': None, 'model_confidence': None,
+                  'reported_at_raw': row.get('reported_at_raw') or row.get('reported_at'),
+                  'extractor': draft.get('extraction_mode', 'legacy-draft')}
+                 for row in draft.get('observations', [])]
     if not isinstance(facts, list) or not 1 <= len(facts) <= 1000:
         raise ValueError('A history draft requires 1 to 1,000 source facts')
     if any(not isinstance(fact, dict) or not isinstance(fact.get('id'), str) for fact in facts):

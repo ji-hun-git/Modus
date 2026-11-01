@@ -5,6 +5,7 @@ import {
   historyQuestionRequest,
   historyAnswerMatches,
   historyClaimEvidence,
+  visibleHistoryAnswer,
 } from "../src/historyQuestionScope.mjs";
 
 const scope = {
@@ -23,6 +24,22 @@ const history = {
   sources: [{ id: "source-a" }, { id: "source-b" }, { id: "source-c" }],
 };
 const answer = { scope, history_evidence: history };
+
+test('editing a question hides its old answer but never associates it with the draft', () => {
+  const returned={key:'scope-a',message:'Latest pulse?',answer};
+  assert.equal(visibleHistoryAnswer(returned,'scope-a','Latest pulse?'),answer);
+  assert.equal(visibleHistoryAnswer(returned,'scope-a','Before that?'),null);
+  assert.equal(visibleHistoryAnswer(returned,'scope-b','Latest pulse?'),null);
+});
+
+test('continuations send only the opaque token with the explicit captured bounds', () => {
+  const request=historyQuestionRequest(scope,'Before that?',null,{token:'opaque',subject:'not a tool argument',before_date:'1900-01-01'});
+  assert.equal(request.continuation_token,'opaque');
+  assert.equal(request.known_at,scope.known_at);
+  assert.equal(request.message,'Before that?');
+  assert.equal(request.before_date,undefined);
+  assert.equal(request.subject,undefined);
+});
 
 test("all-date requests preserve null and captured availability rather than using today", () => {
   assert.deepEqual(

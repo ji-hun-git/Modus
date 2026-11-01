@@ -23,12 +23,14 @@ export default function HistoryReplayWorkspace({
   onReset: () => void;
 }) {
   const resultHeading = useRef<HTMLHeadingElement>(null);
+  const [windows, setWindows] = useState<Record<string,number>>({});
   const [inspected, setInspected] = useState<{
     view: HistoryView;
     fact: HistoryFact;
   } | null>(null);
   useEffect(() => {
     setInspected(null);
+    setWindows({});
   }, [pair, scope.known_at, scope.as_of]);
   useEffect(() => {
     if (pair) resultHeading.current?.focus();
@@ -41,10 +43,19 @@ export default function HistoryReplayWorkspace({
     ? `Recorded dates through ${dateLabel(bound.as_of)}`
     : "All recorded dates";
   const facts = (view: HistoryView) => [...view.facts, ...view.undated_facts];
-  function rows(items: HistoryFact[], view: HistoryView) {
+  function pageControl(total: number, section: string) {
+    const offset=windows[section] || 0;
+    return total > 50 ? <nav className="history-pagination" aria-label={`${section} pages`}>
+      <button className="text-button" disabled={!offset} onClick={() => setWindows({...windows,[section]:Math.max(0,offset-50)})}>Previous {section}</button>
+      <span>{offset+1}–{Math.min(offset+50,total)} of {total}</span>
+      <button className="text-button" disabled={offset+50>=total} onClick={() => setWindows({...windows,[section]:offset+50})}>Next {section}</button>
+    </nav> : null;
+  }
+  function rows(items: HistoryFact[], view: HistoryView, section='records') {
+    const offset = items.length > 50 ? windows[section] || 0 : 0;
     return (
-      <div className="history-replay-records">
-        {items.map((fact) => (
+      <>{pageControl(items.length,section)}<div className="history-replay-records">
+        {items.slice(offset,offset+50).map((fact) => (
           <article key={fact.id} className="history-replay-record">
             <div>
               <span className="history-replay-kind">
@@ -81,7 +92,7 @@ export default function HistoryReplayWorkspace({
             </button>
           </article>
         ))}
-      </div>
+      </div></>
     );
   }
   function download() {
@@ -176,7 +187,7 @@ export default function HistoryReplayWorkspace({
                   <details>
                     <summary>View these records</summary>
                     {facts(view).length ? (
-                      rows(facts(view), view)
+                      rows(facts(view), view, side === 'before' ? 'earlier records' : 'later records')
                     ) : (
                       <p>No records were available within these bounds.</p>
                     )}
@@ -210,7 +221,7 @@ export default function HistoryReplayWorkspace({
               </p>
             )}
             {pair.added.length ? (
-              rows(pair.added, pair.after)
+              rows(pair.added, pair.after, 'arrivals')
             ) : (
               <p>
                 No additional records became available between these exact
@@ -220,7 +231,8 @@ export default function HistoryReplayWorkspace({
           </section>
           {!!pair.updated?.length && <section className="panel">
             <h2>Saved-record corrections</h2>
-            {pair.updated.map(change => <div key={change.after.id}>
+            {pageControl(pair.updated.length,'corrections')}
+            {pair.updated.slice(windows.corrections || 0,(windows.corrections || 0)+50).map(change => <div key={change.after.id}>
               <h3>{recordLabel(change.after.label)}</h3>
               <p>Earlier saved version</p>{rows([change.before], pair.before)}
               <p>Later saved version</p>{rows([change.after], pair.after)}
@@ -229,7 +241,7 @@ export default function HistoryReplayWorkspace({
           {!!pair.removed_from_scope?.length && <section className="panel">
             <h2>Records that left this date scope</h2>
             <p>A correction changed which records match this view. Their earlier versions are preserved.</p>
-            {rows(pair.removed_from_scope, pair.before)}
+            {rows(pair.removed_from_scope, pair.before, 'scope exits')}
           </section>}
         </>
       )}

@@ -2,13 +2,14 @@
 import json
 import os
 import asyncio
+import sqlite3
 from hashlib import sha256
 from datetime import date
 from pathlib import Path
 from urllib.parse import quote
 from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.responses import Response
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
+from fastapi.responses import Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +19,7 @@ from modus.record_store import RecordStore
 from modus.ingest import make_draft, MAX_BYTES, NoObservationsError
 from modus.history_ingest import make_history_draft
 from modus.record_history import commit_history, history_view, get_profile, update_profile
+from modus.record_history_models import proposed_facts
 from modus.record_amendments import (AmendmentRequest, AmendmentCommitRequest, AmendmentConflict,
                                     preview_amendment, commit_amendment, revision_history)
 from modus.provider import provider_status
@@ -28,12 +30,15 @@ from .runtime import ROOT, BUNDLE_ID, ENVIRONMENT, execution_context
 from .tools import capture, source, observation
 from . import agent
 from . import history_agent
+from .history_conversation import HistoryConversation
+from .history_pages import HistoryPages, SnapshotExpired
 from .history_tools import capture_history
 from .history_compare import HistoryCompareRequest, compare_history
 from .briefs import (BriefRequest, BriefExportRequest, BriefChangedError,
                      build_brief, validate_export, render_html, render_json)
 from .extraction_review import review_draft
 from .document_guard import screen_untrusted
+from .report_coverage import public_coverage, extraction_failure_detail
 
 load_dotenv(ROOT / '.env')
 CHANGE_FIELDS = {'id', 'created_at', 'kind', 'status', 'draft_id', 'source_id', 'available_at',
@@ -58,6 +63,9 @@ def projected_telemetry(value):
         return {}
     clean = {'execution': projected_execution(value.get('execution')), 'usage': projection(value.get('usage'), ('prompt_tokens', 'completion_tokens', 'total_tokens'))}
     clean['calls'] = []
+    coverage = public_coverage(value.get('report_coverage'))
+    if coverage:
+        clean['report_coverage'] = coverage
     for call in value.get('calls', [])[:14] if isinstance(value.get('calls'), list) else []:
         item = projection(call, ('model', 'returned_model', 'status', 'duration_ms', 'run_id', 'bundle_id', 'config_id',
                                  'response_id', 'request_id', 'http_status', 'finish_reason', 'error_kind', 'stage', 'result_validation'))
@@ -104,7 +112,7 @@ def preview_response(saved, *, reused=False):
     return {'id': saved['id'], 'source': source(saved['source']),
         'observations': [observation(o) for o in saved['observations']], 'warnings': warnings,
         'extraction_mode': saved['extraction_mode'], 'already_committed': saved['already_committed'],
-        **({'facts': saved['facts']} if 'facts' in saved else {}),
+        'facts': [] if saved.get('facts') == [] else list(proposed_facts(saved).values()),
         **({'document_guard': saved['document_guard']} if 'document_guard' in saved else {}),
         **({'extraction_review': saved['extraction_review']} if 'extraction_review' in saved else {})}
 
@@ -121,7 +129,16 @@ def create_entry_app(database=None, clock=None):
     store = RecordStore(database or os.getenv('MODUS_ENTRY_DB_PATH') or ROOT / 'data/entry.db', seed_provider=initial_data,
         commit_event_factory=commit_event, **({'clock': clock} if clock else {}))
     app.state.store = store
+    conversations = HistoryConversation()
+    store.history_pages = HistoryPages(store)
     preview_lock = asyncio.Lock()
+
+    @app.exception_handler(sqlite3.OperationalError)
+    async def database_busy(request, error):
+        if getattr(error, 'sqlite_errorcode', 0) & 0xff in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
+            return JSONResponse(status_code=503, headers={'Retry-After': '1'},
+                content={'detail': 'Your records are busy. Please try again shortly.'})
+        raise error
 
     def recorded_run(kind, **fields):
         return store.save_run({'schema': 'modus-entry-change-v1', 'kind': kind, **fields})
@@ -144,7 +161,26 @@ def create_entry_app(database=None, clock=None):
 
     @app.get('/api/history/view')
     def lifelong_history(as_of: date | None = None, known_at: AwareDatetime | None = None):
-        return history_view(store, as_of.isoformat() if as_of else None, known_at)
+        return store.history_pages.view(as_of.isoformat() if as_of else None, known_at)
+
+    @app.get('/api/history/page')
+    def history_page(as_of: date | None = None, known_at: AwareDatetime | None = None,
+                     snapshot_id: str | None = Query(None, min_length=32, max_length=32),
+                     section: str = 'facts', offset: int = Query(0, ge=0, le=100000),
+                     limit: int = Query(50, ge=1, le=50), kind: str | None = None,
+                     label: str | None = Query(None, max_length=200), facility: str | None = Query(None, max_length=200),
+                     source_id: str | None = Query(None, max_length=160), order: str = 'newest',
+                     query: str = Query('', max_length=2000), conflict_id: str | None = None, through: date | None = None,
+                     conflicts_only: bool = False):
+        try:
+            return store.history_pages.page(as_of=as_of.isoformat() if as_of else None, known_at=known_at,
+                snapshot_id=snapshot_id, section=section, offset=offset, limit=limit, kind=kind, label=label,
+                facility=facility, source_id=source_id, order=order, query=query, conflict_id=conflict_id,
+                through=through.isoformat() if through else None, conflicts_only=conflicts_only)
+        except SnapshotExpired as error:
+            raise HTTPException(410, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
 
     @app.post('/api/history/compare')
     def history_compare(request: HistoryCompareRequest):
@@ -268,11 +304,11 @@ def create_entry_app(database=None, clock=None):
             return preview_response(saved)
         except RuntimeError:
             recorded_run('extraction_failure', status='failed', mode=mode, error='Model extraction failed; no draft was accepted.', execution=telemetry.get('execution'), telemetry=telemetry)
-            raise HTTPException(502, 'Model extraction failed; no draft was accepted. No local fallback was used.') from None
+            raise HTTPException(502, extraction_failure_detail('Model extraction failed; no draft was accepted. No local fallback was used.', telemetry)) from None
         except (ValueError, KeyError, TypeError) as error:
             if telemetry:
                 recorded_run('extraction_failure', status='failed', mode=mode, error='No usable validated extraction was accepted.', execution=telemetry.get('execution'), telemetry=telemetry)
-            raise HTTPException(422, 'No usable validated rows were accepted. Check explicit dates, values and units, or choose a supported extraction mode.') from None
+            raise HTTPException(422, extraction_failure_detail('No usable validated rows were accepted. Check explicit dates, values and units, or choose a supported extraction mode.', telemetry)) from None
         except Exception:
             raise HTTPException(422, 'Unable to read this synthetic document; no draft was accepted.') from None
 
@@ -329,15 +365,18 @@ def create_entry_app(database=None, clock=None):
             raise HTTPException(422, str(error)) from None
         telemetry = {}
         try:
-            response = (await history_agent.live_chat(context, request.message, telemetry)
-                if provider_status()['mode'] == 'meta' else history_agent.offline_chat(context, request.message))
-            recorded_run('question', status='completed' if response['claims'] else 'abstained',
+            response = await run_in_threadpool(conversations.answer, context, request.message, request.continuation_token)
+            if response is None:
+                response = (await history_agent.live_chat(context, request.message, telemetry)
+                    if provider_status()['mode'] == 'meta' else await run_in_threadpool(history_agent.offline_chat, context, request.message))
+                response = conversations.remember(context, response, request.message)
+            await run_in_threadpool(recorded_run, 'question', status='completed' if response['claims'] else 'abstained',
                 message=request.message, scope=response['scope'],
                 comparison=response.get('history_comparison'), answer=response['answer'],
                 mode=response['mode'], execution=response['execution'], telemetry=response.get('telemetry', {}))
             return response
         except Exception:
-            recorded_run('question', status='failed', scope=context['view']['scope'], mode=provider_status()['mode'],
+            await run_in_threadpool(recorded_run, 'question', status='failed', scope=context['view']['scope'], mode=provider_status()['mode'],
                 error='No validated history answer was produced.', execution=telemetry.get('execution'), telemetry=telemetry)
             raise HTTPException(502, 'The history agent could not complete a validated response. No records changed and no local fallback was used.') from None
 
