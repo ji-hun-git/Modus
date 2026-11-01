@@ -1,0 +1,86 @@
+/* Report-first Home. Existing monochrome orbit tokens remain authoritative. */
+.report-first-home .orbit-hero { padding:0 0 4px; }
+.orbit-home .report-first-home .overview-conflict-banner { padding:0 12px; min-height:44px; border-color:var(--gun); }
+.report-first-home .orbit-hero h1 { font-size:clamp(30px,3.6vw,44px); letter-spacing:-.045em; }
+.report-first-home .orbit-eyebrow { font:13px/1.5 var(--font-body); text-transform:none; letter-spacing:0; }
+.report-first-home .orbit-workspace { grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr); border:0; gap:36px; align-items:start; }
+.report-focus { min-width:0; padding:16px 0; border-block:1px solid var(--line); }
+.report-focus-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+.report-section-label { color:var(--muted); font-size:13px; }
+.report-focus-heading h2 { font-size:27px; line-height:1.4; font-weight:450; letter-spacing:-.035em; }
+.report-focus-heading p { color:var(--muted); font-size:12px; overflow-wrap:anywhere; margin-top:4px; }
+.report-item-count { flex-shrink:0; color:var(--muted); font-size:12px; }
+.report-reading-choices { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(145px,100%),1fr)); gap:10px; }
+.report-reading-choice { display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:5px; padding:16px 14px; min-width:0; border:1px solid var(--line); border-radius:10px; color:var(--star); background:var(--void); cursor:pointer; transition:border-color 150ms,background-color 150ms; }
+.report-reading-choice:hover { border-color:var(--muted); }
+.report-reading-choice[aria-pressed=true] { border-color:var(--star); background:var(--void-2); }
+.report-reading-choice:focus-visible,.report-history-list button:focus-visible,.report-text-history button:focus-visible { outline:2px solid var(--star); outline-offset:4px; }
+.report-reading-name { font-size:13px; line-height:1.45; min-height:38px; overflow-wrap:anywhere; }
+.report-reading-number { font-size:32px; line-height:1.25; font-weight:450; letter-spacing:-.035em; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; max-width:100%; }
+.report-reading-unit,.report-reading-date { color:var(--muted); font-size:11px; overflow-wrap:anywhere; }
+.report-reading-date { margin-top:5px; }
+.report-more-items { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:15px 0; color:var(--muted); font-size:12px; }
+.report-more-items select { min-width:0; max-width:100%; min-height:44px; flex:1; padding:8px; border:1px solid var(--gun); border-radius:6px; background:var(--void); color:var(--star); }
+.report-journey { min-width:0; padding-top:20px; }
+.report-journey > header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.report-journey h3 { font-size:18px; line-height:1.4; margin:4px 0 0; font-weight:450; text-wrap:balance; }
+.report-journey > header .text-button { font-size:12px; min-height:40px; flex-shrink:0; }
+.report-journey-meta { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:12px 0; color:var(--muted); font-size:11px; }
+.report-journey .home-series-canvas { position:relative; height:130px; margin:18px 0 10px; }
+.report-journey .home-series-canvas > svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.report-journey .home-series-canvas line { stroke:var(--line); stroke-width:1; vector-effect:non-scaling-stroke; }
+.report-journey .home-series-canvas .home-series-stem { stroke:var(--gun); }
+.report-journey .home-series-point { position:absolute; display:grid; place-items:center; width:44px; height:44px; min-width:0; padding:0; border:0; border-radius:50%; background:transparent; color:var(--star); transform:translate(-50%,-50%); cursor:pointer; }
+.report-journey .home-series-point > span { width:9px; height:9px; border:2px solid var(--star); border-radius:50%; background:var(--star); }
+.report-journey .home-series-point.is-disputed > span { border-radius:2px; background:var(--void); transform:rotate(45deg); }
+.report-journey .home-series-point:is(:hover,:focus-visible,.is-active) { outline:2px solid var(--star); outline-offset:-5px; }
+.report-journey .home-series-value-label { position:absolute; bottom:34px; white-space:nowrap; font-size:12px; color:var(--star); font-variant-numeric:tabular-nums; }
+.report-journey .home-series-readout,.report-journey .home-series-note { color:var(--muted); font-size:12px; }
+.report-journey .home-series-caption,.report-journey .home-series-dates { display:flex; justify-content:space-between; gap:12px; color:var(--muted); }
+.report-journey .home-series-caption { font-size:11px; }
+.report-journey .home-series-dates { font-size:11px; }
+.report-page-note { color:var(--muted); font-size:12px; margin:10px 0; }
+.report-history-list { margin-top:15px; font-size:12px; }
+.report-history-list summary { color:var(--muted); min-height:40px; padding-block:12px; cursor:pointer; }
+.report-history-list button,.report-text-history button { display:flex; align-items:start; justify-content:space-between; gap:12px; width:100%; text-align:left; color:var(--star); background:none; border:0; border-top:1px solid var(--line); padding:13px 0; cursor:pointer; overflow-wrap:anywhere; }
+.report-history-list button:hover,.report-text-history button:hover { background:var(--void-2); }
+.report-history-list button span:last-child { max-width:40%; color:var(--muted); }
+.report-orbit-navigator { position:sticky; top:85px; min-width:0; border:1px solid var(--line); border-radius:16px; padding:20px 16px; }
+.report-orbit-navigator .orbit-map-heading { padding:0; font:12px/1.5 var(--font-body); text-transform:none; letter-spacing:0; }
+.report-orbit-navigator .orbit-chart { height:auto; min-height:240px; }
+.orbit-map-compact .orbit-node-title,.orbit-map-compact .orbit-node-date { display:none; }
+.orbit-map-compact .orbit-owner text { font-size:32px; }
+.orbit-map-compact .orbit-owner .orbit-owner-caption { font-size:12px; }
+.orbit-map-compact .orbit-hit-area { r:34px; }
+.orbit-file-picker { display:grid; gap:8px; color:var(--muted); font-size:12px; }
+.orbit-file-picker select { min-width:0; width:100%; min-height:44px; background:var(--void); color:var(--star); border:1px solid var(--gun); border-radius:6px; padding:9px; }
+.report-orbit-navigator .orbit-map footer { display:none; }
+.report-orbit-instruction { color:var(--muted); font-size:12px; text-align:center; margin-top:12px; }
+.home-ask-bar { padding:5px 0 12px; }
+.home-ask-bar > label { display:block; font-size:15px; margin-bottom:12px; }
+.home-ask-bar > div { display:flex; align-items:center; gap:12px; border:1px solid var(--gun); border-radius:12px; padding:10px 12px 10px 18px; background:var(--void-2); }
+.home-ask-bar > div:focus-within { outline:1px solid var(--star); }
+.home-ask-bar input { flex:1; min-width:0; border:0; background:transparent; box-shadow:none; color:var(--star); font-size:15px; padding:10px 0; }
+.home-ask-bar input:focus { outline:none; }
+.home-ask-bar button { flex-shrink:0; display:grid; place-items:center; width:44px; height:44px; border:0; border-radius:50%; background:var(--star); color:var(--void); cursor:pointer; }
+.home-ask-bar button:hover { opacity:.85; }
+.home-ask-bar button:focus-visible { outline:2px solid var(--star); outline-offset:4px; }
+@media(max-width:900px) {
+ .report-first-home .orbit-workspace { grid-template-columns:minmax(0,1fr); gap:20px; }
+ .report-orbit-navigator { position:static; }
+ .report-orbit-navigator .orbit-chart { max-height:320px; }
+}
+@media(max-width:540px) {
+ .report-first-home .orbit-hero { gap:12px; }
+ .report-first-home .orbit-hero h1 { font-size:28px; }
+ .report-reading-choices { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .report-journey > header { flex-direction:column; gap:2px; }
+ .report-reading-number { font-size:28px; }
+ .report-more-items { align-items:stretch; flex-direction:column; }
+ .report-more-items select { font-size:16px; width:100%; }
+ .report-focus-heading h2 { font-size:24px; }
+ .report-first-home .orbit-add { min-height:44px; }
+ .home-ask-bar input { font-size:16px; }
+ .report-history-list button { flex-wrap:wrap; }
+ .report-history-list button span:last-child { max-width:100%; flex-basis:100%; }
+}

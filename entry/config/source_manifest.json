@@ -2711,6 +2711,46 @@
       "source": "entry/docs/COMPETITION_CHECKLIST.md",
       "destination": "COMPETITION_CHECKLIST.md",
       "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/HomeReportReadings.tsx",
+      "destination": "entry/frontend/src/HomeReportReadings.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HomeRecordJourney.tsx",
+      "destination": "entry/frontend/src/HomeRecordJourney.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HomeAskBar.tsx",
+      "destination": "entry/frontend/src/HomeAskBar.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/home-report-focus.css",
+      "destination": "entry/frontend/src/home-report-focus.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/recordNames.json",
+      "destination": "entry/frontend/src/recordNames.json",
+      "behavior": true
+    },
+    {
+      "source": "docs/design/HOME_REPORT_FIRST.md",
+      "destination": "docs/design/HOME_REPORT_FIRST.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/T11_REPORT_FIRST_HOME_2026-11-02.md",
+      "destination": "docs/T11_REPORT_FIRST_HOME_2026-11-02.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/home-report-first.png",
+      "destination": "entry/demo/home-report-first.png",
+      "behavior": false
     }
   ]
 }

@@ -17,9 +17,11 @@ This is the bounded **record-integrity** entry for the Meta Global AI Developer 
 5. **Open the evidence.** Each finding opens its supporting saved record and original excerpt/file.
 6. **Correct and revisit.** Review an append-only correction, then ask the original question with updated records. Earlier availability views still show the earlier saved version.
 
-![A follow-up question with dated source evidence](entry/demo/history-conversation.png)
+![Report-first Home with visible readings, history and the file orbit](entry/demo/home-report-first.png)
 
 Home keeps the owner at the center of a source-file orbit. Each satellite opens a real file; the timeline and source inspector use recorded dates. Records, Ask, generic Trends, historical Replay and a reviewed exportable Brief share the same evidence boundaries.
+
+Home now exposes up to four readings, familiar medical names, the selected reading's history and a direct Ask bar. Additional fields remain available in the report selector. Every chart point opens evidence. [Visible changes and browser verification](docs/T11_REPORT_FIRST_HOME_2026-11-02.md).
 
 ## What is technically different
 

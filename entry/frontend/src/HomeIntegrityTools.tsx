@@ -57,9 +57,6 @@ export default function HomeIntegrityTools({
   if (orbit) return <section className="home-integrity-tools orbit-telemetry" aria-label="History controls">
     <header className="orbit-timeline-heading">
       <div><span>Your timeline</span><strong>{scope.as_of ? `Through ${dateLabel(scope.as_of)}` : 'All recorded dates'}</strong></div>
-      <button type="button" className="text-button" onClick={() => onNavigate("Ask")}>
-        <MessageSquare size={15} aria-hidden="true" /> Ask about your history
-      </button>
     </header>
     {timeline}
     <details className="orbit-history-options">

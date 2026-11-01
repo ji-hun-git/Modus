@@ -2,17 +2,24 @@ import { useRef } from "react";
 import { orbitLayout, type HomeReportSummary } from "./homeReportData";
 import { sourceDateRange, sourceTitle } from "./sourceDisplay";
 
-export default function OrbitMap({ reports, selectedId, onSelect, total }: {
+export default function OrbitMap({ reports, selectedId, onSelect, total, compact = false }: {
   reports: HomeReportSummary[];
   selectedId?: string;
   onSelect: (id: string) => void;
   total?: number;
+  compact?: boolean;
 }) {
-  const { rings, nodes } = orbitLayout(reports);
+  const layout = orbitLayout(reports);
+  const rings = layout.rings;
+  const nodes = compact ? layout.nodes.map((node,index)=> {
+    const radius = rings.find(ring=>ring.era===node.era)?.radius ?? 208;
+    const angle=(-90+index*360/Math.max(layout.nodes.length,1))*Math.PI/180;
+    return {...node,x:300+radius*Math.cos(angle),y:222+radius*Math.sin(angle)};
+  }) : layout.nodes;
   const buttons = useRef(new Map<string, SVGGElement>());
   const selected = nodes.find((node) => node.id === selectedId);
   return (
-    <section className="orbit-map" aria-label="Your source files in orbit">
+    <section className={`orbit-map${compact?' orbit-map-compact':''}`} aria-label="Your source files in orbit">
       <header className="orbit-map-heading">
         <span>Your archive</span>
         <span>{String(total ?? reports.length).padStart(2, '0')} source files</span>
@@ -67,6 +74,11 @@ export default function OrbitMap({ reports, selectedId, onSelect, total }: {
         })}
         {!reports.length && <text className="orbit-empty" x="300" y="374" textAnchor="middle">0 source files — add the first</text>}
       </svg>
+      {compact && !!reports.length && <label className="orbit-file-picker">Selected file
+        <select value={selectedId || ''} onChange={event=>onSelect(event.target.value)}>
+          {reports.map(report=><option key={report.source.id} value={report.source.id}>{report.source.title}</option>)}
+        </select>
+      </label>}
       <footer><span>One satellite. One source file.</span><span>Rings group recorded years.</span></footer>
     </section>
   );

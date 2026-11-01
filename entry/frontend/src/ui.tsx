@@ -23,6 +23,18 @@ export function Brand() {
   );
 }
 
+// Only the top dialog owns focus/Escape. Keep the background locked until all
+// layers close, including when a parent unmounts before its evidence dialog.
+const modalLayers: HTMLElement[] = [];
+let modalBackground: {element: HTMLElement | null; inert: boolean; overflow: string} | null = null;
+function updateModalLayers() {
+  const top = modalLayers.at(-1);
+  for (const layer of modalLayers) {
+    const backdrop = layer.parentElement;
+    if (backdrop) backdrop.inert = layer !== top;
+  }
+}
+
 export function Modal({
   title,
   children,
@@ -40,10 +52,13 @@ export function Modal({
   const latest = useRef({ busy, onClose });
   latest.current = { busy, onClose };
   useEffect(() => {
+    const layer = ref.current!;
     const previous = document.activeElement as HTMLElement | null;
     const background = document.querySelector<HTMLElement>(".app-layout");
+    if (!modalLayers.length) modalBackground = {element:background,inert:background?.inert || false,overflow:document.body.style.overflow};
+    modalLayers.push(layer);
+    updateModalLayers();
     if (background) background.inert = true;
-    const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const items = () =>
       Array.from(
@@ -53,6 +68,7 @@ export function Modal({
       ).filter((el) => el.getClientRects().length);
     (items()[0] || ref.current)?.focus();
     const keydown = (event: KeyboardEvent) => {
+      if (modalLayers.at(-1) !== layer) return;
       if (event.key === "Escape") {
         event.preventDefault();
         if (!latest.current.busy) latest.current.onClose();
@@ -79,15 +95,21 @@ export function Modal({
     document.addEventListener("keydown", keydown);
     return () => {
       document.removeEventListener("keydown", keydown);
-      if (background) background.inert = false;
-      document.body.style.overflow = overflow;
-      previous?.focus();
+      const index = modalLayers.indexOf(layer);
+      if (index >= 0) modalLayers.splice(index,1);
+      updateModalLayers();
+      if (!modalLayers.length && modalBackground) {
+        if (modalBackground.element) modalBackground.element.inert = modalBackground.inert;
+        document.body.style.overflow = modalBackground.overflow;
+        modalBackground = null;
+      }
+      if (previous?.isConnected) previous.focus();
     };
   }, []);
   useEffect(() => {
     // Run after the mount effect captures the opener. Review stages can replace
     // the focused control without unmounting the dialog.
-    if (!ref.current?.contains(document.activeElement)) {
+    if (modalLayers.at(-1) === ref.current && !ref.current?.contains(document.activeElement)) {
       (ref.current?.querySelector<HTMLElement>('button:not(:disabled)') || ref.current)?.focus();
     }
   });

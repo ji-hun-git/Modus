@@ -15,6 +15,8 @@ const result = await build({
       'export { default as HomeSourceEvidence } from "./HomeSourceEvidence";',
       'export { default as HomeIntegrityTools } from "./HomeIntegrityTools";',
       'export { default as OrbitMap } from "./OrbitMap";',
+      'export { default as HomeReportReadings, friendlyRecordName, readingChoices } from "./HomeReportReadings";',
+      'export { default as HomeAskBar } from "./HomeAskBar";',
       'export { historyFields } from "./historyFields";',
       'export { HistoryTrends } from "./MeasurementsWorkspace";',
       'export { default as GenericFactReview } from "./GenericFactReview";',
@@ -46,7 +48,7 @@ const result = await build({
     },
   ],
 });
-const { HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions } =
+const { HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, HomeAskBar, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions } =
   await import(
     "data:text/javascript;base64," +
       Buffer.from(result.outputFiles[0].text).toString("base64")
@@ -87,6 +89,51 @@ const viewOf = (facts) => ({
   })),
 });
 const noop = () => {};
+
+test('Home names use exact catalog aliases and preserve qualified or unfamiliar labels',()=>{
+  assert.equal(friendlyRecordName('HbA1c'),'Average blood sugar (HbA1c)');
+  assert.equal(friendlyRecordName('Pulse'),'Heart rate (Pulse)');
+  assert.equal(friendlyRecordName('eGFR'),'Kidney filtering estimate (eGFR)');
+  assert.equal(friendlyRecordName('HbA1c pending'),'HbA1c pending');
+  assert.equal(friendlyRecordName('Custom assay'),'Custom assay');
+});
+
+test('Home choices are bounded and keep a selected extra field without changing any record',()=>{
+  const facts=Array.from({length:12},(_,i)=>row('r'+i,'2025-05-06',{label:'Field '+i}));
+  const original=structuredClone(facts);
+  const chosen=readingChoices(facts,'r11');
+  assert.equal(chosen.length,4);
+  assert.ok(chosen.some(f=>f.id==='r11'));
+  assert.deepEqual(facts,original);
+  const html=render(HomeReportReadings,{facts,selected:facts[11],onSelect:noop});
+  assert.equal((html.match(/class="report-reading-choice"/g)||[]).length,4);
+  assert.equal((html.match(/aria-pressed="true"/g)||[]).length,1);
+});
+
+test('Home reading tiles never reveal withheld values or units and escape record text',()=>{
+  const facts=[row('a','2025-01-01',{value:'PRIVATE-VALUE',unit:'PRIVATE-UNIT',value_withheld:true}),row('b','2025-01-02',{label:'<script>bad()</script>',value:'<b>no</b>'})];
+  const html=render(HomeReportReadings,{facts,selected:facts[0],onSelect:noop});
+  assert.doesNotMatch(html,/PRIVATE-VALUE|PRIVATE-UNIT|<script>|<b>/);
+  assert.match(html,/Hidden by date filter/);
+  assert.match(html,/&lt;script&gt;/);
+});
+
+test('Home has one labelled Ask input and a compact orbit with a native file selector',()=>{
+  const view=viewOf([row('a','2025-01-01')]);
+  const html=render(HomeAskBar,{view});
+  assert.equal((html.match(/<input /g)||[]).length,1);
+  assert.match(html,/name="history-question"/);
+  assert.match(html,/aria-label="Ask your history"/);
+  const orbit=render(OrbitMap,{reports:[{source:view.sources[0],facts:view.facts,latestDate:'2025-01-01'}],selectedId:view.sources[0].id,onSelect:noop,compact:true});
+  assert.match(orbit,/<label class="orbit-file-picker">Selected file<select/);
+  assert.match(orbit,/Open source file:/);
+});
+
+test('Home question is prefilled for the explicit submit action, not fabricated as a prior answer',()=>{
+  const html=render(HistoryQuestionPanel,{view:viewOf([]),initialQuestion:'When was my last visit?'});
+  assert.match(html,/When was my last visit\?/);
+  assert.doesNotMatch(html,/History answer ready/);
+});
 const render = (component, props) =>
   renderToStaticMarkup(createElement(component, props));
 const accessibleNames = (html) =>
@@ -124,7 +171,7 @@ test("flagged fields show their source concern in the actual review, without dup
 test("orbit keeps core actions visible and puts secondary history controls in a disclosure", () => {
   const html=render(HomeIntegrityTools,{scope:viewOf([]).scope,dates:['2012-01-01'],currentDay:'2026-10-29',
     knowledge:'latest',pendingCount:0,onDate:noop,onNavigate:noop,onReview:noop,orbit:true});
-  assert.match(html,/Ask about your history/);
+  assert.doesNotMatch(html,/Ask about your history/); // One Home composer owns this action.
   assert.match(html,/<details class="orbit-history-options"><summary>History options/);
   assert.doesNotMatch(html,/Review queue|Continue review|T\+/);
   assert.match(html,/aria-label="Home file availability"/);

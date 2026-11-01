@@ -34,14 +34,16 @@ export default function HistoryQuestionPanel({
   compact = false,
   seed,
   onSeedUsed,
+  initialQuestion,
 }: {
   view: HistoryView;
   compact?: boolean;
   seed?: {message: string; afterKnownAt: string} | null;
   onSeedUsed?: () => void;
+  initialQuestion?: string;
 }) {
   const inputId = useId();
-  const [question, setQuestion] = useState("");
+  const [question, setQuestion] = useState(initialQuestion || "");
   const [compareDate, setCompareDate] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -84,6 +86,11 @@ export default function HistoryQuestionPanel({
     void ask(seed.message);
     onSeedUsed?.();
   }, [seed, key]);
+
+  // Home submission is an explicit user action in this exact captured view.
+  useEffect(() => {
+    if (initialQuestion) void ask(initialQuestion);
+  }, [initialQuestion]);
 
   function editQuestion(message: string) {
     controller.current?.abort();

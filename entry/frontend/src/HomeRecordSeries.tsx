@@ -89,6 +89,7 @@ export default function HomeRecordSeries({
               <span>
                 {group.points.length} {group.points.length === 1 ? "point" : "points"} ·{" "}
                 {unitLabel(group.unit) || "Unit not recorded"}
+                {series.some(other=>other.unit!==group.unit && unitLabel(other.unit)===unitLabel(group.unit)) && ` (written ${group.unit})`}
               </span>
               <span>
                 Scale{" "}
