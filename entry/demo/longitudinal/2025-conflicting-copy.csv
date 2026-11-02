@@ -1,0 +1,2 @@
+kind,label,value,unit,date,facility,reference_range,specimen,test_method
+measurement,TSH,2.9,mIU/L,2025-03-15,Authored example lab,Example interval 0.4-4.0,Serum,ECLIA

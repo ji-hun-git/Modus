@@ -17,12 +17,23 @@ This is the bounded **record-integrity** entry for the Meta Global AI Developer 
 5. **Open the evidence.** Each finding opens its supporting saved record and original excerpt/file.
 6. **Correct and revisit.** Review an append-only correction, then ask the original question with updated records. Earlier availability views still show the earlier saved version.
 7. **Compare checkups and keep the evidence.** Choose two reports, inspect recorded differences and their source passages, then explicitly review and download a printable HTML or structured JSON summary. Related conflicting records stay included.
+8. **Explore one test across visits.** Select a saved measurement to open its dated observations beside the original evidence. Units stay separate, conflicts remain visible, and connecting lines require the backend's comparison checks.
 
 ![Report-first Home with visible readings, history and the file orbit](entry/demo/home-report-first.png)
 
 Home keeps the owner at the center of a source-file orbit. Each satellite opens a real file; the timeline and source inspector use recorded dates. Records, Ask, generic Trends, historical Replay and a reviewed exportable Brief share the same evidence boundaries.
 
 Home now exposes up to four readings, familiar medical names, the selected reading's history and a direct Ask bar. Additional fields remain available in the report selector. Every chart point opens evidence. [Visible changes and browser verification](docs/T11_REPORT_FIRST_HOME_2026-11-02.md).
+
+The new selected-result workspace is connected to the multi-visit history API.
+[Try the authored checkup files](entry/demo/longitudinal/README.md) to explore three
+visits, a conflict, a correction and a late-arriving report. Its service and
+component checks pass; **new desktop/mobile screenshots and browser interaction
+acceptance remain pending**. The image above documents the earlier Home, not this
+new workspace. The last browser-verified public baseline remains `087d684`.
+Local offline checks on 3 November passed **1,096 backend tests (2 skipped)**,
+**193 frontend tests**, and the production build. These are software regression
+checks, not model-quality measurements or browser acceptance.
 
 ## What is technically different
 
@@ -34,6 +45,7 @@ Home now exposes up to four readings, familiar medical names, the selected readi
 | Bounded agent | Meta can request allowlisted reads and select exact tool-produced claims. It cannot write records, execute SQL/shell or browse arbitrary URLs. |
 | Safe follow-ups | Short-lived opaque context binds the original query, date boundary and availability. Expired or changed context asks for a full question instead of guessing. |
 | Bounded browsing | Pages and source selectors render a limited window; retrieval still searches the captured history. |
+| Multi-visit evidence | A captured series returns exact observations, complete related conflicts and comparison-authorized edges. Paging never invents a connection across pages. |
 | Lab context | Printed reference ranges, specimen and test method stay attached to each result. Uncertain or incompatible context withholds numerical comparisons. |
 | Separate date passages | A header date can retain its own page/quote without changing the result excerpt. Text matching does not establish date-to-result association; review remains required. |
 | Reviewed comparison export | Both report identities, time bounds, claims and source evidence are bound to the reviewed preview. Corrections or expired captures require a new review. |

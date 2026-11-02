@@ -1,0 +1,5 @@
+kind,label,value,unit,date,facility,reference_range,specimen,test_method
+measurement,Ferritin,71.4,ng/mL,2026-10-18,Authored example lab,Example interval 20-250,Serum,ECLIA
+measurement,CRP,3.6,mg/L,2026-10-18,Authored example lab,Example interval <6,Serum,Immunoturbidimetry
+measurement,TSH,2.2,mIU/L,2026-10-18,Authored example lab,Example interval 0.4-4.0,Serum,ECLIA
+measurement,Vitamin D,32,ng/mL,2026-10-18,Authored example lab,Example interval 20-50,Serum,LC-MS/MS

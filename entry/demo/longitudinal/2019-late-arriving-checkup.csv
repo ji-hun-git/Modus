@@ -1,0 +1,2 @@
+kind,label,value,unit,date,facility,reference_range,specimen,test_method
+measurement,Ferritin,49.5,ng/mL,2019-04-12,Authored example lab,Example interval 20-250,Serum,ECLIA

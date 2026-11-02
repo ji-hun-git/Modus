@@ -2941,6 +2941,41 @@
       "source": "entry/frontend/tests/longitudinalSeries.test.mjs",
       "destination": "entry/frontend/tests/longitudinalSeries.test.mjs",
       "behavior": true
+    },
+    {
+      "source": "entry/demo/longitudinal/README.md",
+      "destination": "entry/demo/longitudinal/README.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/provenance.json",
+      "destination": "entry/demo/longitudinal/provenance.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2024-checkup.csv",
+      "destination": "entry/demo/longitudinal/2024-checkup.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2025-checkup.csv",
+      "destination": "entry/demo/longitudinal/2025-checkup.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2026-checkup.csv",
+      "destination": "entry/demo/longitudinal/2026-checkup.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2025-conflicting-copy.csv",
+      "destination": "entry/demo/longitudinal/2025-conflicting-copy.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2019-late-arriving-checkup.csv",
+      "destination": "entry/demo/longitudinal/2019-late-arriving-checkup.csv",
+      "behavior": false
     }
   ]
 }

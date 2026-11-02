@@ -1,0 +1,13 @@
+{
+  "kind": "newly authored synthetic service fixtures",
+  "real_person_data": false,
+  "training_or_evaluation_inputs_used": false,
+  "files": [
+    "2024-checkup.csv",
+    "2025-checkup.csv",
+    "2026-checkup.csv",
+    "2025-conflicting-copy.csv",
+    "2019-late-arriving-checkup.csv"
+  ],
+  "note": "Fictional values and printed intervals for software verification only; no clinical reference claim."
+}
