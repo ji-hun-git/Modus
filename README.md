@@ -27,13 +27,25 @@ Home now exposes up to four readings, familiar medical names, the selected readi
 
 The new selected-result workspace is connected to the multi-visit history API.
 [Try the authored checkup files](entry/demo/longitudinal/README.md) to explore three
-visits, a conflict, a correction and a late-arriving report. Its service and
-component checks pass; **new desktop/mobile screenshots and browser interaction
-acceptance remain pending**. The image above documents the earlier Home, not this
-new workspace. The last browser-verified public baseline remains `087d684`.
-Local offline checks on 3 November passed **1,096 backend tests (2 skipped)**,
-**193 frontend tests**, and the production build. These are software regression
-checks, not model-quality measurements or browser acceptance.
+visits, a conflict, a correction and a late-arriving report. The feature branch
+also fixes Ask's numerical and longitudinal routing:
+
+- “When was my ferritin last below 60 ng/mL?” finds the latest matching record,
+  rather than filtering only the newest result.
+- “How has my ferritin changed across my checkups?” reads the dated history and
+  computes a first-to-last difference only when the saved lab context supports it.
+
+In the authored browser session, the first answer is **58.9 ng/mL on 20 February
+2024**, with the original **58.6** still inspectable after a reviewed correction.
+The history answer retains four results and a supported **21.9 ng/mL** difference.
+[Desktop source evidence](entry/demo/ask-query-evidence-desktop.png) ·
+[390px source evidence](entry/demo/ask-query-evidence-mobile.png).
+
+Local offline checks on 3 November passed **1,223 backend tests (2 skipped)**,
+**195 frontend tests**, and the production build. These are software regression
+checks, not model-quality scores. Browser and running-build identity checks are
+reported separately in the [service update](entry/docs/SERVICE_UPDATE_2026-11-02.md).
+The changes are on `codex/longitudinal-workspace`; `main` remains `087d684`.
 
 ## What is technically different
 
@@ -46,6 +58,7 @@ checks, not model-quality measurements or browser acceptance.
 | Safe follow-ups | Short-lived opaque context binds the original query, date boundary and availability. Expired or changed context asks for a full question instead of guessing. |
 | Bounded browsing | Pages and source selectors render a limited window; retrieval still searches the captured history. |
 | Multi-visit evidence | A captured series returns exact observations, complete related conflicts and comparison-authorized edges. Paging never invents a connection across pages. |
+| Typed numerical Ask | A validated plan selects an exact comparator, unit, date bounds and ordering. Read-only tools calculate findings; incomplete dates, mixed units and conflicts cannot become silent assumptions. |
 | Lab context | Printed reference ranges, specimen and test method stay attached to each result. Uncertain or incompatible context withholds numerical comparisons. |
 | Separate date passages | A header date can retain its own page/quote without changing the result excerpt. Text matching does not establish date-to-result association; review remains required. |
 | Reviewed comparison export | Both report identities, time bounds, claims and source evidence are bound to the reviewed preview. Corrections or expired captures require a new review. |
@@ -55,6 +68,12 @@ Eight kinds are supported: measurements, visits, recorded diagnoses, procedures,
 ## Meta's role and proof boundaries
 
 Muse Spark (`muse-spark-1.3`) is the only model family in the product path: document extraction/checking and bounded factual investigation. Whole-report reading groups up to 12 pages into extract/check passes and exposes incomplete processing. Deterministic parsing, calculations, follow-up navigation and the current instruction guard are ordinary software, explicitly labelled when no model is called.
+
+The new Ask planner handles recognized numerical/history questions offline.
+An optional single Muse call can confirm a bounded conversational paraphrase;
+the server validates every field and composes the answer from checked records.
+This new fallback has **injected-transport tests only**, with no live quality
+measurement or API spending in this sprint.
 
 Two authored service sessions on 2 November made **10 successful actual Muse calls** for PDF/image extraction, verification and history investigation; estimated combined cost for those sessions was **$0.05315**. A follow-up two-page PDF preserved collection-date evidence on page 1 separately from result evidence on page 2. These are narrow service probes, not independently labelled accuracy scores. The new comparison-export path is verified offline and uses no model. SAM source-region highlights and hosted Guard are not demonstrated product capabilities. [Current evidence and limitations](entry/docs/SERVICE_UPDATE_2026-11-02.md).
 
@@ -87,7 +106,7 @@ Default operation is offline. Optional Meta credentials belong only in server en
 
 ## Status and limits
 
-[Current service verification and remaining work](docs/T10_SERVICE_COMPLETION_2026-11-02.md) separates software checks, browser evidence and unproven live-model quality. Follow-up memory expires after 30 minutes, capacity eviction or restart; it is not persistent personal memory. Arbitrary conversational references, numerical predicates beyond the dedicated BP lookup, appointments/reminders and clinical interpretation are not supplied by this feature.
+[Current service verification and remaining work](entry/docs/SERVICE_UPDATE_2026-11-02.md) separates software checks, browser evidence and unproven live-model quality. Follow-up memory expires after 30 minutes, capacity eviction or restart; it is not persistent personal memory. Arbitrary conversational references, unrestricted source/method filters, general mathematics, appointments/reminders and clinical interpretation are not supplied by this feature. Numerical answers require exact units and bounded evidence; they do not perform medical interpretation or unit conversion.
 
 This is a local, single-owner synthetic prototype. Account authorization, encryption at rest, measured identifier masking, deletion/recovery and real-history privacy qualification remain unfinished. Original excerpts and images may contain identifiers; do not treat safe tool projections as automatic anonymization.
 

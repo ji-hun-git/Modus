@@ -83,6 +83,9 @@ def latest_match(context, args):
         warnings.append(f'{len(future)} future-dated matches were excluded using the captured UTC date {today}.')
     if len(matches) > 1:
         warnings.append(f'{len(matches)} matches share that date; their order within the day is unknown.')
+    selected_ids = {row['id'] for row in matches}
+    if any(selected_ids.intersection(group['fact_ids']) for group in view['conflicts']):
+        warnings.append('Conflicting values are recorded on that date; neither source is chosen as correct.')
     if len(page) < len(matches) + len(unknown):
         warnings.append('Only part of the supporting records fits this answer; inspect the record list for the remaining evidence.')
     if any(row.get('content_omitted') for row in page):

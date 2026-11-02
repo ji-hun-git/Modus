@@ -1,5 +1,74 @@
 # Current service candidate — 2 November 2026
 
+## 3 November: Ask intelligence recovery
+
+The previously failing Ferritin threshold and longitudinal questions now reach
+typed, read-only operations. The same plan/executor supports other exact saved
+tests and medical aliases; no model performs the authoritative arithmetic.
+
+**Root cause at baseline `384313b`:** the first receiver is
+`backend/modus_entry/app.py:390` (`history_chat`). For “last below 60”,
+`investigation_policy.py:171` returned no bounds whenever latest and a numeric
+literal appeared together; `history_agent.investigation_bounds` then produced
+`unsupported_filter`. For “How has … changed across my checkups?”,
+`history_agent.allowed_request` (`history_agent.py:58` in that baseline) rejected
+the wording before routing. Neither failure reached Muse. Existing comparison
+and source tools were not connected to these Ask operations. A separate
+projection defect discarded range/specimen/method before Ask comparisons.
+
+**Implemented:** `history_query_plan.py` composes exact measurement, operator,
+selection and dates into a strict schema; `history_query_executor.py` executes
+over the captured history using existing comparability and proof checks;
+`history_query.py` connects it to Ask and the existing two-report summary;
+`history_query_muse.py` provides one constrained optional interpretation pass.
+The request guard still precedes the planner. Unknown filters and multi-selector
+tasks clarify rather than lose conditions. Existing latest/source retrieval and
+continuations remain usable. Original excerpts, amendments and availability are
+preserved. Ask retains printed lab context. No new database, framework, clinical
+model or training is introduced.
+
+**Offline verification:** `python scripts/check_service.py` passed 1,223 backend
+tests (2 research-wrapper skips), 195 frontend tests and the production build.
+The three fresh Ask test files contain 127 cases, including operators and decimal
+boundaries, wording/analyte combinations, no-match versus insufficient evidence,
+unit/date uncertainty, conflicts, late availability, corrections, original file
+bytes, storage-order invariance and later nonmatching observations. Seven
+injected Muse cases cover success plus changed scope/metric/condition, malformed
+output, refusal and timeout. The runner reported no protected-file access.
+
+**Running service:** `http://127.0.0.1:8024/` uses the feature worktree's checked
+backend and all nine matching frontend artifacts. A fresh 54-request loopback
+probe (four workers; 23 authored saved facts) passed with unchanged fact content
+and zero provider calls. One local run measured median 23.35 ms and p95 140.5 ms;
+this is a small local service diagnostic, not production capacity or model quality.
+
+The authored answers are: latest Ferritin 71.4; latest below 60 is corrected 58.9
+on 2024-02-20; four-result history 49.5 → 58.9 → 64.2 → 71.4 with supported
+first-to-last difference 21.9 ng/mL. The source excerpt/file retains the original
+58.6, and the UI marks the saved correction. CRP uses the same engine and returns
+a supported 0.6 mg/L difference. These are authored examples, not clinical data.
+
+Browser verification uses a fresh isolated local Chrome context with external
+requests blocked. It exercises Ask, exact source inspection and original download,
+keyboard focus, associated multi-visit history and 390px layout. The browser
+found a real rendering crash from missing optional terminology metadata; both
+the backend contract and defensive frontend rendering now have regressions.
+The final run passed **10/10 checks** at 1440/1024/390px, with four actual loopback
+Ask requests, zero provider calls, zero page/console errors and zero failed
+network requests. Backend bundle:
+`sha256:c623d0d410dd9d629d8fda92d461421045640e383f1fcf41c723a8966aa7524e`.
+[Desktop evidence](../demo/ask-query-evidence-desktop.png),
+[mobile evidence](../demo/ask-query-evidence-mobile.png) and
+[recorded history difference](../demo/ask-query-history-desktop.png) show the
+authored examples. Run receipts remain separate from evaluation data.
+
+**Still unproven:** live accuracy of the new Muse planner, arbitrary phrasing or
+mathematics, clinical reasoning, production privacy/load, and final release
+qualification. The bounded semantic fallback does not silently interpret unknown
+filters. Evidence over 48 records requires narrower dates. Existing evaluation
+and held-out files were not read, run or changed; no API calls, training or main
+merge were performed. Historical sections below describe their own revisions.
+
 This is a runnable synthetic record-integrity prototype, not a finished
 production health service or a final hackathon submission.
 

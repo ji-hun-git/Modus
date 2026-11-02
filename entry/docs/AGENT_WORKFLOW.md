@@ -1,5 +1,19 @@
 # Why this workflow
 
+3 November Ask recovery: natural question → strict typed plan → deterministic
+measurement/history executor → exact record/difference verification → clickable
+source evidence. Threshold operators, endpoint selection and occurrence bounds
+are independent of the named test. The old numeric-latest rejection is bypassed
+only after the new planner can preserve every requested condition. Existing
+literal/alias search, latest follow-ups and compound record-kind investigation
+retain their prior contracts.
+
+Unknown conversational wording may use one optional Muse planning call, with
+strict anchors and no record values/documents in its prompt. Unknown filters,
+clinical requests, changed plans and invalid model output cannot execute reads.
+This path is tested with injected transports; no new live-model quality claim
+is made. See [the response and failure contracts](API_CONTRACT.md#typed-ask-queries--3-november-2026).
+
 2 November active flow: reviewed report → latest factual question → scope-bound previous-record follow-up → original evidence → reviewed correction → explicit rerun in current history. The previous-record step is a typed deterministic read, not a model-generated recollection. It preserves the original query and date group boundaries; context expires after 30 minutes/restart. Generic Trends/Replay now cover arbitrary reviewed measurement names/all eight fact kinds. Older three-metric descriptions below are historical.
 
 **There is no evidence that Modus uses the universally “best” AI workflow.** The current choice is a strong, inspectable baseline for this job: deterministic record handling, a human review boundary, and one bounded model loop where tool selection is useful. It must earn improvements through measured comparisons. More agents or a newer model name alone do not establish better results.

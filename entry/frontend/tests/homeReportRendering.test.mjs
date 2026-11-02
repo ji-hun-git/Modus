@@ -487,6 +487,18 @@ test("Ask keeps every exact claim and time bound with source controls only for a
   assert.ok(!html.includes("View supporting records"));
 });
 
+test('Ask distinguishes typed no-match, insufficient evidence, clarification and unavailable search',()=>{
+  const view=viewOf([]);
+  for(const [status,heading] of Object.entries({answered:'From your history',no_match:'No matching record found',
+    insufficient_evidence:'Not enough recorded evidence',clarification:'One detail before I look',
+    unsupported:'This question is outside record search',not_understood:'Help me find the right record',planner_unavailable:'Record search is unavailable'})) {
+    const html=render(HistoryAnswerView,{answer:{mode:'offline',scope:view.scope,claims:[],trace:[],history_evidence:view,
+      answer:'The exact recorded response.',query_result:{status}},pending:false,onClarify:noop});
+    assert.ok(html.includes(`<h3>${heading}</h3>`),status);
+    assert.match(html,/The exact recorded response/);assert.doesNotMatch(html,/history-citation/);
+  }
+});
+
 test("Ask clarification keeps both explicit choices and never labels a guard as Muse", () => {
   const view = viewOf([]);
   const html = render(HistoryAnswerView, { answer: { mode: "request_guard", scope: view.scope, claims: [], trace: [], history_evidence: view,

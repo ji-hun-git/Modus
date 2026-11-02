@@ -45,3 +45,14 @@ test('terminology never replaces a personal finding or its source button',()=>{
 test('no mappings adds no terminology panel',()=>{
   assert.equal(renderToStaticMarkup(createElement(Terms,{mappings:[]})),'');
 });
+
+test('catalog-only mappings cannot crash an otherwise supported Ask answer or invent requested terms',()=>{
+  const {requested_terms,...catalogTerm}=term;
+  const scope={as_of:null,known_at:'2026-11-03T00:00:00Z'};
+  const answer={mode:'offline',scope,claims:[{id:'c1',text:'Reviewed record: Pulse 72 bpm.',evidence_ids:['f1']}],trace:[],terminology:[catalogTerm],
+    history_evidence:{scope,facts:[{id:'f1',source_id:'s1',label:'Pulse',value:'72',kind:'measurement'}],undated_facts:[],sources:[{id:'s1',title:'Original.csv'}],conflicts:[]}};
+  const html=renderToStaticMarkup(createElement(Answer,{answer,pending:false,onClarify:()=>{}}));
+  assert.match(html,/Reviewed record: Pulse 72 bpm/);assert.match(html,/Open evidence for finding 1/);
+  assert.match(html,/<summary>Medical terminology<\/summary>/);assert.match(html,/Recorded as Pulse/);
+  assert.doesNotMatch(html,/How I matched your words|undefined/);
+});

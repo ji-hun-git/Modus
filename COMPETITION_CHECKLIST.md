@@ -3,9 +3,9 @@
 Updated 3 November 2026 KST. This is a source candidate, not a completed submission.
 
 Public `main` remains the browser-verified baseline `087d684`. The new multi-visit
-workspace is published on `codex/longitudinal-workspace` at `6f31359`; its software
-checks pass, but its browser acceptance is still open. Do not treat the baseline's
-screenshots or release evidence as validation of the new workspace.
+workspace and Ask recovery are on `codex/longitudinal-workspace`. New Ask/source/
+series flows pass isolated browser checks at 1440/1024/390px. Promotion to main,
+complete final-release acceptance and submission remain separate decisions.
 
 ## Rules carried into this build
 
@@ -24,7 +24,7 @@ See [participant-rule record](research/DISCORD_RULES_2026-10-29.md). Organizer c
 - [x] Date/availability separation, retained conflicts and unknowns, and correction recovery.
 - [x] Orbit Home and paginated record browsing; no additional Home panel in this iteration.
 - [x] Public allowlisted source, exact capability/limitation wording and authored synthetic screenshots.
-- [x] Feature-branch offline checks: 1,096 backend passed, 2 research-wrapper skips, 193 frontend passed, production build passed.
+- [x] Feature-branch offline checks: 1,223 backend passed, 2 research-wrapper skips, 195 frontend passed, production build passed.
 - [x] Lab range/specimen/method preservation, separate date/result evidence and explicit comparison rules.
 - [x] Two-report comparison → reviewed HTML/JSON download, including related conflicting records and original excerpts. Stale review is rejected.
 - [x] Portable offline preview verifies source/build hashes and keeps saved data across restarts.
@@ -34,10 +34,13 @@ See [participant-rule record](research/DISCORD_RULES_2026-10-29.md). Organizer c
 - [x] Two authored Muse service sessions completed ten actual calls for import/verification and factual investigation, including separate date/result pages. These are narrow service probes, not independent accuracy scores.
 - [x] Multi-visit series: exact saved observations, comparison-authorized edges, complete conflict companions and historical availability. Authored HTTP flow passed 21 checks, plus 5 restart checks; original bytes and earlier versions remain preserved.
 - [x] Frontend consumes real service responses; delayed corrections across pages, selected-unit differences and long-value rendering have regression coverage. This does not replace browser interactions.
+- [x] Typed numerical Ask: exact threshold/latest/count/history operations, verified first-to-last difference and explicit two-file comparison; original evidence and temporal scope preserved.
+- [x] New 10/10 isolated browser checks: original Ferritin failures, corrected value versus original download, no-match and BP clarification, keyboard focus, associated series and 1440/1024/390px layouts. No browser/runtime/console errors after the terminology metadata fix.
+- [x] Fresh 54/54 local HTTP query checks with four workers; saved facts unchanged, zero provider calls. This is a small authored service probe, not independent model-quality evidence.
 
 ## Release blockers and owner decisions
 
-- [ ] Finish actual 1440/1024/390px browser checks: result selection, original evidence, keyboard navigation, comparison and reviewed export. Computer Use could not establish the Windows browser URL; no new screenshots were captured.
+- [ ] Complete the final frozen-build regression of import/review/correction, full comparison and reviewed export alongside the newly verified Ask/source/series flows. Isolated browser automation now works; earlier Computer Use failures no longer block these local tests.
 - [ ] Promote the feature branch only after that acceptance; then choose one frozen source/build identity for the submission.
 - [ ] Jason selects the first-party license and adds the LICENSE file. Third-party notices are not that license.
 - [ ] Jason confirms health-domain record-integrity eligibility and the final submission requirements.

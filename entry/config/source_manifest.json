@@ -2976,6 +2976,56 @@
       "source": "entry/demo/longitudinal/2019-late-arriving-checkup.csv",
       "destination": "entry/demo/longitudinal/2019-late-arriving-checkup.csv",
       "behavior": false
+    },
+    {
+      "source": "backend/modus_entry/history_query.py",
+      "destination": "backend/modus_entry/history_query.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_query_executor.py",
+      "destination": "backend/modus_entry/history_query_executor.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_query_muse.py",
+      "destination": "backend/modus_entry/history_query_muse.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_query_plan.py",
+      "destination": "backend/modus_entry/history_query_plan.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_query_executor.py",
+      "destination": "backend/tests/test_history_query_executor.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_query_integration.py",
+      "destination": "backend/tests/test_history_query_integration.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_query_plan.py",
+      "destination": "backend/tests/test_history_query_plan.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/demo/ask-query-evidence-desktop.png",
+      "destination": "entry/demo/ask-query-evidence-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/ask-query-evidence-mobile.png",
+      "destination": "entry/demo/ask-query-evidence-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/ask-query-history-desktop.png",
+      "destination": "entry/demo/ask-query-history-desktop.png",
+      "behavior": false
     }
   ]
 }
