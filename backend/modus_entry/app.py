@@ -8,7 +8,7 @@ from datetime import date
 from pathlib import Path
 from urllib.parse import quote
 from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, Request
 from fastapi.responses import Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
@@ -33,6 +33,7 @@ from . import history_agent
 from .history_conversation import HistoryConversation
 from .history_pages import HistoryPages, SnapshotExpired
 from .report_summary import ReportSummaryRequest, build_report_summary
+from .longitudinal_series import SeriesResponse, build_series
 from .report_briefs import ReportBriefRequest, ReportBriefExportRequest, build_report_brief, validate_report_export
 from .history_tools import capture_history
 from .history_compare import HistoryCompareRequest, compare_history
@@ -181,6 +182,24 @@ def create_entry_app(database=None, clock=None):
                 through=through.isoformat() if through else None, conflicts_only=conflicts_only, compare_fact_id=compare_fact_id)
         except SnapshotExpired as error:
             raise HTTPException(410, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+
+    @app.get('/api/history/series', response_model=SeriesResponse)
+    def longitudinal_series(web_request: Request,
+                            snapshot_id: str = Query(pattern=r'^[0-9a-f]{32}$'),
+                            fact_id: str = Query(min_length=1, max_length=160),
+                            offset: int = Query(0, ge=0, le=100000),
+                            limit: int = Query(50, ge=1, le=50)):
+        if len(web_request.query_params.multi_items()) != len(set(web_request.query_params)):
+            raise HTTPException(422, 'Each series parameter must be supplied once.')
+        if set(web_request.query_params) - {'snapshot_id', 'fact_id', 'offset', 'limit'}:
+            raise HTTPException(422, 'Series scope comes from the snapshot; unsupported parameters were supplied.')
+        try:
+            captured = store.history_pages.get(snapshot_id)
+            return build_series(captured['view'], snapshot_id, fact_id, offset, limit)
+        except SnapshotExpired as error:
+            raise HTTPException(409, str(error)) from None
         except ValueError as error:
             raise HTTPException(422, str(error)) from None
 

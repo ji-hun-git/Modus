@@ -2896,6 +2896,51 @@
       "source": "entry/demo/report-comparison-export.jpg",
       "destination": "entry/demo/report-comparison-export.jpg",
       "behavior": false
+    },
+    {
+      "source": "backend/modus_entry/longitudinal_series.py",
+      "destination": "backend/modus_entry/longitudinal_series.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_longitudinal_series.py",
+      "destination": "backend/tests/test_entry_longitudinal_series.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/LongitudinalWorkspace.tsx",
+      "destination": "entry/frontend/src/LongitudinalWorkspace.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/SeriesChart.tsx",
+      "destination": "entry/frontend/src/SeriesChart.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/SeriesObservationList.tsx",
+      "destination": "entry/frontend/src/SeriesObservationList.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/longitudinal-workspace.css",
+      "destination": "entry/frontend/src/longitudinal-workspace.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/longitudinalSeries.ts",
+      "destination": "entry/frontend/src/longitudinalSeries.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/useLongitudinalSeries.ts",
+      "destination": "entry/frontend/src/useLongitudinalSeries.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/longitudinalSeries.test.mjs",
+      "destination": "entry/frontend/tests/longitudinalSeries.test.mjs",
+      "behavior": true
     }
   ]
 }

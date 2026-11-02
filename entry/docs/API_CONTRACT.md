@@ -1,5 +1,40 @@
 # Modus Records API v1
 
+## Longitudinal evidence series
+
+`GET /api/history/series?snapshot_id=<capture>&fact_id=<measurement>&offset=0&limit=50`
+returns the selected test across a captured history. `snapshot_id` is the existing
+32-character lower-case hexadecimal history capture; `fact_id` is a visible
+measurement (1–160 characters). Offset is 0–100000; limit is 1–50. Unknown or
+repeated parameters are rejected with 422. Missing/out-of-scope anchors return
+422; expired captures, including tokens from a previous process, return 409.
+
+The response format is `modus-longitudinal-series-v1`: `scope`, `policy_version`,
+`anchor_id`, `label`, chronological `observations` with date precision,
+`plot_points`, `observation_notes`, `edges`, `history_evidence`, `page`, `counts`
+and `limitations`. Dates, units, excerpts and revision identities remain literal.
+Matching uses existing exact test aliases, never fuzzy assay-name merging.
+
+Plot only returned points, separated by their exact units. A point contains
+`fact_id`, a full `date`, finite `value` and `unit`; values that would lose
+recorded precision remain in the evidence list. Connect only edges whose
+`connectable` is true. Edges bind adjacent dated observations on this page and
+return comparison status, exact-string difference (later minus earlier),
+reason codes and notes. Neither pagination nor the chart may invent a connection
+across pages or a missing observation.
+
+`history_evidence` includes the page, its anchor and complete related conflict
+companions. It is limited to 120 facts and the whole response to 2 MB; overflow
+returns 422 with a smaller-page instruction instead of silently truncating.
+An offset beyond the last row returns an empty observation/plot/edge page with
+anchor evidence. Counts describe the whole matching series in the capture.
+
+Existing captures retain their reviewed versions after a correction or late
+upload. Obtain a new history capture for current values; after restart obtain
+a new capture before requesting the series. This operation is read-only and
+uses no model calls or unit conversion. Source download and correction continue
+through the existing scoped endpoints.
+
 ## Reviewed two-report export — 2 November 2026 (T28)
 
 `POST /api/briefs/report-preview` accepts `{snapshot_id,selected_source_id,

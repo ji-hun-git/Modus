@@ -1,0 +1,102 @@
+/* A focused working surface, opened by selecting a result. Home keeps its orbit. */
+.longitudinal-workspace { color: var(--ink); min-width: 0; margin-top: 18px; }
+.series-breadcrumb, .series-workspace-heading, .series-analysis-panel > header, .series-records-panel > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.series-breadcrumb { padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.series-breadcrumb .text-button, .series-files > summary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--muted); font-size: 13px; }
+.series-files { position: relative; }
+.series-files > summary { cursor: pointer; list-style: none; }
+.series-files > summary::-webkit-details-marker { display: none; }
+.series-files[open] > div { position: absolute; z-index: 20; right: 0; top: 100%; width: 360px; max-width: calc(100vw - 40px); padding: 18px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-overlay); }
+.series-workspace-heading { margin: 22px 0 8px; align-items: flex-start; }
+.series-workspace-heading h2 { font: 550 28px/1.25 var(--font-body); letter-spacing: -.035em; margin: 0; }
+.series-workspace-heading p { margin: 7px 0 0; font-size: 13px; color: var(--muted); }
+.series-workspace-heading > button { flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px; min-height: 40px; }
+.series-scope { font-size: 12px; color: var(--muted); margin: 0 0 22px; line-height: 1.6; }
+.series-workspace-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr); gap: 22px; align-items: start; }
+.series-analysis, .series-evidence { min-width: 0; }
+.series-analysis { display: grid; gap: 16px; }
+.series-analysis-panel, .series-records-panel, .series-evidence { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.series-analysis-panel { padding: 20px; }
+.longitudinal-workspace h3 { margin: 0; font: 550 15px/1.4 var(--font-body); letter-spacing: -.015em; }
+.series-analysis-panel > header label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+.series-analysis-panel select { width: auto; min-height: 36px; padding: 5px 8px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 6px; }
+.series-chart { margin-top: 22px; }
+.series-chart-labels, .series-chart-dates { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 11px; }
+.series-chart-labels > span:last-child { text-align: right; }
+.series-chart-stage { display: flex; height: 214px; margin-top: 10px; }
+.series-chart-scale { width: 42px; flex-shrink: 0; position: relative; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.series-chart-scale > span { position: absolute; top: 18%; transform: translateY(-50%); max-width: 42px; overflow-wrap: anywhere; }
+.series-chart-scale > span + span { top: 82%; }
+.series-chart-canvas { position: relative; flex: 1; min-width: 0; }
+.series-chart-canvas > svg { position: absolute; inset: 0; height: 100%; width: 100%; overflow: visible; }
+.series-grid-line { stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.series-authorized-edge { stroke: var(--muted); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.series-point { position: absolute; width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; display: grid; place-items: center; transform: translate(-50%, -50%); color: var(--ink); }
+.series-point > span { width: 8px; height: 8px; border: 1px solid var(--ink); border-radius: 50%; background: var(--surface); }
+.series-point.is-disputed > span { border-radius: 1px; }
+.series-point.is-selected { z-index: 2; }
+.series-point.is-selected > span { width: 10px; height: 10px; background: var(--ink); outline: 4px solid var(--surface); box-shadow: 0 0 0 5px var(--line-strong); }
+.series-point > strong { position: absolute; bottom: calc(100% - 4px); padding: 3px 6px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: var(--surface); font: 550 12px/1.25 var(--font-body); white-space: nowrap; }
+.series-chart-dates { margin-left: 42px; }
+.series-chart-note, .series-context-note { margin: 18px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.series-recorded-change { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.series-recorded-change strong { font-weight: 550; font-variant-numeric: tabular-nums; color: var(--ink); }
+.series-chart-empty { padding: 50px 16px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.series-chart-empty p { margin: 0 0 4px; color: var(--ink); }
+.series-records-panel > header { padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.series-records-panel > header > span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.series-observation-list { max-height: 350px; overflow-y: auto; overscroll-behavior: contain; }
+.series-list-columns, .series-observation-row { display: grid; grid-template-columns: 1fr .85fr 1.2fr; gap: 12px; align-items: center; padding: 12px 20px; }
+.series-list-columns { position: sticky; top: 0; z-index: 3; color: var(--muted); font-size: 11px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.series-observation-row { width: 100%; min-height: 68px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; text-align: left; color: var(--ink); font-size: 13px; line-height: 1.4; }
+.series-observation-row:hover { background: var(--hover); }
+.series-observation-row[aria-pressed=true] { background: var(--selected); box-shadow: inset 2px 0 var(--ink); }
+.series-observation-row > span { min-width: 0; overflow-wrap: anywhere; }
+.series-observation-row small { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
+.series-list-value { font-weight: 550; font-variant-numeric: tabular-nums; }
+.series-list-source { font-size: 12px; }
+.series-list-empty { padding: 16px 20px; }
+.series-records-panel .history-pagination { padding: 8px 14px; margin: 0; border: 0; }
+.series-records-panel .history-pagination button { min-height: 44px; font-size: 12px; }
+.series-method { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.series-method > summary, .source-evidence-corrections > summary, .source-evidence-lab-context > summary { cursor: pointer; min-height: 40px; padding: 10px 0; color: var(--ink-soft); font-size: 12px; }
+.series-method ul { padding-left: 18px; margin-top: 6px; }
+.series-evidence > header { padding: 20px 20px 0; }
+.series-evidence > header p { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+.series-evidence .source-cube-evidence { padding: 20px; border: 0; border-radius: 0; background: transparent; }
+.series-evidence .source-evidence-origin { padding-bottom: 10px; }
+.series-evidence .source-evidence-origin strong { font-size: 13px; }
+.series-evidence .source-evidence-origin > div > span { display: none; }
+.series-evidence .source-evidence-result-heading { display: none; }
+.series-evidence .source-evidence-full-value.is-measurement { font: 500 32px/1.2 var(--font-body); letter-spacing: -.035em; }
+.series-evidence .source-evidence-full-value.is-measurement > span { font-size: 13px; letter-spacing: 0; }
+.series-evidence .source-evidence-proof blockquote { font-size: 14px; line-height: 1.75; background: var(--surface-2); border-radius: 8px; padding: 15px; }
+.series-evidence .source-evidence-clocks { gap: 10px; }
+.series-evidence .source-evidence-clocks > div { min-width: 0; }
+.series-evidence .source-evidence-clocks dd { overflow-wrap: anywhere; }
+.series-evidence .source-evidence-footer { margin-top: 4px; }
+.series-evidence > .series-method, .series-evidence > .medical-test-reference, .series-evidence-notes { margin: 0 20px 16px; }
+.series-evidence-notes { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.series-evidence-notes p { margin: 0 0 8px; }
+.series-state { padding: 20px; margin: 16px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 14px; line-height: 1.6; }
+.longitudinal-workspace :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+@media (max-width: 1100px) { .series-workspace-grid { grid-template-columns: minmax(0, 1.2fr) minmax(290px, 1fr); gap: 14px; } .series-analysis-panel { padding: 16px; } }
+@media (max-width: 900px) { .series-workspace-grid { grid-template-columns: minmax(0, 1fr); } .series-evidence { grid-row: 2; } }
+@media (max-width: 600px) {
+  .series-workspace-heading { flex-direction: column; gap: 12px; margin-top: 16px; }
+  .series-workspace-heading h2 { font-size: 24px; }
+  .series-workspace-heading > button { align-self: flex-start; }
+  .series-scope { margin-bottom: 16px; }
+  .series-breadcrumb { gap: 8px; padding-bottom: 10px; }
+  .series-breadcrumb .text-button, .series-files > summary { font-size: 12px; }
+  .series-analysis-panel > header { align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .series-chart-stage { height: 190px; }
+  .series-chart-labels > span:last-child { max-width: 170px; }
+  .series-list-columns, .series-observation-row { padding: 12px; gap: 10px; grid-template-columns: 1fr .75fr 1fr; }
+  .series-records-panel > header { padding: 14px 12px; }
+  .series-observation-row { font-size: 12px; }
+  .series-records-panel .history-pagination { padding: 8px; gap: 8px; }
+  .series-records-panel .history-pagination button { font-size: 11px; }
+  .series-evidence > header { padding: 18px 16px 0; }
+  .series-evidence .source-cube-evidence { padding: 16px; }
+}

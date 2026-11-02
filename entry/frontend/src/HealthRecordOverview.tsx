@@ -19,6 +19,7 @@ import useHistoryView from './useHistoryView';
 import HistoryPager from './HistoryPager';
 import PagedRecordList from './PagedRecordList';
 import ReportComparison from './ReportComparison';
+import LongitudinalWorkspace from './LongitudinalWorkspace';
 
 export default function HealthRecordOverview({
   view, hasDraft, onImport, onNavigate, dates, currentDay, knowledge, pendingCount, onDate,
@@ -66,8 +67,11 @@ export default function HealthRecordOverview({
         <p>{differenceCount === 1 ? "Recorded values differ." : `${differenceCount} recorded differences to review.`}</p>
         <button className="text-button" onClick={() => setComparison(view.page ? 'all' : differences[0].id)}>Compare <ArrowUpRight size={14} /></button>
       </div>}
-      <div className="orbit-workspace">
-        <section className="report-focus" aria-label="Selected report">
+      {anchor && journeyOpen && anchor.kind==='measurement' ? <LongitudinalWorkspace key={`${view.page?.snapshot_id}:${anchor.id}`}
+        parent={view} anchor={anchor} onCompare={()=>setReportComparisonOpen(true)} onClose={()=>{
+          setJourneyOpen(false);requestAnimationFrame(()=>homeRef.current?.querySelector<HTMLElement>('.report-focus')?.focus());
+        }} files={<OrbitMap reports={reports} total={view.page?.total} selectedId={report?.source.id} onSelect={selectReport} compact />} /> : <div className="orbit-workspace">
+        <section className="report-focus" aria-label="Selected report" tabIndex={-1}>
           {report ? <>
             <header className="report-focus-heading"><div>
               <span className="report-section-label">Your selected report</span>
@@ -103,7 +107,7 @@ export default function HealthRecordOverview({
           <OrbitMap reports={reports} total={view.page?.total} selectedId={report?.source.id} onSelect={selectReport} compact />
           <p className="report-orbit-instruction">Open a report to revisit your results.</p>
         </aside>
-      </div>
+      </div>}
       <div className="sr-only" role="status">{report ? !detailView && view.page ? `Opening ${report.source.title}.` : `Selected file: ${report.source.title}. ${facts.length} recorded items.` : 'No source files in this view.'}</div>
       <details className="home-timeline-disclosure"><summary>View history by date</summary>
       <HomeIntegrityTools scope={view.scope} dates={dates} currentDay={currentDay}
