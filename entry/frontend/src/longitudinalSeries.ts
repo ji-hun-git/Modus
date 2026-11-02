@@ -14,6 +14,17 @@ export type LongitudinalSeries = {
   counts:{dated:number;undated:number;sources:number;conflicts:number}; limitations:string[];
 };
 
+export function hasNewSeriesCorrection(seenIds:ReadonlySet<string>,
+  corrections:readonly (readonly [string,{savedAt:string|null}])[], initial:ReadonlyMap<string,string|null>) {
+  return corrections.some(([id,state])=>seenIds.has(id) && !!state.savedAt && state.savedAt!==initial.get(id));
+}
+
+export function selectedSeriesDifference(series:LongitudinalSeries|null, selectedId:string|undefined, unit:string) {
+  return series?.edges.find(edge=>edge.to_id===selectedId && edge.connectable && edge.status==='comparable' &&
+    edge.unit===unit && edge.difference!==null &&
+    [edge.from_id,edge.to_id].every(id=>series.plot_points.some(point=>point.fact_id===id && point.unit===unit)));
+}
+
 export function seriesMatches(result:LongitudinalSeries, snapshot:string, anchor:string,
   scope:HistoryView['scope'], offset:number) {
   try {

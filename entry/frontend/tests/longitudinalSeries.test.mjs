@@ -14,7 +14,7 @@ const compiled=await build({stdin:{contents:[
 ].join('\n'),resolveDir:fileURLToPath(new URL('../src/',import.meta.url)),loader:'ts'},
   bundle:true,write:false,format:'esm',platform:'node',target:'es2022',jsx:'automatic',loader:{'.css':'empty'},
   plugins:[{name:'shared-react',setup(builder){builder.onResolve({filter:/^(react(?:\/.*)?|react-dom(?:\/.*)?|lucide-react)$/},args=>({path:import.meta.resolve(args.path),external:true}));}}]});
-const {seriesMatches,seriesGeometry,SeriesChart,SeriesObservationList,SourceCubeEvidence,LongitudinalWorkspace}=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'));
+const {seriesMatches,seriesGeometry,selectedSeriesDifference,hasNewSeriesCorrection,SeriesChart,SeriesObservationList,SourceCubeEvidence,LongitudinalWorkspace}=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'));
 const scope={scope_id:'scope-a',known_at:'2026-11-02T00:00:00Z',as_of:null,captured_at:'2026-11-02T00:00:00Z'};
 const row=(id,date,value,extra={})=>({id,source_id:`source-${id}`,kind:'measurement',label:'HbA1c',value,unit:'%',date,occurred_on:date,
   date_precision:'day',available_at:'2026-11-01T00:00:00Z',source_quote:`HbA1c ${value} %`,page:1,revision_id:`revision-${id}`,
@@ -137,4 +137,37 @@ test('selected workspace begins in a bounded loading state without fabricating o
 test('legacy views without captured snapshot offer refresh instead of an uncaptured request',()=>{
   const series=fixture();const html=render(LongitudinalWorkspace,{parent:series.history_evidence,anchor:series.observations[2],onClose:noop,onCompare:noop,files:null});
   assert.match(html,/Refresh your history before opening this series/);assert.match(html,/Open updated history/);
+});
+
+test('changing the displayed unit cannot retain a difference from another unit',()=>{
+  const series=fixture();
+  assert.equal(selectedSeriesDifference(series,'b','%')?.difference,'0.2');
+  assert.equal(selectedSeriesDifference(series,'b','mmol/mol'),undefined);
+  assert.equal(selectedSeriesDifference(series,'c','%'),undefined);
+  series.plot_points=series.plot_points.filter(point=>point.fact_id!=='a');
+  assert.equal(selectedSeriesDifference(series,'b','%'),undefined,'no difference without both chart observations');
+});
+
+test('a delayed correction invalidates a previously seen page while the next page loads',()=>{
+  const seen=new Set(['c']);const initial=new Map([['a','2026-10-01T00:00:00Z']]);
+  for(const fact of fixture().history_evidence.facts)seen.add(fact.id);
+  assert.equal(hasNewSeriesCorrection(seen,[['a',{savedAt:null}]],initial),false,'uncertain request is not a confirmed save');
+  assert.equal(hasNewSeriesCorrection(seen,[['a',{savedAt:'2026-10-01T00:00:00Z'}]],initial),false,'same receipt does not invalidate');
+  // The old page is no longer rendered; identity tracking survives its empty loading state.
+  assert.equal(hasNewSeriesCorrection(seen,[['a',{savedAt:'2026-11-03T00:00:00Z'}]],initial),true);
+  assert.equal(hasNewSeriesCorrection(seen,[['unrelated',{savedAt:'2026-11-03T00:00:00Z'}]],initial),false);
+});
+
+test('long selected numeric spelling stays in a wrapping caption instead of a clipped marker label',()=>{
+  const series=fixture();const exact='0'.repeat(150)+'6.1';series.observations[2].value=exact;
+  const html=render(SeriesChart,{series,unit:'%',selectedId:'c',onSelect:noop});
+  assert.ok(html.includes(`<p class="series-chart-selection"><strong>${exact} %</strong>`));
+  assert.doesNotMatch(html,/<span><\/span><strong>/,'markers do not carry an unbounded floating label');
+});
+
+test('a chart caption never relabels a selection from an unshown unit',()=>{
+  const series=fixture();series.plot_points[2].unit='mmol/mol';
+  const html=render(SeriesChart,{series,unit:'%',selectedId:'c',onSelect:noop});
+  assert.doesNotMatch(html,/series-chart-selection/);
+  assert.match(html,/Recorded HbA1c observations in %/);
 });

@@ -11,6 +11,7 @@ import SourceCubeEvidence from './SourceCubeEvidence';
 import MedicalTestReference from './MedicalTestReference';
 import HomeAskBar from './HomeAskBar';
 import { correctionSession } from './correctionSession';
+import { hasNewSeriesCorrection, selectedSeriesDifference } from './longitudinalSeries';
 import './longitudinal-workspace.css';
 
 export default function LongitudinalWorkspace({parent,anchor,onClose,onCompare,files}:{
@@ -25,38 +26,40 @@ export default function LongitudinalWorkspace({parent,anchor,onClose,onCompare,f
   const corrections=useSyncExternalStore(correctionSession.subscribe,correctionSession.getSnapshot,correctionSession.getSnapshot);
   const heading=useRef<HTMLHeadingElement>(null);
   const evidenceHeading=useRef<HTMLHeadingElement>(null);
-  const pageFocus=useRef(false);
+  const seenEvidenceIds=useRef(new Set([anchor.id]));
   const evidence=series?.history_evidence;
   const facts=evidence?[...evidence.facts,...evidence.undated_facts]:[];
+  // Keep only identities across page loads: a delayed save may finish after its row leaves the page.
+  for(const fact of facts) seenEvidenceIds.current.add(fact.id);
   const selected=facts.find(fact=>fact.id===selectedId) || facts.find(fact=>fact.id===anchor.id) || facts[0];
   const source=evidence?.sources.find(item=>item.id===selected?.source_id);
   const units=[...new Set(series?.plot_points.map(point=>point.unit) || [])];
   const unit=units.includes(chosenUnit)?chosenUnit:units[0] || '';
-  const stale=invalidated || corrections.some(([id,state])=>facts.some(fact=>fact.id===id) && state.savedAt && state.savedAt!==initialCorrections.get(id));
+  const stale=invalidated || hasNewSeriesCorrection(seenEvidenceIds.current,corrections,initialCorrections);
   const selectedNotes=series?.observation_notes.find(note=>note.fact_id===selected?.id)?.notes || [];
   const adjacentNotes=[...new Set(series?.edges.filter(edge=>edge.from_id===selected?.id || edge.to_id===selected?.id).flatMap(edge=>edge.notes) || [])];
-  const selectedDifference=series?.edges.find(edge=>edge.to_id===selected?.id && edge.connectable && edge.difference!==null);
+  const selectedDifference=selectedSeriesDifference(series,selected?.id,unit);
   const previousFact=series?.observations.find(fact=>fact.id===selectedDifference?.from_id);
   useEffect(()=>{heading.current?.focus({preventScroll:true});},[]);
   useEffect(()=>{if(stale)setInvalidated(true);},[stale]);
-  useEffect(()=>{
-    if (pageFocus.current && (series || history.error)) {
-      pageFocus.current=false;heading.current?.focus();heading.current?.scrollIntoView({block:'start'});
-    }
-  },[series,history.error]);
+  function focusHistory() {heading.current?.focus({preventScroll:true});heading.current?.scrollIntoView({block:'start',behavior:'instant'});}
+  function changePage(offset:number) {focusHistory();history.setOffset(offset);}
   function selectObservation(id:string) {
     setSelectedId(id);
     const next=series?.plot_points.find(point=>point.fact_id===id);
     if(next)setChosenUnit(next.unit);
     if(window.matchMedia('(max-width: 900px)').matches) requestAnimationFrame(()=>{
-      evidenceHeading.current?.focus({preventScroll:true});evidenceHeading.current?.scrollIntoView({block:'start'});
+      evidenceHeading.current?.focus({preventScroll:true});evidenceHeading.current?.scrollIntoView({block:'start',behavior:'instant'});
     });
   }
   function updatedHistory() {window.dispatchEvent(new Event('modus:show-current-history'));onClose();}
   return <section className="longitudinal-workspace" aria-label="Selected result workspace">
     <div className="series-breadcrumb">
       <button type="button" className="text-button" onClick={onClose}><ArrowLeft size={16} aria-hidden="true" />Back to your report</button>
-      <details className="series-files"><summary><CircleDot size={16} aria-hidden="true" />Your files</summary><div>{files}</div></details>
+      <details className="series-files" onKeyDown={event=>{
+        if(event.key==='Escape' && event.currentTarget.open){event.preventDefault();event.currentTarget.open=false;event.currentTarget.querySelector('summary')?.focus();}
+      }} onBlur={event=>{if(event.relatedTarget && !event.currentTarget.contains(event.relatedTarget))event.currentTarget.open=false;}}>
+        <summary><CircleDot size={16} aria-hidden="true" />Your files</summary><div>{files}</div></details>
     </div>
     <header className="series-workspace-heading">
       <div><h2 ref={heading} tabIndex={-1}>{friendlyRecordName(anchor.label)}</h2>
@@ -68,7 +71,7 @@ export default function LongitudinalWorkspace({parent,anchor,onClose,onCompare,f
       <button className="secondary" onClick={updatedHistory}>Open updated history</button></div>}
     {!series && !history.error && <div className="series-state" role="status">Opening your recorded observations…</div>}
     {history.error && <div className="series-state" role="alert"><p>{history.error.message}</p>
-      <button className="secondary" onClick={history.error.expired?updatedHistory:history.retry}>{history.error.expired?'Open updated history':'Retry series'}</button></div>}
+      <button className="secondary" onClick={history.error.expired?updatedHistory:()=>{focusHistory();history.retry();}}>{history.error.expired?'Open updated history':'Retry series'}</button></div>}
     {series && evidence && <div className="series-workspace-grid">
       <div className="series-analysis">
         {!stale && <>
@@ -83,8 +86,8 @@ export default function LongitudinalWorkspace({parent,anchor,onClose,onCompare,f
             <header><h3>Recorded observations</h3><span>{series.page.offset+(series.page.returned?1:0)}–{series.page.offset+series.page.returned} of {series.page.total}</span></header>
             <SeriesObservationList series={series} selectedId={selected?.id || ''} onSelect={selectObservation} />
             {(series.page.next_offset!==null || series.page.previous_offset!==null) && <nav className="history-pagination" aria-label="Series pages">
-              <button className="text-button" disabled={series.page.previous_offset===null} onClick={()=>{pageFocus.current=true;history.setOffset(series.page.previous_offset!);}}>Previous observations</button>
-              <button className="text-button" disabled={series.page.next_offset===null} onClick={()=>{pageFocus.current=true;history.setOffset(series.page.next_offset!);}}>Next observations</button>
+              <button className="text-button" disabled={series.page.previous_offset===null} onClick={()=>changePage(series.page.previous_offset!)}>Previous observations</button>
+              <button className="text-button" disabled={series.page.next_offset===null} onClick={()=>changePage(series.page.next_offset!)}>Next observations</button>
             </nav>}
           </section>
           <details className="series-method"><summary>About this recorded series</summary><ul>{series.limitations.map((note,index)=><li key={index}>{note}</li>)}</ul></details>

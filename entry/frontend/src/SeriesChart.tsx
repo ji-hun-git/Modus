@@ -11,6 +11,7 @@ export default function SeriesChart({series,unit,selectedId,onSelect}:{
   const sourceTitles=new Map(series.history_evidence.sources.map(source=>[source.id,source.title]));
   const disputed=new Set(series.history_evidence.conflicts.flatMap(conflict=>conflict.fact_ids));
   const controls=useRef(new Map<string,HTMLButtonElement>());
+  const selectedPoint=geometry.points.find(point=>point.fact_id===selectedId);
   if (!geometry.points.length) return <div className="series-chart-empty"><p>These entries stay in the record list.</p>
     <span>A chart needs a complete date, a numeric value and a recorded unit.</span></div>;
   return <div className="series-chart" aria-label={`Recorded ${series.label} observations in ${unit}`}>
@@ -34,11 +35,12 @@ export default function SeriesChart({series,unit,selectedId,onSelect}:{
               if (!['ArrowLeft','ArrowRight'].includes(event.key)) return;
               event.preventDefault();const step=event.key==='ArrowRight'?1:-1;
               controls.current.get(geometry.points[(index+step+geometry.points.length)%geometry.points.length].fact_id)?.focus();
-            }}><span />{selectedId===point.fact_id && <strong>{fact.value}</strong>}</button>;
+            }}><span /></button>;
         })}
       </div>
     </div>
     <div className="series-chart-dates"><span>{dateLabel(geometry.first!)}</span>{geometry.first!==geometry.last && <span>{dateLabel(geometry.last!)}</span>}</div>
+    {selectedPoint && <p className="series-chart-selection"><strong>{facts.get(selectedId)?.value} {unit}</strong><span>{dateLabel(selectedPoint.date)}</span></p>}
     <p className="series-chart-note">{geometry.edges.length?'Lines join only records with matching comparison context.':'Observations are shown separately; no connecting line is inferred.'}
       {geometry.points.some(point=>disputed.has(point.fact_id)) && ' Square markers have conflicting records.'}</p>
   </div>;
