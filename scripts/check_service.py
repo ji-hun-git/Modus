@@ -9,11 +9,13 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from offline_environment import offline_environment
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'release/service-check'
-TESTS = ['test_entry_history_conversation.py', 'test_entry_natural_history.py', 'test_entry_medical_retrieval.py', 'test_entry_concurrency.py', 'test_entry_history_pages.py', 'test_entry.py', 'test_entry_adversarial.py', 'test_entry_amendments.py', 'test_entry_blood_pressure.py', 'test_entry_brief_api.py', 'test_entry_briefs.py', 'test_entry_document_guard.py', 'test_entry_document_guard_import.py', 'test_entry_environment_isolation.py', 'test_entry_history_agent_adversarial.py', 'test_entry_history_api.py', 'test_entry_history_compare_api.py', 'test_entry_history_expansion.py', 'test_entry_history_selection_limits.py', 'test_entry_history_tools.py', 'test_entry_investigation_flow.py', 'test_entry_ocr_api.py', 'test_entry_record_answers.py', 'test_entry_record_extraction_api.py', 'test_entry_retrieval.py', 'test_entry_routing.py', 'test_entry_runtime_identity.py', 'test_entry_whole_report_flow.py', 'test_whole_report_reader.py', 'test_record_units.py', 'test_record_store.py', 'test_record_history.py', 'test_record_extraction.py', 'test_record_retrieval.py', 'test_history_ingest.py', 'test_history_audit.py', 'test_extraction_layouts.py', 'test_ontology.py']
+TESTS = ['test_service_preview.py', 'test_entry_report_briefs.py', 'test_entry_report_summary.py', 'test_entry_lab_context.py', 'test_entry_history_conversation.py', 'test_entry_natural_history.py', 'test_entry_medical_retrieval.py', 'test_entry_concurrency.py', 'test_entry_history_pages.py', 'test_entry.py', 'test_entry_adversarial.py', 'test_entry_amendments.py', 'test_entry_blood_pressure.py', 'test_entry_brief_api.py', 'test_entry_briefs.py', 'test_entry_document_guard.py', 'test_entry_document_guard_import.py', 'test_entry_environment_isolation.py', 'test_entry_history_agent_adversarial.py', 'test_entry_history_api.py', 'test_entry_history_compare_api.py', 'test_entry_history_expansion.py', 'test_entry_history_selection_limits.py', 'test_entry_history_tools.py', 'test_entry_investigation_flow.py', 'test_entry_ocr_api.py', 'test_entry_record_answers.py', 'test_entry_record_extraction_api.py', 'test_entry_retrieval.py', 'test_entry_routing.py', 'test_entry_runtime_identity.py', 'test_entry_whole_report_flow.py', 'test_whole_report_reader.py', 'test_record_units.py', 'test_record_store.py', 'test_record_history.py', 'test_record_extraction.py', 'test_record_retrieval.py', 'test_history_ingest.py', 'test_history_audit.py', 'test_extraction_layouts.py', 'test_ontology.py']
 
 
 def protected(name):
@@ -21,15 +23,27 @@ def protected(name):
     return name.startswith(('eval/','evaluation/','entry/eval/')) or 'heldout' in name or 'holdout' in name or Path(name).name == '.env'
 
 
-def inputs():
-    manifest=json.loads((ROOT/'entry/config/source_manifest.json').read_text(encoding='utf-8'))
+def inputs(root=ROOT):
+    manifest=json.loads((root/'entry/config/source_manifest.json').read_text(encoding='utf-8'))
     result={}
     for item in manifest['files']:
         if not item.get('behavior') or protected(item['source']) or protected(item['destination']): continue
-        path=ROOT/item['source']
-        if not path.exists(): path=ROOT/item['destination']
-        if path.is_symlink() or not path.resolve().is_relative_to(ROOT): raise ValueError('Unsafe manifest path')
+        path=root/item['source']
+        if not path.exists(): path=root/item['destination']
+        if path.is_symlink() or not path.resolve().is_relative_to(root): raise ValueError('Unsafe manifest path')
         result[item['destination']]=hashlib.sha256(path.read_bytes()).hexdigest()
+    return result
+
+
+def build_inputs(root=ROOT):
+    dist=root/'entry/frontend/dist'
+    if not (dist/'index.html').is_file():
+        raise ValueError('Build the frontend before opening the service preview')
+    result={}
+    for path in sorted(dist.rglob('*')):
+        if path.is_symlink() or not path.resolve().is_relative_to(dist.resolve()):
+            raise ValueError('Unexpected link in frontend build')
+        if path.is_file(): result[path.relative_to(root).as_posix()]=hashlib.sha256(path.read_bytes()).hexdigest()
     return result
 
 
@@ -78,7 +92,8 @@ def main():
     unchanged=before==inputs()
     passed=unchanged and all(code==0 for code in checks.values())
     report={'status':'passed' if passed else 'failed','checks':checks,'inputs_unchanged':unchanged,
-        'source_sha256':before,'scope':'Offline service regression and frontend build only; no evaluation, live-model quality or final release qualification.'}
+        'source_sha256':before,'build_sha256':build_inputs() if checks.get('frontend-build')==0 else {},
+        'scope':'Offline service regression and frontend build only; no evaluation, live-model quality or final release qualification.'}
     (OUT/'report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     return 0 if passed else 1
 

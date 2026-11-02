@@ -92,17 +92,22 @@ def _binding(brief):
     return {key: brief[key] for key in (
         'format', 'bundle_id', 'title', 'owner_note', 'entries', 'sources',
         'conflicts', 'warnings', 'counts',
-    )} | {'scope': {key: brief['scope'][key] for key in ('as_of', 'known_at')}}
+    )} | {'scope': {key: brief['scope'][key] for key in ('as_of', 'known_at')},
+          'comparison': brief.get('comparison')}
 
 
 def build_brief(store, request):
     if not isinstance(request, BriefRequest):
         request = BriefRequest.model_validate(request)
     context = capture_history(store, request.as_of, request.known_at)
-    view = context['view']
+    return compile_brief(context['view'], request.selected_fact_ids, request.title, request.owner_note)
+
+
+def compile_brief(view, selected_fact_ids, title, owner_note):
+    """Compile a validated selection against one already captured history view."""
     rows = view['facts'] + view['undated_facts']
     visible = {row['id']: row for row in rows if available_fact(row) and row.get('value') is not None}
-    selected = set(request.selected_fact_ids)
+    selected = set(selected_fact_ids)
     if not selected <= visible.keys():
         raise ValueError('Some selected records are unavailable in this view. Refresh the selection.')
 
@@ -151,11 +156,15 @@ def build_brief(store, request):
         'counts': {'facts': len(ordered), 'sources': len(source_ids), 'conflicts': len(groups),
             'undated_facts': len(undated), 'measurements': sum(row['kind'] == 'measurement' for row in ordered)},
         'projection': 'selected_brief_evidence', 'truncated': False}
-    brief = {'format': FORMAT, 'bundle_id': BUNDLE_ID, 'title': request.title, 'owner_note': request.owner_note,
+    brief = {'format': FORMAT, 'bundle_id': BUNDLE_ID, 'title': title, 'owner_note': owner_note,
         'scope': deepcopy(view['scope']), 'generated_at': view['scope']['captured_at'], 'reviewed': False,
         'entries': entries, 'sources': sources, 'conflicts': deepcopy(groups), 'warnings': warnings,
         'counts': {'selected': len(selected), 'conflict_companions': companion_count,
             'total': len(ordered), 'sources': len(sources)}, 'history_evidence': evidence}
+    return seal_brief(brief)
+
+
+def seal_brief(brief):
     encoded = json.dumps(_binding(brief), sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
     if len(encoded) > MAX_BRIEF_BYTES:
         raise ValueError('This complete brief exceeds the export size limit. Select fewer records.')
@@ -207,6 +216,9 @@ def render_html(brief):
     parts += ['<section aria-labelledby="scope-notes"><h2 id="scope-notes">Scope and limits</h2><ul>']
     parts += [f'<li>{e(warning)}</li>' for warning in brief['warnings']]
     parts.append('</ul></section>')
+    if brief.get('comparison'):
+        from .report_briefs import render_comparison
+        parts.append(render_comparison(brief))
     if brief['conflicts']:
         parts += ['<section class="notice" aria-labelledby="differences"><h2 id="differences">Unresolved differences</h2>',
             '<p>No value has been selected as correct. Whether these records refer to the same specimen is unknown.</p>']
@@ -238,6 +250,11 @@ def render_html(brief):
                 parts.append(f'<blockquote>{e(row["source_quote"])}</blockquote>')
             else:
                 parts.append('<p class="meta">No source excerpt is recorded.</p>')
+            date_evidence = row.get('date_evidence')
+            if date_evidence and not row.get('source_quote_withheld'):
+                parts.append(f'<p class="meta">Date passage in original · page {e(date_evidence["page"])}'
+                    f' · original date proposal {e(date_evidence["value"])}</p>'
+                    f'<blockquote>{e(date_evidence["source_quote"])}</blockquote>')
             parts.append(f'<p class="meta">Source <a href="#{row["source_citation"]}">{row["source_citation"]}</a>' +
                 (f' · page {e(row["page"])}' if row.get('page') else '') + '</p></article>')
         parts.append('</section>')

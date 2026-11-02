@@ -4,8 +4,8 @@ import { factKindLabels, type HistoryFact, type HistoryView, type ReviewedFact }
 import { timeLabel } from "./ui";
 
 import { correctionSession, type Revision, type Preview } from "./correctionSession";
-const fields = ["label", "value", "unit", "occurred_on", "facility"] as const;
-const names = { label: "Recorded name", value: "Value or wording", unit: "Unit", occurred_on: "Recorded date", facility: "Place" };
+const fields = ["label", "value", "unit", "occurred_on", "facility", "reference_range", "specimen", "test_method"] as const;
+const names = { label: "Recorded name", value: "Value or wording", unit: "Unit", occurred_on: "Recorded date", facility: "Place", reference_range:"Lab’s reference range",specimen:"Specimen",test_method:"Test method" };
 
 export default function RecordCorrection({ fact, scope, onRefreshAnswer }: { fact: HistoryFact; scope: HistoryView["scope"]; onRefreshAnswer?: () => void }) {
   useSyncExternalStore(correctionSession.subscribe, correctionSession.getSnapshot, correctionSession.getSnapshot);
@@ -29,7 +29,8 @@ export default function RecordCorrection({ fact, scope, onRefreshAnswer }: { fac
         if (!current || current.value === null) throw new Error("The latest saved record is unavailable.");
         patch({ request: { expected_revision_id: current.revision_id || current.id, reason: "",
           corrected: { id: current.id, kind: current.kind, label: current.label, value: current.value,
-            unit: current.unit, occurred_on: current.occurred_on, facility: current.facility } },
+            unit: current.unit, occurred_on: current.occurred_on, facility: current.facility,
+            reference_range:current.reference_range ?? null,specimen:current.specimen ?? null,test_method:current.test_method ?? null } },
           originScope: scope.scope_id, preview: null, confirmed: false, savedAt: null, acknowledged: true, rejected: false });
       }
     } catch (err) { patch({ error: (err as Error).message }); }
@@ -78,7 +79,7 @@ export default function RecordCorrection({ fact, scope, onRefreshAnswer }: { fac
             </select></label>
             {fields.map(field => <label key={field}>{names[field]}
               <input value={request.corrected[field] || ""} required={field === "label" || field === "value"}
-                maxLength={field === "value" ? 16000 : field === "unit" ? 80 : field === "occurred_on" ? 100 : 200}
+                maxLength={field === "value" ? 16000 : field === "reference_range" ? 400 : field === "unit" ? 80 : field === "occurred_on" ? 100 : 200}
                 onChange={event => patch({ request: { ...request, corrected: { ...request.corrected, [field]: event.target.value || (field === "label" || field === "value" ? "" : null) } } })} />
             </label>)}
             <label>Reason for this correction<input required maxLength={500} value={request.reason} onChange={event => patch({ request: { ...request, reason: event.target.value } })} /></label>

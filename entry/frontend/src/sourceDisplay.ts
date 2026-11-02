@@ -57,6 +57,7 @@ const reviewedFieldNames: Record<string, string> = {
   unit: "unit",
   occurred_on: "recorded date",
   facility: "facility",
+  reference_range: "lab reference range", specimen:"specimen", test_method:"test method",
   kind: "record type",
 };
 export const reviewedFieldLabel = (field: string) =>

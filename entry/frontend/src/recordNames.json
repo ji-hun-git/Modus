@@ -120,5 +120,440 @@
     "vitamin d": "Vitamin D",
     "비타민 d": "Vitamin D",
     "비타민d": "Vitamin D"
-  }
+  },
+  "concept_by_alias": {
+    "hba1c": "hba1c",
+    "a1c": "hba1c",
+    "hemoglobin a1c": "hba1c",
+    "haemoglobin a1c": "hba1c",
+    "glycated hemoglobin": "hba1c",
+    "glycated haemoglobin": "hba1c",
+    "average blood sugar": "hba1c",
+    "long term blood sugar": "hba1c",
+    "당화혈색소": "hba1c",
+    "glucose": "glucose",
+    "blood glucose": "glucose",
+    "serum glucose": "glucose",
+    "포도당": "glucose",
+    "fasting glucose": "fasting_glucose",
+    "fpg": "fasting_glucose",
+    "fasting plasma glucose": "fasting_glucose",
+    "fasting blood glucose": "fasting_glucose",
+    "fasting blood sugar": "fasting_glucose",
+    "공복혈당": "fasting_glucose",
+    "공복 혈당": "fasting_glucose",
+    "ldl": "ldl",
+    "ldl cholesterol": "ldl",
+    "ldl c": "ldl",
+    "low density lipoprotein": "ldl",
+    "low density lipoprotein cholesterol": "ldl",
+    "bad cholesterol": "ldl",
+    "저밀도 콜레스테롤": "ldl",
+    "hdl": "hdl",
+    "hdl cholesterol": "hdl",
+    "hdl c": "hdl",
+    "high density lipoprotein": "hdl",
+    "high density lipoprotein cholesterol": "hdl",
+    "good cholesterol": "hdl",
+    "고밀도 콜레스테롤": "hdl",
+    "total cholesterol": "total_cholesterol",
+    "total cholesterol level": "total_cholesterol",
+    "총콜레스테롤": "total_cholesterol",
+    "총 콜레스테롤": "total_cholesterol",
+    "triglycerides": "triglycerides",
+    "triglyceride": "triglycerides",
+    "tg": "triglycerides",
+    "중성지방": "triglycerides",
+    "egfr": "egfr",
+    "estimated gfr": "egfr",
+    "estimated glomerular filtration rate": "egfr",
+    "kidney filtering": "egfr",
+    "kidney filtering estimate": "egfr",
+    "추정사구체여과율": "egfr",
+    "추정 사구체 여과율": "egfr",
+    "ferritin": "ferritin",
+    "serum ferritin": "ferritin",
+    "iron stores": "ferritin",
+    "stored iron": "ferritin",
+    "페리틴": "ferritin",
+    "hemoglobin": "hemoglobin",
+    "haemoglobin": "hemoglobin",
+    "hb": "hemoglobin",
+    "hgb": "hemoglobin",
+    "혈색소": "hemoglobin",
+    "헤모글로빈": "hemoglobin",
+    "wbc": "wbc",
+    "white blood cells": "wbc",
+    "white blood cell count": "wbc",
+    "leukocyte count": "wbc",
+    "백혈구": "wbc",
+    "백혈구 수": "wbc",
+    "rbc": "rbc",
+    "red blood cells": "rbc",
+    "red blood cell count": "rbc",
+    "erythrocyte count": "rbc",
+    "적혈구": "rbc",
+    "적혈구 수": "rbc",
+    "platelets": "platelets",
+    "platelet count": "platelets",
+    "plt": "platelets",
+    "혈소판": "platelets",
+    "혈소판 수": "platelets",
+    "hematocrit": "hematocrit",
+    "haematocrit": "hematocrit",
+    "hct": "hematocrit",
+    "헤마토크릿": "hematocrit",
+    "tsh": "tsh",
+    "thyroid stimulating hormone": "tsh",
+    "thyrotropin": "tsh",
+    "갑상선자극호르몬": "tsh",
+    "갑상선 자극 호르몬": "tsh",
+    "alt": "alt",
+    "alanine aminotransferase": "alt",
+    "alanine transaminase": "alt",
+    "sgpt": "alt",
+    "ast": "ast",
+    "aspartate aminotransferase": "ast",
+    "aspartate transaminase": "ast",
+    "sgot": "ast",
+    "creatinine": "creatinine",
+    "serum creatinine": "creatinine",
+    "크레아티닌": "creatinine",
+    "bun": "bun",
+    "blood urea nitrogen": "bun",
+    "혈중요소질소": "bun",
+    "혈중 요소 질소": "bun",
+    "sodium": "sodium",
+    "serum sodium": "sodium",
+    "나트륨": "sodium",
+    "potassium": "potassium",
+    "serum potassium": "potassium",
+    "칼륨": "potassium",
+    "calcium": "calcium",
+    "serum calcium": "calcium",
+    "칼슘": "calcium",
+    "pulse": "pulse",
+    "heart rate": "pulse",
+    "pulse rate": "pulse",
+    "심박수": "pulse",
+    "맥박": "pulse",
+    "맥박수": "pulse",
+    "vitamin d": "vitamin_d",
+    "비타민 d": "vitamin_d",
+    "비타민d": "vitamin_d"
+  },
+  "concepts": [
+    {
+      "concept_id": "hba1c",
+      "medical_name": "HbA1c",
+      "display_name": "Average blood sugar (HbA1c)",
+      "reference": {
+        "publisher": "NIDDK",
+        "title": "The A1C Test",
+        "url": "https://www.niddk.nih.gov/health-information/diagnostic-tests/a1c-test",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "glucose",
+      "medical_name": "Glucose",
+      "display_name": "Blood glucose (Glucose)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Blood Glucose Test",
+        "url": "https://medlineplus.gov/lab-tests/blood-glucose-test/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "fasting_glucose",
+      "medical_name": "Fasting glucose",
+      "display_name": "Fasting blood sugar (FPG)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Blood Glucose Test",
+        "url": "https://medlineplus.gov/lab-tests/blood-glucose-test/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "ldl",
+      "medical_name": "LDL",
+      "display_name": "LDL cholesterol",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Cholesterol Levels",
+        "url": "https://medlineplus.gov/lab-tests/cholesterol-levels/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "hdl",
+      "medical_name": "HDL",
+      "display_name": "HDL cholesterol",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Cholesterol Levels",
+        "url": "https://medlineplus.gov/lab-tests/cholesterol-levels/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "total_cholesterol",
+      "medical_name": "Total cholesterol",
+      "display_name": "Total cholesterol",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Cholesterol Levels",
+        "url": "https://medlineplus.gov/lab-tests/cholesterol-levels/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "triglycerides",
+      "medical_name": "Triglycerides",
+      "display_name": "Triglycerides",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Cholesterol Levels",
+        "url": "https://medlineplus.gov/lab-tests/cholesterol-levels/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "egfr",
+      "medical_name": "eGFR",
+      "display_name": "Kidney filtering estimate (eGFR)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "eGFR and GFR Tests",
+        "url": "https://medlineplus.gov/lab-tests/estimated-glomerular-filtration-rate-egfr-and-gfr-tests/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "ferritin",
+      "medical_name": "Ferritin",
+      "display_name": "Stored iron marker (Ferritin)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Ferritin Blood Test",
+        "url": "https://medlineplus.gov/lab-tests/ferritin-blood-test/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "hemoglobin",
+      "medical_name": "Hemoglobin",
+      "display_name": "Hemoglobin (Hb)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Complete Blood Count",
+        "url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "wbc",
+      "medical_name": "WBC",
+      "display_name": "White blood cell count (WBC)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Complete Blood Count",
+        "url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "rbc",
+      "medical_name": "RBC",
+      "display_name": "Red blood cell count (RBC)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Complete Blood Count",
+        "url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "platelets",
+      "medical_name": "Platelets",
+      "display_name": "Platelet count (PLT)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Complete Blood Count",
+        "url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "hematocrit",
+      "medical_name": "Hematocrit",
+      "display_name": "Hematocrit (Hct)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Complete Blood Count",
+        "url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "tsh",
+      "medical_name": "TSH",
+      "display_name": "Thyroid-stimulating hormone (TSH)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "TSH Test",
+        "url": "https://medlineplus.gov/lab-tests/tsh-thyroid-stimulating-hormone-test/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "alt",
+      "medical_name": "ALT",
+      "display_name": "Alanine aminotransferase (ALT)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "ALT Blood Test",
+        "url": "https://medlineplus.gov/lab-tests/alt-blood-test/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "ast",
+      "medical_name": "AST",
+      "display_name": "Aspartate aminotransferase (AST)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "AST Test",
+        "url": "https://medlineplus.gov/lab-tests/ast-test/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "creatinine",
+      "medical_name": "Creatinine",
+      "display_name": "Creatinine",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Basic Metabolic Panel",
+        "url": "https://medlineplus.gov/lab-tests/basic-metabolic-panel-bmp/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "bun",
+      "medical_name": "BUN",
+      "display_name": "Blood urea nitrogen (BUN)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Basic Metabolic Panel",
+        "url": "https://medlineplus.gov/lab-tests/basic-metabolic-panel-bmp/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "sodium",
+      "medical_name": "Sodium",
+      "display_name": "Sodium",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Basic Metabolic Panel",
+        "url": "https://medlineplus.gov/lab-tests/basic-metabolic-panel-bmp/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "potassium",
+      "medical_name": "Potassium",
+      "display_name": "Potassium",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Basic Metabolic Panel",
+        "url": "https://medlineplus.gov/lab-tests/basic-metabolic-panel-bmp/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "calcium",
+      "medical_name": "Calcium",
+      "display_name": "Calcium",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Basic Metabolic Panel",
+        "url": "https://medlineplus.gov/lab-tests/basic-metabolic-panel-bmp/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "pulse",
+      "medical_name": "Pulse",
+      "display_name": "Heart rate (Pulse)",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Pulse",
+        "url": "https://medlineplus.gov/ency/article/003399.htm",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    },
+    {
+      "concept_id": "vitamin_d",
+      "medical_name": "Vitamin D",
+      "display_name": "Vitamin D",
+      "reference": {
+        "publisher": "MedlinePlus",
+        "title": "Vitamin D Test",
+        "url": "https://medlineplus.gov/lab-tests/vitamin-d-test/",
+        "checked_on": "2026-10-30"
+      },
+      "catalog_version": "record-terms-2026-10-30.1",
+      "mapping_review": "authored_reference_checked_not_clinician_validated"
+    }
+  ]
 }

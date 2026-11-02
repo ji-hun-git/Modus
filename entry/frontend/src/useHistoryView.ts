@@ -5,7 +5,7 @@ import type { HistoryView } from "./historyTypes";
 
 export type PageOptions = { section?: 'facts' | 'sources' | 'fields'; limit?: number; snapshot_id?: string;
   kind?: string; label?: string; facility?: string; source_id?: string; order?: string; query?: string;
-  conflict_id?: string; through?: string; conflicts_only?: boolean; enabled?: boolean; unpaged?: boolean };
+  conflict_id?: string; through?: string; conflicts_only?: boolean; compare_fact_id?: string; enabled?: boolean; unpaged?: boolean };
 
 export function historyPageQuery(scope: HistoryView['scope'] | Scope, allDates: boolean, options: PageOptions, offset: number, snapshot?: string) {
   const query = new URLSearchParams();

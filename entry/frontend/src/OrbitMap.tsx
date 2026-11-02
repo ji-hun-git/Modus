@@ -21,8 +21,8 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
   return (
     <section className={`orbit-map${compact?' orbit-map-compact':''}`} aria-label="Your source files in orbit">
       <header className="orbit-map-heading">
-        <span>Your archive</span>
-        <span>{String(total ?? reports.length).padStart(2, '0')} source files</span>
+        <span>Your medical records</span>
+        <span>{String(total ?? reports.length).padStart(2, '0')} files</span>
       </header>
       <svg className="orbit-chart" viewBox="0 0 600 480" role="group" aria-label="Select a source file">
         <g className="orbit-guides" aria-hidden="true">
@@ -74,7 +74,7 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
         })}
         {!reports.length && <text className="orbit-empty" x="300" y="374" textAnchor="middle">0 source files — add the first</text>}
       </svg>
-      {compact && !!reports.length && <label className="orbit-file-picker">Selected file
+      {compact && !!reports.length && <label className="orbit-file-picker">Open a report
         <select value={selectedId || ''} onChange={event=>onSelect(event.target.value)}>
           {reports.map(report=><option key={report.source.id} value={report.source.id}>{report.source.title}</option>)}
         </select>

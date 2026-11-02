@@ -20,7 +20,7 @@ export function RetrievalFeedback({retrieval, onChoose}: {retrieval?: RetrievalI
   return <TerminologyDetails mappings={retrieval.mappings} />;
 }
 
-function referenceUrl(value: string) {
+export function referenceUrl(value: string) {
   try {
     const url = new URL(value);
     return url.protocol === 'https:' && !url.username && !url.password &&

@@ -6,6 +6,7 @@ import math
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from .record_date_evidence import RecordedDateEvidence
 
 FactKind = Literal['measurement', 'encounter', 'recorded_diagnosis', 'procedure', 'prescription',
                    'vaccination', 'imaging_text', 'recorded_text']
@@ -20,12 +21,15 @@ class ReviewedFact(BaseModel):
     unit: str | None = Field(max_length=80)
     occurred_on: str | None = Field(max_length=100)
     facility: str | None = Field(max_length=200)
+    reference_range: str | None = Field(default=None, max_length=400)
+    specimen: str | None = Field(default=None, max_length=200)
+    test_method: str | None = Field(default=None, max_length=200)
 
     @model_validator(mode='after')
     def nonblank_fields(self):
         if any(not value.strip() for value in (self.id, self.label, self.value)):
             raise ValueError('Fact identity, label and value cannot be blank')
-        if any(value is not None and not value.strip() for value in (self.unit, self.occurred_on, self.facility)):
+        if any(value is not None and not value.strip() for value in (self.unit, self.occurred_on, self.facility, self.reference_range, self.specimen, self.test_method)):
             raise ValueError('Use null for an unknown unit, date or facility')
         return self
 
@@ -36,6 +40,7 @@ class SourceEvidence(BaseModel):
     page: int | None = Field(ge=1, le=1000)
     bbox: list[float] | None = Field(min_length=4, max_length=4)
     model_confidence: float | None = Field(ge=0, le=1, allow_inf_nan=False)
+    date_evidence: RecordedDateEvidence | None = None
 
     @model_validator(mode='after')
     def check_region(self):

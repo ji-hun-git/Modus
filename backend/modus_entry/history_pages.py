@@ -8,6 +8,7 @@ from uuid import uuid4
 from modus.record_history_view import history_views
 from modus.temporal import instant
 from .history_retrieval import plan, retrieve
+from .checkup_comparison import compare_checkups
 
 
 class SnapshotExpired(ValueError):
@@ -82,7 +83,8 @@ class HistoryPages:
             if size > self.MAX_BYTES:
                 raise ValueError('This history is too large for one browsing snapshot. Choose an earlier date cutoff.')
             item = {'view': view, 'rows': rows, 'sources': sources, 'fields': fields,
-                    'by_source': by_source, 'facilities': sorted(facilities), 'created': monotonic(), 'size': size}
+                    'by_source': by_source, 'facilities': sorted(facilities), 'created': monotonic(), 'size': size,
+                    'revision': revision}
             while self.captures and (len(self.captures) >= self.MAX_SNAPSHOTS or
                     sum(x['size'] for x in self.captures.values()) + size > self.MAX_BYTES):
                 self.captures.popitem(last=False)
@@ -106,7 +108,7 @@ class HistoryPages:
         return self.open(as_of, known_at)[1]['view']
 
     def page(self, *, snapshot_id=None, as_of=None, known_at=None, section='facts', offset=0, limit=50,
-             kind=None, label=None, facility=None, source_id=None, order='newest', query='', conflict_id=None, through=None, conflicts_only=False):
+             kind=None, label=None, facility=None, source_id=None, order='newest', query='', conflict_id=None, through=None, conflicts_only=False, compare_fact_id=None):
         if not 1 <= limit <= 50 or not 0 <= offset <= 100000 or section not in ('facts','sources','fields') or order not in ('newest','oldest'):
             raise ValueError('Invalid page request')
         if snapshot_id:
@@ -162,4 +164,6 @@ class HistoryPages:
                 'next_offset': offset + limit if offset + limit < len(candidates) else None,
                 'previous_offset': max(0, offset-limit) if offset else None}}
         # Defensive copy: presentation callers cannot mutate a retained snapshot.
+        if compare_fact_id:
+            result['checkup_comparison'] = compare_checkups(view, compare_fact_id)
         return deepcopy(result)

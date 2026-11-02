@@ -1,5 +1,6 @@
 import { AlertCircle, ArrowUpRight, FileText } from "lucide-react";
 import { useRef, useState } from "react";
+import RecordDateEvidence from "./RecordDateEvidence";
 import { dateLabel, timeLabel } from "./ui";
 import { metricLabel } from "./types";
 import { unitLabel, facilityLabel } from "./recordPresentation.mjs";
@@ -121,6 +122,8 @@ export default function TimelineFact({
               ? "This excerpt may include records outside the selected dates. It is hidden in this view."
               : "No source excerpt was saved.")}
         </blockquote>
+        <RecordDateEvidence evidence={fact.date_evidence} currentDate={fact.occurred_on}
+          hidden={fact.source_quote_withheld || fact.value_withheld} />
         {!!fact.reviewed_fields?.length && <p>Edited during review: {fact.reviewed_fields.join(", ")}. The excerpt keeps the original wording.</p>}
         {fact.revision_id && fact.revision_id !== fact.id && <p>Saved correction · {timeLabel(fact.available_at)}. The original excerpt is unchanged.</p>}
         <dl>

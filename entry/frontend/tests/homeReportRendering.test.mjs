@@ -13,10 +13,19 @@ const result = await build({
       'export { default as HomeReportComparison } from "./HomeReportComparison";',
       'export { default as HomeHistoryTrail } from "./HomeHistoryTrail";',
       'export { default as HomeSourceEvidence } from "./HomeSourceEvidence";',
+      'export { default as SourceCubeEvidence } from "./SourceCubeEvidence";',
       'export { default as HomeIntegrityTools } from "./HomeIntegrityTools";',
       'export { default as OrbitMap } from "./OrbitMap";',
-      'export { default as HomeReportReadings, friendlyRecordName, readingChoices } from "./HomeReportReadings";',
+      'export { default as HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts } from "./HomeReportReadings";',
+      'export { default as MedicalTestReference } from "./MedicalTestReference";',
+      'export { default as LabContext, LabContextReview } from "./LabContext";',
+      'export { default as CheckupComparison } from "./CheckupComparison";',
+      'export { default as ReportComparisonRows } from "./ReportComparisonRows";',
+      'export { matchesReportSummary } from "./reportComparisonTypes";',
+      'export { reportBriefMatches } from "./reportBriefTypes";',
+      'export { default as ReportBriefReview, ReportBriefContents } from "./ReportBriefReview";',
       'export { default as HomeAskBar } from "./HomeAskBar";',
+      'export { default as HealthRecordOverview } from "./HealthRecordOverview";',
       'export { historyFields } from "./historyFields";',
       'export { HistoryTrends } from "./MeasurementsWorkspace";',
       'export { default as GenericFactReview } from "./GenericFactReview";',
@@ -48,7 +57,7 @@ const result = await build({
     },
   ],
 });
-const { HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, HomeAskBar, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions } =
+const { ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions } =
   await import(
     "data:text/javascript;base64," +
       Buffer.from(result.outputFiles[0].text).toString("base64")
@@ -90,6 +99,18 @@ const viewOf = (facts) => ({
 });
 const noop = () => {};
 
+test('Home starts with readings and orbit while history details stay opt-in', () => {
+  const html=renderToStaticMarkup(createElement(HealthRecordOverview,{
+    view:viewOf([row('a','2026-10-20')]), hasDraft:false, onImport:noop, onNavigate:noop,
+    dates:['2026-10-20'], currentDay:'2026-11-02', knowledge:'now', pendingCount:0, onDate:noop,
+  }));
+  assert.match(html,/Readings in this report/);
+  assert.match(html,/Your source files in orbit/);
+  assert.match(html,/Ask about your medical history/);
+  assert.match(html,/<details class="home-timeline-disclosure"><summary>View history by date/);
+  assert.doesNotMatch(html,/This reading across your history|Compare with previous checkup|Close history/);
+});
+
 test('Home names use exact catalog aliases and preserve qualified or unfamiliar labels',()=>{
   assert.equal(friendlyRecordName('HbA1c'),'Average blood sugar (HbA1c)');
   assert.equal(friendlyRecordName('Pulse'),'Heart rate (Pulse)');
@@ -118,6 +139,23 @@ test('Home reading tiles never reveal withheld values or units and escape record
   assert.match(html,/&lt;script&gt;/);
 });
 
+test('Home asks for missing units only on measurements, retaining printed units on other record kinds',()=>{
+  const nonNumeric=row('text','2025-01-02',{kind:'recorded_text',label:'Visit note',value:'Follow-up recorded',unit:null});
+  assert.doesNotMatch(render(HomeReportReadings,{facts:[nonNumeric],onSelect:noop}),/Unit not recorded/);
+  assert.match(render(HomeReportReadings,{facts:[row('lab','2025-01-02',{unit:null})],onSelect:noop}),/Unit not recorded/);
+  assert.match(render(HomeReportReadings,{facts:[{...nonNumeric,unit:'as printed'}],onSelect:noop}),/as printed/);
+});
+
+test('Source evidence shows original filename and distinct recorded and availability dates',()=>{
+  const fact=row('dates','2016-06-02',{available_at:'2026-11-02T03:04:00Z'});
+  const view=viewOf([fact]);
+  view.sources[0].title='Original June report.csv';
+  const html=render(SourceCubeEvidence,{source:view.sources[0],facts:[fact],view,initialFactId:fact.id});
+  assert.match(html,/Original June report.csv/);
+  assert.match(html,/<dt>Recorded<\/dt><dd>2 Jun 2016/);
+  assert.match(html,/<dt>Available in Modus<\/dt><dd>2 Nov 2026, 03:04 UTC/);
+});
+
 test('Home has one labelled Ask input and a compact orbit with a native file selector',()=>{
   const view=viewOf([row('a','2025-01-01')]);
   const html=render(HomeAskBar,{view});
@@ -125,7 +163,7 @@ test('Home has one labelled Ask input and a compact orbit with a native file sel
   assert.match(html,/name="history-question"/);
   assert.match(html,/aria-label="Ask your history"/);
   const orbit=render(OrbitMap,{reports:[{source:view.sources[0],facts:view.facts,latestDate:'2025-01-01'}],selectedId:view.sources[0].id,onSelect:noop,compact:true});
-  assert.match(orbit,/<label class="orbit-file-picker">Selected file<select/);
+  assert.match(orbit,/<label class="orbit-file-picker">Open a report<select/);
   assert.match(orbit,/Open source file:/);
 });
 
@@ -459,4 +497,258 @@ test("Ask clarification keeps both explicit choices and never labels a guard as 
   assert.ok(html.includes("Bottom number (diastolic)"));
   assert.match(html, /No model called/);
   assert.ok(!html.includes("Muse · record findings"));
+});
+
+
+test("medical references distinguish saved names from terminology and personal evidence", () => {
+  const html = render(MedicalTestReference, {fact:row('a1c','2024-02-03',{label:'A1c'})});
+  assert.match(html,/In your report<\/dt><dd>A1c/);
+  assert.match(html,/Medical name<\/dt><dd>Hemoglobin A1c \(HbA1c\)/);
+  assert.match(html,/https:\/\/www.niddk.nih.gov\/health-information\/diagnostic-tests\/a1c-test/);
+  assert.match(html,/referrerPolicy="no-referrer"/i);
+  assert.match(html,/Your result and its original evidence are shown separately/);
+  assert.doesNotMatch(html,/normal range|diagnosis|risk score/i);
+});
+
+test("medical references do not classify qualified assays or other record kinds", () => {
+  for (const label of ['HbA1c pending','Novel assay','<script>HbA1c</script>']) {
+    assert.equal(render(MedicalTestReference,{fact:row('x','2024-02-03',{label})}), '');
+  }
+  assert.equal(render(MedicalTestReference,{fact:row('x','2024-02-03',{label:'HbA1c',kind:'recorded_text'})}), '');
+});
+
+
+test("checkup groups preserve every record and keep qualified or non-measurement labels separate", () => {
+  const facts=[row('a','2024-02-03',{label:'A1c'}),row('k','2024-02-03',{label:'eGFR'}),
+    row('c','2024-02-03',{label:'LDL'}),row('q','2024-02-03',{label:'HbA1c pending'}),
+    row('visit','2024-02-03',{label:'HbA1c',kind:'encounter'})];
+  const original=JSON.stringify(facts);
+  const groups=groupReportFacts(facts);
+  assert.deepEqual(groups.map(g=>g.name),['Blood sugar','Cholesterol and triglycerides','Kidney tests','Other measurements','Visit']);
+  assert.deepEqual(groups.flatMap(g=>g.facts.map(f=>f.id)).sort(), facts.map(f=>f.id).sort());
+  assert.equal(groups[3].facts[0].id,'q');
+  assert.equal(JSON.stringify(facts),original);
+});
+
+
+test("lab context remains verbatim, escapes markup and hides temporally withheld details", () => {
+  const fact=row('lab','2025-01-01',{reference_range:'<6.0 %',specimen:'Whole blood',test_method:'<script>x</script>'});
+  const html=render(LabContext,{fact});
+  assert.match(html,/&lt;6.0 %/); assert.match(html,/Whole blood/);
+  assert.doesNotMatch(html,/<script>/);
+  assert.equal(render(LabContext,{fact:{...fact,value_withheld:true}}),'');
+  const review=render(LabContextReview,{row:{...fact,keep:true},index:0,disabled:true,onChange:noop});
+  assert.match(review,/disabled/); assert.match(review,/value="&lt;6.0 %"/);
+});
+
+test('known vital signs hide only empty lab fields; printed context is never discarded', () => {
+  for (const label of ['Blood pressure','수축기혈압','Pulse','heart rate','Weight','BMI','Respiratory rate']) {
+    const fact = row('vital','2025-01-01',{label});
+    assert.equal(render(LabContext,{fact}), '');
+    const printed = render(LabContext,{fact:{...fact,test_method:'Manual <recorded>'}});
+    assert.match(printed,/Manual &lt;recorded&gt;/);
+    assert.doesNotMatch(printed,/Not recorded|Specimen/);
+  }
+});
+
+test('missing lab and unclassified-test context stays explicit without substring inference', () => {
+  for (const label of ['HbA1c','Ferritin','Novel assay','Blood pressure assay']) {
+    const html = render(LabContext,{fact:row('lab','2025-01-01',{label})});
+    assert.equal((html.match(/Not recorded/g)||[]).length,3);
+  }
+});
+
+function sourceEvidence(facts, extra = {}) {
+  const view = viewOf(facts);
+  view.sources[0].original_available = true;
+  return render(SourceCubeEvidence,{source:view.sources[0],facts,view,initialFactId:facts[0]?.id,...extra});
+}
+
+test('single evidence shows one result heading and a direct scoped original link before the excerpt', () => {
+  const html = sourceEvidence([row('bp','2025-01-01',{label:'Blood pressure',value:'100/70',unit:'mmHg',source_quote:'Printed: 100/70 mmHg'})]);
+  assert.equal((html.match(/<h3>Blood pressure<\/h3>/g)||[]).length,1);
+  assert.doesNotMatch(html,/Choose a record|aria-label="Select a record"|Specimen|Not recorded/);
+  assert.match(html,/<blockquote>Printed: 100\/70 mmHg<\/blockquote>/);
+  assert.match(html,/known_at=2026-10-29T00%3A00%3A00Z&amp;as_of=2026-10-20/);
+  assert.ok(html.indexOf('Download original') < html.indexOf('<blockquote>'));
+  assert.match(html,/Correct saved record/);
+  assert.match(html,/View saved versions/);
+});
+
+test('multiple evidence records remain selectable in a collapsed bounded list', () => {
+  const facts = Array.from({length:60},(_,i)=>row(`r${i}`,'2025-01-01',{source_id:'shared'}));
+  const html = sourceEvidence(facts);
+  assert.match(html,/<details class="source-evidence-picker"><summary>Choose a record \(60\)/);
+  assert.equal((html.match(/aria-pressed=/g)||[]).length,50);
+  assert.match(html,/Next source records/);
+});
+
+test('corrected evidence retains original quote and visible amendment notice', () => {
+  const html = sourceEvidence([row('corrected','2025-01-01',{label:'Pulse',value:'73',unit:'bpm',
+    source_quote:'Pulse 72 bpm',previous_revision_id:'old',reviewed_fields:['value']})]);
+  assert.match(html,/is-measurement">73<span>bpm/);
+  assert.match(html,/<blockquote>Pulse 72 bpm<\/blockquote>/);
+  assert.match(html,/Corrected after saving/);
+  assert.match(html,/The excerpt retains the original wording/);
+});
+
+test('evidence respects withheld facts, missing originals and conflict controls', () => {
+  const fact = row('hidden','2025-01-01',{value:'SECRET_VALUE',unit:'SECRET_UNIT',reference_range:'SECRET_RANGE',
+    source_quote:'SECRET_QUOTE',value_withheld:true,source_quote_withheld:true});
+  const view = viewOf([fact]);
+  view.conflicts=[{id:'conflict',fact_ids:[fact.id],reason:'different_recorded_units'}];
+  const html=sourceEvidence([fact],{view,source:view.sources[0]});
+  assert.doesNotMatch(html,/SECRET_VALUE|SECRET_UNIT|SECRET_QUOTE|SECRET_RANGE/);
+  assert.match(html,/Hidden by date filter/);
+  assert.match(html,/Original unavailable in this view/);
+  assert.doesNotMatch(html,/Download original/);
+  assert.match(html,/Compare records/);
+});
+
+test('inline text evidence exposes the original outside file details without irrelevant image status', () => {
+  const fact=row('text','2025-01-01'); const view=viewOf([fact]);
+  view.sources[0].original_available=true;
+  const html=render(HomeSourceEvidence,{fact,view,onOpen:noop});
+  assert.ok(html.indexOf('Download original') < html.indexOf('<details class="home-proof-details"'));
+  assert.doesNotMatch(html,/Source region not located/);
+});
+
+test("checkup comparison displays both recorded contexts and server caveats without calculating", () => {
+  const current=row('new','2025-01-01',{value:'5.9',reference_range:'4–6',specimen:'Serum',test_method:'B'});
+  const previous=row('old','2024-01-01',{value:'5.4',reference_range:'4–5',specimen:'Serum',test_method:'A'});
+  const view=viewOf([current,previous]);
+  view.checkup_comparison={current,previous:[previous],previous_count:1,difference:null,unit:'%',notes:['Test method differs as printed.'],basis:'Previous fully dated result.',sources:view.sources};
+  const html=render(CheckupComparison,{view});
+  assert.match(html,/5.9/);assert.match(html,/5.4/);assert.match(html,/Test method differs as printed/);
+  assert.doesNotMatch(html,/Recorded difference/);
+  assert.match(html,/4–6/);assert.match(html,/4–5/);
+  assert.match(html,/How these records were compared/);
+  assert.equal((html.match(/Original evidence ·/g)||[]).length,2);
+});
+
+test("checkup comparison preserves tied previous records without inventing a difference", () => {
+  const current=row('selected','2026-01-01');
+  const earlier=[row('old-a','2025-01-01',{value:'5.2'}),row('old-b','2025-01-01',{value:'5.8'})];
+  const view=viewOf([current,...earlier]);
+  view.checkup_comparison={current,previous:earlier,previous_count:2,difference:null,unit:'%',notes:['Several results share the previous date; all remain separate.'],basis:'Previous fully dated result.',sources:view.sources};
+  const html=render(CheckupComparison,{view});
+  assert.match(html,/5.2/);assert.match(html,/5.8/);
+  assert.equal((html.match(/Original evidence ·/g)||[]).length,3);
+  assert.match(html,/Previous result 1/);assert.match(html,/Previous result 2/);
+  assert.match(html,/all remain separate/);
+  assert.doesNotMatch(html,/Recorded difference/);
+  assert.match(html,/Reference range, specimen and test method were not recorded/);
+});
+
+function twoReportFixture() {
+  const a=row('a','2025-01-01'), b=row('b','2024-01-01');
+  const view=viewOf([a,b]);
+  return {format:'modus-report-summary-v1',snapshot_id:'a'.repeat(32),scope:view.scope,
+    policy_version:'test-policy',current_source:view.sources[0],previous_source:view.sources[1],history_evidence:view,
+    rows:[{id:'pair-a',kind:'measurement',label:'HbA1c',current_ids:['a'],previous_ids:['b'],
+      status:'comparable',reason_codes:[],notes:[],difference:'0.0',unit:'%',claim_ids:['difference']}],
+    claims:[{id:'difference',type:'difference',difference:'0.0',text:'Recorded difference: 0.0 %',evidence_ids:['a','b'],
+      verification:{status:'SUPPORTED',reason_codes:['EXACT_REVIEWED_EVIDENCE']}}],
+    counts:{rows:1,records:2,comparable:1,not_comparable:0,only_selected:0,only_comparison:0},limitations:[]};
+}
+
+test('report summary rejects stale scopes, swapped sides, unverified differences and incomplete payloads',()=>{
+  const fixture=twoReportFixture();
+  const accepts=value=>matchesReportSummary(value,fixture.snapshot_id,fixture.scope,'source-a','source-b');
+  assert.equal(accepts(fixture),true);
+  for (const mutate of [
+    s=>s.scope.scope_id='wrong-scope', s=>s.snapshot_id='b'.repeat(32),
+    s=>s.rows[0].current_ids=['b'], s=>s.history_evidence.facts[0].value_withheld=true,
+    s=>s.claims[0].verification.status='CONTRADICTED', s=>delete s.claims[0].verification,
+    s=>s.claims.push({...s.claims[0]}), s=>s.counts.records=1,
+  ]) {
+    const value=structuredClone(fixture);mutate(value);assert.equal(accepts(value),false);
+  }
+});
+
+test('report summary escapes document content and suppresses unsupported claim wording',()=>{
+  const summary=twoReportFixture();
+  summary.history_evidence.facts[0].value='<script>alert(1)</script>';
+  summary.claims.push({id:'bad',type:'record',text:'UNSUPPORTED MEDICAL CLAIM',evidence_ids:['a'],
+    verification:{status:'CONTRADICTED',reason_codes:['CLAIM_TEXT_MISMATCH']}});
+  summary.rows[0].claim_ids.push('bad');
+  const html=render(ReportComparisonRows,{summary,rows:summary.rows,onInspect:()=>{}});
+  assert.match(html,/&lt;script&gt;/); assert.doesNotMatch(html,/<script>|UNSUPPORTED MEDICAL CLAIM/);
+  assert.match(html,/Recorded difference: 0.0 %/);
+  assert.equal((html.match(/Original evidence:/g)||[]).length,2);
+});
+
+const dateEvidence = {
+  value:'2024-02-03',source_quote:'Collected: 2024-02-03 <script>untrusted</script>',page:2,bbox:null,
+  check:{status:'matched_text',issues:[]},relation:'requires_review',
+};
+
+function reportBriefFixture(summary=twoReportFixture()) {
+  const {history_evidence,...comparison}=summary;
+  const facts=[...history_evidence.facts,...history_evidence.undated_facts];
+  return {format:'modus-record-brief-v1',preview_id:'sha256:'+'a'.repeat(64),title:'My checkup comparison',owner_note:'',
+    scope:summary.scope,comparison,history_evidence,entries:facts.map((fact,index)=>({...fact,
+      citation:`R${index+1}`,source_citation:`S${index+1}`,selected_by_owner:true,added_for_conflict:false})),
+    counts:{total:facts.length,selected:facts.length,conflict_companions:0,sources:history_evidence.sources.length},
+    conflicts:[],warnings:['Only these selected reports are included.']};
+}
+
+test('two-report brief rejects changed numbers, selection, scope and arbitrary companion records',()=>{
+  const summary=twoReportFixture();
+  const fixture=reportBriefFixture(summary);
+  assert.equal(reportBriefMatches(fixture,summary),true);
+  for (const mutate of [
+    b=>b.comparison.snapshot_id='wrong', b=>b.scope.known_at='2030-01-01T00:00:00Z',
+    b=>b.entries[0].value='999', b=>b.entries[0].source_quote='Invented quote',
+    b=>b.entries[0].selected_by_owner=false, b=>b.entries.push({...b.entries[0]}),
+    b=>b.comparison.rows[0].difference='999', b=>b.comparison.claims[0].text='Unsourced text',
+    b=>b.entries[0].value_withheld=true, b=>b.history_evidence.facts.pop(),
+  ]) {const candidate=structuredClone(fixture);mutate(candidate);assert.equal(reportBriefMatches(candidate,summary),false);}
+});
+
+test('comparison export starts with one preparation action and no automatic download or checkbox',()=>{
+  const html=render(ReportBriefReview,{summary:twoReportFixture(),onRefresh:noop});
+  assert.match(html,/Prepare a summary to keep/);
+  assert.doesNotMatch(html,/type="checkbox"|Download comparison/);
+});
+
+test('brief review renders bounded records, escapes content and exposes source evidence',()=>{
+  const brief=reportBriefFixture();
+  brief.entries=Array.from({length:23},(_,i)=>({...brief.entries[0],id:`record-${i}`,value:i===0?'<script>bad</script>':String(i)}));
+  brief.counts.total=23;
+  const html=render(ReportBriefContents,{brief,page:0,onPage:noop,onInspect:noop});
+  assert.equal((html.match(/Open original evidence/g)||[]).length,10);
+  assert.match(html,/&lt;script&gt;bad&lt;\/script&gt;/);assert.doesNotMatch(html,/<script>/);
+  assert.match(html,/1–10 of 23/);
+  const final=render(ReportBriefContents,{brief,page:2,onPage:noop,onInspect:noop});
+  assert.equal((final.match(/Open original evidence/g)||[]).length,3);
+});
+
+test('review shows the separate date passage without new save confirmations or merged quotes',()=>{
+  const field={...row('dated','2024-02-03'),occurred_on:'2024-02-03',keep:true,date_evidence:dateEvidence};
+  const html=render(GenericFactReview,{draft:{id:'draft',source:{original_available:true},facts:[field]},
+    rows:[field],locked:false,busy:false,uncertain:false,onChange:noop,onSave:noop,onSkip:noop});
+  assert.match(html,/Date in the original · page 2/);
+  assert.match(html,/Check that this date belongs to the result before saving/);
+  assert.match(html,/&lt;script&gt;untrusted&lt;\/script&gt;/);
+  assert.doesNotMatch(html,/<script>/);
+  assert.equal((html.match(/type="checkbox"/g)||[]).length,1); // Existing Include field, no redundant checkbox.
+});
+
+test('saved evidence retains the original date proposal after a date correction',()=>{
+  const fact=row('dated','2024-02-02',{occurred_on:'2024-02-02',date_evidence:dateEvidence});
+  const view=viewOf([fact]);
+  const html=render(SourceCubeEvidence,{source:view.sources[0],facts:[fact],view,initialFactId:fact.id});
+  assert.match(html,/The saved date differs/);
+  assert.match(html,/original date proposal: 2024-02-03/);
+  assert.doesNotMatch(html,/Check that this date belongs to the result before saving/);
+});
+
+test('hidden evidence cannot leak its date passage through either inspector',()=>{
+  const fact=row('dated','2024-02-03',{date_evidence:dateEvidence,source_quote:null,source_quote_withheld:true});
+  const view=viewOf([fact]);
+  for(const html of [render(SourceCubeEvidence,{source:view.sources[0],facts:[fact],view,initialFactId:fact.id}),
+    render(HomeSourceEvidence,{fact,view,onOpen:noop})]) {
+    assert.doesNotMatch(html,/Date in the original|Collected:|untrusted/);
+  }
 });

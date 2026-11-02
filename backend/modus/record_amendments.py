@@ -11,7 +11,7 @@ from .record_history_models import ReviewedFact, date_information
 from .record_history_view import _read_history_snapshot, _read_history_rows, _decode_history_rows, _project_history, raw_history_facts
 from .temporal import instant
 
-FIELDS = ('kind', 'label', 'value', 'unit', 'occurred_on', 'facility')
+FIELDS = ('kind', 'label', 'value', 'unit', 'occurred_on', 'facility', 'reference_range', 'specimen', 'test_method')
 
 
 class AmendmentConflict(ValueError):
@@ -46,6 +46,7 @@ class AmendmentCommitRequest(AmendmentRequest):
 
 def _digest(request):
     body = {key: request.model_dump()[key] for key in ('expected_revision_id', 'corrected', 'reason')}
+    body['corrected'] = {k:v for k,v in body['corrected'].items() if v is not None or k not in ('reference_range','specimen','test_method')}
     return 'sha256:' + sha256(json.dumps({'contract': 'record-amendment-v1', **body}, sort_keys=True,
                                       ensure_ascii=False).encode()).hexdigest()
 
@@ -57,6 +58,8 @@ def _prepare(db, request, now):
         raise ValueError('Saved record not found')
     if current['revision_id'] != request.expected_revision_id:
         raise AmendmentConflict('This record changed. Load its latest version and review again.')
+    if any(current.get(k) is not None and k not in request.corrected.model_fields_set for k in ('reference_range','specimen','test_method')):
+        raise ValueError('Review the saved lab context before correcting this record')
     changes = {key: {'before': current.get(key), 'after': getattr(request.corrected, key)}
                for key in FIELDS if current.get(key) != getattr(request.corrected, key)}
     if not changes:

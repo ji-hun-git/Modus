@@ -80,6 +80,89 @@ def test_text_layer_two_pass_preserves_exact_source_and_requires_review():
     assert [call['stage'] for call in telemetry['calls']] == ['ExtractRecordedFields', 'VerifyRecordedFields']
 
 
+def date_passage(**updates):
+    return {'value': '2024-02-03', 'source_quote': 'Collected: 2024-02-03',
+            'page': 1, 'bbox': None, **updates}
+
+
+def test_separate_header_is_retained_without_certifying_its_link_to_the_row():
+    row = field(source_quote='HbA1c 5.6 %', date_evidence=date_passage())
+    result, payloads, _ = run(first=extraction([row]), raw=pdf('Collected: 2024-02-03\nHbA1c 5.6 %'))
+    actual = result['fields'][0]
+    assert actual['source_quote'] == 'HbA1c 5.6 %'
+    assert actual['date_evidence']['source_quote'] == 'Collected: 2024-02-03'
+    assert actual['date_evidence']['check'] == {'status': 'matched_text', 'issues': []}
+    assert actual['date_evidence']['relation'] == 'requires_review'
+    assert actual['local_support'] == {'status': 'review_required', 'issues': ['date_link_requires_review']}
+    assert actual['verification']['status'] == 'supported'  # Artificial verifier cannot waive the review.
+    assert result['review_required'] is True
+    assert '$ref' not in json.dumps(extraction_schema())
+    assert 'date_evidence' in payloads[1]['messages'][1]['content'][-1]['text']
+
+
+@pytest.mark.parametrize('anchor, text, issue', [
+    (date_passage(), 'Collected: 2024-02-04', 'quote_not_on_page'),
+    (date_passage(source_quote='Collected: 2024-02-04'), 'Collected: 2024-02-04', 'date_not_in_quote'),
+])
+def test_separate_date_needs_its_own_exact_quote_and_value(anchor, text, issue):
+    row = field(source_quote='HbA1c 5.6 %', date_evidence=anchor)
+    result, _, _ = run(first=extraction([row]), raw=pdf(text + '\nHbA1c 5.6 %'))
+    actual = result['fields'][0]
+    assert issue in actual['date_evidence']['check']['issues']
+    assert actual['local_support']['status'] == 'mismatch'
+    assert 'date_evidence_mismatch' in actual['local_support']['issues']
+
+
+def test_date_anchor_keeps_page_and_never_searches_a_different_page():
+    row = field(source_quote='HbA1c 5.6 %', date_evidence=date_passage(page=2))
+    result, _, _ = run(first=extraction([row]), raw=pdf('HbA1c 5.6 %', 'Collected: 2024-02-03'))
+    assert result['fields'][0]['date_evidence']['page'] == 2
+    assert result['fields'][0]['date_evidence']['check']['status'] == 'matched_text'
+    result, _, _ = run(first=extraction([row]), raw=pdf('Collected: 2024-02-03\nHbA1c 5.6 %', 'No date'))
+    assert result['fields'][0]['date_evidence']['check']['status'] == 'mismatch'
+
+
+@pytest.mark.parametrize('anchor', [
+    date_passage(value='2024-02-04'), date_passage(page=True),
+    date_passage(bbox=[0.5, 0.0, 0.1, 0.9]),
+    date_passage(check={'status': 'matched_text', 'issues': []}),
+    date_passage(relation='verified'),
+])
+def test_model_cannot_forge_date_check_or_change_its_value(anchor):
+    with pytest.raises(ValueError, match='schema'):
+        run(first=extraction([field(date_evidence=anchor)]))
+
+
+def test_date_anchor_outside_supplied_group_rejects_the_draft():
+    with pytest.raises(ValueError, match='outside its supplied group'):
+        run(first=extraction([field(date_evidence=date_passage(page=4))]), raw=pdf(TEXT, TEXT, TEXT, TEXT))
+
+
+def test_image_date_anchor_remains_without_independent_text_support():
+    from PIL import Image
+    image = io.BytesIO()
+    Image.new('RGB', (64, 64), 'white').save(image, format='PNG')
+    result, _, _ = run(first=extraction([field(date_evidence=date_passage())]),
+                       raw=image.getvalue(), mime='image/png', filename='artificial.png')
+    assert result['fields'][0]['date_evidence']['check'] == {
+        'status': 'unavailable', 'issues': ['no_independent_page_text']}
+    assert result['fields'][0]['date_evidence']['relation'] == 'requires_review'
+
+
+def test_printed_date_occurrence_never_confirms_its_connection():
+    row = field(source_quote='HbA1c 5.6 %', date_evidence=date_passage(source_quote='Printed: 2024-02-03'))
+    result, _, _ = run(first=extraction([row]), raw=pdf('Printed: 2024-02-03\nHbA1c 5.6 %'))
+    assert result['fields'][0]['date_evidence']['check']['status'] == 'matched_text'
+    assert result['fields'][0]['local_support']['status'] == 'review_required'
+
+
+def test_ocr_date_passage_is_never_an_independent_text_match():
+    from modus.record_date_evidence import checked_date_evidence
+    checked = checked_date_evidence(date_passage(), [{'page': 1, 'text': 'Collected: 2024-02-03',
+        'text_source': 'local_teleocr'}])
+    assert checked['check'] == {'status': 'unavailable', 'issues': ['ocr_text_is_unverified']}
+
+
 @pytest.mark.parametrize('document_type', list(DOCUMENT_KINDS))
 def test_seven_schemas_retain_broader_draft_without_silently_committing(document_type):
     kind = next((kind for kind in DOCUMENT_KINDS[document_type] if kind != 'measurement'), 'recorded_text')

@@ -21,6 +21,7 @@ references/
 evaluation/
 .venv-training/
 .venv-ocr/
+.venv-medical-adapter/
 KICKOFF.txt
 PACKAGE_MANIFEST.json
 *.sqlite
@@ -31,3 +32,6 @@ PACKAGE_MANIFEST.json
 *.pfx
 .DS_Store
 Thumbs.db
+*.safetensors
+research/medical_adapter/checkpoints/
+research/medical_adapter/runs/

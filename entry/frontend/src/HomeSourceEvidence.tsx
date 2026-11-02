@@ -1,4 +1,5 @@
 import { useState } from "react";
+import RecordDateEvidence from "./RecordDateEvidence";
 import { ArrowUpRight, FileText } from "lucide-react";
 import type { HistoryFact, HistoryView } from "./historyTypes";
 import { reportSummaries, sourceRegion } from "./homeReportData";
@@ -72,6 +73,8 @@ export default function HomeSourceEvidence({
         <div className="home-proof-excerpt">
           <span>As written in your record</span>
           <blockquote>{sourceExcerpt(fact)}</blockquote>
+          <RecordDateEvidence evidence={fact.date_evidence} currentDate={fact.occurred_on}
+            hidden={fact.source_quote_withheld || fact.value_withheld} />
         </div>
         {!!fact.reviewed_fields?.length && (
           <p className="home-proof-edited">
@@ -94,11 +97,11 @@ export default function HomeSourceEvidence({
             </svg>}
           </figure>
         )}
-        <p className="home-proof-region-status">
+        {(sourceKind(source.type, source.title) === 'image' || region) && <p className="home-proof-region-status">
           {canHighlight ? "Outline marks the saved source region."
             : region ? "Source region cannot be previewed for this file. Inspect the original page."
             : "Source region not located."}
-        </p>
+        </p>}
         <button
           type="button"
           className="text-button home-proof-open"
@@ -112,6 +115,9 @@ export default function HomeSourceEvidence({
             focusable="false"
           />
         </button>
+        {source.original_available ? <a className="text-button home-proof-open"
+          href={originalDownloadUrl(source.id, view.scope)} download>Download original</a>
+          : <p>Original file unavailable in this view.</p>}
         <details className="home-proof-details">
           <summary>File details</summary>
           <dl>
@@ -120,13 +126,6 @@ export default function HomeSourceEvidence({
             <dt>Added to your record</dt>
             <dd>{dateLabel(source.available_at.slice(0, 10))}</dd>
           </dl>
-          {source.original_available ? (
-            <a href={originalDownloadUrl(source.id, view.scope)} download>
-              Download original
-            </a>
-          ) : (
-            <p>Original file unavailable in this view.</p>
-          )}
         </details>
       </div>
     </section>

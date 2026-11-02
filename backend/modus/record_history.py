@@ -45,17 +45,21 @@ def _review_rows(draft, reviewed_facts):
     ids = [row['id'] for row in rows]
     if len(ids) != len(set(ids)) or not set(ids) <= proposed.keys():
         raise ValueError('Reviewed facts must have distinct IDs belonging to this draft')
+    for submitted in reviewed_facts:
+        for key in ('reference_range', 'specimen', 'test_method'):
+            if proposed[submitted['id']].get(key) is not None and key not in submitted:
+                raise ValueError('Review the lab context fields before saving')
     return proposed, rows
 
 
 def _provenance(proposed, draft):
     # This projection only reads saved server proposals, never the review body.
     evidence = SourceEvidence.model_validate({key: proposed.get(key) for key in (
-        'source_quote', 'page', 'bbox', 'model_confidence')}).model_dump()
+        'source_quote', 'page', 'bbox', 'model_confidence', 'date_evidence')}).model_dump()
     return evidence | {key: deepcopy(proposed.get(key)) for key in ('local_support', 'verification', 'reported_at_raw')} | {
         'extractor': deepcopy(proposed.get('extractor') or draft.get('extraction_mode') or 'manual'),
         'source_proposal': {key: deepcopy(proposed.get(key)) for key in (
-            'kind', 'label', 'value', 'unit', 'occurred_on', 'facility')},
+            'kind', 'label', 'value', 'unit', 'occurred_on', 'facility', 'reference_range', 'specimen', 'test_method')},
     }
 
 
@@ -87,7 +91,9 @@ def commit_history(store, draft_id, reviewed_facts, *, reviewer='local-owner'):
             raise ValueError('Draft not found')
         draft = json.loads(saved['data'])
         proposed, rows = _review_rows(draft, reviewed_facts)
-        digest = sha256(json.dumps(sorted(rows, key=lambda row: row['id']), sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        # Absent optional context preserves receipts from older clients/builds.
+        digest_rows = [{k:v for k,v in row.items() if v is not None or k not in ('reference_range','specimen','test_method')} for row in rows]
+        digest = sha256(json.dumps(sorted(digest_rows, key=lambda row: row['id']), sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         receipt = db.execute('SELECT review_digest,data FROM history_commits WHERE draft_id=?', (draft_id,)).fetchone()
         if receipt:
             if receipt['review_digest'] != digest:

@@ -32,6 +32,8 @@ from . import agent
 from . import history_agent
 from .history_conversation import HistoryConversation
 from .history_pages import HistoryPages, SnapshotExpired
+from .report_summary import ReportSummaryRequest, build_report_summary
+from .report_briefs import ReportBriefRequest, ReportBriefExportRequest, build_report_brief, validate_report_export
 from .history_tools import capture_history
 from .history_compare import HistoryCompareRequest, compare_history
 from .briefs import (BriefRequest, BriefExportRequest, BriefChangedError,
@@ -171,14 +173,24 @@ def create_entry_app(database=None, clock=None):
                      label: str | None = Query(None, max_length=200), facility: str | None = Query(None, max_length=200),
                      source_id: str | None = Query(None, max_length=160), order: str = 'newest',
                      query: str = Query('', max_length=2000), conflict_id: str | None = None, through: date | None = None,
-                     conflicts_only: bool = False):
+                     conflicts_only: bool = False, compare_fact_id: str | None = Query(None, max_length=160)):
         try:
             return store.history_pages.page(as_of=as_of.isoformat() if as_of else None, known_at=known_at,
                 snapshot_id=snapshot_id, section=section, offset=offset, limit=limit, kind=kind, label=label,
                 facility=facility, source_id=source_id, order=order, query=query, conflict_id=conflict_id,
-                through=through.isoformat() if through else None, conflicts_only=conflicts_only)
+                through=through.isoformat() if through else None, conflicts_only=conflicts_only, compare_fact_id=compare_fact_id)
         except SnapshotExpired as error:
             raise HTTPException(410, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+
+    @app.post('/api/history/report-summary')
+    def report_summary(request: ReportSummaryRequest):
+        try:
+            captured = store.history_pages.get(request.snapshot_id)
+            return build_report_summary(captured['view'], request)
+        except SnapshotExpired as error:
+            raise HTTPException(409, str(error)) from None
         except ValueError as error:
             raise HTTPException(422, str(error)) from None
 
@@ -193,7 +205,7 @@ def create_entry_app(database=None, clock=None):
     def save_history(request: HistoryCommitRequest):
         try:
             receipt = commit_history(store, request.draft_id,
-                [row.model_dump() for row in request.reviewed_facts])
+                [row.model_dump(exclude_unset=True) for row in request.reviewed_facts])
             return {**receipt, 'bundle_id': BUNDLE_ID}
         except ValueError as error:
             raise HTTPException(404 if str(error) == 'Draft not found' else 422, str(error)) from None
@@ -386,6 +398,29 @@ def create_entry_app(database=None, clock=None):
             return build_brief(store, request)
         except ValueError as error:
             raise HTTPException(422, str(error)) from None
+
+    @app.post('/api/briefs/report-preview')
+    def preview_report_brief(request: ReportBriefRequest):
+        try:
+            return build_report_brief(store, request)
+        except SnapshotExpired as error:
+            raise HTTPException(409, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+
+    @app.post('/api/briefs/report-export')
+    def export_report_brief(request: ReportBriefExportRequest):
+        try:
+            brief = validate_report_export(store, request)
+            content = render_html(brief) if request.format == 'html' else render_json(brief)
+        except (SnapshotExpired, BriefChangedError) as error:
+            raise HTTPException(409, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+        return Response(content, media_type='text/html' if request.format == 'html' else 'application/json', headers={
+            'Content-Disposition': f'attachment; filename="modus-checkup-comparison.{request.format}"',
+            'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
+            'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"})
 
     @app.post('/api/briefs/export')
     def export_brief(request: BriefExportRequest):

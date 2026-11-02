@@ -4,6 +4,7 @@ import App from "./App";
 import "./styles.css";
 import "./service-design.css";
 import "./service-responsive.css";
+import "./workspace-shell.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />

@@ -66,9 +66,11 @@ export default function HistoryAnswerView({ answer, pending, onClarify, onRefres
       </details>)}
       <pre>{JSON.stringify({ execution: answer.execution, telemetry: answer.telemetry }, null, 2)}</pre>
     </details>
-    {inspected && evidence.length > 0 && <Modal title="Your source records" onClose={() => setSelection(null)} wide>
+    {inspected && evidence.length > 0 && <Modal title="Original evidence" onClose={() => setSelection(null)} placement="inspector">
       <p className="history-answer-scope"><ScopeText scope={answer.scope} /></p>
-      <p className="history-evidence-intro">{inspected.text}</p>
+      <details className="source-evidence-details"><summary>Linked finding</summary>
+        <p className="history-evidence-intro">{inspected.text}</p>
+      </details>
       <div className="history-answer-evidence">{evidence.map(({ source, facts }) => <SourceCubeEvidence
         key={source.id} source={source} facts={facts} view={answer.history_evidence} initialFactId={facts[0]?.id} onRefreshAnswer={onRefreshAnswer} />)}</div>
     </Modal>}

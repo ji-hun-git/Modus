@@ -35,8 +35,9 @@ export default function OverviewRecordDetails({
     );
     return (
       <Modal
-        title={`${recordLabel(current.label)} · ${current.date ? dateLabel(current.date) : current.occurred_on || "Date not recorded"}`}
+        title="Original evidence"
         onClose={onCloseSource}
+        placement="inspector"
       >
         {source ? (
           <SourceCubeEvidence

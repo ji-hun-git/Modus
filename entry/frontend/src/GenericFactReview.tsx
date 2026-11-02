@@ -1,4 +1,5 @@
 import { ArrowUpRight, RotateCcw } from "lucide-react";
+import RecordDateEvidence from "./RecordDateEvidence";
 import {
   factKindLabels,
   type FactKind,
@@ -6,6 +7,7 @@ import {
 } from "./historyTypes";
 import { type Draft } from "./types";
 import "./generic-records.css";
+import { LabContextReview } from './LabContext';
 
 export default function GenericFactReview({
   draft,
@@ -62,6 +64,7 @@ export default function GenericFactReview({
                 "unit",
                 "occurred_on",
                 "facility",
+                "reference_range", "specimen", "test_method",
               ] as const
             ).some((field) => (row[field] ?? "") !== (original[field] ?? "")));
         return (
@@ -159,6 +162,7 @@ export default function GenericFactReview({
                     />
                   </label>
                 </fieldset>
+                <LabContextReview row={row} index={index} disabled={locked || !row.keep} onChange={onChange} />
                 <details className="review-field-details">
                   <summary>
                     Type, facility and proposal{changed ? " · edited" : ""}
@@ -233,6 +237,7 @@ export default function GenericFactReview({
                   {row.source_quote ||
                     "No excerpt was returned. Compare with the original file."}
                 </blockquote>
+                <RecordDateEvidence evidence={row.date_evidence} currentDate={row.occurred_on} reviewing />
               </aside>
             </div>
           </article>

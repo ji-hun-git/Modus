@@ -23,7 +23,7 @@ KIND_LABELS = {
 FACT_FIELDS = (
     'id', 'source_id', 'kind', 'label', 'value', 'unit', 'occurred_on', 'date',
     'date_precision', 'facility', 'source_quote', 'source_quote_withheld',
-    'value_withheld', 'page', 'bbox', 'available_at', 'availability_basis',
+    'value_withheld', 'page', 'bbox', 'date_evidence', 'available_at', 'availability_basis',
     'reviewed_fields', 'original_available', 'within_date_scope',
     'revision_id', 'previous_revision_id', 'first_available_at',
 )
@@ -172,7 +172,7 @@ def bounded_facts(rows, limit):
         # Never cut a quoted value mid-sentence or let one long record consume
         # the model's entire context. The UI resolves IDs to complete records.
         if length > MAX_TOOL_BYTES:
-            row.update(value=None, source_quote=None, content_omitted=True,
+            row.update(value=None, source_quote=None, date_evidence=None, content_omitted=True,
                        content_omitted_reason='bounded_tool_response')
             length = len(json.dumps(row, ensure_ascii=False).encode('utf-8'))
         if page and size + length > MAX_TOOL_BYTES:

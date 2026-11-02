@@ -1,0 +1,132 @@
+/* Shared workspace appearance. The orbit remains the visual anchor, not the navigation. */
+:root[data-appearance], :root[data-appearance] .modal:has(.import-workflow) {
+  --font-body: -apple-system, BlinkMacSystemFont, Inter, "Segoe UI Variable", "Segoe UI", sans-serif;
+  --font-display: var(--font-body);
+  --number-font: var(--font-body);
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --motion-standard: 160ms;
+  --motion-panel: 180ms;
+  font-family: var(--font-body);
+}
+:root[data-appearance="dark"], :root[data-appearance="dark"] .modal:has(.import-workflow) {
+  color-scheme: dark;
+  --canvas: #000; --surface: #111313; --surface-2: #181b1b;
+  --sidebar-surface: #111313; --ink: #f0f2f1; --ink-soft: #e0e4e2;
+  --muted: #adb5b1; --faint: #adb5b1; --line: #2a302d; --line-strong: #525e57;
+  --action: #f0f2f1; --action-hover: #d5dfd9; --on-action: #101612; --focus: #c3dacf;
+  --soft: #181b1b; --inset: #181b1b; --hover: #222824; --selected: #29332e;
+  --warning: #e6b76b; --warning-bg: #2b2519; --error: #ffada4; --error-bg: #341e1c;
+  --info: #b7cbd9; --info-bg: #1b262c;
+  --void: #000; --void-2: #111313; --star: #f0f2f1; --orbit-muted: #adb5b1;
+  --orbit-line: #303732; --gun: #525e57; --dim: #748079; --signal: #e6b76b;
+  --mark: #c3dacf; --mark-soft: #345143; --shadow-overlay: 0 16px 60px rgb(0 0 0 / 30%);
+}
+:root[data-appearance="light"], :root[data-appearance="light"] .modal:has(.import-workflow) {
+  color-scheme: light;
+  --canvas: #f5f6f4; --surface: #fff; --surface-2: #eef1ed;
+  --sidebar-surface: #e9eeea; --ink: #202923; --ink-soft: #3a473e;
+  --muted: #59675e; --faint: #59675e; --line: #d7ded7; --line-strong: #8c9b90;
+  --action: #234f42; --action-hover: #183c31; --on-action: #fff; --focus: #234f42;
+  --soft: #eef1ed; --inset: #eef1ed; --hover: #e5ebe6; --selected: #dce8df;
+  --warning: #795015; --warning-bg: #f7edd8; --error: #a13630; --error-bg: #fff0ed;
+  --info: #355b72; --info-bg: #eaf1f5;
+  --void: #f5f6f4; --void-2: #eef1ed; --star: #202923; --orbit-muted: #59675e;
+  --orbit-line: #c6d0c7; --gun: #8c9b90; --dim: #687c6d; --signal: #795015;
+  --mark: #234f42; --mark-soft: #c8dace; --shadow-overlay: 0 16px 60px rgb(29 47 35 / 12%);
+}
+:root[data-appearance] .modal:not(.evidence-inspector) { border-radius: 14px; }
+:root[data-appearance] .modal:has(.import-workflow) :is(input, textarea, select) { color-scheme: inherit; }
+.workspace-shell { --sidebar-width: 188px; min-height: 100dvh; background: var(--canvas); }
+.workspace-shell.sidebar-collapsed { --sidebar-width: 76px; }
+.workspace-shell .sidebar {
+  position: fixed; inset: 0 auto 0 0; z-index: 30;
+  width: var(--sidebar-width); height: 100dvh; min-height: 0;
+  display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
+  gap: 28px; padding: 22px 12px 16px; border: 0; border-right: 1px solid var(--line);
+  background: var(--sidebar-surface); color: var(--ink);
+}
+.workspace-shell .sidebar-heading { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+.workspace-shell .brand { font-size: 15px; letter-spacing: .06em; padding-left: 29px; }
+.workspace-shell .sidebar-toggle { display: grid; place-items: center; flex-shrink: 0; width: 32px; min-height: 36px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted); }
+.workspace-shell .sidebar-toggle:hover { background: var(--hover); color: var(--ink); }
+.workspace-shell .sidebar nav { display: flex; flex-direction: column; align-items: stretch; gap: 6px; width: 100%; }
+.workspace-shell .sidebar nav > button, .workspace-shell .nav-more > summary {
+  display: flex; flex-direction: row; align-items: center; justify-content: flex-start;
+  gap: 11px; min-height: 44px; width: 100%; padding: 10px 12px;
+  border: 0; border-radius: 8px; color: var(--muted); background: transparent;
+  font-size: 13px; font-weight: 500; line-height: 22px; letter-spacing: 0; text-transform: none;
+}
+.workspace-shell .sidebar nav > button > svg { display: block; flex-shrink: 0; }
+.workspace-shell .sidebar nav > button.active::after { content: none; }
+.workspace-shell .sidebar nav > button.active, .workspace-shell .nav-more.active-tools > summary {
+  background: var(--selected); color: var(--ink); box-shadow: none; border: 0;
+}
+.workspace-shell .sidebar nav > button:hover, .workspace-shell .nav-more > summary:hover { background: var(--hover); color: var(--ink); border: 0; }
+.workspace-shell .nav-more .history-tools-menu { inset: 0 auto auto calc(100% + 18px); width: 220px; background: var(--surface); border: 1px solid var(--line); }
+.workspace-shell .sidebar .history-tools-menu button { letter-spacing: 0; text-transform: none; font-size: 13px; border-radius: 6px; }
+.workspace-shell .sidebar .workspace-label { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin-top: auto; white-space: normal; }
+.workspace-shell .workspace-about { margin: 0; }
+.workspace-shell .workspace-about .demo-control { display: flex; align-items: center; gap: 10px; padding: 8px 12px; width: 100%; min-height: 40px; color: var(--muted); font-size: 12px; }
+.workspace-shell .workspace-about .demo-control > span { display: inline; }
+.appearance-control { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 12px; color: var(--muted); font-size: 12px; }
+.appearance-control > svg { flex-shrink: 0; }
+.appearance-control select { min-height: 36px; width: 100%; border: 1px solid var(--line-strong); border-radius: 6px; padding: 4px 8px; background: var(--surface); color: var(--ink); font: inherit; }
+.workspace-shell .workspace { margin-left: var(--sidebar-width); padding: 0 32px; }
+.workspace-shell main, .workspace-shell.orbit-home main.home-page { max-width: 1320px; padding: 30px 0 64px; }
+.workspace-shell .page-header { align-items: center; gap: 16px; margin-bottom: 24px; }
+.workspace-shell .page-header h1 { font-size: 28px; font-weight: 550; line-height: 36px; }
+.workspace-shell .orbit-hero h1 { font-size: 32px; line-height: 40px; }
+.workspace-shell .orbit-add { font-size: 13px; letter-spacing: 0; text-transform: none; border-radius: 8px; min-height: 44px; }
+.workspace-shell .orbit-telemetry .home-replay-controls label { font-size: 12px; letter-spacing: 0; text-transform: none; }
+.workspace-shell .orbit-telemetry .home-replay-controls input[type=date], .workspace-shell .orbit-telemetry .home-replay-controls select { min-height: 40px; font: 13px var(--font-body); border-radius: 6px; }
+.workspace-shell .orbit-telemetry .home-integrity-actions .secondary, .workspace-shell .orbit-telemetry .home-replay-controls .text-button { font-size: 12px; min-height: 40px; letter-spacing: 0; text-transform: none; }
+.workspace-shell .report-orbit-navigator { top: 28px; }
+.workspace-shell .report-reading-unit, .workspace-shell .report-reading-date { font-size: 12px; }
+.workspace-shell .orbit-satellite:not(.is-selected) .orbit-file-glyph { stroke: var(--orbit-muted); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.workspace-shell .orbit-satellite:not(.is-selected) .orbit-node-halo { stroke: var(--orbit-muted); }
+.workspace-shell .mobile-header { display: none; }
+.workspace-shell.sidebar-collapsed .sidebar-heading { justify-content: center; }
+.workspace-shell.sidebar-collapsed .sidebar-heading .brand, .workspace-shell.sidebar-collapsed .nav-label-desktop,
+.workspace-shell.sidebar-collapsed .nav-more > summary > span, .workspace-shell.sidebar-collapsed .workspace-label { display: none; }
+.workspace-shell.sidebar-collapsed .sidebar nav > button, .workspace-shell.sidebar-collapsed .nav-more > summary { justify-content: center; padding-inline: 10px; }
+@media (min-width: 768px) and (max-width: 1100px) {
+  .workspace-shell { --sidebar-width: 168px; }
+  .workspace-shell .workspace { padding-inline: 24px; }
+  .workspace-shell .sidebar { padding-inline: 8px; }
+  .workspace-shell .sidebar-heading .brand { font-size: 13px; letter-spacing: .02em; }
+  .workspace-shell .report-first-home .orbit-workspace { grid-template-columns: minmax(0, 1fr); }
+  .workspace-shell .report-orbit-navigator { position: static; }
+}
+@media (max-width: 767px) {
+  .workspace-shell .mobile-header { display: flex; align-items: center; justify-content: space-between; min-height: 64px; padding: 8px 16px; background: var(--sidebar-surface); z-index: 25; }
+  .workspace-shell .mobile-header .brand { font-size: 15px; letter-spacing: .06em; }
+  .mobile-utilities { display: flex; align-items: center; gap: 8px; }
+  .mobile-utilities .appearance-control { padding: 0; }
+  .mobile-utilities .appearance-control > span, .mobile-utilities .appearance-control > svg, .mobile-utilities .demo-control > span { display: none; }
+  .mobile-utilities .appearance-control select { width: 80px; min-height: 40px; }
+  .mobile-utilities .demo-control { width: 40px; min-height: 40px; padding: 8px; }
+  .workspace-shell .sidebar { inset: auto 0 0; width: 100%; height: auto; min-height: 64px; display: block; padding: 4px 16px calc(4px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); }
+  .workspace-shell .sidebar .sidebar-heading, .workspace-shell .sidebar .workspace-label { display: none; }
+  .workspace-shell .sidebar nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .workspace-shell .sidebar nav > button, .workspace-shell .sidebar .nav-more > summary { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; padding: 4px; border: 0; font-size: 12px; line-height: 18px; }
+  .workspace-shell.sidebar-collapsed .nav-more > summary > span { display: inline; }
+  .workspace-shell .sidebar .nav-more .history-tools-menu { inset: auto 0 calc(100% + 12px) auto; width: 240px; max-height: calc(100dvh - 150px); overflow-y: auto; }
+  .workspace-shell .workspace { margin: 0; padding: 0 16px; }
+  .workspace-shell main, .workspace-shell.orbit-home main.home-page { padding: 24px 0 calc(92px + env(safe-area-inset-bottom)); }
+  .workspace-shell .page-header h1, .workspace-shell .orbit-hero h1 { font-size: 27px; line-height: 34px; }
+  .workspace-shell .report-orbit-navigator { position: static; }
+}
+@media (max-width: 600px) {
+  .workspace-shell .report-reading-choices { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .workspace-shell .report-reading-choice {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .7fr);
+    grid-template-rows: auto auto; gap: 4px 12px; align-items: start;
+    min-height: 84px; padding: 12px 14px;
+  }
+  .workspace-shell .report-reading-name { grid-column: 1; grid-row: 1; min-height: 0; font-size: 13px; }
+  .workspace-shell .report-reading-date { grid-column: 1; grid-row: 2; margin: 0; }
+  .workspace-shell .report-reading-number { grid-column: 2; grid-row: 1; justify-self: end; text-align: right; font-size: 24px; line-height: 1.15; overflow-wrap: anywhere; }
+  .workspace-shell .report-reading-unit { grid-column: 2; grid-row: 2; justify-self: end; text-align: right; overflow-wrap: anywhere; }
+  .workspace-shell .orbit-add { white-space: nowrap; flex-shrink: 0; }
+}

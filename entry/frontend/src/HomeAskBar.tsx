@@ -9,7 +9,7 @@ export default function HomeAskBar({view}:{view:HistoryView}) {
   const [submitted,setSubmitted]=useState<string|null>(null);
   return <>
     <form className="home-ask-bar" onSubmit={event=>{event.preventDefault();if(question.trim())setSubmitted(question.trim());}}>
-      <label htmlFor="home-history-question">Ask your history</label>
+      <label htmlFor="home-history-question">Ask about your medical history</label>
       <div><input id="home-history-question" name="history-question" autoComplete="off" maxLength={2000}
         placeholder="When was my last blood pressure reading?" value={question} onChange={event=>setQuestion(event.target.value)} />
         <button type="submit" aria-label="Ask your history"><ArrowUp size={20} aria-hidden="true" /></button></div>

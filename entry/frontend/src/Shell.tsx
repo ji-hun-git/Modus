@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import {
-  ArrowUpRight,
   CalendarDays,
   Files,
   GitCompareArrows,
@@ -12,8 +11,13 @@ import {
   MessageCircle,
   Plus,
   FileText,
+  PanelLeftClose,
+  PanelLeftOpen,
+  SunMoon,
 } from "lucide-react";
-import { Brand, Modal } from "./ui";
+import { Brand } from "./ui";
+import AboutWorkspaceDialog from "./AboutWorkspaceDialog";
+import useAppearance, { type Appearance } from "./useAppearance";
 
 export type Page =
   | "Home"
@@ -27,9 +31,9 @@ export type Page =
 const pages = [
   { page: "Home" as const, label: "Home", icon: House },
   { page: "Timeline" as const, label: "Records", icon: CalendarDays },
-  { page: "Ask" as const, label: "Ask", icon: MessageCircle },
 ];
 const moreTools = [
+  { page: "Ask" as const, label: "Ask", icon: MessageCircle },
   { page: "Brief" as const, label: "Brief", icon: FileText },
   { page: "Measurements" as const, label: "Trends", icon: ChartNoAxesCombined },
   { page: "Records" as const, label: "Documents", icon: Files },
@@ -65,7 +69,21 @@ export default function Shell({
   children: React.ReactNode;
 }) {
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [appearance, setAppearance] = useAppearance();
   const toolsRef = useRef<HTMLDetailsElement>(null);
+  const appearanceControl = (
+    <label className="appearance-control">
+      <SunMoon size={16} aria-hidden="true" />
+      <span>Appearance</span>
+      <select aria-label="Appearance" value={appearance}
+        onChange={(event) => setAppearance(event.target.value as Appearance)}>
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+        <option value="system">System</option>
+      </select>
+    </label>
+  );
   const demoControl = (
     <button
       className="demo-control"
@@ -96,7 +114,7 @@ export default function Shell({
           event.currentTarget.open = false;
       }}
     >
-      <summary aria-label="More: Brief, Trends, Documents, Replay, Changes">
+      <summary aria-label="More: Ask, Brief, Trends, Documents, Replay, Changes">
         <MoreHorizontal size={18} strokeWidth={1.5} aria-hidden="true" focusable="false" />
         <span>More</span>
       </summary>
@@ -122,20 +140,30 @@ export default function Shell({
   );
   return (
     <>
-      <div className={`app-layout mission-shell${page === "Home" || page === "Ask" ? " orbit-theme" : ""}${page === "Home" ? " orbit-home" : page === "Ask" ? " orbit-ask" : ""}`}>
+      <div className={`app-layout mission-shell workspace-shell orbit-theme${sidebarCollapsed ? " sidebar-collapsed" : ""}${page === "Home" ? " orbit-home" : page === "Ask" ? " orbit-ask" : ""}`}>
         <a className="skip-link" href="#main-content">
           Skip to main content
         </a>
         <header className="mobile-header">
           <Brand />
+          <div className="mobile-utilities">{appearanceControl}{demoControl}</div>
         </header>
         <aside className="sidebar">
-          <Brand />
+          <div className="sidebar-heading">
+            <Brand />
+            <button className="sidebar-toggle" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-expanded={!sidebarCollapsed}>
+              {sidebarCollapsed ? <PanelLeftOpen size={18} aria-hidden="true" /> : <PanelLeftClose size={18} aria-hidden="true" />}
+            </button>
+          </div>
           <nav aria-label="Main navigation">
             {pages.map(({ page: destination, label, icon: Icon }) => (
               <button
                 key={label}
                 aria-label={label}
+                title={sidebarCollapsed ? label : undefined}
                 aria-current={page === destination ? "page" : undefined}
                 className={page === destination ? "active" : ""}
                 onClick={() => {
@@ -148,9 +176,10 @@ export default function Shell({
                 <span className="nav-label-mobile">{label}</span>
               </button>
             ))}
+            {moreControl}
           </nav>
           <div className="workspace-label">
-            {moreControl}
+            {appearanceControl}
             <span className="workspace-about">{demoControl}</span>
           </div>
         </aside>
@@ -175,67 +204,7 @@ export default function Shell({
           </main>
         </div>
       </div>
-      {aboutOpen && (
-        <Modal title="About this demo" onClose={() => setAboutOpen(false)}>
-          <p className="modal-copy">
-            This workspace contains invented records for exploring how Modus
-            keeps measurements connected to their sources.
-          </p>
-          <div className="provenance-sections">
-            <section>
-              <h3>An authored example</h3>
-              <p>
-                Alex’s starting history was written for this project: three
-                documents with nine measurements across 2018, 2021, and 2026. It
-                is not a real person’s history and was not generated by Synthea.
-                Date filters and reviewed imports change what you see.
-              </p>
-            </section>
-            <section>
-              <h3>Separate research data</h3>
-              <p>
-                The wider project includes histories generated with Synthea for
-                research and software development. Those generated histories are
-                separate from this authored profile. Prepared training examples
-                and evaluation cases are separate development materials; no
-                trained Modus model or clinical validation is claimed. No real
-                personal health records are used.
-              </p>
-            </section>
-            <section>
-              <h3>How documents are read</h3>
-              <p>
-                Local text extraction runs without a model. Meta extraction is
-                an explicit choice when configured and sends the selected
-                document to Meta. Every extracted draft requires your review
-                before it is added.
-              </p>
-            </section>
-            <section>
-              <h3>What the dates mean</h3>
-              <p>
-                Starting records use authored availability dates. New records
-                become available when your reviewed measurements are saved. A
-                measurement date, report issue time, and availability time
-                remain separate; unknown report times stay unknown.
-              </p>
-            </section>
-          </div>
-          <p className="modal-copy">
-            <a href="/LOINC_short_license.txt" target="_blank" rel="noreferrer">
-              Terminology license notice
-            </a>
-          </p>
-          <div className="about-footer">
-            <span>
-              Record review and replay · No health interpretation or advice
-            </span>
-            <button className="text-button" onClick={() => setAboutOpen(false)}>
-              Back to workspace <ArrowUpRight size={14} strokeWidth={1.5} aria-hidden="true" focusable="false" />
-            </button>
-          </div>
-        </Modal>
-      )}
+      {aboutOpen && <AboutWorkspaceDialog onClose={() => setAboutOpen(false)} />}
     </>
   );
 }

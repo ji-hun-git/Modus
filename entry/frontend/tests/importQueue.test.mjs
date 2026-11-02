@@ -298,6 +298,7 @@ test("generic review submits edited recorded fields without source or model auth
       kind: "vaccination",
       label: "Vaccine",
       value: "Edited as printed",
+      reference_range:null, specimen:null, test_method:null,
       unit: null,
       occurred_on: "2010",
       facility: "Example clinic",
@@ -433,4 +434,17 @@ test("switching to another queued file does not replace the first reviewed rows"
   assert.equal(updated[0].rows[0].valueText, "78");
   assert.equal(updated[0].rows[1].keep, false);
   assert.equal(updated[1].rows[0].valueText, "82");
+});
+
+
+test("lab context survives reviewed payloads and exact uncertain retries", () => {
+ const generic=draft({observations:[],facts:[{id:'lab',kind:'measurement',label:'Novel assay',value:'4.00',unit:'mg/L',occurred_on:'2025-01-01',facility:null,reference_range:'2–6 mg/L',specimen:'Serum',test_method:'Method A',source_quote:'original'}]});
+ const item=queue.acceptDraft(selected(),generic);
+ const pending=queue.beginFactCommit(item);
+ assert.equal(pending.factAttempt[0].reference_range,'2–6 mg/L');
+ assert.equal(pending.factAttempt[0].specimen,'Serum');
+ assert.equal(pending.factAttempt[0].test_method,'Method A');
+ assert.equal(pending.factAttempt[0].source_quote,undefined);
+ item.factRows[0].test_method='later edit';
+ assert.equal(pending.factAttempt[0].test_method,'Method A');
 });

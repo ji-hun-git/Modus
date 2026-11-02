@@ -3,6 +3,7 @@ import math
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from .record_date_evidence import ProposedDateEvidence
 
 DOCUMENT_KINDS = {
     'lab_report': ('measurement', 'recorded_text'),
@@ -25,6 +26,10 @@ class ProposedField(BaseModel):
     value: str = Field(min_length=1, max_length=800)
     unit: str | None = Field(max_length=80)
     occurred_on: str | None = Field(max_length=100)
+    date_evidence: ProposedDateEvidence | None = None
+    reference_range: str | None = Field(default=None, max_length=400)
+    specimen: str | None = Field(default=None, max_length=200)
+    test_method: str | None = Field(default=None, max_length=200)
     source_quote: str = Field(min_length=1, max_length=800)
     page: int = Field(ge=1, le=12)
     bbox: list[float] | None = Field(min_length=4, max_length=4)
@@ -38,6 +43,10 @@ class ProposedField(BaseModel):
             raise ValueError('Use null for unknown units')
         if self.occurred_on is not None and not self.occurred_on.strip():
             raise ValueError('Use null for unknown dates')
+        if self.date_evidence is not None and self.date_evidence.value != self.occurred_on:
+            raise ValueError('The separate date passage must support the proposed date')
+        if any(v is not None and not v.strip() for v in (self.reference_range, self.specimen, self.test_method)):
+            raise ValueError('Use null for unknown lab context')
         if self.bbox is not None:
             x0, y0, x1, y1 = self.bbox
             if not all(math.isfinite(v) and 0 <= v <= 1 for v in self.bbox) or x0 >= x1 or y0 >= y1:
@@ -91,6 +100,9 @@ def _object(properties):
 def extraction_schema():
     """Seven nested alternatives, without unsupported top-level anyOf/oneOf."""
     properties = ProposedField.model_json_schema()['properties']
+    # Inline the nested object: no unresolved $defs references in the API schema.
+    properties['date_evidence'] = {'anyOf': [
+        _object(ProposedDateEvidence.model_json_schema()['properties']), {'type': 'null'}]}
     alternatives = []
     for document_type, kinds in DOCUMENT_KINDS.items():
         fields = {**properties, 'kind': {'type': 'string', 'enum': list(kinds)}}

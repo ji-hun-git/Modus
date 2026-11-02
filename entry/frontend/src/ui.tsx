@@ -41,12 +41,14 @@ export function Modal({
   onClose,
   busy = false,
   wide = false,
+  placement = "center",
 }: {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
   busy?: boolean;
   wide?: boolean;
+  placement?: "center" | "inspector";
 }) {
   const ref = useRef<HTMLElement>(null);
   const latest = useRef({ busy, onClose });
@@ -114,14 +116,14 @@ export function Modal({
     }
   });
   return createPortal(
-    <div className="modal-backdrop" onClick={() => !busy && onClose()}>
+    <div className={`modal-backdrop${placement === "inspector" ? " inspector-backdrop" : ""}`} onClick={() => !busy && onClose()}>
       <section
         ref={ref}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={"modal " + (wide ? "modal-wide" : "")}
+        className={"modal " + (wide ? "modal-wide " : "") + (placement === "inspector" ? "evidence-inspector" : "")}
         onClick={(e) => e.stopPropagation()}
       >
         <header className="modal-heading">

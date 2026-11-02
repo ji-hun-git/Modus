@@ -48,6 +48,21 @@ def request(ids, **updates):
     return BriefRequest.model_validate({'known_at': NOW, 'selected_fact_ids': ids, **updates})
 
 
+def test_date_passage_is_preserved_and_escaped_in_reviewed_brief(memory):
+    store, _ = memory
+    anchor = {'value': '2020-04-05', 'source_quote': 'Collected: 2020-04-05 <script>untrusted</script>',
+              'page': 2, 'bbox': None, 'check': {'status': 'matched_text', 'issues': []},
+              'relation': 'requires_review'}
+    receipt = commit(store, [fact(source_quote='Example reading 12.30 example-unit', date_evidence=anchor)])
+    brief = build_brief(store, request(receipt['fact_ids']))
+    assert brief['entries'][0]['date_evidence'] == anchor
+    reviewed = validate_export(store, export_request(brief, receipt['fact_ids']))
+    html = render_html(reviewed)
+    assert 'Date passage in original' in html and 'page 2' in html
+    assert '&lt;script&gt;untrusted&lt;/script&gt;' in html
+    assert '<script>untrusted</script>' not in html
+
+
 def export_request(preview, ids, **updates):
     return BriefExportRequest.model_validate({'as_of': preview['scope']['as_of'],
         'known_at': preview['scope']['known_at'], 'selected_fact_ids': ids,

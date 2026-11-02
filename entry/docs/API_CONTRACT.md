@@ -1,5 +1,57 @@
 # Modus Records API v1
 
+## Reviewed two-report export — 2 November 2026 (T28)
+
+`POST /api/briefs/report-preview` accepts `{snapshot_id,selected_source_id,
+comparison_source_id,title?,owner_note?}`. It compiles the two-report summary and
+all its visible facts through the existing brief builder, including related
+conflict records from other files. Two reports must fit the 120-record summary
+limit; the brief including conflict companions must also fit 120 records and
+2 MB. Nothing is silently truncated. The existing manual 80-selection brief
+request remains unchanged.
+
+The response is `modus-record-brief-v1` with an additive `comparison` object:
+the exact summary metadata, rows, claims, policy, counts and limitations, without
+duplicating `history_evidence`. The preview digest binds this comparison,
+included evidence, both time bounds, title and owner note.
+
+`POST /api/briefs/report-export` takes the same selection plus `preview_id`,
+literal `reviewed:true` and `format:"html"|"json"`. A changed selection/content,
+expired capture or record-store revision returns 409 and requires a fresh
+capture/review. A fresh historical capture remains usable after corrections;
+it still displays the original historical values. Extra client claims, scope
+overrides and nonliteral confirmation are rejected with 422.
+
+HTML has internal citations from each comparison to its recorded evidence and
+source list, with escaped original passages and a restrictive CSP. JSON retains
+the structured claims/proofs. Neither route calls a model, changes records,
+embeds original files or makes clinical interpretations. Sources and excerpts
+hidden by date scope remain hidden in both formats. Downloads use `no-store`.
+
+## Separate date evidence — 2 November 2026 (T26)
+
+Meta extraction proposals may include nullable `date_evidence:{value,source_quote,page,bbox}`.
+`value` must exactly equal the proposed `occurred_on`. The date passage stays separate
+from the result's `source_quote`; both use original 1-based pages from the supplied
+page group. Malformed geometry, forged check fields, inconsistent dates and pages
+outside that group reject the extraction. The model is instructed to distinguish
+collection/measurement dates from issue/print/birth dates and leave ambiguous linkage unknown.
+
+The server adds `check:{status,issues}` and `relation:"requires_review"` to the
+date evidence. Exact text matching only verifies the value and passage on that
+page; it never proves the date belongs to a particular row. OCR/images remain
+without independent text support. `local_support.status` may now be
+`review_required`, with a specific date-link review reason. Same-model verification
+cannot remove this requirement. The existing explicit reviewed-fact transaction
+is unchanged; there is no extra confirmation checkbox.
+
+`date_evidence` is server-owned provenance. Commit and correction request schemas
+still reject it. Saved facts, Ask evidence, revisions, comparison proofs and Brief
+JSON retain it; HTML export and source inspectors show the separate passage. A
+date correction preserves the original date proposal. Any view withholding the
+source excerpt also withholds `date_evidence`, including revision views. Existing
+records without it remain readable and are not rewritten or silently re-extracted.
+
 ## Conversation continuations — 2 November 2026
 
 `POST /api/history/chat` adds optional `continuation_token` (strict string, 1–100 characters). A supported single latest-record answer may return `continuation:{token,subject,before_date,expires_in_seconds,suggested_question}`. “What about the one before that?” and a small set of exact equivalent follow-ups use the stored original query and a strict earlier-date boundary. This navigates dated groups, not an arbitrary order within a day. Same-day ties and incomplete-date limitations remain visible.
@@ -196,4 +248,26 @@ The response is `{format:"modus-record-brief-v1",bundle_id,preview_id,title,owne
 `POST /api/briefs/export` takes the same fields plus `preview_id`, `reviewed:true` (actual boolean) and `format:"html"|"json"` (default html). It recomputes the brief and compares the canonical SHA-256 binding of title/note, resolved time bounds, selected entries/quotes, sources, conflicts, warnings and algorithm bundle. A changed brief returns 409 and requires a new preview/review. Capture timestamps and volatile scope IDs are excluded so a later download of unchanged, identically scoped content succeeds. This digest is content integrity, not authentication or proof of clinical accuracy. Export adds `reviewed:true` and `reviewed_at`; neither preview nor export writes records or persists a brief.
 
 HTML is a standalone readable document with print styles, escaped source text, internal record/source citation anchors and excerpts. It contains no scripts, remote assets, active external links or original files. Browser Print may save it as PDF; the server does not generate a PDF. JSON retains the structured brief. Downloads use attachment disposition, no-store, nosniff and a restrictive CSP. Both formats retain selected-history limits, historical-prescription attribution and unresolved differences. A brief stays local until the owner separately chooses to share it. No sending or third-party sharing endpoint is added.
+
+# Lab context and checkup comparison — 2 November 2026
+
+Generic reviewed facts and proposed extraction fields add nullable verbatim strings: `reference_range` (maximum 400 characters), `specimen` and `test_method` (200 each). Null means unknown; empty strings are rejected. CSV accepts these exact column names. Model proposals must support context in the same quoted passage. No reference ranges are inferred from external thresholds.
+
+Review/commit and amendment clients must include context keys when the draft/current fact has context; omission is rejected to prevent silent loss. Explicit null is a reviewed removal. Corrections remain append-only and preserve original bytes, source quote and `source_proposal`. Legacy missing optional fields project as null; legacy receipt hashes exclude null optional context. When a temporal projection withholds a fact's value, these fields are also null.
+
+`GET /api/history/page` accepts optional `compare_fact_id` (maximum 160 characters). The fact must be a visible, non-withheld measurement within the captured scope. Response adds `checkup_comparison`: `current`, `previous` (up to 50 facts), `previous_count`, `difference` (decimal string or null), `unit`, `notes`, `sources`, and `basis`. Existing snapshot, event-date and availability rules apply. Comparison uses the full captured view before paging, so changing page size does not change its answer.
+
+Tests match by an existing exact medical alias or normalized recorded label. Previous means the latest full date strictly before the selected date. Same-day prior ties remain separate; incomplete dates and multiple results on the selected date are disclosed. Numeric difference is selected minus previous, and is withheld for ties, date uncertainty, qualified/non-numeric values, absent/different units/specimens/methods or other comparison notes. Range/facility differences produce notes. This is recorded-value arithmetic, not a clinical comparability assessment; no conversion, diagnosis or range classification occurs. Sources retain normal scoped-original access controls.
+
+# Two-report summary — 2 November 2026
+
+`POST /api/history/report-summary` is a deterministic, read-only operation. Body: `snapshot_id` (32-character token returned by `/history/page`), `selected_source_id`, `comparison_source_id`. Exactly two distinct visible sources are required. Extra fields, model-written facts, free-form claims and caller-supplied scope overrides are rejected. An expired capture returns 409; invalid selections or resource limits return 422. The source picker continues to use `/history/page?section=sources&snapshot_id=...&limit=12&offset=...` (expired page token: 410).
+
+The response format is `modus-report-summary-v1`: original snapshot/scope, policy version, both source identities, grouped rows, checked claims, complete eligible evidence and counts/limitations. Each row retains every matching fact ID on both sides. Fixed exact-name aliases can group measurements; qualifiers and record kinds remain binding. Multiple matching results in either report are not arbitrarily paired. One-sided entries do not establish absent testing or care.
+
+Numerical differences require unique, fully dated, chronologically ordered measurements, supported test-name matching, exact units/specimen/method, matching printed range/facility context, unqualified finite numbers and no same-date ties or unknown-date ordering ambiguity in the captured history. Generic glucose collection context remains unresolved. No conversion or clinical-equivalence claim is made. Reason codes and text explain every withheld difference. The existing per-test `checkup_comparison` now adds `status`, `policy_version` and `reason_codes` using the same policy.
+
+Claims bind exact captured facts, revisions, source IDs/excerpts/page/geometry, saved values/context and scope. The verifier regenerates record statements and independently recalculates proposed differences from the captured view. It reports `SUPPORTED`, `CONTRADICTED`, `INSUFFICIENT_EVIDENCE` or `OUT_OF_SCOPE`. A source ID or content hash alone cannot establish support. Missing/withheld excerpts suppress generated claims and differences. Reviewed corrections may differ from the original excerpt; support means consistency with the reviewed version, not a claim that the original printed the corrected value or that the medical finding is true.
+
+Limits: 120 records total across both source files before filtering and 2 MB serialized response. Limits reject the complete request rather than silently truncate. UI renders ten groups at a time, hides stale results on selection changes, rejects mismatched response identities, and invalidates the displayed summary after a confirmed correction. Existing captured views remain reproducible; opening updated history creates the revised comparison. No model call, export, save, appointment action or clinical interpretation is introduced by this endpoint.
 

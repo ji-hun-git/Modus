@@ -4,6 +4,8 @@ import useHistoryView from './useHistoryView';
 import HomeRecordSeries from './HomeRecordSeries';
 import OverviewRecordDetails from './OverviewRecordDetails';
 import HistoryPager from './HistoryPager';
+import MedicalTestReference from './MedicalTestReference';
+import CheckupComparison from './CheckupComparison';
 import { friendlyRecordName } from './HomeReportReadings';
 import { recordedDate } from './sourceDisplay';
 import { unitLabel } from './recordPresentation.mjs';
@@ -14,6 +16,7 @@ export default function HomeRecordJourney({parent,anchor,onOpenCurrent}: {
   const history=useHistoryView(parent.scope,parent.scope.as_of===null,{
     snapshot_id:parent.page?.snapshot_id,kind:anchor.kind,label:anchor.label,
     through:anchor.date || undefined,limit:50,
+    compare_fact_id:anchor.kind==='measurement'?anchor.id:undefined,
   });
   const [inspected,setInspected]=useState<HistoryFact|null>(null);
   const [selection,setSelection]=useState<{title:string;facts:HistoryFact[]}|null>(null);
@@ -25,8 +28,10 @@ export default function HomeRecordJourney({parent,anchor,onOpenCurrent}: {
       <h3>{friendlyRecordName(anchor.label)}</h3></div>
       <button type="button" className="text-button" onClick={onOpenCurrent}>Open original evidence</button>
     </header>
+    <MedicalTestReference fact={anchor} />
     {history.error ? <div role="alert"><p>{history.error}</p><button onClick={history.refresh}>Reload history</button></div>
       : !view ? <p role="status">Finding your earlier records…</p> : <>
+        <CheckupComparison view={view} />
         <div className="report-journey-meta"><span>{view.page?.total ?? rows.length} matching {(view.page?.total ?? rows.length)===1?'record':'records'}
           {anchor.date ? ` through ${recordedDate(anchor)}` : ' · date not fully recorded in this report'}</span>
           <span>{anchor.kind==='measurement'?'Select a point for its source':'Open a record for its source'}</span></div>

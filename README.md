@@ -16,6 +16,7 @@ This is the bounded **record-integrity** entry for the Meta Global AI Developer 
 4. **Continue the question.** “What about the one before that?” returns the previous dated group for the same subject and captured history, including ties and date limitations.
 5. **Open the evidence.** Each finding opens its supporting saved record and original excerpt/file.
 6. **Correct and revisit.** Review an append-only correction, then ask the original question with updated records. Earlier availability views still show the earlier saved version.
+7. **Compare checkups and keep the evidence.** Choose two reports, inspect recorded differences and their source passages, then explicitly review and download a printable HTML or structured JSON summary. Related conflicting records stay included.
 
 ![Report-first Home with visible readings, history and the file orbit](entry/demo/home-report-first.png)
 
@@ -33,6 +34,9 @@ Home now exposes up to four readings, familiar medical names, the selected readi
 | Bounded agent | Meta can request allowlisted reads and select exact tool-produced claims. It cannot write records, execute SQL/shell or browse arbitrary URLs. |
 | Safe follow-ups | Short-lived opaque context binds the original query, date boundary and availability. Expired or changed context asks for a full question instead of guessing. |
 | Bounded browsing | Pages and source selectors render a limited window; retrieval still searches the captured history. |
+| Lab context | Printed reference ranges, specimen and test method stay attached to each result. Uncertain or incompatible context withholds numerical comparisons. |
+| Separate date passages | A header date can retain its own page/quote without changing the result excerpt. Text matching does not establish date-to-result association; review remains required. |
+| Reviewed comparison export | Both report identities, time bounds, claims and source evidence are bound to the reviewed preview. Corrections or expired captures require a new review. |
 
 Eight kinds are supported: measurements, visits, recorded diagnoses, procedures, prescriptions, vaccinations, imaging report text and other recorded text. Measurement names are not restricted to three metrics. Naming retrieval includes 24 measurement concepts and five additional record topics; it is controlled terminology matching, not a neural semantic model or a comprehensive medical ontology.
 
@@ -40,7 +44,7 @@ Eight kinds are supported: measurements, visits, recorded diagnoses, procedures,
 
 Muse Spark (`muse-spark-1.3`) is the only model family in the product path: document extraction/checking and bounded factual investigation. Whole-report reading groups up to 12 pages into extract/check passes and exposes incomplete processing. Deterministic parsing, calculations, follow-up navigation and the current instruction guard are ordinary software, explicitly labelled when no model is called.
 
-Earlier live image/PDF extraction and agent calls are documented in the repository. **The latest whole-history and conversation changes are verified offline, not newly qualified against live Muse.** SAM source-region highlights and hosted Guard are not demonstrated product capabilities. No SOTA or clinical-validation claim is made.
+Two authored service sessions on 2 November made **10 successful actual Muse calls** for PDF/image extraction, verification and history investigation; estimated combined cost for those sessions was **$0.05315**. A follow-up two-page PDF preserved collection-date evidence on page 1 separately from result evidence on page 2. These are narrow service probes, not independently labelled accuracy scores. The new comparison-export path is verified offline and uses no model. SAM source-region highlights and hosted Guard are not demonstrated product capabilities. [Current evidence and limitations](entry/docs/SERVICE_UPDATE_2026-11-02.md).
 
 Modus runs entirely on Meta models when model execution is selected. Its isolated evaluation uses a cross-provider judge panel (Meta Muse, Anthropic Claude, OpenAI) to avoid single-model self-preference. Earlier evaluation results remain version-specific; small AI-authored labels and unmeasured human agreement limit their conclusions. [Historical scoreboard](SCOREBOARD.md).
 
@@ -51,11 +55,14 @@ Requires Python 3.11+ and Node.js 20.19+ or 22.12+.
 ```sh
 python scripts/setup_entry.py
 python scripts/check_service.py
+python scripts/serve_service.py --port 8011
 ```
 
 `check_service.py` runs selected service regressions, frontend tests and the build with credentials removed, external networking blocked in backend checks, and evaluation/held-out access forbidden. Logs and source hashes go to ignored `release/service-check/`. CI runs this check on Windows and Ubuntu.
 
-This check **does not mint a final release gate**. For a full local release qualification, the existing commands remain:
+Open **http://127.0.0.1:8011/**. This launcher is a **checked offline development preview**: it verifies both source and compiled frontend hashes, removes model credentials, blocks external network access and uses a local ignored database. It does not read evaluation files or accept stale check results.
+
+This check **does not mint a final release gate**. For a separately authorized full local release qualification, the existing commands remain:
 
 ```sh
 python scripts/check_entry.py

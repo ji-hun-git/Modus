@@ -11,6 +11,14 @@ export const factKindLabels = {
   recorded_text: "Other recorded text",
 };
 export type FactKind = keyof typeof factKindLabels;
+export type DateEvidence = {
+  value: string;
+  source_quote: string;
+  page: number;
+  bbox: number[] | null;
+  check: { status: "matched_text" | "mismatch" | "unavailable"; issues: string[] };
+  relation: "requires_review";
+};
 export type ReviewedFact = {
   id: string;
   kind: FactKind;
@@ -19,11 +27,15 @@ export type ReviewedFact = {
   unit: string | null;
   occurred_on: string | null;
   facility: string | null;
+  reference_range?: string | null;
+  specimen?: string | null;
+  test_method?: string | null;
 };
 export type DraftFact = ReviewedFact & {
   source_quote: string;
   page: number | null;
   bbox?: number[] | null;
+  date_evidence?: DateEvidence | null;
 };
 export type FactReviewRow = DraftFact & { keep: boolean };
 export type HistoryFact = Omit<DraftFact, "source_quote" | "value"> & {
@@ -51,6 +63,8 @@ export type HistoryFact = Omit<DraftFact, "source_quote" | "value"> & {
   } | null;
 };
 export type HistoryView = {
+  checkup_comparison?: { current:HistoryFact; previous:HistoryFact[]; previous_count:number;
+    difference:string|null; unit:string|null; notes:string[]; basis:string; sources:PagedSource[] };
   retrieval?: import('./TerminologyDetails').RetrievalInfo | null;
   page?: { snapshot_id: string; section: string; offset: number; limit: number; returned: number; total: number; matched_sources: number; next_offset: number | null; previous_offset: number | null };
   fields?: { kind: FactKind; label: string; count: number }[];

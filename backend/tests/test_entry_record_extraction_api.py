@@ -1,6 +1,6 @@
 """Artificial model envelopes through the real HTTP review/commit boundary."""
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import importlib
 import json
 import os
@@ -84,6 +84,89 @@ def test_checks_are_visible_and_commit_remains_explicit(api):
     saved = next(row for row in store.observations() if row['id'] == reviewed[0]['id'])
     assert saved['value'] == 5.7 and saved['source_span'] == ROW['source_span']
     assert store.observations(known_at='2026-10-27T00:00:00Z') == before
+
+
+@pytest.mark.parametrize('issues, expected', [
+    (['occurred_on_not_in_quote'], 'The date is not included in this excerpt.'),
+    (['specimen_not_in_quote'], 'The specimen is not included in this excerpt.'),
+    (['quote_not_on_page'], 'This excerpt could not be located'),
+    (['numeric_qualifier_not_preserved'], 'A sign, limit or qualifier may be missing'),
+    (['unknown_check'], 'Some extracted details could not be matched'),
+])
+def test_review_explains_specific_evidence_gap_without_changing_proposal(api, issues, expected):
+    client, store, result = api
+    result['fields'][0]['local_support'] = {'status': 'mismatch', 'issues': issues}
+    original = deepcopy(result)
+    before = store.observations()
+    draft = preview(client)
+    reasons = draft['extraction_review']['facts'][0]['review_reasons']
+    assert any(expected in reason for reason in reasons)
+    assert store.draft(draft['id'])['extraction_proposal'] == original
+    assert store.observations() == before
+    assert draft['extraction_review']['review_required'] is True
+
+
+def test_separate_date_evidence_survives_commit_and_is_not_client_editable(api):
+    client, store, result = api
+    anchor = {'value': '2024-02-03', 'source_quote': 'Collected: 2024-02-03', 'page': 1,
+              'bbox': None, 'check': {'status': 'matched_text', 'issues': []}, 'relation': 'requires_review'}
+    result['fields'][0].update(date_evidence=anchor, source_quote='HbA1c 5.6 %',
+        local_support={'status': 'review_required', 'issues': ['date_link_requires_review']})
+    draft = preview(client)
+    assert draft['facts'][0]['date_evidence'] == anchor
+    assert 'separate passage' in draft['extraction_review']['facts'][0]['review_reasons'][0]
+    from modus.record_history_models import ReviewedFact
+    reviewed = {k: draft['facts'][0].get(k) for k in ReviewedFact.model_fields}
+    forged = client.post('/api/history/commit', json={'draft_id': draft['id'], 'synthetic_confirmed': True,
+        'reviewed_facts': [{**reviewed, 'date_evidence': {**anchor, 'value': '2099-01-01'}}]})
+    assert forged.status_code == 422
+    accepted = client.post('/api/history/commit', json={'draft_id': draft['id'], 'synthetic_confirmed': True,
+        'reviewed_facts': [reviewed]})
+    assert accepted.status_code == 200
+    view = client.get('/api/history/view').json()
+    saved = next(f for f in view['facts'] if f['source_id'] == draft['id'])
+    assert saved['date_evidence'] == anchor and saved['source_quote'] == 'HbA1c 5.6 %'
+    # The full anchor participates in structured proof identity.
+    from modus_entry.claim_verification import make_claim, verify_claim
+    claim = make_claim(view, [saved])
+    assert verify_claim(claim, view)['status'] == 'SUPPORTED'
+    claim['proofs'][0]['date_evidence']['page'] = True
+    assert verify_claim(claim, view)['status'] == 'CONTRADICTED'
+    original = client.get(f"/api/history/sources/{draft['id']}/original", params={'known_at': view['scope']['known_at']})
+    assert original.content == RAW
+    store.clock = lambda: NOW + timedelta(seconds=1)
+    correction = {'expected_revision_id': saved['revision_id'],
+        'corrected': {**{k: saved.get(k) for k in ReviewedFact.model_fields}, 'occurred_on': '2024-02-02'},
+        'reason': 'Authored correction scenario; preserve the originally proposed header date.'}
+    previewed = client.post('/api/history/amendments/preview', json=correction)
+    assert previewed.status_code == 200
+    receipt = client.post('/api/history/amendments/commit', json={**correction,
+        'preview_id': previewed.json()['preview_id'], 'reviewed': True})
+    assert receipt.status_code == 200
+    versions = client.get(f"/api/history/facts/{saved['id']}/revisions").json()['versions']
+    assert len(versions) == 2
+    assert [item['fact']['occurred_on'] for item in versions] == ['2024-02-03', '2024-02-02']
+    assert all(item['fact']['date_evidence'] == anchor for item in versions)
+    assert all(item['fact']['source_quote'] == 'HbA1c 5.6 %' for item in versions)
+
+
+def test_date_evidence_is_withheld_with_a_future_containing_original(api):
+    client, _, result = api
+    anchor = {'value': '2024-02-03', 'source_quote': 'Collected: 2024-02-03 DATE_ANCHOR_MARKER', 'page': 1,
+              'bbox': None, 'check': {'status': 'matched_text', 'issues': []}, 'relation': 'requires_review'}
+    result['fields'][0]['date_evidence'] = anchor
+    later = deepcopy(result['fields'][0])
+    later.update(id='field-2', occurred_on='2027-01-01', date_evidence=None)
+    result['fields'].append(later)
+    draft = preview(client)
+    from modus.record_history_models import ReviewedFact
+    rows = [{k: f.get(k) for k in ReviewedFact.model_fields} for f in draft['facts']]
+    assert client.post('/api/history/commit', json={'draft_id': draft['id'], 'synthetic_confirmed': True,
+        'reviewed_facts': rows}).status_code == 200
+    response = client.get('/api/history/view', params={'as_of': '2024-12-31'})
+    assert 'DATE_ANCHOR_MARKER' not in response.text
+    saved = next(f for f in response.json()['facts'] if f['source_id'] == draft['id'])
+    assert saved['date_evidence'] is None and saved['source_quote_withheld']
 
 
 def test_wider_fields_require_explicit_generic_review_before_commit(api):

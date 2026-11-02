@@ -187,7 +187,7 @@ export function beginFactCommit(item: QueueItem): QueueItem {
     error: "",
     factAttempt:
       item.factAttempt ||
-      kept.map(({ id, kind, label, value, unit, occurred_on, facility }) => ({
+      kept.map(({ id, kind, label, value, unit, occurred_on, facility, reference_range, specimen, test_method }) => ({
         id,
         kind,
         label,
@@ -195,6 +195,9 @@ export function beginFactCommit(item: QueueItem): QueueItem {
         unit,
         occurred_on,
         facility,
+        reference_range: reference_range ?? null,
+        specimen: specimen ?? null,
+        test_method: test_method ?? null,
       })),
   };
 }

@@ -118,6 +118,8 @@ def _project_history(state, as_of, cutoff, captured):
     facts, undated = [], []
     for original in all_facts:
         fact = deepcopy(original)
+        for key in ('reference_range', 'specimen', 'test_method'):
+            fact.setdefault(key, None)
         if as_of is not None and fact['date'] is not None and fact['date'] > as_of:
             continue
         source = sources[fact['source_id']]
@@ -125,10 +127,11 @@ def _project_history(state, as_of, cutoff, captured):
         fact['source_quote_withheld'] = not allowed
         fact['value_withheld'] = not allowed and (fact['date'] is None or fact['kind'] != 'measurement')
         if not allowed:
-            fact.update(source_quote=None, bbox=None)
+            fact.update(source_quote=None, bbox=None, date_evidence=None)
             fact.pop('source_proposal', None)
         if fact['value_withheld']:
             fact['value'] = None
+            fact.update(reference_range=None, specimen=None, test_method=None)
         fact['original_available'] = allowed and source['id'] in originals
         fact['numeric_value'] = numeric_value(fact['value']) if fact['kind'] == 'measurement' else None
         fact['normalization'] = normalize_recorded_value(fact['label'], fact['value'], fact['unit']) if fact['kind'] == 'measurement' and fact['value'] is not None else None

@@ -2751,6 +2751,151 @@
       "source": "entry/demo/home-report-first.png",
       "destination": "entry/demo/home-report-first.png",
       "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/MedicalTestReference.tsx",
+      "destination": "entry/frontend/src/MedicalTestReference.tsx",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/checkup_comparison.py",
+      "destination": "backend/modus_entry/checkup_comparison.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_lab_context.py",
+      "destination": "backend/tests/test_entry_lab_context.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/LabContext.tsx",
+      "destination": "entry/frontend/src/LabContext.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/CheckupComparison.tsx",
+      "destination": "entry/frontend/src/CheckupComparison.tsx",
+      "behavior": true
+    },
+    {
+      "source": "docs/T13_LAB_CONTEXT_2026-11-02.md",
+      "destination": "docs/T13_LAB_CONTEXT_2026-11-02.md",
+      "behavior": false
+    },
+    {
+      "source": "docs/design/CHECKUP_LAB_FOCUS.md",
+      "destination": "docs/design/CHECKUP_LAB_FOCUS.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/workspace-shell.css",
+      "destination": "entry/frontend/src/workspace-shell.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/useAppearance.ts",
+      "destination": "entry/frontend/src/useAppearance.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/AboutWorkspaceDialog.tsx",
+      "destination": "entry/frontend/src/AboutWorkspaceDialog.tsx",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/comparison_rules.py",
+      "destination": "backend/modus_entry/comparison_rules.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/claim_verification.py",
+      "destination": "backend/modus_entry/claim_verification.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/report_summary.py",
+      "destination": "backend/modus_entry/report_summary.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_report_summary.py",
+      "destination": "backend/tests/test_entry_report_summary.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ReportComparison.tsx",
+      "destination": "entry/frontend/src/ReportComparison.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ReportComparisonPicker.tsx",
+      "destination": "entry/frontend/src/ReportComparisonPicker.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ReportComparisonRows.tsx",
+      "destination": "entry/frontend/src/ReportComparisonRows.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/reportComparisonTypes.ts",
+      "destination": "entry/frontend/src/reportComparisonTypes.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/report-comparison.css",
+      "destination": "entry/frontend/src/report-comparison.css",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_date_evidence.py",
+      "destination": "backend/modus/record_date_evidence.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/RecordDateEvidence.tsx",
+      "destination": "entry/frontend/src/RecordDateEvidence.tsx",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/report_briefs.py",
+      "destination": "backend/modus_entry/report_briefs.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_report_briefs.py",
+      "destination": "backend/tests/test_entry_report_briefs.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/reportBriefTypes.ts",
+      "destination": "entry/frontend/src/reportBriefTypes.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ReportBriefReview.tsx",
+      "destination": "entry/frontend/src/ReportBriefReview.tsx",
+      "behavior": true
+    },
+    {
+      "source": "scripts/serve_service.py",
+      "destination": "scripts/serve_service.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_service_preview.py",
+      "destination": "backend/tests/test_service_preview.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/docs/SERVICE_UPDATE_2026-11-02.md",
+      "destination": "entry/docs/SERVICE_UPDATE_2026-11-02.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/report-comparison-export.jpg",
+      "destination": "entry/demo/report-comparison-export.jpg",
+      "behavior": false
     }
   ]
 }

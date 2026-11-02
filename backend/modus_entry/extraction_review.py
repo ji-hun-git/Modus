@@ -18,6 +18,36 @@ LABELS = {
 }
 
 
+def support_review_reasons(local):
+    """Describe the failed check without claiming the source itself is wrong."""
+    reasons = []
+    if local['status'] == 'mismatch':
+        names = {'label': 'name', 'value': 'value', 'unit': 'unit', 'occurred_on': 'date',
+                 'reference_range': 'reference range', 'specimen': 'specimen', 'test_method': 'test method'}
+        for issue in local.get('issues', []):
+            if issue == 'quote_not_on_page':
+                reasons.append('This excerpt could not be located in the text of the cited page. Check the original.')
+            elif issue == 'numeric_qualifier_not_preserved':
+                reasons.append('A sign, limit or qualifier may be missing from the result. Check the original value.')
+            elif issue.endswith('_not_in_quote') and issue[:-13] in names:
+                name = names[issue[:-13]]
+                reasons.append(f'The {name} is not included in this excerpt. Check it on the original report.')
+        if not reasons:
+            reasons.append('Some extracted details could not be matched to this excerpt. Check the original report.')
+    elif local['status'] == 'unavailable':
+        reasons.append('The page has no readable text to compare. Check the original image.')
+    if 'ocr_text_is_unverified' in local.get('issues', []):
+        reasons.append('This comparison uses a local transcription. Check the original image too.')
+    for issue, message in {
+        'date_link_requires_review': 'The date was found in a separate passage. Check that it belongs to this result.',
+        'date_evidence_mismatch': 'The separate date passage could not be matched. Check the original date and its connection to this result.',
+        'date_evidence_unavailable': 'The separate date passage has no independent text check. Check the original and its connection to this result.',
+    }.items():
+        if issue in local.get('issues', []):
+            reasons.append(message)
+    return reasons
+
+
 def review_draft(filename, raw, result):
     """Only called with the server-validated extraction envelope, never form JSON."""
     rows = result['observations']
@@ -33,14 +63,7 @@ def review_draft(filename, raw, result):
         }, 'observations': [], 'warnings': [], 'extraction_mode': 'meta'}
     facts = []
     for field in result['fields']:
-        issues = []
-        local = field['local_support']
-        if local['status'] == 'mismatch':
-            issues.append('Some details do not match the text on the cited page.')
-        elif local['status'] == 'unavailable':
-            issues.append('The page has no readable text to compare. Check the original image.')
-        if 'ocr_text_is_unverified' in local.get('issues', []):
-            issues.append('This comparison uses a local transcription. Check the original image too.')
+        issues = support_review_reasons(field['local_support'])
         verified = field['verification']['status']
         if verified == 'mismatch':
             issues.append('The second reading disagrees with this field.')
@@ -50,6 +73,7 @@ def review_draft(filename, raw, result):
             'id': field['id'], 'label': field['label'], 'value': field['value'],
             'unit': field['unit'], 'date': field['occurred_on'], 'page': field['page'],
             'source_quote': field['source_quote'], 'bbox': field['bbox'],
+            'date_evidence': field.get('date_evidence'),
             'model_confidence': field['model_confidence'], 'review_reasons': issues,
             'commit_supported': True,
         })

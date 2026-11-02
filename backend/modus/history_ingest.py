@@ -30,17 +30,18 @@ def empty_draft(filename, raw, mode='local-text'):
 
 
 def fact(label, value, *, kind='recorded_text', unit=None, occurred_on=None,
-         facility=None, quote, page=None, extractor='local-text'):
+         facility=None, reference_range=None, specimen=None, test_method=None, quote, page=None, extractor='local-text'):
     if kind not in KINDS:
         raise ValueError('Unsupported recorded fact kind')
     for text, limit in ((label, 200), (value, 800), (quote, 800)):
         if not isinstance(text, str) or not text.strip() or len(text) > limit:
             raise ValueError('A recorded field exceeds the draft limits')
-    for text, limit in ((unit, 80), (occurred_on, 100), (facility, 200)):
+    for text, limit in ((unit, 80), (occurred_on, 100), (facility, 200), (reference_range, 400), (specimen, 200), (test_method, 200)):
         if text is not None and (not isinstance(text, str) or not text.strip() or len(text) > limit):
             raise ValueError('Use a bounded value or leave the field unknown')
     return {'kind': kind, 'label': label, 'value': value, 'unit': unit,
-        'occurred_on': occurred_on, 'facility': facility, 'source_quote': quote,
+        'occurred_on': occurred_on, 'facility': facility, 'reference_range': reference_range,
+        'specimen': specimen, 'test_method': test_method, 'source_quote': quote,
         'page': page, 'bbox': None, 'model_confidence': None,
         'extractor': extractor, 'review_reasons': []}
 
@@ -84,7 +85,7 @@ def _csv_facts(raw):
     reader = csv.DictReader(stream)
     if reader.fieldnames and len(reader.fieldnames) != len(set(reader.fieldnames)):
         raise ValueError('CSV column names must be distinct')
-    known_columns = {'kind', 'label', 'metric', 'value', 'unit', 'occurred_on', 'date', 'facility', 'reported_at', 'available_at'}
+    known_columns = {'kind', 'label', 'metric', 'value', 'unit', 'occurred_on', 'date', 'facility', 'reported_at', 'available_at', 'reference_range', 'specimen', 'test_method'}
     if not reader.fieldnames or not {'value'} <= set(reader.fieldnames) or not {'label', 'metric'} & set(reader.fieldnames):
         # An unfamiliar table remains a document rather than a guessed panel.
         return _text_facts([{'page': None, 'text': text}], 'local-csv-text')
@@ -104,7 +105,9 @@ def _csv_facts(raw):
         facts.append(fact(row.get('label') or row.get('metric'), row['value'],
             kind=row.get('kind') or 'measurement', unit=row.get('unit') or None,
             occurred_on=row.get('occurred_on') or row.get('date') or None,
-            facility=row.get('facility') or None, quote=quote, extractor='local-csv'))
+            facility=row.get('facility') or None, reference_range=row.get('reference_range') or None,
+            specimen=row.get('specimen') or None, test_method=row.get('test_method') or None,
+            quote=quote, extractor='local-csv'))
         facts[-1]['reported_at_raw'] = row.get('reported_at') or None
         if len(facts) > MAX_FACTS:
             raise ValueError('Split this document into batches of at most 200 fields')

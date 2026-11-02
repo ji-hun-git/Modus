@@ -7,38 +7,63 @@
   min-width: 0;
 }
 
-.source-evidence-heading {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 20px;
+/* Source inspection preserves the visible workspace behind a focused sheet.
+   The existing Modal owns keyboard focus, nesting, Escape and restoration. */
+.modal-backdrop.inspector-backdrop {
+  justify-content: flex-end;
+  align-items: stretch;
+  padding: 12px;
+  background: rgb(0 0 0 / 24%);
+}
+.modal.evidence-inspector {
+  width: 540px;
+  max-height: calc(100dvh - 24px);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: -12px 0 36px rgb(0 0 0 / 14%);
+  animation: none;
+  scrollbar-gutter: stable;
+}
+.evidence-inspector > .modal-heading {
+  position: sticky;
+  top: -24px;
+  padding-block: 10px;
+  background: var(--surface);
+  z-index: 2;
+  border-bottom: 1px solid var(--line);
+}
+.evidence-inspector > .modal-heading h2 { font-size: 18px; }
+.evidence-inspector .source-cube-evidence { padding: 0; border: 0; background: transparent; }
+.source-evidence-origin { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+.source-evidence-origin > svg { flex-shrink: 0; margin-top: 4px; color: var(--muted); }
+.source-evidence-origin span { display: block; font-size: 12px; color: var(--muted); }
+.source-evidence-origin strong { display: block; font-size: 14px; font-weight: 550; overflow-wrap: anywhere; }
+.source-evidence-clocks { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; padding-block: 16px; margin: 0 0 12px; border-block: 1px solid var(--line); }
+.source-evidence-clocks dt { font-size: 12px; color: var(--muted); }
+.source-evidence-clocks dd { margin: 4px 0 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) {
+  .modal-backdrop.inspector-backdrop { padding: 0; }
+  .modal.evidence-inspector { width: 100%; max-height: 100dvh; border-radius: 0; padding: 20px; }
+  .evidence-inspector > .modal-heading { top: -20px; }
+  .source-evidence-clocks { grid-template-columns: 1fr; gap: 12px; }
 }
 
-.source-evidence-icon {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-  flex: 0 0 auto;
-  color: var(--muted);
-}
-
-.source-evidence-heading h3 {
-  margin: 0;
-  font-size: 19px;
-  font-weight: 550;
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-  letter-spacing: -0.3px;
-}
-
-.source-evidence-heading p {
+.source-evidence-picker > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 10px;
   font-size: 14px;
-  line-height: 1.6;
-  color: var(--muted);
-  margin: 5px 0 0;
+}
+.source-evidence-file-link {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.source-evidence-file-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
 }
 
 .source-evidence-facts {
@@ -131,11 +156,7 @@
 }
 
 .source-evidence-proof {
-  margin-top: 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--soft);
-  padding: 18px;
+  min-width: 0;
 }
 
 .source-evidence-result-heading {
@@ -145,9 +166,9 @@
   gap: 12px;
 }
 
-.source-evidence-result-heading h4 {
+.source-evidence-result-heading h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 550;
   overflow-wrap: anywhere;
 }
@@ -164,13 +185,6 @@
   line-height: 1.6;
   color: var(--muted);
   text-align: right;
-}
-
-.source-evidence-description {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.65;
-  margin: 12px 0 0;
 }
 
 .source-evidence-full-value {
@@ -190,13 +204,13 @@
 }
 
 .source-evidence-full-value > span {
-  display: block;
+  display: inline-block;
   font:
     14px/1.7 "SFMono-Regular",
     Consolas,
     monospace;
   color: var(--muted);
-  margin-top: 6px;
+  margin-left: 10px;
 }
 
 .source-evidence-proof-heading {
@@ -219,6 +233,7 @@
   line-height: 1.8;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  max-width: 75ch;
 }
 
 .source-evidence-proof-meta {
@@ -275,15 +290,6 @@
   gap: 12px;
   font-size: 14px;
   color: var(--muted);
-}
-
-.source-evidence-footer > .secondary {
-  justify-self: start;
-  border-radius: var(--radius-control);
-  font-size: 14px;
-  min-height: 44px;
-  padding: 9px 14px;
-  gap: 7px;
 }
 
 .source-evidence-original-missing {
@@ -346,9 +352,6 @@
   }
   .source-evidence-number {
     font-size: 19px;
-  }
-  .source-evidence-proof {
-    padding: 15px;
   }
   .source-evidence-result-heading {
     flex-wrap: wrap;
