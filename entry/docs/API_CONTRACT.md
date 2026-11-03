@@ -62,6 +62,17 @@ full release-gate requirement; the offline service check does not replace or
 authorize that gate. Use the checked offline launcher described in the README
 for this development build.
 
+The checked offline launcher accepts `--rehearsal NAME` for a separate persistent
+workspace at `release/rehearsal-NAME`. Names contain 1–48 lowercase letters,
+digits or hyphens and begin with a letter or digit; paths are not accepted.
+Without this flag the existing `release/offline-service` location is unchanged.
+Each workspace retains its own encrypted database and native credential entry.
+An exclusive service-lifetime lease prevents a second checked launcher from
+replacing the access file while that workspace runs. Database read/write leases
+remain separate. Restart resumes stored history; there is no reset/delete action.
+The launcher strips provider credentials and rejects stale source/build checks
+in both normal and rehearsal modes. No API schema or model authority changes.
+
 Request bodies are limited to 8 MiB plus 128 KiB of multipart overhead before
 parsing; each file still has its separate 8 MiB limit. Chunking cannot evade
 the total limit. Incomplete uploads time out after 30 seconds without invoking

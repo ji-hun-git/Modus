@@ -78,6 +78,19 @@ origin; the backend's direct browser origin cannot unlock the same session.
 The starter records and supplied examples are authored synthetic data. They are
 not a real person's history or evidence of clinical validation.
 
+For a separate recording rehearsal, choose a free port and a take name:
+
+```sh
+python scripts/serve_service.py --rehearsal take-01 --port 8035
+```
+
+This uses `release/rehearsal-take-01`, with its own encrypted records, OS-stored
+key and access file. Restarting the same name resumes that take. A new name
+starts from the authored starter records; it never resets the normal workspace
+or an earlier take. Only one checked launcher may own a workspace at a time.
+All takes remain offline. The [recording walkthrough](entry/demo/longitudinal/README.md)
+uses reviewed imports, original evidence, corrections, conflicts and late arrivals.
+
 ## Models and evidence
 
 Meta Muse Spark is the only hosted model in the product path. Explicit model
