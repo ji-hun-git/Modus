@@ -26,7 +26,8 @@ the original condition, units and temporal view.
 
 ## Run locally
 
-Requires Python 3.11+ and Node.js 20.19+ or 22.12+.
+Requires Python 3.11+ and Node.js 20.19+ or 22.12+, with an unlocked native OS
+credential store (Windows Credential Manager, macOS Keychain, or Linux Secret Service).
 
 ```sh
 python scripts/setup_entry.py
@@ -36,7 +37,23 @@ python scripts/serve_service.py --port 8011
 
 Open **http://127.0.0.1:8011/**. This checked development preview verifies the
 source and frontend build, strips model credentials and runs offline. Saved data
-stays in the ignored local database across restarts.
+stays in the ignored SQLCipher-encrypted local database across restarts. Its
+random 256-bit key stays in the OS credential store, separate from the browser's
+access file. Tests use isolated disposable keys and real encrypted databases.
+
+For an existing plaintext database, stop its service first, then run:
+
+```sh
+python scripts/encrypt_records.py release/offline-service/records.db --execute
+```
+
+The explicit migration verifies every stored value and original file before
+replacing the database, and leaves an independently verified encrypted recovery
+copy. It refuses active locks or outstanding journals. The app will not silently
+open plaintext storage, replace missing history, or generate a replacement for
+a missing key. Keep the database's `.modus-vault.json` metadata with the database;
+recovery also requires the original OS credential entry. Copying files alone to
+another computer is insufficient. See [storage and recovery](entry/docs/API_CONTRACT.md#encrypted-local-storage--4-november-2026).
 
 Choose **Open access file** and select the `Modus-8011.modus-access` file at
 the location printed by the launcher. Keep it private. Restarting replaces it;
@@ -50,7 +67,8 @@ The API also blocks cross-origin browser requests, requires an explicit header f
 writes, bounds uploads before parsing and prevents browser caching of responses.
 Errors omit raw validation input, and request URLs are not written to access
 logs. These [local protections](entry/docs/API_CONTRACT.md#local-privacy-boundary--3-november-2026)
-preserve original evidence; they are not encryption or multi-user authentication.
+preserve original evidence and complement encrypted storage. They are not
+multi-user authentication.
 
 For Vite development, start the checked backend with `--port 8011 --ui-port 5174`,
 then run `npm run dev` in `entry/frontend` and open `http://127.0.0.1:5174`.
@@ -95,9 +113,12 @@ diagnoses, clinical interpretation, risk scores or treatment advice. Recorded
 dates and missing data do not establish whether care occurred. Unknown units,
 incomplete dates and incompatible lab context can prevent a numerical comparison.
 
-Production accounts, encryption at rest, verified masking/deletion and durable
-personal conversational memory are unfinished. The service has not been
-qualified for real-history production use.
+Production accounts, portable key recovery, verified masking/deletion and
+durable personal conversational memory are unfinished. Encryption covers the
+record database, its saved originals and database journals; it does not encrypt
+files you upload from elsewhere or exports you download. Migration does not
+securely erase old disk blocks, snapshots or earlier copies. The service has
+not been qualified for real-history production use.
 
 The offline service check is a software regression gate, not a model-quality
 evaluation or final release qualification. Historical measured results remain

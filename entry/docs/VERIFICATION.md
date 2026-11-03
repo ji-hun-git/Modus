@@ -1,5 +1,51 @@
 # Verification
 
+## Encrypted storage and preserved history — 4 November 2026
+
+Record databases now use SQLCipher with a separate native OS credential-store
+key. Migration verifies the complete logical database and an encrypted recovery
+copy before replacing the plaintext file. Existing originals, revisions,
+availability timestamps and the orbit interface retain their contracts.
+
+`python scripts/check_service.py`: **1,507 backend passed, 2 skipped; 232 frontend
+passed; production build passed**. The final checked source stayed unchanged
+during the run. Sixteen encryption regressions use real encrypted pages and
+disposable test credentials: plaintext refusal, missing/wrong key or metadata,
+missing database, damaged pages, encrypted WAL, memory-only upload handling,
+busy/foreign stores, copy mismatch, failed replacement and successful retry.
+An additional regression allows local OS IPC for Linux credential access while
+continuing to reject external TCP connections. The existing Starlette/httpx
+test-client deprecation warning remains.
+
+Three existing local demo databases were explicitly migrated and reopened with
+Windows Credential Manager keys. Full schema/typed-row/version hashes matched
+before migration, after migration and after restart. All **39 original-file
+BLOBs** matched byte hashes. Their existing record counts remained **87, 105 and
+101**. Ordinary unkeyed SQLite could not read the converted databases. Each has
+an independently verified encrypted recovery copy; no plaintext backup was made.
+
+In a separate native-vault store, browser verification uploaded an authored CSV,
+reviewed its original 91 as 92, saved a later correction to 93, reopened the
+service, clarified the blood-pressure number in Ask, followed its original
+evidence, scrubbed the orbit timeline and downloaded both reviewed export
+formats. Original bytes, lab context, old availability views and both saved
+revisions remained intact. Export checks retained corrected values and original
+wording without credentials. The entire database matched across restart before
+new Ask activity. Browser console inspection found no errors during this flow.
+
+A bounded local pressure check made **48 authenticated requests with four
+workers** across history pages, exact-history Ask and original downloads:
+**0 HTTP failures**, median **74.9 ms**, p95 **193.9 ms** on this shared Windows
+development machine. This is a small software smoke measurement, not production
+capacity or model accuracy. No new model requests or API spending occurred;
+protected evaluation and held-out contents were neither read nor changed.
+
+Native Windows key persistence was exercised. macOS Keychain and Linux Secret
+Service desktop integration have not been manually qualified here; CI uses
+disposable credential backends. Cross-device key recovery, secure erasure and
+production privacy qualification remain open. See the
+[encryption scope and recovery contract](API_CONTRACT.md#encrypted-local-storage--4-november-2026).
+
 ## Local access and authenticated evidence — 3 November 2026
 
 Knowing the loopback address previously allowed a local process to read records.

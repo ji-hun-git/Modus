@@ -617,3 +617,55 @@ model prose is ignored. Timeouts, refusals, malformed or changed plans return a
 fixed failure/clarification response and execute no record tools. The new model
 path is verified with injected transports only in this sprint, not live calls.
 
+# Encrypted local storage — 4 November 2026
+
+All record-store connections use SQLCipher 4 through pinned `sqlcipher3` wheels.
+The database, saved original BLOBs, drafts, corrections, receipts and run history
+use page encryption and authentication. Database temporary storage stays in
+memory. The bounded multipart parser keeps accepted upload parts in memory,
+including files above the previous one-megabyte spooling threshold. Existing
+upload limits, review requirements and HTTP schemas are unchanged.
+
+Each database has a random 256-bit raw key in an explicitly selected native
+credential backend: Windows Credential Manager, macOS Keychain or Linux Secret
+Service. No configurable plaintext keyring fallback is accepted. Adjacent
+`<database>.modus-vault.json` stores only a format identifier and opaque key ID;
+it must accompany the encrypted database. The key is never returned by HTTP,
+placed in the access file or accepted from a model. Browser access credentials
+rotate independently on restart. The key remains stable across restarts.
+
+An existing plaintext store requires explicit stopped-service migration:
+`python scripts/encrypt_records.py PATH --execute`. Only the identified Modus
+Records schema is accepted. Migration holds an exclusive interprocess lease and
+SQLite lock, refuses outstanding WAL/journal files, exports to an encrypted
+staging file, verifies authenticated pages, foreign keys, schema, every typed
+row, original BLOB bytes and version pragmas, and checks an independent encrypted
+recovery copy before atomic replacement. It does not create a plaintext backup.
+On failure the source is retained; a completed encrypted recovery copy is also
+retained. A repeat on an encrypted store verifies it without replacing it.
+
+Normal connections hold shared leases; migration/startup require an exclusive
+lease. Native SQLite busy/locked errors retain the existing retryable HTTP 503
+contract. Missing metadata, missing or wrong keys, damaged encrypted pages and
+a missing database with existing metadata stop startup before schema writes or
+seeding. They never trigger automatic recovery, key rotation or plaintext access.
+
+Recovery: stop Modus; preserve the current damaged file separately; restore a
+verified encrypted database and its matching metadata to the intended path;
+retain or restore the corresponding native OS credential entry; then restart.
+Do not delete journals or invent a replacement key. A lost key cannot be
+reconstructed from database metadata. A portable password-protected key export
+and cross-device recovery workflow are not implemented.
+
+Scope: this protects stored database pages and saved originals, not records in
+process memory, OS swap/crash dumps, user-selected originals elsewhere, downloaded
+exports, external backups or prior plaintext disk blocks. Same-user software
+and OS administrators may access the native credential store. Encryption is
+not secure erasure, endpoint isolation, multi-user authentication or production
+privacy qualification. Native credential integration requires a functioning
+desktop key store; headless Linux must not silently fall back to a file key.
+
+Offline tests inject a disposable in-memory credential backend before app
+imports and use actual SQLCipher databases. They neither read the owner's native
+key store nor receive live provider credentials.
+

@@ -10,6 +10,14 @@ The interface bundles unmodified Inter 4.1, copyright 2016 The Inter Project Aut
 
 Application dependencies retain their own licenses. Locked runtime/build/test versions are in backend/requirements.lock.txt and entry/frontend/package-lock.json. The inventory in entry/docs/DEPENDENCIES.json records declared metadata and available notice hashes; corresponding texts are under data/licenses/dependencies. Uninstalled optional platform packages are explicitly identified. This inventory is not a legal compatibility determination.
 
+Encrypted storage adds `sqlcipher3` 0.6.4 (SQLCipher-backed Python driver),
+`keyring` 25.7.0 (native OS credential access) and `portalocker` 3.2.0
+(interprocess leases). Platform dependencies are pinned in
+`backend/encryption-requirements.lock.txt`, included by the backend lock.
+SQLCipher uses its upstream BSD-style license; the installed driver and its
+bundled cryptographic components retain their respective terms. Package notices
+are retained with the dependency inventory. No model weights are added.
+
 This entry uses authored synthetic records. It does not bundle Synthea exports, medical reference datasets, private supplied design documents, model weights, a trained adapter or the separate TeleOCR research environment. The full private Modus workspace preserves the wider research and provenance.
 
 The optional local OCR adapter uses the separately installed XingChen-AGI/TeleOCR checkpoint pinned in config/teleocr.json, whose upstream model card declares Apache-2.0. Weights and its isolated environment are not part of the source package. scripts/requirements-ocr.lock.txt records that environment's dependencies; their own licenses apply. Optional OCR runtime qualification does not establish unrestricted production-upload suitability.
