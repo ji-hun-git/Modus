@@ -18,6 +18,8 @@ import {
 import { Brand } from "./ui";
 import AboutWorkspaceDialog from "./AboutWorkspaceDialog";
 import useAppearance, { type Appearance } from "./useAppearance";
+import useAmbientMotion, { AmbientMotionContext } from "./useAmbientMotion";
+import AmbientMotionControl from "./AmbientMotionControl";
 
 export type Page =
   | "Home"
@@ -71,6 +73,7 @@ export default function Shell({
   const [aboutOpen, setAboutOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appearance, setAppearance] = useAppearance();
+  const motion = useAmbientMotion();
   const toolsRef = useRef<HTMLDetailsElement>(null);
   const appearanceControl = (
     <label className="appearance-control">
@@ -135,11 +138,12 @@ export default function Shell({
             <span>{label}</span>
           </button>
         ))}
+        <AmbientMotionControl />
       </div>
     </details>
   );
   return (
-    <>
+    <AmbientMotionContext.Provider value={motion}>
       <div className={`app-layout mission-shell workspace-shell orbit-theme${sidebarCollapsed ? " sidebar-collapsed" : ""}${page === "Home" ? " orbit-home" : page === "Ask" ? " orbit-ask" : ""}`}>
         <a className="skip-link" href="#main-content">
           Skip to main content
@@ -205,6 +209,6 @@ export default function Shell({
         </div>
       </div>
       {aboutOpen && <AboutWorkspaceDialog onClose={() => setAboutOpen(false)} />}
-    </>
+    </AmbientMotionContext.Provider>
   );
 }

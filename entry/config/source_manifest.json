@@ -2866,6 +2866,21 @@
       "source": "backend/tests/test_entry_narrative_comparison.py",
       "destination": "backend/tests/test_entry_narrative_comparison.py",
       "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/useAmbientMotion.ts",
+      "destination": "entry/frontend/src/useAmbientMotion.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/AmbientMotionControl.tsx",
+      "destination": "entry/frontend/src/AmbientMotionControl.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ambient-motion.css",
+      "destination": "entry/frontend/src/ambient-motion.css",
+      "behavior": true
     }
   ]
 }

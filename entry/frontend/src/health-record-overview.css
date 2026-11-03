@@ -206,8 +206,7 @@ main.home-page { max-width:1080px; padding-top:30px; }
 .orbit-connection { stroke:var(--star); stroke-width:1; fill:none; stroke-dasharray:1; animation:orbit-path-in var(--motion-panel) var(--ease-out) both; }
 .orbit-owner circle { fill:var(--void); stroke:var(--star); stroke-width:1; }
 .orbit-owner .orbit-owner-inner { fill:none; stroke:var(--gun); }
-.orbit-owner text { fill:var(--star); font:400 27px var(--font-body); letter-spacing:3px; }
-.orbit-owner .orbit-owner-caption { fill:var(--orbit-muted); font:10px var(--mono); letter-spacing:1.5px; }
+.orbit-owner .orbit-owner-label { fill:var(--star); font:500 26px var(--font-body); letter-spacing:.02em; }
 .orbit-satellite { cursor:pointer; outline:none; }
 .orbit-hit-area { fill:transparent; }
 .orbit-satellite-mark { transform-box:fill-box; transform-origin:center; transition:transform var(--motion-standard) var(--ease-out); }
@@ -304,8 +303,6 @@ main.home-page { max-width:1080px; padding-top:30px; }
   .orbit-node-title { display:none; }
   .orbit-node-date { font-size:23px; }
   .orbit-guides text { font-size:16px; }
-  .orbit-owner text { font-size:34px; }
-  .orbit-owner .orbit-owner-caption { font-size:15px; }
   .orbit-node-halo { r:22px; }
   .orbit-hit-area { r:38px; }
   .orbit-map-heading { padding-right:0; }

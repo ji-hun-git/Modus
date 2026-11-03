@@ -90,10 +90,8 @@
 .report-history-list button span:last-child { max-width:40%; color:var(--muted); }
 .report-orbit-navigator { position:sticky; top:85px; min-width:0; border:1px solid var(--line); border-radius:16px; padding:20px 16px; }
 .report-orbit-navigator .orbit-map-heading { padding:0; font:12px/1.5 var(--font-body); text-transform:none; letter-spacing:0; }
-.report-orbit-navigator .orbit-chart { height:auto; min-height:240px; }
+.report-orbit-navigator .orbit-chart { width:min(100%,440px); height:auto; min-height:0; margin-inline:auto; }
 .orbit-map-compact .orbit-node-title,.orbit-map-compact .orbit-node-date { display:none; }
-.orbit-map-compact .orbit-owner text { font-size:32px; }
-.orbit-map-compact .orbit-owner .orbit-owner-caption { font-size:12px; }
 .orbit-map-compact .orbit-hit-area { r:34px; }
 .orbit-file-picker { display:grid; gap:8px; color:var(--muted); font-size:12px; }
 .orbit-file-picker select { min-width:0; width:100%; min-height:44px; background:var(--void); color:var(--star); border:1px solid var(--gun); border-radius:6px; padding:9px; }
@@ -111,7 +109,6 @@
 @media(max-width:900px) {
  .report-first-home .orbit-workspace { grid-template-columns:minmax(0,1fr); gap:20px; }
  .report-orbit-navigator { position:static; }
- .report-orbit-navigator .orbit-chart { max-height:320px; }
 }
 @media(max-width:540px) {
  .report-first-home .orbit-hero { gap:12px; }

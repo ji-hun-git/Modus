@@ -284,7 +284,7 @@ test("orbit buttons preserve original file identity, keyboard access and indepen
   assert.equal((html.match(/tabindex="0"/g) || []).length, 3);
   assert.equal((html.match(/aria-pressed="true"/g) || []).length, 1);
   for (const title of ['Original a.png', 'Original b.png', 'Undated note.txt']) assert.ok(html.includes(`Open source file: ${title}`));
-  assert.match(html, />YOU<\/text>/);
+  assert.match(html, />You<\/text>/);
   assert.match(html, />UNDATED<\/text>/);
   assert.doesNotMatch(html, /health score|normal range/i);
 });
