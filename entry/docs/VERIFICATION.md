@@ -1,5 +1,37 @@
 # Verification
 
+## Isolated recording rehearsal — 4 November 2026
+
+The checked offline launcher now accepts `--rehearsal NAME`. Each name keeps a
+separate persistent encrypted record store and owner access file. Reusing a name
+resumes that take; a new name leaves existing history intact. An exclusive
+workspace lease prevents a second checked launcher from replacing a running
+take's access file. Both launch and encryption-migration commands bootstrap
+through the project environment, without requiring third-party packages in the
+parent Python installation.
+
+`python scripts/check_service.py`: **1,522 backend passed, 2 skipped; 232 frontend
+passed; production build passed**. Added checks cover invalid names, isolated
+encrypted stores, restart persistence, duplicate launch, credential stripping
+and plain-Python CLI bootstrap. The existing Starlette/httpx warning remains.
+
+An actual offline browser rehearsal reviewed and saved six authored CSV files.
+Ask clarified which blood-pressure number was meant, found **4 May 2016** and
+opened the original **100/70 mmHg** excerpt. The conflict drawer retained both
+**2.5 and 2.9 mIU/L** TSH copies from the same recorded date. Sixteen additional
+HTTP assertions verified baseline and updated views, late-source exclusion
+from the earlier view, refusal to download that source before availability,
+both conflicting values, the dated pressure answer and byte-exact originals
+for all six imported files. These assertions are rehearsal checks, not a model
+quality benchmark. Narrow-layout and full keyboard qualification of this new
+recording setup remain unrun.
+
+The three existing working stores and all **39 original-file BLOBs** retained
+their previous logical snapshots and hashes. The orbit UI was unchanged. No
+new model calls, API spending or access to protected evaluation/held-out
+contents occurred. This prepares an offline recording workspace; it does not
+constitute a recorded video, fresh live-Meta demonstration or final submission.
+
 ## Encrypted storage and preserved history — 4 November 2026
 
 Record databases now use SQLCipher with a separate native OS credential-store
