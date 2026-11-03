@@ -5,8 +5,7 @@ import type { HistoryFact, HistoryView } from "./historyTypes";
 import { Modal, dateLabel } from "./ui";
 import { scopedDifferences } from "./overviewRecords";
 import { reportSummaries } from "./homeReportData";
-import { recordedDate } from "./sourceDisplay";
-import HomeReportReadings, { friendlyRecordName, groupReportFacts } from './HomeReportReadings';
+import HomeReportReadings from './HomeReportReadings';
 import HomeRecordJourney from './HomeRecordJourney';
 import HomeAskBar from './HomeAskBar';
 import OrbitMap from "./OrbitMap";
@@ -37,6 +36,7 @@ export default function HealthRecordOverview({
 }) {
   const [sourceId, setSourceId] = useState<string | null>(null);
   const [anchorId, setAnchorId] = useState<string | null>(null);
+  const [expandedPage, setExpandedPage] = useState<string | null>(null);
   const [journeyOpen, setJourneyOpen] = useState(false);
   const homeRef = useRef<HTMLDivElement>(null);
   const [inspected, setInspected] = useState<HistoryFact | null>(null);
@@ -51,6 +51,7 @@ export default function HealthRecordOverview({
   const facts = report ? [...reportFacts].sort((a, b) => a.label.localeCompare(b.label) ||
     (b.date || "").localeCompare(a.date || "") || a.id.localeCompare(b.id)) : [];
   const anchor = facts.find((fact) => fact.id === anchorId) || facts[0];
+  const reportPage = `${report?.source.id}:${detailView?.scope.scope_id}:${detailView?.page?.offset ?? 0}`;
   const differences = scopedDifferences(detailView || view);
   const differenceCount = view.page ? view.counts.conflicts : differences.length;
   const selectReport = (id: string) => {
@@ -107,13 +108,9 @@ export default function HealthRecordOverview({
             {view.page && !detailView && <div role={detail.error ? 'alert' : 'status'}><p>{detail.error || 'Opening your report…'}</p>
               {detail.error && <button onClick={detail.refresh}>Reload report</button>}</div>}
             {detailView && <HistoryPager view={detailView} onPage={detail.setOffset} noun="items" />}
-            <HomeReportReadings facts={facts} selected={anchor} onSelect={fact=>setAnchorId(fact.id)} />
-            {facts.length>4 && <label className="report-more-items">More from this report
-              <select value={anchor?.id || ''} onChange={event=>setAnchorId(event.target.value)}>
-                {groupReportFacts(facts).map(group=><optgroup key={group.name} label={group.name}>
-                  {group.facts.map(fact=><option key={fact.id} value={fact.id}>{friendlyRecordName(fact.label)} · {recordedDate(fact)} · {fact.value_withheld?'Hidden by date filter':fact.value ?? 'Not recorded'}</option>)}
-                </optgroup>)}
-              </select></label>}
+            <HomeReportReadings facts={facts} selected={anchor} onSelect={fact=>setAnchorId(fact.id)}
+              expanded={expandedPage===reportPage} onToggle={()=>setExpandedPage(expandedPage===reportPage?null:reportPage)}
+              paged={(detailView?.page?.total ?? facts.length)>facts.length} />
             {anchor && detailView && <>
               <HomeReportEvidence fact={anchor} view={detailView} onOpen={setInspected} />
               {!journeyOpen && <button type="button" className="text-button report-history-open"

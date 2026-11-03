@@ -302,6 +302,8 @@ def test_actual_http_pipeline_exposes_failures_without_fallback_or_automatic_wri
     image = BytesIO()
     Image.new('RGB', (80, 80), 'white').save(image, format='PNG')
     before = client.get('/api/history/view').json()
+    with store.connect() as db:
+        before_drafts = db.execute('SELECT id,data,committed FROM drafts ORDER BY id').fetchall()
     response = client.post('/api/imports/preview', data={'synthetic_confirmed': 'true', 'use_meta': 'true'},
         files={'file': ('artificial-failure.png', image.getvalue(), 'image/png')})
     assert client.get('/api/history/view').json() == before
@@ -314,7 +316,7 @@ def test_actual_http_pipeline_exposes_failures_without_fallback_or_automatic_wri
         assert activity[0]['kind'] == 'extraction_failure'
         assert activity[0]['status'] == 'failed'
         with store.connect() as db:
-            assert db.execute('SELECT count(*) FROM drafts').fetchone()[0] == 0
+            assert db.execute('SELECT id,data,committed FROM drafts ORDER BY id').fetchall() == before_drafts
     else:
         assert response.status_code == 200
         draft = response.json()

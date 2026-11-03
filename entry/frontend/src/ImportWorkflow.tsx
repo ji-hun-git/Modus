@@ -357,6 +357,7 @@ export default function ImportWorkflow({
             </p>
             <details className="import-examples">
               <summary>Try an example report</summary>
+              <a href="/examples/checkup-october-2026.csv" download>Checkup · 8 tests with lab details</a>
               <div className="table-footer">
                 <a href="/examples/whole-history.csv" download>
                   Mixed history <ArrowUpRight size={13} />
@@ -383,7 +384,7 @@ export default function ImportWorkflow({
               {current.status === "skipped"
                 ? "Nothing from this file was added. Its review stays here if you return to it."
                 : current.status === "duplicate" || current.receipt?.duplicate
-                  ? "No records were added again. Your existing review is unchanged."
+                  ? "No records were added again. This file is already in your history."
                   : `${current.receipt?.inserted || 0} reviewed ${current.receipt?.fact_ids ? "field" : "measurement"}${current.receipt?.inserted === 1 ? "" : "s"} added. Your selected history view is unchanged.`}
             </p>
             {referenceOnly > 0 && current.status !== "skipped" && (

@@ -2886,6 +2886,16 @@
       "source": "entry/frontend/src/ambient-motion.css",
       "destination": "entry/frontend/src/ambient-motion.css",
       "behavior": true
+    },
+    {
+      "source": "backend/modus/record_history_seed.py",
+      "destination": "backend/modus/record_history_seed.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/checkup-october-2026.csv",
+      "destination": "entry/frontend/public/examples/checkup-october-2026.csv",
+      "behavior": true
     }
   ]
 }

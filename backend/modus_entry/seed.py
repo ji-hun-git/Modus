@@ -1,4 +1,7 @@
-"""Nine authored recorded facts. No care, medication, genetic or reference fixture."""
+"""Authored checkup examples; no real records or fabricated human/model review."""
+from pathlib import Path
+
+from modus.history_ingest import make_history_draft
 from modus.record_models import METRICS
 
 
@@ -17,4 +20,9 @@ def initial_data():
         sources.append({'id': source_id, 'title': 'Recorded measurements · ' + day,
             'provider': 'Authored synthetic example', 'type': 'lab_report', 'date': day,
             'content': 'SYNTHETIC RECORD — no real person.\n' + '\n'.join(rows), 'synthetic': True})
-    return sources, observations
+    filename = 'checkup-october-2026.csv'
+    raw = (Path(__file__).resolve().parents[2] / 'entry/frontend/public/examples' / filename).read_bytes()
+    draft = make_history_draft(filename, raw)
+    draft['source']['provider'] = 'Authored synthetic example'
+    return sources, observations, [{'draft': draft, 'raw': raw, 'filename': filename,
+        'available_at': '2026-10-23T09:00:00Z'}]

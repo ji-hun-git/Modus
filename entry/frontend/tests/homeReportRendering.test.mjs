@@ -190,6 +190,31 @@ test('Home reading tiles never reveal withheld values or units and escape record
   assert.match(html,/&lt;script&gt;/);
 });
 
+test('Home exposes every open-label checkup reading on request without changing saved names',()=>{
+  const labels=['Glucose','Hemoglobin','White blood cells','Platelets','Ferritin','TSH','Vitamin D','ALT'];
+  const facts=labels.map((label,i)=>row(`lab${i}`,'2026-10-22',{label}));
+  const before=structuredClone(facts);
+  const collapsed=render(HomeReportReadings,{facts,onSelect:noop,onToggle:noop});
+  assert.match(collapsed,/Show all 8 entries/);
+  assert.match(collapsed,/aria-expanded="false"/);
+  assert.equal((collapsed.match(/class="report-reading-choice"/g)||[]).length,4);
+  const expanded=render(HomeReportReadings,{facts,onSelect:noop,onToggle:noop,expanded:true});
+  assert.equal((expanded.match(/class="report-reading-choice"/g)||[]).length,8);
+  for(const label of labels) assert.ok(expanded.includes(friendlyRecordName(label)));
+  assert.match(expanded,/aria-expanded="true"/);
+  assert.match(expanded,/Show fewer entries/);
+  assert.deepEqual(facts,before);
+});
+
+test('Expanded report readings remain bounded and distinguish a page from the whole report',()=>{
+  const facts=Array.from({length:120},(_,i)=>row(`f${i}`,'2026-10-22',{label:`Uncatalogued test ${i}`}));
+  assert.equal(readingChoices(facts,'f119',true).length,50);
+  assert.ok(readingChoices(facts,'f119',true).some(f=>f.id==='f119'));
+  const html=render(HomeReportReadings,{facts:facts.slice(0,50),onSelect:noop,onToggle:noop,paged:true});
+  assert.match(html,/Show 50 entries on this page/);
+  assert.doesNotMatch(html,/Show all/);
+});
+
 test('Home asks for missing units only on measurements, retaining printed units on other record kinds',()=>{
   const nonNumeric=row('text','2025-01-02',{kind:'recorded_text',label:'Visit note',value:'Follow-up recorded',unit:null});
   assert.doesNotMatch(render(HomeReportReadings,{facts:[nonNumeric],onSelect:noop}),/Unit not recorded/);

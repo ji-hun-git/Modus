@@ -1,5 +1,11 @@
 # Modus Records API v1
 
+Fresh demo stores include an authored open-label checkup. Re-uploading that
+exact file returns its existing proposal with `already_committed:true` and
+`extraction_mode:"authored_seed"`, even if Meta reading was requested. No model
+request or owner review is implied; the warning identifies authored demo data.
+Existing stores are not reseeded. All uploaded additions still require review.
+
 ## Longitudinal evidence series
 
 `GET /api/history/series?snapshot_id=<capture>&fact_id=<measurement>&offset=0&limit=50`

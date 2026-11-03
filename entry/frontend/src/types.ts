@@ -11,8 +11,9 @@ export type ScopeRequest = {
   known_at: string;
   compare_from?: string | null;
 };
-// Compatibility projection for the original /records API. Active import,
-// review and Trends use DraftFact/HistoryFact with open-ended labels instead.
+// Compatibility projection for the original /records API, not the product's
+// record vocabulary. Home, import, review, Ask and Trends use DraftFact /
+// HistoryFact with open-ended labels. Keep this union aligned with /records.
 export type LegacyObservation = {
   id: string;
   metric: "hba1c" | "egfr" | "ldl";

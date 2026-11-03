@@ -168,6 +168,7 @@
 .report-source-excerpt blockquote { margin:0; padding:12px 14px; border:1px solid var(--line); border-radius:6px; font:13px/1.65 var(--font-body); max-height:160px; overflow:auto; overflow-wrap:anywhere; white-space:pre-wrap; }
 .report-source-excerpt > p { font-size:12px; line-height:1.6; color:var(--muted); margin:8px 0; }
 .report-history-open { display:flex; align-items:center; gap:6px; min-height:44px; margin-top:12px; padding:8px 0; font-size:12px; text-align:left; }
+.report-readings-toggle { min-height:44px; margin-top:8px; padding:8px 0; font-size:12px; }
 .orbit-centered-home .report-back-to-orbit { display:none; }
 @media(max-width:900px) {
  .orbit-centered-home .orbit-telemetry { grid-template-columns:minmax(0,1fr); }

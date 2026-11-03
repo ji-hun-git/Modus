@@ -1,9 +1,17 @@
 # Data provenance
 
-The clean starter database contains three authored synthetic documents and nine
-measurements: HbA1c, eGFR and LDL across three dates. These examples are invented;
-they are not a real person's history or Synthea output. Counts shown in the app
-come from the scoped database, including reviewed additions.
+The clean starter database contains four authored synthetic documents and 17
+measurements across 11 distinct test labels. Three older examples retain HbA1c,
+eGFR and LDL; the October 2026 checkup adds glucose, hemoglobin, white blood
+cells, platelets, ferritin, TSH, vitamin D and ALT with printed lab context and
+an original CSV. Its occurrence date is October 22; its authored availability
+is October 23. No human or model review is claimed for starter fixtures.
+
+These examples and their printed ranges are invented, not a real person's
+history, clinical guidance or Synthea output. Existing databases are never
+reseeded during startup. The same checkup is available in Add records for an
+explicit review and import into an existing demo. Counts shown in the app come
+from the scoped database, including reviewed additions.
 
 CSV/text/PDF/image examples used for software regressions are authored fixtures.
 They test preservation, parsing, temporal boundaries, conflicts and recovery.

@@ -69,12 +69,16 @@ class RecordStore:
                 db.execute('ALTER TABLE sources ADD COLUMN available_at TEXT')
             db.execute('CREATE INDEX IF NOT EXISTS source_available ON sources(available_at)')
             db.execute('CREATE INDEX IF NOT EXISTS observation_event_source ON observations(date,source_id)')
-            seeded_sources, seeded_observations = deepcopy(self._seed_provider())
-            if db.execute('SELECT count(*) FROM sources').fetchone()[0] == 0:
-                self._insert_seed(db, seeded_sources, seeded_observations)
-            self._migrate_availability(db, seeded_sources)
+            # Older callers supply (sources, observations); the entry demo may
+            # also supply authored open-label documents. Never reseed a store
+            # that already owns sources, even when the demo changes.
+            seed = deepcopy(self._seed_provider())
+            seeded_sources = seed[0]
             from .record_history import initialize_history
             initialize_history(db)
+            if db.execute('SELECT count(*) FROM sources').fetchone()[0] == 0:
+                self._insert_seed(db, *seed)
+            self._migrate_availability(db, seeded_sources)
             self._initialize_extensions(db)
 
     def _check_identity(self, db):
@@ -106,7 +110,7 @@ class RecordStore:
     def _initialize_extensions(self, db):
         """Full-product wrappers may initialize their own reference capability."""
 
-    def _insert_seed(self, db, sources, observations):
+    def _insert_seed(self, db, sources, observations, history_documents=()):
         for source in sources:
             source.update(
                 available_at=instant(source.get('available_at') or source['date'] + 'T00:00:00Z'),
@@ -118,6 +122,9 @@ class RecordStore:
             db.execute('INSERT INTO observations VALUES (?,?,?,?,?)',
                        (observation['id'], observation['source_id'], observation['metric'],
                         observation['date'], json.dumps(observation)))
+        if history_documents:
+            from .record_history_seed import insert_authored_documents
+            insert_authored_documents(db, history_documents)
 
     def _migrate_availability(self, db, seeded_sources):
         """Never infer knowledge time from a measurement date for legacy imports."""

@@ -110,7 +110,7 @@ def attachment(document):
 
 def preview_response(saved, *, reused=False):
     warnings = list(saved.get('warnings', []))
-    if reused:
+    if reused and saved.get('extraction_mode') != 'authored_seed':
         warnings.append('Existing review reopened. This file was not read again.')
     return {'id': saved['id'], 'source': source(saved['source']),
         'observations': [observation(o) for o in saved['observations']], 'warnings': warnings,

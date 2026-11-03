@@ -7,9 +7,11 @@ advisor.
 
 ## A simple Home, detail when requested
 
-Home centers the owner in a source-file orbit, with at most four selected
-readings, one Ask bar and one Add records action. File satellites open actual
-source evidence. Records, trends, replay, discrepancies and summaries remain
+Home centers the owner in a source-file orbit, with four readings initially,
+one Ask bar and one Add records action. "Show all" expands the selected report's
+current page (at most 50 entries); larger reports retain pagination. Home uses
+open-ended saved labels, including tests outside the legacy three-metric API.
+File satellites open actual source evidence. Records, trends, replay, discrepancies and summaries remain
 available through deeper navigation.
 
 Use familiar descriptions beside original test names where supported. A display

@@ -163,7 +163,12 @@ def test_named_type_queries_keep_literal_filter_and_find_the_record(history_app,
     assert response.status_code == 200, response.text
     returned = facts(response.json())
     assert any(row['label'] == label and row['value'] == value for row in returned)
-    assert all(row['label'] == label for row in returned)
+    # The fresh demo also contains the exact English Ferritin alias. It must
+    # remain source-labelled; an unrelated test must never join this answer.
+    expected_labels = {label, 'Ferritin'} if label == '페리틴' else {label}
+    assert {row['label'] for row in returned} == expected_labels
+    if label == '페리틴':
+        assert any(row['label'] == 'Ferritin' and row['value'] == '58.6' for row in returned)
 
 
 def test_late_generic_record_is_absent_from_prior_availability(history_app):
