@@ -9,7 +9,7 @@ import {
   LoaderCircle,
   Search,
 } from "lucide-react";
-import { api } from "./api";
+import { api, localRequest } from "./api";
 import type { Scope } from "./types";
 import { recordLabel } from "./types";
 import type { FactKind, HistoryFact, HistoryView } from "./historyTypes";
@@ -278,7 +278,7 @@ function BriefBuilder({
     setError("");
     setNotice("");
     try {
-      const response = await fetch("/api/briefs/export", {
+      const response = await localRequest("/api/briefs/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

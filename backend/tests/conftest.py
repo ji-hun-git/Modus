@@ -22,3 +22,21 @@ def isolated_provider_environment(monkeypatch):
     for name in MODEL_CREDENTIALS:
         monkeypatch.setenv(name, '')
     monkeypatch.setenv('PYTHON_DOTENV_DISABLED', '1')
+
+
+@pytest.fixture(autouse=True)
+def local_service_client_defaults(monkeypatch):
+    """Exercise the production boundary with a real loopback origin/peer.
+
+    Explicit test overrides still work; no production test-host bypass exists.
+    Security tests remove the write header to exercise missing-header rejection.
+    """
+    from starlette.testclient import TestClient
+    original = TestClient.__init__
+    def initialize(self, app, *args, **kwargs):
+        if not args:
+            kwargs.setdefault('base_url', 'http://127.0.0.1')
+        kwargs.setdefault('client', ('127.0.0.1', 50000))
+        kwargs.setdefault('headers', {'X-Modus-Request': '1'})
+        original(self, app, *args, **kwargs)
+    monkeypatch.setattr(TestClient, '__init__', initialize)

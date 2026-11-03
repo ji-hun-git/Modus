@@ -1,5 +1,53 @@
 # Modus Records API v1
 
+## Local privacy boundary — 3 November 2026
+
+The API accepts only loopback peers and a `127.0.0.1`, `localhost` or `[::1]`
+Host. Forwarded headers do not establish client identity. Browser Origin and
+Referer must match the exact scheme, host and port. Cross-site and same-site
+requests from other ports are rejected; an explicitly clicked link may open
+only the static `/` shell. No cross-origin API access or preflight is granted.
+
+Every POST, PUT, PATCH or DELETE requires `X-Modus-Request: 1`, including local
+scripts. The frontend adds this through `localRequest`, including multipart
+imports and summary exports. It is a request-intent header, **not a password or
+authentication token**. Same-OS-user software can still access this local service.
+Vite development must use its existing same-origin `/api` proxy.
+
+Request bodies are limited to 8 MiB plus 128 KiB of multipart overhead before
+parsing; each file still has its separate 8 MiB limit. Chunking cannot evade
+the total limit. Incomplete uploads time out after 30 seconds without invoking
+a reader. Boundary failures return 403, oversized requests 413 and timeouts 408.
+Validation failures remain 422 but omit raw input, field locations and exception
+context that could echo private content. Unexpected failures return a generic
+500 and log only their exception class. Existing explicit domain errors remain.
+
+All responses, including originals and errors, use `Cache-Control: no-store`,
+`Referrer-Policy: no-referrer`, `nosniff`, frame denial and a self-only content
+security policy. Original downloads keep their stricter sandbox policy and
+attachment disposition. The browser request helper rejects external endpoints
+and redirects. The checked launcher disables URL access logs and proxy-header
+trust. Meta transport uses verified TLS to its fixed official endpoint, ignores
+environment proxy settings and rejects redirects before accepting a response.
+
+Before SQLite opens, the checked launcher restricts its dedicated
+`release/offline-service` directory and existing files to the current OS user
+(and Windows SYSTEM). New Windows files inherit that ACL; POSIX startup uses
+0700 directories, 0600 files and umask 0077. Links and unexpected nested runtime
+directories fail closed. No original bytes, record versions or dates are erased
+or rewritten by this protection. Other custom launchers must provide equivalent
+file protections themselves.
+
+These are local boundary protections, **not encryption, separate user accounts,
+de-identification or protection from the same OS user or an administrator**.
+Browser no-store also cannot promise erasure of screenshots, manually downloaded
+files, memory, OS backups or third-party model retention. Production privacy
+qualification remains unfinished.
+
+The browser boundary follows the custom-header, exact-origin and Fetch Metadata
+patterns in [OWASP's CSRF guidance](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html).
+Windows restrictions use the native [protected DACL API](https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setnamedsecurityinfow).
+
 ## Scan review and offline recovery — 3 November 2026
 
 `POST /api/imports/preview` accepts optional `reuse_only=true`. After the usual

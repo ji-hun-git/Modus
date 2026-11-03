@@ -38,6 +38,13 @@ Open **http://127.0.0.1:8011/**. This checked development preview verifies the
 source and frontend build, strips model credentials and runs offline. Saved data
 stays in the ignored local database across restarts.
 
+The checked launcher restricts its data directory to the OS owner. The local
+API blocks cross-origin browser requests, requires an explicit header for
+writes, bounds uploads before parsing and prevents browser caching of responses.
+Errors omit raw validation input, and request URLs are not written to access
+logs. These [local protections](entry/docs/API_CONTRACT.md#local-privacy-boundary--3-november-2026)
+preserve original evidence; they are not encryption or multi-user authentication.
+
 The starter records and supplied examples are authored synthetic data. They are
 not a real person's history or evidence of clinical validation.
 

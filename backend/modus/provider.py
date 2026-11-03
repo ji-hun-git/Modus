@@ -88,10 +88,11 @@ async def meta_request(payload):
         raise ValueError('Live Meta requests require the official API endpoint')
     if 'contributor' in payload.get('model', '').lower() and not POLICY.allow_contributor_mode:
         raise ValueError('Contributor mode is disabled by this project policy')
-    async with httpx.AsyncClient(timeout=POLICY.request_timeout_seconds, verify=ssl.create_default_context()) as client:
+    async with httpx.AsyncClient(timeout=POLICY.request_timeout_seconds, verify=ssl.create_default_context(),
+                                trust_env=False, follow_redirects=False) as client:
         response = await client.post(base + '/chat/completions', headers={'Authorization': f'Bearer {key}'}, json=payload)
         request_id = safe_identifier(response.headers.get('x-request-id')) or safe_identifier(response.headers.get('request-id'))
-        if response.status_code >= 400:
+        if not 200 <= response.status_code < 300:
             raise MetaRequestError('http_error', http_status=response.status_code, request_id=request_id)
         try:
             data = response.json()

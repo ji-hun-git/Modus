@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Ref } from 'react';
-import { api, ApiError } from './api';
+import { api, ApiError, localRequest } from './api';
 import type { HistoryFact } from './historyTypes';
 import type { ReportComparisonSummary } from './reportComparisonTypes';
 import type { ReportBriefData } from './reportBriefTypes';
@@ -81,7 +81,7 @@ export default function ReportBriefReview({summary,onRefresh}: {summary:ReportCo
     const controller=new AbortController();active.current?.abort();active.current=controller;
     setBusy(true);setError('');setNotice('');
     try {
-      const response=await fetch('/api/briefs/report-export',{
+      const response=await localRequest('/api/briefs/report-export',{
         method:'POST',headers:{'Content-Type':'application/json'},signal:controller.signal,
         body:JSON.stringify({...reportBriefRequest(summary),preview_id:brief.preview_id,reviewed:true,format}),
       });

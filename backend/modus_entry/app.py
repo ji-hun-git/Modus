@@ -12,8 +12,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, Reque
 from fastapi.responses import Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.exceptions import RequestValidationError
 from pydantic import AwareDatetime
 from modus.record_store import RecordStore
 from modus.ingest import make_draft, MAX_BYTES, NoObservationsError
@@ -44,6 +43,7 @@ from .briefs import (BriefRequest, BriefExportRequest, BriefChangedError,
 from .extraction_review import review_draft
 from .document_guard import screen_untrusted
 from .report_coverage import public_coverage, extraction_failure_detail
+from .local_security import LocalSecurityMiddleware
 
 load_dotenv(ROOT / '.env')
 CHANGE_FIELDS = {'id', 'created_at', 'kind', 'status', 'draft_id', 'source_id', 'available_at',
@@ -124,10 +124,16 @@ def preview_response(saved, *, reused=False, store=None):
 
 
 def create_entry_app(database=None, clock=None):
-    app = FastAPI(title='Modus Records', version=RELEASE,
+    app = FastAPI(title='Modus Records', version=RELEASE, docs_url=None, redoc_url=None, openapi_url=None,
         description='Synthetic record reconciliation and availability replay. Contest eligibility remains unconfirmed.')
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1', 'localhost', 'testserver'])
-    app.add_middleware(CORSMiddleware, allow_origins=['http://127.0.0.1:5174', 'http://localhost:5174'], allow_methods=['GET', 'POST', 'PUT'], allow_headers=['Content-Type'])
+    app.add_middleware(LocalSecurityMiddleware)
+
+    @app.exception_handler(RequestValidationError)
+    async def private_validation_error(request, error):
+        # Input values, arbitrary extra-property names and validator context can
+        # contain record text or credentials. Return error categories only.
+        return JSONResponse(status_code=422, content={'detail': [
+            {'type': item['type'], 'msg': 'Invalid request field.'} for item in error.errors()[:10]]})
     def commit_event(receipt):
         return {'schema': 'modus-entry-change-v1', 'kind': 'import', 'status': 'completed', 'mode': 'deterministic',
             **{k: receipt[k] for k in ('draft_id', 'source_id', 'available_at', 'observation_ids')},

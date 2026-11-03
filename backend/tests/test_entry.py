@@ -45,7 +45,7 @@ def test_preview_rows_are_read_models_and_review_commit_uses_only_editable_field
         'reviewed_observations': draft['observations'],
     })
     assert rejected.status_code == 422
-    assert any(error['type'] == 'extra_forbidden' and error['loc'][-1] == 'source_span'
+    assert any(error['type'] == 'extra_forbidden'
                for error in rejected.json()['detail'])
     assert app.state.store.snapshot().observations() == before
     assert client.get('/api/changes').json()['changes'] == []
@@ -182,6 +182,6 @@ def test_live_auto_choice_does_not_accept_free_text(tmp_path, calls):
 
 def test_import_closure_without_broad_modules(tmp_path):
     root = Path(__file__).resolve().parents[2]
-    script = "import sys; from fastapi.testclient import TestClient; from modus_entry.app import app; c=TestClient(app); assert c.get('/api/records/view',params={'as_of':'2021-12-31'}).status_code==200; assert not set(('modus.app','modus.analysis','modus.agent','modus.seed','modus.memory','modus.models')) & set(sys.modules)"
+    script = "import sys; from fastapi.testclient import TestClient; from modus_entry.app import app; c=TestClient(app,base_url='http://127.0.0.1',client=('127.0.0.1',50000)); assert c.get('/api/records/view',params={'as_of':'2021-12-31'}).status_code==200; assert not set(('modus.app','modus.analysis','modus.agent','modus.seed','modus.memory','modus.models')) & set(sys.modules)"
     env = {**os.environ, 'PYTHONPATH': '', 'MODUS_ENTRY_DB_PATH': str(tmp_path / 'closure.db'), 'MODUS_PROVIDER': 'offline', 'MODEL_API_KEY': ''}
     subprocess.run([sys.executable, '-c', script], cwd=root / 'backend', env=env, check=True, capture_output=True)

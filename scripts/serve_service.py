@@ -8,6 +8,7 @@ import sys
 
 from check_service import inputs, build_inputs, protected
 from offline_environment import offline_environment
+from private_storage import secure_runtime_directory
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -31,7 +32,9 @@ def configure_offline():
 def child(port):
     configure_offline()
     os.environ['MODUS_ENTRY_DB_PATH'] = str(ROOT/'release/offline-service/records.db')
-    (ROOT/'release/offline-service').mkdir(parents=True, exist_ok=True)
+    secure_runtime_directory(ROOT/'release/offline-service')
+    if os.name != 'nt':
+        os.umask(0o077)  # New SQLite journals and databases inherit owner-only access.
 
     def guard(event, args):
         if event == 'open' and args and isinstance(args[0], (str, bytes, os.PathLike)):
@@ -49,7 +52,7 @@ def child(port):
     sys.path.insert(0, str(ROOT/'backend'))
     from modus_entry.app import app
     import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=port)
+    uvicorn.run(app, host='127.0.0.1', port=port, proxy_headers=False, access_log=False, server_header=False)
 
 
 def main():
