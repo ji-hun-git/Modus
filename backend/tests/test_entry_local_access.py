@@ -186,3 +186,24 @@ def test_explicit_vite_origin_replaces_backend_origin(tmp_path):
     with TestClient(app,base_url='http://127.0.0.1:5174',headers={'X-Modus-Request':'1'}) as client:
         assert client.post('/api/access/unlock',json={'token':material['token']}).status_code == 200
         assert client.post('/api/access/unlock',json={'token':material['token']},headers={'Host':'127.0.0.1:8011'}).status_code == 401
+
+
+def test_release_launcher_configures_access_without_changing_database_or_reading_release_artifacts(tmp_path,monkeypatch):
+    import serve_entry
+    import importlib
+    import uvicorn
+    app_module=importlib.import_module('modus_entry.app')
+    app=create_entry_app(tmp_path/'records.db')
+    before=sha256((tmp_path/'records.db').read_bytes()).hexdigest()
+    monkeypatch.setattr(app_module,'app',app)
+    monkeypatch.setattr(serve_entry,'root',tmp_path)
+    def forbidden_gate(*args,**kwargs):
+        pytest.fail('Server configuration must not open release artifacts')
+    monkeypatch.setattr(serve_entry,'assert_current',forbidden_gate)
+    calls=[]
+    monkeypatch.setattr(uvicorn,'run',lambda application,**options:calls.append((application,options)))
+    serve_entry.run_server(8034)
+    assert calls==[(app,{'host':'127.0.0.1','port':8034,'proxy_headers':False,'access_log':False,'server_header':False})]
+    material=json.loads((tmp_path/'release/entry-service-access/Modus-8034.modus-access').read_text())
+    assert material['origin']=='http://127.0.0.1:8034'
+    assert sha256((tmp_path/'records.db').read_bytes()).hexdigest()==before

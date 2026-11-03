@@ -8,11 +8,14 @@ to create an expiring session. The static shell stays public; record APIs,
 originals, exports and private development routes require authentication.
 The file-orbit layout and original/history semantics are unchanged.
 
-`python scripts/check_service.py`: **1,489 backend passed, 2 skipped; 232 frontend
+`python scripts/check_service.py`: **1,490 backend passed, 2 skipped; 232 frontend
 passed; production build passed**. Tests cover unconfigured startup, forged
 credentials, cookie/URL rejection, exact-origin binding, bounded concurrent
 sessions, server-side idle/absolute expiry, restart rotation, throttling and
-owner-only access files. Frontend checks cover memory-only credentials, late
+owner-only access files. The older release launcher's server setup also creates
+the access file without changing its database path; its configuration test stubs
+the network server and does not read or run the protected release gate.
+Frontend checks cover memory-only credentials, late
 response rejection and immediate local locking even when server revocation
 fails. Expiry uses controlled clocks; no 8-hour browser endurance claim is made.
 

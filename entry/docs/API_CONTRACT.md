@@ -56,6 +56,12 @@ TLS, encryption at rest or protection from software running with the same OS use
 permissions. Such software or an administrator can read the access file. Sharing
 the file grants access until restart. The launcher must remain bound to loopback.
 
+The older `scripts/serve_entry.py` launcher also publishes an access file under
+`release/entry-service-access`. It retains its existing database selection and
+full release-gate requirement; the offline service check does not replace or
+authorize that gate. Use the checked offline launcher described in the README
+for this development build.
+
 Request bodies are limited to 8 MiB plus 128 KiB of multipart overhead before
 parsing; each file still has its separate 8 MiB limit. Chunking cannot evade
 the total limit. Incomplete uploads time out after 30 seconds without invoking
