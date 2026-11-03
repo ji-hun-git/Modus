@@ -15,7 +15,7 @@ export type HistoryAnswer = Omit<Answer, "scope" | "comparison"> & {
     choices: { label: string; message: string }[];
   };
   terminology?: TermMapping[];
-  continuation?: {token: string; subject: string; before_date: string; suggested_question: string};
+  continuation?: {token: string; subject: string; before_date: string|null; suggested_question: string; supported_questions?:string[]};
   followup?: {subject: string; before_date: string};
   query_result?: {status:"answered"|"no_match"|"insufficient_evidence"|"clarification"|"unsupported"|"not_understood"|"planner_unavailable"};
   history_comparison?: {

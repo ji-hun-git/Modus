@@ -32,7 +32,7 @@ const result = await build({
       'export { default as ReportCoverageSummary } from "./ReportCoverageSummary";',
       'export { default as ExtractionReviewSummary } from "./ExtractionReviewSummary";',
       'export { default as HistoryAnswerView } from "./HistoryAnswerView";',
-      'export { default as HistoryQuestionPanel, historySuggestions } from "./HistoryQuestionPanel";',
+      'export { default as HistoryQuestionPanel, historySuggestions, continuationLabel } from "./HistoryQuestionPanel";',
     ].join("\n"),
     resolveDir: fileURLToPath(new URL("../src/", import.meta.url)),
     sourcefile: "home-rendering-test.ts",
@@ -57,7 +57,7 @@ const result = await build({
     },
   ],
 });
-const { ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions } =
+const { ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
   await import(
     "data:text/javascript;base64," +
       Buffer.from(result.outputFiles[0].text).toString("base64")
@@ -497,6 +497,12 @@ test('Ask distinguishes typed no-match, insufficient evidence, clarification and
     assert.ok(html.includes(`<h3>${heading}</h3>`),status);
     assert.match(html,/The exact recorded response/);assert.doesNotMatch(html,/history-citation/);
   }
+});
+
+test('the single followup action describes history and source requests without promising an earlier record',()=>{
+  assert.equal(continuationLabel('What about the one before that?'),'Show the earlier record');
+  for(const question of ['Show matching history','Show its history','Where did this value come from?','Name a result to inspect its source.'])
+    assert.equal(continuationLabel(question),question);
 });
 
 test("Ask clarification keeps both explicit choices and never labels a guard as Muse", () => {

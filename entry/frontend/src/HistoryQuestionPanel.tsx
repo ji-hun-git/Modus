@@ -12,6 +12,11 @@ import {
 } from "./historyQuestionScope.mjs";
 import "./history-question.css";
 
+export function continuationLabel(question:string) {
+  const normalized=question.trim().replace(/[?.!]+$/,'').toLowerCase();
+  return ['what about the one before that','show the earlier record'].includes(normalized)?'Show the earlier record':question;
+}
+
 export function historySuggestions(view: HistoryView): [string, string][] {
   const rows = [...view.facts, ...view.undated_facts].filter(row => !row.value_withheld && row.within_date_scope !== false);
   const kinds = new Set(view.facets?.kinds || rows.map(row => row.kind));
@@ -292,7 +297,7 @@ export default function HistoryQuestionPanel({
         onClarify={message => { setQuestion(message); void ask(message); }} />}
       {answer?.continuation && <button className="text-button" disabled={pending}
         onClick={() => { const message = answer.continuation!.suggested_question; setQuestion(message); void ask(message); }}>
-        Show the earlier record
+        {continuationLabel(answer.continuation.suggested_question)}
       </button>}
     </section>
   );

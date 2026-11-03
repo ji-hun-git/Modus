@@ -37,6 +37,11 @@ through the existing scoped endpoints.
 
 ## Reviewed two-report export — 2 November 2026 (T28)
 
+Comparison policy `record-comparison-2026-11-03.1` compares narrative rows only
+as literal recorded wording. These rows have no numerical difference and no
+missing lab-unit/specimen/method warnings. Scope, date, ties and facility notes
+remain visible. Measurement comparisons retain all existing lab-context checks.
+
 `POST /api/briefs/report-preview` accepts `{snapshot_id,selected_source_id,
 comparison_source_id,title?,owner_note?}`. It compiles the two-report summary and
 all its visible facts through the existing brief builder, including related
@@ -89,7 +94,9 @@ records without it remain readable and are not rewritten or silently re-extracte
 
 ## Conversation continuations — 2 November 2026
 
-`POST /api/history/chat` adds optional `continuation_token` (strict string, 1–100 characters). A supported single latest-record answer may return `continuation:{token,subject,before_date,expires_in_seconds,suggested_question}`. “What about the one before that?” and a small set of exact equivalent follow-ups use the stored original query and a strict earlier-date boundary. This navigates dated groups, not an arbitrary order within a day. Same-day ties and incomplete-date limitations remain visible.
+`POST /api/history/chat` adds optional `continuation_token` (strict string, 1–100 characters). A supported answer may return `continuation:{token,subject,before_date,expires_in_seconds,suggested_question,supported_questions}`. `before_date` is null unless the answer identifies one fully dated result group. `supported_questions` lists the supported follow-ups for that answer; it does not grant new tool permissions.
+
+“What about the one before that?” retains the original metric, numerical condition, exact unit and date restrictions, adding a strict earlier-date boundary. It returns the previous matching dated group, not the previous overall value or an arbitrary record within a day. Same-day ties, conflicts and incomplete-date limitations remain visible. “Show matching history” (or “Show its history”) retains the same predicate and original bounds while removing the navigation-only cutoff. A source follow-up, “Where did this value come from?”, requires exactly one unambiguous selected fact; otherwise it clarifies instead of choosing between tied or conflicting evidence. A source answer retains the original navigation context. These responses add `followup.operation: previous|source|history`.
 
 Context is opaque, random, app-local memory: at most 256 entries, 30-minute TTL, lost on restart. It is bound to exact occurrence/availability scope and cannot change record kinds, quoted/source qualifiers or the captured history. It is not authentication or durable personal memory. Missing, expired, changed-scope or modified follow-ups return a fixed `history_followup` clarification without a model/read call. New full questions are independent. Continuations execute the existing typed read in deterministic mode even if the initial answer used Meta; execution labels reflect that.
 
@@ -97,7 +104,7 @@ An explicit correction action can reopen current history and rerun the original 
 
 ## T9 natural whole-history retrieval — 30 October
 
-`POST /api/history/chat` accepts bounded conversational openings and latest-by-kind questions across eight kinds. `latest_history_match` retains `{query,kind?,limit?:1..8}`: a grammar-only query requires an explicitly owner-requested kind; otherwise named/literal constraints remain mandatory. Quoted/source restrictions stay binding. Latest-by-numeric/date filtering remains unsupported except the existing typed BP route. Ordinary offline answers now explicitly include `provider_requests_made:0`.
+`POST /api/history/chat` accepts bounded conversational openings and latest-by-kind questions across eight kinds. `latest_history_match` retains `{query,kind?,limit?:1..8}`: a grammar-only query requires an explicitly owner-requested kind; otherwise named/literal constraints remain mandatory. Quoted/source restrictions stay binding. Numerical/date conditions use the typed query contract below; they are not silently discarded by the legacy matcher. Ordinary offline answers explicitly include `provider_requests_made:0`.
 
 `search_history_evidence` and recognized-topic paged searches add influenza-vaccine, MRI, CT, X-ray and ECG topics matched on eligible saved labels/kinds. Retrieval method is `literal_medical_aliases_and_record_topics_v3`; additive mapping metadata includes `concept_id:"topic:<id>"`, `match_scope:"saved_label_and_kind"`, `record_kinds`, `requested_terms`, `matched_labels`, `catalog_version` and the existing static reference fields. Measurement aliases retain their prior exact-label contracts. A narrative mention alone cannot satisfy a new topic. Source values such as declined/planned remain verbatim; existence is not inferred. Links explain names, not personal findings. No new endpoint, database mutation or model permission is introduced.
 
@@ -111,7 +118,7 @@ Whole-history search uses `literal_and_medical_aliases_v2`, with the code-owned 
 
 `GET /api/history/page` also returns optional `retrieval` metadata for search. Recognized concepts use the same matcher before paging; fields retain their original names and are not merged. A query requiring clarification has zero matching rows and `retrieval.status: "clarify"` with `retrieval.clarification`. Unrecognized queries keep existing substring behavior. Literal/unknown modifiers never acquire clinical semantics. Complete captured counts remain separate from query/page counts.
 
-Reference links are fixed server-owned HTTPS addresses on NIDDK/MedlinePlus, contain no owner data and are not fetched automatically. UI links suppress referrers and reject unexpected origins/credentials/query strings. Source buttons/downloads remain separate and preserve existing availability/partial-document restrictions. No new write tool, external-reference API or medical-advice route is added. See [scope and offline verification](../../docs/T8_MEDICAL_TERMINOLOGY_2026-10-30.md).
+Reference links are fixed server-owned HTTPS addresses on NIDDK/MedlinePlus, contain no owner data and are not fetched automatically. UI links suppress referrers and reject unexpected origins/credentials/query strings. Source buttons/downloads remain separate and preserve existing availability/partial-document restrictions. No new write tool, external-reference API or medical-advice route is added. See [scope and offline verification](VERIFICATION.md).
 
 ## Paginated whole history — 30 October 2026
 
@@ -137,13 +144,13 @@ Response retains `scope`, full-capture `counts` and `profile`. `facts` plus `und
 
 Snapshots are process-local and immutable, with a 600-second lifetime, at most four captures and an approximate 48 MiB encoded-record budget (not a resident-memory guarantee). Unknown/expired/evicted tokens return `410` with an explicit refresh message. Reconstruct from the displayed bounds when reopening a historical view; do not silently replace it with latest history. A single capture exceeding the budget returns `422` asking for an earlier date cutoff. Initial projection/filtering is still whole-capture work; this is not SQL keyset pagination.
 
-History writes increment a transactional generation counter; new lookups see committed changes, while existing tokens retain their captured versions. Audit writes do not invalidate history. Original downloads continue to require the captured temporal bounds and existing partial-document restrictions. The model gains no write tool. See [T7 verification and limits](../../docs/T7_HISTORY_PAGINATION_2026-10-30.md).
+History writes increment a transactional generation counter; new lookups see committed changes, while existing tokens retain their captured versions. Audit writes do not invalidate history. Original downloads continue to require the captured temporal bounds and existing partial-document restrictions. The model gains no write tool. See [verification and limits](VERIFICATION.md).
 
 ## Correction recovery and contention — 30 October 2026
 
 Amendment requests/receipts retain their schema and idempotency. The frontend keeps the exact reviewed pending request in tab memory across evidence-dialog unmounts and workspace navigation; checking an uncertain result resends that identical request. It never automatically retries or persists medical text to browser storage. Reload/crash recovery is not provided. Read-only revision lists remain scope-bound; resuming a latest-version edit from another historical scope requires explicit owner action.
 
-SQLite BUSY/LOCKED errors return HTTP `503`, `Retry-After: 1`, and `{"detail":"Your records are busy. Please try again shortly."}`. A correction client must retain the identical pending body on this response, as it does for other uncertain outcomes. Definitive non-timeout/non-rate-limit 4xx rejections invalidate the preview and require review again. History snapshots still capture clock/rows in one transaction; decoding/projection and offline Ask work run outside database locks/event-loop work respectively. See the [verification report](../../docs/T6_CORRECTION_RECOVERY_2026-10-30.md).
+SQLite BUSY/LOCKED errors return HTTP `503`, `Retry-After: 1`, and `{"detail":"Your records are busy. Please try again shortly."}`. A correction client must retain the identical pending body on this response, as it does for other uncertain outcomes. Definitive non-timeout/non-rate-limit 4xx rejections invalidate the preview and require review again. History snapshots still capture clock/rows in one transaction; decoding/projection and offline Ask work run outside database locks/event-loop work respectively. See the [verification report](VERIFICATION.md).
 
 Implementation contract for the independent entry. All dates/times are strings; instants require a timezone. JSON requests forbid extra fields. No broad assessment, medication, genetics or reference routes exist.
 
