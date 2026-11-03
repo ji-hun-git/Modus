@@ -997,6 +997,25 @@ test('Twelve relational orbit files retain separate actions, the selected source
   assert.doesNotMatch(html,/clinical relationship|health score|risk score/i);
 });
 
+test('Report picker distinguishes repeated filenames without renaming their sources',()=>{
+  const reports = ['2024-02-03','2025-05-20','2025-05-20',null].map((date,index)=>({
+    source:{id:`repeat-${index}`,title:'checkup.csv',type:'csv'},latestDate:date,
+    facts:[row(`repeat-${index}`,date)],
+  }));
+  reports.push({source:{id:'unique',title:'unique.csv',type:'csv'},latestDate:null,facts:[]});
+  const original = structuredClone(reports);
+  const html = render(OrbitMap,{reports,selectedId:'repeat-2',onSelect:noop,prominent:true});
+  const options = [...html.matchAll(/<option[^>]*>([^<]*)<\/option>/g)].map(match=>match[1]);
+  assert.equal(new Set(options).size,5);
+  assert.ok(options.includes('checkup.csv · 3 Feb 2024'));
+  assert.ok(options.includes('checkup.csv · 20 May 2025 · file 1'));
+  assert.ok(options.includes('checkup.csv · 20 May 2025 · file 2'));
+  assert.ok(options.includes('checkup.csv · Date not recorded'));
+  assert.ok(options.includes('unique.csv'));
+  assert.match(html,/<option value="repeat-2" selected="">/);
+  assert.deepEqual(reports,original);
+});
+
 test('Twelve same-era orbit targets have mobile touch clearance and outward date labels',()=>{
   const reports=Array.from({length:12},(_,i)=>({source:{id:'dense-'+i,type:'text/csv',title:'Same filename.csv'},
     latestDate:i===11?null:'2026-10-20',facts:[row('dense-'+i,i===11?null:'2026-10-20')]}));

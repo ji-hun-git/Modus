@@ -1,5 +1,16 @@
 # Modus Records API v1
 
+## Literal-value history questions — 3 November 2026
+
+`POST /api/history/chat` recognizes questions such as “When was my Ferritin
+30 ng/mL?” as exact numerical equality without requiring the word “exactly”.
+This shorthand requires one resolved test, an adjacent literal value and an
+explicit unit. Unqualified numbers, extra conditions, negation and unsupported
+source/method restrictions still require clarification. Recorded-date bounds,
+earliest/latest selection and captured availability remain binding; units are
+not converted. The same anchored plan is required of any optional Muse planner.
+No endpoint, authority or model call is added.
+
 ## Report row inventory — 3 November 2026
 
 Explicit Meta PDF/image reading adds a third, source-only `InventoryReportRows`

@@ -184,7 +184,7 @@ def execute_query(context, plan):
         clarify('incomplete_dates', 'Some potentially matching records have incomplete dates. Inspect them before treating a dated result as the first, last, or complete date-filtered total.')
     if qualified:
         clarify('qualified_values', 'Some recorded values are qualified or textual. They cannot establish a complete set or definitive first or last match to this numerical condition.')
-    summary = (f"{len(matches)} recorded results match this question in the selected history."
+    summary = (f"{len(matches)} recorded {'result matches' if len(matches) == 1 else 'results match'} this question in the selected history."
                if selection in ('count', 'all') and len(selected) == len(matches) else '')
     if not matches:
         summary = 'No matching value was found among available reviewed records.'

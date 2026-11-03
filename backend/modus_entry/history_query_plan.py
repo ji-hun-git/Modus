@@ -102,6 +102,8 @@ OPERATORS = (
 )
 OP_PATTERN = re.compile(r'(?<!\w)(?P<operator>' + '|'.join('(?:'+p+')' for _, p in OPERATORS)
     + r')\s*(?P<value>'+NUMBER+r')(?!\d|\.\d)', re.I)
+UNIT_PATTERN = re.compile(r'\s*([%]|[A-Za-zµμ][A-Za-z0-9µμ%^.*\[\]-]*(?:\s*/\s*[A-Za-z0-9µμ^.*\[\]-]+)+|mmHg|bpm|mIU|IU|U)(?=\s|[?.,!]|$)')
+BARE_VALUE = re.compile(r'\s+(?:(?:of|at|was|were|is)\s+)?(?P<value>'+NUMBER+r')(?!\d|\.\d)', re.I)
 CLINICAL = re.compile(r'\b(?:diagnos(?:e|ing)|treat(?:ment|ments)?|advice|recommend\w*|should|'
     r'interpret\w*|normal|abnormal|healthy|dangerous|risk|caus\w*|improv\w*|worsen\w*|'
     r'prognos\w*|predict\w*|prescribe|triage|disease|supplements?|dosage)\b|'
@@ -239,15 +241,23 @@ def interpret(context, message, *, allow_unfamiliar_wording=False):
         return clarify('date', 'Please use a full recorded date with a year (YYYY-MM-DD). I will keep your current availability view.')
     if len(conditions) > 1:
         return clarify('multiple_conditions', 'Please use one numeric condition at a time; I will not drop any of your conditions.')
+    # "When was my Ferritin 30 ng/mL?" has a literal equality anchor. Require
+    # one named test and a printed unit; an unqualified number might be a year.
+    # All remaining words still pass the same date/filter/negation checks below.
+    implicit = None
+    if not conditions and len(mentioned) == 1 and re.match(r'^(?:please\s+)?when\b', text, re.I):
+        candidate = BARE_VALUE.match(remaining, mentioned[0][1])
+        if candidate and UNIT_PATTERN.match(remaining[candidate.end():]):
+            implicit = candidate
     numeric = None
     spans = list(date_spans)
-    if conditions:
-        match = conditions[0]
-        operator = next(key for key, pattern in OPERATORS if re.fullmatch(pattern, match['operator'], re.I))
+    if conditions or implicit:
+        match = conditions[0] if conditions else implicit
+        operator = next(key for key, pattern in OPERATORS if re.fullmatch(pattern, match['operator'], re.I)) if conditions else 'eq'
         tail = remaining[match.end():]
         # Unit spelling is literal, case-sensitive in execution; no conversion.
         unit = None
-        unit_match = re.match(r'\s*([%]|[A-Za-zµμ][A-Za-z0-9µμ%^.*\[\]-]*(?:\s*/\s*[A-Za-z0-9µμ^.*\[\]-]+)+|mmHg|bpm|mIU|IU|U)(?=\s|[?.,!]|$)', tail)
+        unit_match = UNIT_PATTERN.match(tail)
         end = match.end()
         if unit_match:
             unit = unit_match[1].strip().rstrip('.')
@@ -284,7 +294,7 @@ def interpret(context, message, *, allow_unfamiliar_wording=False):
         return clarify('unapplied_filter', 'I cannot safely apply the extra wording or restriction. Please state one test and condition, or use the Records filters.')
     if unknown and not allow_unfamiliar_wording:
         # Ordinary existing literal searches retain all words in their retriever.
-        if not operation and selection == 'all' and not date_fields:
+        if not operation and numeric is None and selection == 'all' and not date_fields:
             return None
         return clarify('unfamiliar_wording', 'I could not map the wording reliably offline. Please name the recorded test and ask for its history, latest result, or one numeric comparison.')
     try:

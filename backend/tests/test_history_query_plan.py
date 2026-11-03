@@ -35,6 +35,35 @@ def test_sentence_punctuation_cannot_become_part_of_a_number_or_unit(ending):
     assert output['query_result']['observations'][0]['value'] == '58.90'
 
 
+@pytest.mark.parametrize('label,unit', [('Ferritin','ng/mL'), ('CRP','mg/L'), ('TSH','mIU/L')])
+@pytest.mark.parametrize('wording', ['When was my {label} 58.9 {unit}?',
+    'When did I last have {label} of 58.9 {unit}?', 'When was my first {label} at 58.9 {unit}?'])
+def test_dated_literal_value_questions_use_exact_equality(label, unit, wording):
+    ctx = context(label, unit)
+    plan = interpret(ctx, wording.format(label=label, unit=unit))
+    result = execute_query(ctx, plan)['query_result']
+    assert plan.condition.model_dump() == {'operator':'eq','value':'58.9','unit':unit}
+    assert result['observations'][0]['value'] == '58.90'
+
+
+@pytest.mark.parametrize('question', [
+    'When was my Ferritin 2024?', 'When was my Ferritin 30?',
+    'When was my Ferritin not 30 ng/mL?', 'When was my Ferritin 30 ng/mL but not 20?',
+    'When was my Ferritin 30 ng/mL or 40 ng/mL?',
+    'When was my Ferritin 30 ng/mL at West Clinic?',
+    'When was my Ferritin 30 ng/mL using method A?',
+    'When was my Ferritin 30 ng/mL in May?',
+    'When was my Ferritin 30 ng/mL last year?',
+    'When was my Ferritin 30 ng/mL before 2024?',
+    'When was my Ferritin 30 ng/mL and show its trend?',
+    'When was my Ferritin 30 ng/mL while taking iron?',
+])
+def test_implicit_equality_never_drops_an_ambiguous_number_or_restriction(question):
+    for allow in (False, True):
+        plan = interpret(context(), question, allow_unfamiliar_wording=allow)
+        assert plan is not None and plan.intent == 'clarification'
+
+
 @pytest.mark.parametrize('selection, question', [
     ('earliest','Find my first Ferritin below 60 ng/mL'),
     ('all','Was my Ferritin ever below 60 ng/mL?'),

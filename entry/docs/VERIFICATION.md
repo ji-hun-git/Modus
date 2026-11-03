@@ -1,5 +1,36 @@
 # Verification
 
+## Complete offline rehearsal — 3 November 2026
+
+The rehearsal found and fixed two usability failures: natural questions such as
+“When was my ferritin 30 ng/mL?” now use exact equality, and same-named reports
+in Home's picker show their recorded dates. The printable summary also uses
+readable correction labels instead of internal field names.
+
+The offline service gate passed **1,371 backend tests, with 2 skipped; 221
+frontend tests; and the production build**. These are software checks. The
+existing Starlette/httpx deprecation warning remains.
+
+A fresh isolated store received one authored PDF and one authored CSV through
+the browser. The PDF used three explicitly artificial extraction responses;
+CSV reading, Ask, corrections, replay and exports used the real offline paths.
+The owner-reviewed missing row survived restart, was found by Ask and retained
+its unchanged original excerpt and downloaded bytes. A saved pressure correction
+kept 100 in the earlier view and 101 in the updated view. Replay excluded files
+that had not yet arrived. The reviewed two-report export retained both corrected
+values and original wording, with working internal evidence links. Escape from
+the evidence drawer restored focus to the answer's source button.
+
+A small local concurrency check sent 40 Ask requests with four workers. All 40
+returned the expected records or clarification, with no HTTP failures or live
+model calls. This is shared-host offline service evidence, not model accuracy
+or production capacity.
+
+This used the existing local dependencies, not a fresh machine or live model.
+The normal workspace was separate from the rehearsal store. No paid model calls
+or protected evaluation reads are part of this evidence. Live omission quality,
+human-labelled accuracy and final contest release qualification remain open.
+
 ## Reviewed omissions — 3 November 2026
 
 Offline service check: **1,347 backend tests passed, 2 skipped; 220 frontend

@@ -23,6 +23,14 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
   const rings = compact || prominent ? nodes.length ? [{era:-1,radius:104},{era:-2,radius:174}] : [] : layout.rings;
   const buttons = useRef(new Map<string, SVGGElement>());
   const selected = nodes.find((node) => node.id === selectedId);
+  const pickerLabels = new Map(reports.map(report => {
+    const title = report.source.title;
+    const duplicates = reports.filter(other => other.source.title === title);
+    if (duplicates.length === 1) return [report.source.id, title];
+    const dates = report.dateRange || sourceDateRange(report.facts);
+    const sameDates = duplicates.filter(other => (other.dateRange || sourceDateRange(other.facts)) === dates);
+    return [report.source.id, `${title} · ${dates}${sameDates.length > 1 ? ` · file ${sameDates.findIndex(other => other.source.id === report.source.id) + 1}` : ''}`];
+  }));
   return (
     <section className={`orbit-map${compact?' orbit-map-compact':''}${prominent?' orbit-map-prominent':''}`} aria-label="Your source files in orbit">
       <header className="orbit-map-heading">
@@ -96,7 +104,7 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
       </svg>
       {(compact || prominent) && !!reports.length && <label className="orbit-file-picker">Open a report
         <select value={selectedId || ''} onChange={event=>onSelect(event.target.value)}>
-          {reports.map(report=><option key={report.source.id} value={report.source.id}>{report.source.title}</option>)}
+          {reports.map(report=><option key={report.source.id} value={report.source.id}>{pickerLabels.get(report.source.id)}</option>)}
         </select>
       </label>}
       {(!prominent || !!total && total > reports.length) && <footer><span>{prominent ? 'More files are available in Records.' : 'One satellite. One source file.'}</span>

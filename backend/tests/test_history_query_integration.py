@@ -140,6 +140,31 @@ def test_t6_other_metric_threshold_does_not_use_egfr_results(query_service):
     assert {(f['label'], f['value']) for f in facts(answer)} == {('Ferritin', '18')}
 
 
+@pytest.mark.parametrize('question,expected_dates', [
+    ('When was my ferritin 30 ng/mL?', {'2024-02-03', '2025-05-20'}),
+    ('When did I last have ferritin of 30 ng/mL?', {'2025-05-20'}),
+    ('When was my ferritin 30 ng/mL before 2025-01-01?', {'2024-02-03'}),
+])
+def test_literal_equality_questions_retain_units_dates_and_originals(query_service, question, expected_dates):
+    client, _, clock = query_service
+    first, raw = import_rows(client, [row('30.00', '2024-02-03', 'Ferritin', 'ng/mL'),
+        row('30', '2026-02-03', 'Ferritin', 'ug/L'), row('35.0', '2026-05-20', 'Ferritin', 'ng/mL')], 'original.csv')
+    cutoff = clock[0].isoformat()
+    clock[0] += timedelta(seconds=2)
+    import_rows(client, [row('30', '2025-05-20', 'Ferritin', 'ng/mL')], 'later-file.csv')
+    answer = ask(client, question)
+    assert_plan(answer)
+    assert answer['query_plan']['condition'] == {'operator':'eq','value':'30','unit':'ng/mL'}
+    assert {f['date'] for f in facts(answer)} == expected_dates
+    assert all(f['unit'] == 'ng/mL' for f in facts(answer))
+    earlier = ask(client, question, known_at=cutoff)
+    assert {(f['date'], f['value']) for f in facts(earlier)} == {('2024-02-03','30.00')}
+    assert '1 recorded result matches' in earlier['answer'] or 'Latest fully dated match' in earlier['answer']
+    original = client.get(f'/api/history/sources/{first["source_id"]}/original',
+                         params={'known_at':answer['scope']['known_at']})
+    assert original.status_code == 200 and original.content == raw
+
+
 def test_t7_incompatible_unknown_units_and_qualifiers_are_not_numeric_matches(query_service):
     client, _, _ = query_service
     import_rows(client, [row('92', '2020-01-01', 'Glucose', 'mg/dL'),
