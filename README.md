@@ -57,6 +57,8 @@ A small live development probe exercised report extraction, explicit review and
 bounded Ask, exposing and fixing boilerplate extraction and fixed-filter tool-call
 failures. Its [results and limitations](entry/docs/VERIFICATION.md#live-report-reading-and-bounded-ask--3-november-2026)
 are separate from protected evaluations and do not establish general accuracy.
+A [harder six-report follow-up](entry/docs/VERIFICATION.md#harder-live-report-probes--3-november-2026)
+reports exact row errors, false omission flags and unresolved date-label ambiguity.
 
 ## Limits
 

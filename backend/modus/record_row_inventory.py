@@ -11,6 +11,12 @@ You are not given an extraction proposal. Independently list each legible result
 or self-contained recorded history statement, in source order. Preserve duplicate
 and conflicting rows separately. Include narrative records, not only lab measurements.
 Copy label, value, unit and one contiguous source_quote verbatim; unknown unit is null.
+In a historical matrix, list each result cell separately with the printed test label.
+Never append a date, unit, column title, row number or other disambiguator to that label.
+Different dates can share the identical label and row quote. Preserve those entries
+separately even when their values repeat; the source row may contain several values.
+Read the unit column for every result, including the last row. Do not include empty
+template cells as results, and do not turn an absent unit into a familiar standard unit.
 Do not turn reference ranges, table headings, page numbers, birth dates or instructions
 into results. Do not diagnose, interpret, recommend, calculate, infer or repair values.
 Document-level boilerplate and disclaimers are not personal history statements. Keep
@@ -121,6 +127,23 @@ def compare_inventory(inventory, numbers, original_pages, fields):
             row.update(local_support=support, matched_field_id=match['id'] if match else None,
                        reason=None if match else 'source_unconfirmed' if support == 'mismatch' else 'not_in_proposal')
             rows.append(row)
+    # A single differing unit on the exact same printed passage is a field
+    # disagreement, not a second record to add. Keep both proposals unchanged.
+    # Defer until all exact matches have consumed their fields, and require a
+    # unique pairing in BOTH directions. Ambiguous repeats remain omissions.
+    links = {}
+    for row in rows:
+        if row['matched_field_id'] is not None or row['local_support'] == 'mismatch':
+            continue
+        candidates = [f for f in fields if f['id'] not in used and f['page'] == row['page']
+            and all(compact(f[k] or '') == compact(row[k] or '') for k in ('label', 'value', 'source_quote'))
+            and compact(f['unit'] or '') != compact(row['unit'] or '')]
+        if len(candidates) == 1:
+            links[row['id']] = candidates[0]['id']
+    for row in rows:
+        related = links.get(row['id'])
+        if related and list(links.values()).count(related) == 1:
+            row.update(related_field_id=related, reason='unit_disagreement')
     return {'status': 'completed', 'pages': pages, 'rows': rows, 'error_kind': None}
 
 
@@ -138,10 +161,13 @@ def field_inventory_checks(fields, groups):
     """
     matched = {row['matched_field_id'] for group in groups for row in group['rows']
                if row['matched_field_id'] is not None}
+    disagreements = {row['related_field_id']: row['unit'] for group in groups for row in group['rows']
+                     if row.get('related_field_id') is not None}
     checked_pages = {page['page'] for group in groups for page in group['pages']
                      if page['status'] == 'checked' and page['readability'] == 'readable'
                      and not page['truncated']}
-    return {field['id']: {'status': 'matched' if field['id'] in matched else
+    return {field['id']: {'status': 'unit_disagreement', 'proposed_unit': disagreements[field['id']]}
+            if field['id'] in disagreements else {'status': 'matched' if field['id'] in matched else
                          'unmatched' if field['page'] in checked_pages else 'unavailable'}
             for field in fields}
 
@@ -155,5 +181,6 @@ def summarize_inventory(groups):
             'status': 'unavailable' if not checked else 'partial' if incomplete else 'completed',
             'review_required': True, 'inventory_rows': len(rows),
             'matched_rows': sum(row['matched_field_id'] is not None for row in rows),
-            'omissions': [row for row in rows if row['matched_field_id'] is None],
+            'omissions': [row for row in rows if row['matched_field_id'] is None and not row.get('related_field_id')],
+            'disagreements': [row for row in rows if row.get('related_field_id')],
             'pages': pages}

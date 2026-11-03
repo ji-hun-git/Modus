@@ -24,6 +24,9 @@ personal history entries. Preserve actual recorded negative findings such as "No
 and person-specific notes such as a requested repeat sample; do not confuse them with a
 document-level disclaimer about what the example or service does.
 Labels, values, units and occurred_on must be verbatim as printed, in the original language.
+For a table, read each result cell and its unit column, including the last row. A missing
+result cell is not a recorded fact. In a historical matrix, each dated result cell is a
+separate field with the unchanged printed test label; never append a date to the label.
 Unknown unit/date is null. Preserve conflicting rows separately. Copy reference_range,
 specimen and test_method verbatim only when explicitly linked to this result in the
 same source passage; otherwise null. Never supply a standard range or infer a method.

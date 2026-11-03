@@ -155,6 +155,54 @@ def test_one_inventory_row_cannot_confirm_two_proposed_duplicates():
     assert [f['inventory_check']['status'] for f in result['fields']] == ['matched','unmatched']
 
 
+def test_unit_disagreement_is_reviewed_on_existing_field_without_mutation():
+    proposed = {**MISSING, 'unit': None}
+    result, _, _ = run(ArtificialInventoryReader(rows=[MISSING],proposed=[proposed]),raw=pdf(SOURCE))
+    check = result['completeness_check']
+    assert check['omissions'] == [] and check['matched_rows'] == 0
+    disagreement, = check['disagreements']
+    assert disagreement['related_field_id'] == 'field-1' and disagreement['matched_field_id'] is None
+    assert disagreement['unit'] == 'ng/mL' and disagreement['source_quote'] == MISSING_QUOTE
+    assert result['fields'][0]['unit'] is None
+    assert result['fields'][0]['inventory_check'] == {'status':'unit_disagreement','proposed_unit':'ng/mL'}
+
+
+@pytest.mark.parametrize('rows,proposed', [([MISSING,MISSING],[{**MISSING,'unit':None}]),
+    ([MISSING],[{**MISSING,'unit':None},{**MISSING,'unit':None}])])
+def test_ambiguous_unit_pairing_does_not_hide_repeated_rows(rows,proposed):
+    result, _, _ = run(ArtificialInventoryReader(rows=rows,proposed=proposed),raw=pdf(SOURCE))
+    assert result['completeness_check']['disagreements'] == []
+    assert len(result['completeness_check']['omissions']) == len(rows)
+
+
+def test_exact_unit_match_takes_priority_over_earlier_unit_disagreement():
+    quote = MISSING_QUOTE+'; alternate entry 29.40 ug/L'
+    exact = {**MISSING,'source_quote':quote}
+    other = {**exact,'unit':'ug/L'}
+    result, _, _ = run(ArtificialInventoryReader(rows=[other,exact],proposed=[exact]),raw=pdf(TEXT+'\n'+quote))
+    assert result['completeness_check']['matched_rows'] == 1
+    assert result['completeness_check']['disagreements'] == []
+    assert [r['unit'] for r in result['completeness_check']['omissions']] == ['ug/L']
+
+
+def test_unit_disagreement_requires_same_complete_passage_not_partial_overlap():
+    proposed = {**MISSING,'unit':None,'source_quote':MISSING_QUOTE+' plus other recorded text'}
+    result, _, _ = run(ArtificialInventoryReader(rows=[MISSING],proposed=[proposed]),raw=pdf(TEXT+'\n'+proposed['source_quote']))
+    assert len(result['completeness_check']['omissions']) == 1
+    assert result['completeness_check']['disagreements'] == []
+
+
+def test_matrix_cells_keep_literal_labels_and_duplicate_values_without_alias_matching():
+    quote = 'Glucose mg/dL 91 104 91'
+    rows = [field(label='Glucose',value=v,unit='mg/dL',source_quote=quote) for v in ['91','104','91']]
+    result, _, _ = run(ArtificialInventoryReader(rows=rows,proposed=rows),raw=pdf(TEXT+'\n'+quote))
+    assert result['completeness_check']['matched_rows'] == 3 and result['completeness_check']['omissions'] == []
+    renamed = [{**r,'label':r['label']+' 2017-04-11'} for r in rows]
+    bad, _, _ = run(ArtificialInventoryReader(rows=renamed,proposed=rows),raw=pdf(TEXT+'\n'+quote))
+    assert len(bad['completeness_check']['omissions']) == 3
+    assert all(r['local_support']=='mismatch' for r in bad['completeness_check']['omissions'])
+
+
 def test_same_text_on_another_page_is_not_a_row_match():
     parsed = InventoryResponse.model_validate(inventory([field()], page=2))
     pages = [{'page': n, 'text': SPAN, 'text_source':'pdf_text'} for n in (1,2)]

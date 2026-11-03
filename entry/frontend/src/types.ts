@@ -106,6 +106,12 @@ export type ReportCompleteness = {
   review_required: true;
   inventory_rows: number;
   matched_rows: number;
+  disagreements?: {
+    id: string; page: number; label: string; value: string; unit: string | null;
+    source_quote: string; bbox: number[] | null;
+    local_support: 'matched_text' | 'mismatch' | 'unavailable';
+    matched_field_id: null; related_field_id: string; reason: 'unit_disagreement';
+  }[];
   omissions: {
     id: string; page: number; label: string; value: string; unit: string | null;
     source_quote: string; bbox: number[] | null;

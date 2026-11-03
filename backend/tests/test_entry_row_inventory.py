@@ -130,3 +130,37 @@ def test_extra_proposed_boilerplate_stays_visible_until_explicit_review(service)
     assert store.draft(draft['id'])['extraction_proposal']['fields'][1]['source_quote'] == footer['source_quote']
     assert client.get('/api/history/sources/'+draft['id']+'/original',
         params={'known_at':saved['scope']['known_at']}).content == raw
+
+
+def test_unit_disagreement_edits_one_existing_row_and_preserves_original_proposals(service):
+    client,store,transport = service
+    actual = field(label='Bilirubin',value='0.80',unit='mg/dL',source_quote='Bilirubin 0.80 mg/dL 2024-02-03')
+    transport.rows = [actual]
+    transport.proposed = [{**actual,'unit':None}]
+    raw = pdf(actual['source_quote'])
+    draft = upload(client,raw).json()
+    check = draft['extraction_review']['completeness_check']
+    assert check['omissions'] == [] and len(check['disagreements']) == 1
+    assert draft['facts'][0]['unit'] is None
+    assert any("read the unit as 'mg/dL'" in reason for reason in draft['facts'][0]['review_reasons'])
+    reviewed = {k:draft['facts'][0].get(k) for k in ReviewedFact.model_fields}
+    reviewed['unit'] = 'mg/dL'
+    # A related candidate is not eligible for a duplicate omission commit.
+    bad = {**reviewed,'id':check['disagreements'][0]['id']}
+    rejected = client.post('/api/history/commit',json={'draft_id':draft['id'],
+        'synthetic_confirmed':True,'reviewed_facts':[],'reviewed_omissions':[bad]})
+    assert rejected.status_code == 422
+    receipt = client.post('/api/history/commit',json={'draft_id':draft['id'],
+        'synthetic_confirmed':True,'reviewed_facts':[reviewed]})
+    assert receipt.status_code == 200 and receipt.json()['inserted'] == 1
+    saved = client.get('/api/history/view').json()
+    own = [f for f in saved['facts'] if f['source_id']==draft['id']]
+    assert len(own)==1 and own[0]['unit']=='mg/dL'
+    original = store.draft(draft['id'])
+    assert original['extraction_proposal']['fields'][0]['unit'] is None
+    assert original['extraction_proposal']['row_inventory'][0]['rows'][0]['unit']=='mg/dL'
+    assert original['source']['unresolved_row_inventory'] is True
+    assert client.get('/api/history/sources/'+draft['id']+'/original',
+        params={'known_at':saved['scope']['known_at']}).content==raw
+    assert upload(client,raw).json()['extraction_review']['completeness_check']==check
+    assert len(transport.calls)==3

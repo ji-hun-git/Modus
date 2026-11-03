@@ -21,6 +21,23 @@ No endpoint, authority or model call is added.
 
 ## Report row inventory — 3 November 2026
 
+Historical tables inventory each result cell with its unchanged printed test
+name. Dates and column headings may not be appended to labels. All duplicate
+entries retain the existing literal, one-to-one matching requirements.
+
+`completeness_check.disagreements` additionally retains a unit disagreement
+when exactly one unmatched inventory row and one unmatched field have the same
+page, literal label/value and entire whitespace-normalized source passage.
+Exact matches take priority; ambiguous repeats and different passages remain
+possible omissions. Neither value nor unit is converted or overwritten. The
+inventory row retains `matched_field_id:null`, `related_field_id` and
+`reason:unit_disagreement`; it cannot be submitted as a reviewed omission.
+The existing field gets `inventory_check.status:unit_disagreement` with
+`proposed_unit` and a visible review reason. The owner corrects that field using
+the existing review editor. Disagreements continue to restrict dated source
+disclosure, and both original proposals remain immutable. Older drafts are not
+rewritten or re-extracted automatically. This adds no model call or write authority.
+
 The separate reading now checks disagreement in both directions. An extracted
 field absent from a readable, non-truncated inventory page gains a visible
 review reason; it is never silently removed. The immutable extraction proposal

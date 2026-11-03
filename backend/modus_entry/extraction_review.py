@@ -71,6 +71,10 @@ def review_draft(filename, raw, result):
             issues.append('The second reading could not confirm this field.')
         if field.get('inventory_check', {}).get('status') == 'unmatched':
             issues.append('The separate row check did not find this proposed entry. Check that it is a recorded result or history item.')
+        elif field.get('inventory_check', {}).get('status') == 'unit_disagreement':
+            proposed_unit = field['inventory_check']['proposed_unit']
+            shown = repr(proposed_unit) if proposed_unit is not None else 'not recorded'
+            issues.append(f'The separate row check read the unit as {shown}. Check this entry\'s unit in the original; do not add a duplicate row.')
         facts.append({
             'id': field['id'], 'label': field['label'], 'value': field['value'],
             'unit': field['unit'], 'date': field['occurred_on'], 'page': field['page'],
@@ -97,7 +101,7 @@ def review_draft(filename, raw, result):
         check = result['completeness_check']
         # A possible omitted row has no reviewed date. Do not expose its full
         # original through a dated history view merely because extracted rows fit.
-        draft['source']['unresolved_row_inventory'] = bool(check['omissions'] or check['status'] != 'completed')
+        draft['source']['unresolved_row_inventory'] = bool(check['omissions'] or check.get('disagreements') or check['status'] != 'completed')
     # Preserve exact model proposals, checks and non-calibrated confidence for
     # later review without exposing them as committed or historically known facts.
     draft['extraction_proposal'] = result
