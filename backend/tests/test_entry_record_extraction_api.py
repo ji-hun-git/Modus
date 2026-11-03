@@ -233,7 +233,8 @@ def test_http_runs_real_source_checks_and_inventory_with_artificial_transport(ap
     assert response.status_code == 200, response.text
     draft = store.draft(response.json()['id'])
     assert len(calls) == 3 and all('tools' not in payload for payload in calls)
-    assert all(payload['reasoning_effort'] == 'minimal' and payload['max_completion_tokens'] == 4000 for payload in calls)
+    assert all(payload['reasoning_effort'] == 'minimal' for payload in calls)
+    assert [payload['max_completion_tokens'] for payload in calls] == [16000, 6000, 12000]
     assert all(any(part['type'] == 'image_url' for part in payload['messages'][1]['content']) for payload in calls)
     assert draft['extraction_proposal']['fields'][0]['local_support']['status'] == 'unavailable'
     assert draft['extraction_review']['facts'][0]['review_reasons']  # Model agreement isn't proof.

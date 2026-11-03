@@ -241,3 +241,62 @@ def test_failed_later_inventory_preserves_all_fields_and_an_explicit_partial_che
     assert [p['status'] for p in check['pages']] == ['checked']*3 + ['unavailable']
     assert result['coverage']['processed_pages'] == 4
     assert 'PRIVATE_INVENTORY_ERROR' not in json.dumps((result,telemetry))
+
+
+@pytest.mark.parametrize('truncated_stage', [None, 'ExtractRecordedFields', 'VerifyRecordedFields', 'InventoryReportRows'])
+def test_dense_contextual_report_keeps_rows_and_never_treats_token_exhaustion_as_complete(truncated_stage):
+    """Artificial transport, covering dense output and each failure boundary."""
+    from test_record_extraction import pdf as text_pdf
+    rows = []
+    for index in range(32):
+        label = f'Authored test {index + 1}'
+        value = f'{index + 10}.00'
+        span = f'{label}: {value} mg/L | Range: 1-100 mg/L | Specimen: Serum | Method: Photometry'
+        rows.append(fact(1, label=label, value=value, unit='mg/L', occurred_on='2024-03-12',
+            reference_range='1-100 mg/L', specimen='Serum', test_method='Photometry', source_quote=span,
+            date_evidence={'value':'2024-03-12', 'source_quote':'Collected: 2024-03-12', 'page':1, 'bbox':None}))
+    raw = text_pdf('Collected: 2024-03-12\n' + '\n'.join(row['source_quote'] for row in rows))
+    calls, telemetry = [], {}
+
+    async def transport(payload):
+        calls.append(payload)
+        stage = payload['response_format']['json_schema']['name']
+        if stage == 'ExtractRecordedFields':
+            content = {'extraction': {'document_type':'lab_report', 'fields':rows}}
+        elif stage == 'VerifyRecordedFields':
+            supplied = checked_fields(payload)
+            assert len(supplied) == 32 and supplied[-1]['source_quote'] == rows[-1]['source_quote']
+            content = {'checks':[{'field_id':r['id'], 'status':'supported', 'reason':'matches_source'} for r in supplied]}
+        else:
+            # Independent inventory receives the original only, never a proposal.
+            assert not any('UNTRUSTED PROPOSED FIELDS' in p.get('text','') for p in payload['messages'][1]['content'])
+            content = {'pages':[{'page':1, 'readability':'readable', 'truncated':False,
+                'rows':[{k:r[k] for k in ('label','value','unit','source_quote','bbox')} for r in rows]}]}
+        result = response(content)
+        if stage == truncated_stage:
+            # Even valid JSON is rejected when the provider says it is incomplete.
+            result['choices'][0]['finish_reason'] = 'length'
+        return result
+
+    if truncated_stage == 'ExtractRecordedFields':
+        with pytest.raises(provider.MetaRequestError) as failure:
+            asyncio.run(reader.extract_record_document(raw,'dense.pdf','application/pdf',telemetry,request=transport))
+        assert failure.value.error_kind == 'incomplete'
+        assert len(calls) == 1 and telemetry['report_coverage']['status'] == 'failed'
+        return
+    result = asyncio.run(reader.extract_record_document(raw,'dense.pdf','application/pdf',telemetry,request=transport))
+    assert len(calls) == 3  # No hidden retry or cap expansion.
+    assert len(result['fields']) == 32 and result['review_required'] is True
+    for actual, expected in zip(result['fields'], rows):
+        assert all(actual[k] == expected[k] for k in ('label','value','unit','source_quote','reference_range','specimen','test_method','occurred_on'))
+        assert actual['local_support']['status'] == 'review_required'
+    assert result['coverage']['completeness'] == 'not_established'
+    if truncated_stage == 'VerifyRecordedFields':
+        assert result['verification'] == {'status':'unavailable','error_kind':'incomplete'}
+        assert all(r['verification']['status'] == 'unavailable' for r in result['fields'])
+    elif truncated_stage == 'InventoryReportRows':
+        assert result['completeness_check']['status'] == 'unavailable'
+        assert all(r['inventory_check']['status'] == 'unavailable' for r in result['fields'])
+    else:
+        assert result['verification']['status'] == 'completed'
+        assert result['completeness_check']['matched_rows'] == 32

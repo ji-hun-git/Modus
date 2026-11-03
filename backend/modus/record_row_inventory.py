@@ -1,6 +1,7 @@
 """A source-only row inventory and conservative comparison, never a completeness proof."""
 import math
 import re
+from .record_document_input import independent_page_texts
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from typing import Literal
@@ -93,10 +94,11 @@ def _inside(value, text):
 
 def _support(row, page):
     # OCR/vision and same-model agreement are never independent text support.
-    if page.get('text_source') == 'local_teleocr' or not page['text'].strip():
+    texts = independent_page_texts(page)
+    if not texts:
         return 'unavailable'
     quote = compact(row['source_quote'])
-    if quote not in compact(page['text']):
+    if not any(quote in text for text in texts):
         return 'mismatch'
     if any(not _inside(row[k], quote) for k in ('label', 'value', 'unit') if row[k] is not None):
         return 'mismatch'
@@ -109,7 +111,7 @@ def compare_inventory(inventory, numbers, original_pages, fields):
     rows, pages, used = [], [], set()
     for supplied in inventory.pages:
         original = original_pages[supplied.page - 1]
-        text_available = bool(original['text'].strip()) and original.get('text_source') != 'local_teleocr'
+        text_available = bool(independent_page_texts(original))
         pages.append({'page': supplied.page, 'status': 'checked', 'readability': supplied.readability,
                       'truncated': supplied.truncated, 'independent_text_available': text_available})
         for index, proposed in enumerate(supplied.rows, 1):

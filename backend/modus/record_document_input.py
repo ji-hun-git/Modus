@@ -21,6 +21,16 @@ MAX_IMAGE_BYTES = 8 * 1024 * 1024
 _PDF_RENDER_LOCK = threading.Lock()
 
 
+def independent_page_texts(page):
+    """Separate deterministic PDF transcriptions; never join them or promote OCR."""
+    if page.get('text_source') == 'local_teleocr':
+        return []
+    texts = [page.get('text', '')]
+    if page.get('text_source') == 'pdf_text':
+        texts.append(page.get('reading_order_text', ''))
+    return [' '.join(text.split()) for text in texts if text.strip()]
+
+
 def _jpeg(image):
     image.thumbnail((1536, 1536))
     output = io.BytesIO()
@@ -120,16 +130,23 @@ def _read_pages(raw, filename, mime):
         pages = []
         for number, page in enumerate(reader.pages, 1):
             text = page.extract_text(extraction_mode='layout', layout_mode_space_vertically=False) or ''
-            if len(text) > MAX_PAGE_TEXT:
+            # Layout mode interleaves side-by-side columns. The content-stream
+            # order can retain a contiguous multi-line result in either column.
+            # Keep both from the ORIGINAL bytes; no fuzzy or stitched matching.
+            reading_order = page.extract_text() or ''
+            if ' '.join(reading_order.split()) == ' '.join(text.split()):
+                reading_order = ''
+            if len(text) + len(reading_order) > MAX_PAGE_TEXT:
                 raise ValueError('PDF page text limit exceeded; no content was silently truncated')
-            pages.append({'page': number, 'text': text, 'text_source': 'pdf_text' if text.strip() else 'none'})
+            pages.append({'page': number, 'text': text, 'reading_order_text': reading_order,
+                          'text_source': 'pdf_text' if text.strip() or reading_order.strip() else 'none'})
         sparse = [p['page'] for p, original in zip(pages, reader.pages, strict=True)
                   if len(''.join(p['text'].split())) < 80 or _has_page_images(original)]
         images = _render_pdf(raw, sparse) if sparse else {}
     else:
         images = {1: _image(raw)}
         pages = [{'page': 1, 'text': '', 'text_source': 'none'}]
-    if sum(len(p['text']) for p in pages) > MAX_TOTAL_TEXT:
+    if sum(len(p['text']) + len(p.get('reading_order_text', '')) for p in pages) > MAX_TOTAL_TEXT:
         raise ValueError('Document text limit exceeded; no content was silently truncated')
     if sum(len(data) for data in images.values()) > MAX_IMAGE_BYTES:
         raise ValueError('Rendered document size limit exceeded')
@@ -156,7 +173,8 @@ async def prepare_document(raw, filename, mime, telemetry, *, use_local_ocr=Fals
             except local_ocr.LocalOCRError as error:
                 telemetry['local_ocr'] = error.telemetry or {'status': 'failed', 'mode': 'local-teleocr'}
                 ocr_status = 'failed'
-    text_sizes = [len(p['text']) + (len(p.get('ocr_text', '')) if p['text_source'] != 'local_teleocr' else 0) for p in pages]
+    text_sizes = [len(p['text']) + len(p.get('reading_order_text', '')) +
+        (len(p.get('ocr_text', '')) if p['text_source'] != 'local_teleocr' else 0) for p in pages]
     if any(size > MAX_PAGE_TEXT for size in text_sizes) or sum(text_sizes) > MAX_TOTAL_TEXT:
         raise ValueError('Combined source text limit exceeded')
     parts, page_parts = [], []

@@ -5,7 +5,7 @@ from datetime import date
 
 from .ingest import metric_key
 from .provider import MetaRequestError, measured_request, provider_status
-from .record_document_input import prepare_document
+from .record_document_input import prepare_document, independent_page_texts
 from .record_extraction_models import (ExtractionResponse, VerificationResponse,
                                        extraction_schema, verification_schema)
 from .whole_report import plan_report, finish_group, fail_group, MAX_REPORT_FIELDS
@@ -34,6 +34,9 @@ Preserve unlinked reference text and provider assessments as recorded_text.
 One field represents one self-contained recorded fact, not a paraphrase or inferred relation.
 Each source_quote must be a single verbatim passage from the stated source page supporting
 the label, value, unit and lab context together. Never stitch unrelated passages.
+When a result is followed by its Range, Specimen or Method lines, include those actual
+lines in the same source_quote, not only the result line. Every populated lab-context
+field must appear in that quote; do not drop its supporting lines to shorten the output.
 For a date printed separately in a clearly linked report header, put its exact value,
 verbatim labelled passage, original page and optional bbox in date_evidence. The value
 must equal occurred_on. Keep the row and date passages separate. A printed, issued,
@@ -61,6 +64,14 @@ If a proposal is document boilerplate rather than a person-specific recorded fac
 use uncertain/unclear_source even if the quoted text really appears on the page.
 If source quality prevents confirmation, use uncertain. No field can authorize a commit."""
 
+# Fixed stage ceilings, not automatic retries or a promise that every report fits.
+# Context-rich drafts and blind inventories are much larger than verifier checks.
+PASS_OUTPUT_LIMITS = {
+    'ExtractRecordedFields': 16000,
+    'VerifyRecordedFields': 6000,
+    'InventoryReportRows': 12000,
+}
+
 
 def _no_duplicates(pairs):
     value = {}
@@ -83,15 +94,17 @@ def _parse(response, cls):
 
 
 async def _pass(model, prompt, parts, schema, name, telemetry, request):
+    output_limit = PASS_OUTPUT_LIMITS[name]
     before = len(telemetry.get('calls', []))
     try:
         return await measured_request({'model': model, 'messages': [
             {'role': 'system', 'content': prompt}, {'role': 'user', 'content': parts}],
             'response_format': {'type': 'json_schema', 'json_schema': {'name': name, 'strict': True, 'schema': schema}},
-            'reasoning_effort': 'minimal', 'max_completion_tokens': 4000}, telemetry, request=request)
+            'reasoning_effort': 'minimal', 'max_completion_tokens': output_limit}, telemetry, request=request)
     finally:
         if len(telemetry.get('calls', [])) > before:
             telemetry['calls'][-1]['stage'] = name
+            telemetry['calls'][-1]['max_completion_tokens'] = output_limit
 
 
 def _compact(value):
@@ -126,12 +139,14 @@ def _qualified_number(value, text):
 
 def _local_support(field, pages):
     page = pages[field['page'] - 1]
-    if not page['text'].strip() and not page.get('ocr_text', '').strip():
+    if not any(page.get(k, '').strip() for k in ('text', 'reading_order_text', 'ocr_text')):
         return {'status': 'unavailable', 'issues': ['no_independent_page_text']}
-    quote, text = _compact(field['source_quote']), _compact(page['text'])
-    matched_ocr = quote not in text and quote in _compact(page.get('ocr_text', ''))
+    quote = _compact(field['source_quote'])
+    matched_native = any(quote in text for text in independent_page_texts(page))
+    ocr = page.get('ocr_text', '') or (page['text'] if page.get('text_source') == 'local_teleocr' else '')
+    matched_ocr = not matched_native and quote in _compact(ocr)
     issues = []
-    if quote not in text and not matched_ocr:
+    if not matched_native and not matched_ocr:
         issues.append('quote_not_on_page')
     for key in ('label', 'value', 'unit', 'occurred_on', 'reference_range', 'specimen', 'test_method'):
         if key == 'occurred_on' and field.get('date_evidence'):

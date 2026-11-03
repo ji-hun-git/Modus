@@ -4,6 +4,7 @@ import re
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from .record_document_input import independent_page_texts
 
 
 class ProposedDateEvidence(BaseModel):
@@ -51,9 +52,10 @@ def checked_date_evidence(proposal, pages):
     issues = []
     if not contains(anchor['value'], quote):
         issues.append('date_not_in_quote')
-    independent = bool(text) and page.get('text_source') != 'local_teleocr'
+    independent_texts = independent_page_texts(page)
+    independent = bool(independent_texts)
     if independent:
-        if quote not in text:
+        if not any(quote in candidate for candidate in independent_texts):
             issues.append('quote_not_on_page')
     else:
         issues.append('ocr_text_is_unverified' if page.get('ocr_text') or text else 'no_independent_page_text')
