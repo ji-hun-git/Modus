@@ -36,7 +36,7 @@ const pages = [
 ];
 const moreTools = [
   { page: "Ask" as const, label: "Ask", icon: MessageCircle },
-  { page: "Brief" as const, label: "Brief", icon: FileText },
+  { page: "Brief" as const, label: "Summary", icon: FileText },
   { page: "Measurements" as const, label: "Trends", icon: ChartNoAxesCombined },
   { page: "Records" as const, label: "Documents", icon: Files },
   {
@@ -53,7 +53,7 @@ const pageTitle = {
   Measurements: "Your history over time",
   Replay: "Past records",
   Changes: "Activity",
-  Brief: "Prepare a brief",
+  Brief: "Prepare a summary",
   Ask: "Ask your history",
 };
 
@@ -117,7 +117,7 @@ export default function Shell({
           event.currentTarget.open = false;
       }}
     >
-      <summary aria-label="More: Ask, Brief, Trends, Documents, Replay, Changes">
+      <summary aria-label="More: Ask, Summary, Trends, Documents, Replay, Changes">
         <MoreHorizontal size={18} strokeWidth={1.5} aria-hidden="true" focusable="false" />
         <span>More</span>
       </summary>

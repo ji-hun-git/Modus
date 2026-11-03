@@ -137,6 +137,29 @@ test('Home puts the file orbit before its report with direct original evidence a
   assert.equal((html.match(/name="history-question"/g)||[]).length,1);
 });
 
+test('Home actions expose scoped differences and summary while one header action owns the review queue',()=>{
+  const view=viewOf([row('a','2026-10-20'),row('b','2026-10-20',{value:'5.9'})]);
+  view.conflicts=[{id:'difference-a',fact_ids:['a','b'],reason:'different_numeric_values'}];
+  const html=render(HealthRecordOverview,{view,hasDraft:true,pendingCount:2,onImport:noop,onNavigate:noop,
+    dates:['2026-10-20'],currentDay:'2026-11-03',knowledge:'latest',onDate:noop});
+  assert.equal((html.match(/aria-label="Continue review, 2 files"/g)||[]).length,1);
+  assert.match(html,/aria-label="Review 1 recorded difference"/);
+  assert.equal((html.match(/Prepare a summary/g)||[]).length,1);
+  assert.doesNotMatch(html,/overview-conflict-banner|Prepare a brief|Unsaved reviews stay/);
+  const disclosure=html.match(/<details class="orbit-history-options">([\s\S]*?)<\/details>/)?.[1] || '';
+  assert.doesNotMatch(disclosure,/Continue review|Prepare a summary/);
+  assert.match(disclosure,/Compare past views/);
+  assert.ok(html.indexOf('Actions for your history')<html.indexOf('class="orbit-workspace"'));
+});
+
+test('Empty Home keeps summary access honest without fabricated conflict or review counts',()=>{
+  const html=render(HealthRecordOverview,{view:viewOf([]),hasDraft:false,pendingCount:0,onImport:noop,onNavigate:noop,
+    dates:[],currentDay:'2026-11-03',knowledge:'latest',onDate:noop});
+  assert.match(html,/Add records/);
+  assert.match(html,/Prepare a summary/);
+  assert.doesNotMatch(html,/Review differences|Continue review|home-review-count|No conflicts|All clear/);
+});
+
 test('Home evidence resolves the current source and preserves corrections without trusting a stale selection',()=>{
   const original=row('a','2026-10-20');
   const corrected={...original,value:'5.9',previous_revision_id:'revision-1',reviewed_fields:['value']};

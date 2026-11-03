@@ -64,17 +64,10 @@ export default function HomeIntegrityTools({
       <summary>More history tools</summary>
       <div className="home-replay-controls">{dateControls}</div>
       <div className="home-integrity-actions">
-        {pendingCount > 0 && <button type="button" className="secondary" onClick={onReview}>
-          <Inbox size={15} aria-hidden="true" /> Continue review <span>{pendingCount}</span>
-        </button>}
         <button type="button" className="secondary" onClick={() => onNavigate("Replay")}>
           <History size={15} aria-hidden="true" /> Compare past views
         </button>
-        <button type="button" className="secondary" onClick={() => onNavigate("Brief")}>
-          <FileText size={15} aria-hidden="true" /> Prepare a brief
-        </button>
       </div>
-      {pendingCount > 0 && <p className="home-integrity-notes">Unsaved reviews stay in this tab.</p>}
     </details>
   </section>;
   return (

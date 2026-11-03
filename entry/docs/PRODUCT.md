@@ -14,6 +14,14 @@ open-ended saved labels, including tests outside the legacy three-metric API.
 File satellites open actual source evidence. Records, trends, replay, discrepancies and summaries remain
 available through deeper navigation.
 
+Home exposes the actual recorded-difference group count and a direct action to
+prepare a source-backed summary. The single Add records action becomes Continue
+review with the pending file count when this tab has unfinished imports. Empty
+states show no invented differences or pending work. Precise time controls stay
+under More history tools; both applied clocks and the scrubber remain visible.
+Opening a summary does not export anything: selection, source review and an
+explicit reviewed download are still required.
+
 Use familiar descriptions beside original test names where supported. A display
 alias never rewrites the saved label, changes units or supplies clinical meaning.
 Charts connect observations only when the backend comparison policy permits it.

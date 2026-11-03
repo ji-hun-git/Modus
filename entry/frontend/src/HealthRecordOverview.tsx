@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { AlertCircle, ArrowUpRight, Plus } from "lucide-react";
+import { ArrowUpRight, FileText, GitCompareArrows, Inbox, Plus } from "lucide-react";
 import type { Page } from "./Shell";
 import type { HistoryFact, HistoryView } from "./historyTypes";
 import { Modal, dateLabel } from "./ui";
@@ -68,19 +68,27 @@ export default function HealthRecordOverview({
     <div ref={homeRef} className="health-record-overview orbit-overview report-first-home orbit-centered-home">
       <header className="orbit-hero">
         <div><span className="orbit-eyebrow">{dateLabel(currentDay)}</span><h1>Your medical history.</h1></div>
-        <button className="primary orbit-add" onClick={onImport}>
-          <Plus size={16} strokeWidth={1.25} aria-hidden="true" />
+        <button className="primary orbit-add" onClick={onImport}
+          aria-label={hasDraft && pendingCount > 0 ? `Continue review, ${pendingCount} ${pendingCount===1?'file':'files'}` : undefined}
+          title={hasDraft ? 'Continue unfinished files in this tab' : undefined}>
+          {hasDraft ? <Inbox size={16} strokeWidth={1.25} aria-hidden="true" /> : <Plus size={16} strokeWidth={1.25} aria-hidden="true" />}
           {hasDraft ? "Continue review" : "Add records"}
+          {hasDraft && pendingCount > 0 && <span className="home-review-count" aria-hidden="true">{pendingCount}</span>}
         </button>
       </header>
       <HomeIntegrityTools scope={view.scope} dates={dates} currentDay={currentDay}
         knowledge={knowledge} pendingCount={pendingCount} onDate={onDate}
         onNavigate={onNavigate} onReview={onImport} orbit />
-      {!!differenceCount && <div className="overview-conflict-banner">
-        <AlertCircle size={16} aria-hidden="true" />
-        <p>{differenceCount === 1 ? "Recorded values differ." : `${differenceCount} recorded differences to review.`}</p>
-        <button className="text-button" onClick={() => setComparison(view.page ? 'all' : differences[0].id)}>Compare <ArrowUpRight size={14} /></button>
-      </div>}
+      <div className="home-record-actions" role="group" aria-label="Actions for your history">
+        {!!differenceCount && <button type="button" className="text-button"
+          aria-label={`Review ${differenceCount} recorded ${differenceCount===1?'difference':'differences'}`}
+          onClick={() => setComparison(view.page ? 'all' : differences[0].id)}>
+          <GitCompareArrows size={15} aria-hidden="true" /> Review differences <span>{differenceCount}</span>
+        </button>}
+        <button type="button" className="text-button home-summary-action" onClick={() => onNavigate('Brief')}>
+          <FileText size={15} aria-hidden="true" /> Prepare a summary
+        </button>
+      </div>
       {anchor && journeyOpen && anchor.kind==='measurement' ? <LongitudinalWorkspace key={`${view.page?.snapshot_id}:${anchor.id}`}
         parent={view} anchor={anchor} onCompare={()=>setReportComparisonOpen(true)} onClose={()=>{
           setJourneyOpen(false);requestAnimationFrame(()=>homeRef.current?.querySelector<HTMLElement>('.report-focus')?.focus());
