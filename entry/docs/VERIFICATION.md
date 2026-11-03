@@ -1,5 +1,47 @@
 # Verification
 
+## Local privacy and browser boundary — 3 November 2026
+
+An isolated synthetic probe against `26640e8` reproduced two problems: a
+cross-origin multipart import created a draft, and an invalid profile request
+echoed its private-text canary in the validation response. API responses also
+lacked consistent no-store, referrer and frame protections. CORS alone did not
+prevent the import side effect.
+
+The local API now checks loopback peers, exact origins and browser metadata,
+requires an explicit write header, limits bodies before multipart parsing and
+redacts validation context. Responses have privacy/security headers. The checked
+launcher restricts its data directory to the OS owner and disables access logs;
+the hosted transport rejects redirects and inherited proxies. These changes
+do not alter document bytes or record-history semantics.
+
+`python scripts/check_service.py`: **1,464 backend passed, 2 skipped; 225 frontend
+passed; production build passed**. Regression cases include cross-origin and
+other-local-port requests, null origins, invalid/duplicate headers, spoofed
+hosts/peers, missing write headers, streamed oversized bodies, timeout/disconnect,
+safe failures, native file permissions and provider redirect/proxy isolation.
+The existing Starlette/httpx deprecation warning remains.
+
+Browser verification completed an authored CSV import, edited review, explicit
+save, saved-record correction, offline Ask and clickable original evidence.
+Both the selected-record summary and two-report comparison downloaded after
+explicit review. A second local website attempted multipart import, history
+reads, custom-header preflight and a form submission; all were blocked, with no
+new draft or profile change. The console had no application errors.
+
+All **55 additional local HTTP/artifact checks** passed, including 20 concurrent
+blocked imports, unchanged original download bytes, earlier availability,
+separate saved versions, both browser exports, response headers and served-build
+identity. The three existing development databases were byte-identical before
+and after their secured service restarts. Their record counts remained 87, 105
+and 101. The file-orbit layout and styling are unchanged.
+
+This iteration made **zero model requests**, spent no API credits and accessed
+no protected evaluation or held-out inputs. The checks are regression evidence,
+not a penetration-test certification. Encryption at rest, authenticated users,
+verified de-identification/deletion and production privacy qualification remain
+unfinished; the same OS user and administrators can still access local data.
+
 ## Scanned reports and offline review recovery — 3 November 2026
 
 Six new assistant-authored PNGs contained **84 expected recorded results**:
