@@ -7,7 +7,7 @@ import pytest
 
 from modus import provider, record_extraction
 from modus.record_history_models import ReviewedFact
-from test_record_extraction import pdf
+from test_record_extraction import pdf, field
 from test_record_row_inventory import ArtificialInventoryReader, SOURCE, MISSING_QUOTE
 
 
@@ -101,3 +101,32 @@ def test_zero_field_proposal_retains_omissions_but_has_no_savable_rows(service):
     assert client.post('/api/history/commit', json={'draft_id':draft['id'],
         'synthetic_confirmed':True, 'reviewed_facts':[]}).status_code == 422
     assert len(transport.calls) == 2
+
+
+def test_extra_proposed_boilerplate_stays_visible_until_explicit_review(service):
+    client, store, transport = service
+    footer = field(kind='recorded_text',label='Example disclaimer',
+        value='No diagnoses are made in this example.',unit=None,occurred_on=None,
+        source_quote='Example disclaimer: No diagnoses are made in this example.')
+    transport.rows = [field()]
+    transport.proposed = [field(),footer]
+    raw = pdf(SOURCE+'\n'+footer['source_quote'])
+    before = client.get('/api/history/view').json()['counts']
+    draft = upload(client,raw).json()
+    assert len(draft['facts']) == 2
+    reason = 'The separate row check did not find this proposed entry.'
+    assert any(reason in r for r in draft['extraction_review']['facts'][1]['review_reasons'])
+    assert any(reason in r for r in draft['facts'][1]['review_reasons'])
+    assert client.get('/api/history/view').json()['counts'] == before
+    reopened = upload(client,raw).json()
+    assert reopened['extraction_review'] == draft['extraction_review'] and len(transport.calls) == 3
+    reviewed = {k:draft['facts'][0].get(k) for k in ReviewedFact.model_fields}
+    receipt = client.post('/api/history/commit',json={'draft_id':draft['id'],
+        'synthetic_confirmed':True,'reviewed_facts':[reviewed]})
+    assert receipt.status_code == 200 and receipt.json()['inserted'] == 1
+    saved = client.get('/api/history/view').json()
+    own = [f for f in saved['facts'] if f['source_id'] == draft['id']]
+    assert len(own) == 1 and own[0]['label'] == 'HbA1c'
+    assert store.draft(draft['id'])['extraction_proposal']['fields'][1]['source_quote'] == footer['source_quote']
+    assert client.get('/api/history/sources/'+draft['id']+'/original',
+        params={'known_at':saved['scope']['known_at']}).content == raw

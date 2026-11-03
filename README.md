@@ -53,6 +53,11 @@ belong only in server environment variables, never browser code, Git or CI.
 Test transports are not live-model evidence. [Workflow](entry/docs/AGENT_WORKFLOW.md)
 and [verification boundaries](entry/docs/VERIFICATION.md) describe the contracts.
 
+A small live development probe exercised report extraction, explicit review and
+bounded Ask, exposing and fixing boilerplate extraction and fixed-filter tool-call
+failures. Its [results and limitations](entry/docs/VERIFICATION.md#live-report-reading-and-bounded-ask--3-november-2026)
+are separate from protected evaluations and do not establish general accuracy.
+
 ## Limits
 
 This is a local, single-owner record-integrity prototype. It does not generate

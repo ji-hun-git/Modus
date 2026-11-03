@@ -268,7 +268,9 @@ async def live_chat(context, message, telemetry, *, request=None):
 
     response=await live_selection(context,message,telemetry,
         arguments={name:ARGUMENTS[name],'select_claims':SelectionArgs},
+        bound_arguments={name:bound_args},
         descriptions={**DESCRIPTIONS,'select_claims':'Finish with exact claim IDs returned by the bound record tool. Empty if unsupported.'},
         tool_dispatch=bound_dispatch,
-        prompt=PROMPT+'\nBound record request: '+json.dumps({'tool':name,'arguments':bound_args}),request=request)
+        prompt=PROMPT+'\nResolved record request: '+name+'. Invoke it with empty arguments {}. '
+            'The application already fixed all filters; do not resend them.',request=request)
     return decorate(context,response)

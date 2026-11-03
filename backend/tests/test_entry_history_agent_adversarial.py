@@ -280,7 +280,7 @@ def test_mocked_selection_preserves_source_attribution_and_hides_profile(history
         assert payload['max_completion_tokens'] == 1600
         calls.append(json.loads(json.dumps(payload)))
         if len(calls) == 1:
-            name, args = 'search_history_evidence', {'query': requested, 'kind': None, 'limit': 5}
+            name, args = 'search_history_evidence', {}
         else:
             result = json.loads(payload['messages'][-1]['content'])
             assert payload['messages'][-1]['role'] == 'tool'
@@ -303,6 +303,49 @@ def test_mocked_selection_preserves_source_attribution_and_hides_profile(history
     assert benign_text in json.dumps(calls[1]['messages'][-1])
 
 
+def test_bound_conflict_tool_takes_no_model_filters_and_returns_checked_claims(history_app):
+    client, store = history_app
+    save_rows(client, [['measurement','Ferritin','31.40','ng/mL','2023-06-14',''],
+                      ['measurement','Ferritin','33.10','ng/mL','2023-06-14','']])
+    from modus_entry import history_agent, history_tools
+    context = history_tools.capture_history(store, None, NOW)
+    calls = []
+    async def transport(payload):
+        calls.append(payload)
+        spec = next(t['function'] for t in payload['tools'] if t['function']['name']=='history_conflicts')
+        assert spec['parameters'] == {'type':'object','properties':{},'required':[],'additionalProperties':False}
+        if len(calls)==1:
+            name,args='history_conflicts',{}
+        else:
+            result=json.loads(payload['messages'][-1]['content'])
+            name,args='select_claims',{'claim_ids':[c['id'] for c in result['claims']]}
+        return {'choices':[{'message':{'tool_calls':[{'id':f'artificial-{len(calls)}',
+            'function':{'name':name,'arguments':json.dumps(args)}}]}}]}
+    answer=asyncio.run(history_agent.live_chat(context,'Which records disagree?',{},request=transport))
+    assert len(calls)==2 and answer['claims']
+    assert answer['trace'][0]['arguments'] == {'kind':None,'label':None}
+    assert {f['value'] for f in facts(answer)} == {'31.40','33.10'}
+    assert answer['answer']=='\n'.join(c['text'] for c in answer['claims'])
+
+
+@pytest.mark.parametrize('bad_args', [{'kind':'null','label':'null'},
+    {'kind':None,'label':'null'}, {'kind':None,'label':'Ferritin'},
+    {'kind':'measurement','label':None}, {'kind':None,'label':None}])
+def test_bound_argument_mismatch_in_later_call_blocks_entire_batch(history_app,monkeypatch,bad_args):
+    _,store=history_app
+    from modus_entry import history_agent, history_tools
+    context=history_tools.capture_history(store,None,NOW)
+    dispatched=[]
+    monkeypatch.setattr(history_agent,'dispatch',lambda *args: dispatched.append(args))
+    async def transport(payload):
+        return {'choices':[{'message':{'tool_calls':[
+            {'id':str(i),'function':{'name':'history_conflicts','arguments':json.dumps(args)}}
+            for i,args in enumerate([{},bad_args])]}}]}
+    with pytest.raises(ValueError):
+        asyncio.run(history_agent.live_chat(context,'Which records disagree?',{},request=transport))
+    assert dispatched==[]
+
+
 def test_live_injected_record_is_preserved_but_not_reused_as_model_context(history_app):
     client, store = history_app
     save_rows(client, [['recorded_text', 'Archived letter', INSTRUCTION, '', '2024-06-15', 'Authored clinic']])
@@ -316,7 +359,7 @@ def test_live_injected_record_is_preserved_but_not_reused_as_model_context(histo
         assert len(calls) == 1, 'Injected source text reached a second model round'
         return {'choices': [{'message': {'content': None,
             'tool_calls': [{'id': 'fake-read', 'function': {'name': 'search_history_evidence',
-                'arguments': json.dumps({'query': 'Find archived letter records', 'kind': None, 'limit': 5})}}]}}]}
+                'arguments': '{}'}}]}}]}
     answer = asyncio.run(history_agent.live_chat(context, 'Find archived letter records', {}, request=transport))
     assert len(calls) == 1 and answer['claims'] == [] and answer['abstained']
     assert answer['document_guard']['status'] == 'quarantined'

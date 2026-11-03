@@ -69,6 +69,8 @@ def review_draft(filename, raw, result):
             issues.append('The second reading disagrees with this field.')
         elif verified in {'uncertain', 'unavailable'}:
             issues.append('The second reading could not confirm this field.')
+        if field.get('inventory_check', {}).get('status') == 'unmatched':
+            issues.append('The separate row check did not find this proposed entry. Check that it is a recorded result or history item.')
         facts.append({
             'id': field['id'], 'label': field['label'], 'value': field['value'],
             'unit': field['unit'], 'date': field['occurred_on'], 'page': field['page'],

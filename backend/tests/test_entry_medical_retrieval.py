@@ -158,9 +158,10 @@ def test_cross_language_search_preserves_both_recorded_labels(memory):
 def test_injected_meta_path_uses_same_mapping_and_exact_claims(service):
     _,context,_,_=service
     answer,calls=run(context,'Show my heart rate records',[
-        envelope(('read','search_history_evidence',{'query':'Show my heart rate records','kind':None,'limit':5})), selected])
+        envelope(('read','search_history_evidence',{})), selected])
     assert len(calls)==2  # injected callback only; the runner forbids provider networking
     assert answer['terminology'][0]['matched_labels']==['Pulse']
+    assert answer['trace'][0]['arguments']=={'query':'Show my heart rate records','kind':None,'limit':5}
     assert answer['answer']=='\n'.join(c['text'] for c in answer['claims'])
     assert 'reference' in str(calls[-1])
 

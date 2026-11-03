@@ -2,6 +2,14 @@
 
 ## Literal-value history questions — 3 November 2026
 
+For an already resolved history request, its hosted read tool accepts only `{}`.
+The server inserts its previously validated filters; the model selects the
+permitted operation and returned claim IDs without retyping fixed arguments.
+The entire returned batch is checked before any read executes. Any model-supplied
+filter is rejected, including the string `"null"`. No coercion, fallback answer,
+new tool, additional request or record-write authority is introduced. Unresolved
+investigations retain their separately bounded planning protocol.
+
 `POST /api/history/chat` recognizes questions such as “When was my Ferritin
 30 ng/mL?” as exact numerical equality without requiring the word “exactly”.
 This shorthand requires one resolved test, an adjacent literal value and an
@@ -12,6 +20,15 @@ not converted. The same anchored plan is required of any optional Muse planner.
 No endpoint, authority or model call is added.
 
 ## Report row inventory — 3 November 2026
+
+The separate reading now checks disagreement in both directions. An extracted
+field absent from a readable, non-truncated inventory page gains a visible
+review reason; it is never silently removed. The immutable extraction proposal
+retains `inventory_check.status: matched|unmatched|unavailable` per field.
+Failed, limited or truncated inventory pages cannot establish an unmatched
+field. Matching is still literal, page-scoped and one-to-one. No additional
+provider call or commit authority is introduced. Prompts distinguish report
+boilerplate from person-specific recorded statements, including negative findings.
 
 Explicit Meta PDF/image reading adds a third, source-only `InventoryReportRows`
 request for each page group. It receives the same original pages without the

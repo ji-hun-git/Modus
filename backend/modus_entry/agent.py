@@ -192,7 +192,15 @@ async def live_chat(context, message, telemetry, *, request=None):
         descriptions=DESCRIPTIONS, tool_dispatch=dispatch, prompt=PROMPT, request=request)
 
 
-async def live_selection(context, message, telemetry, *, arguments, descriptions, tool_dispatch, prompt, request=None):
+def tool_parameters(argument_model, bound=None):
+    if bound is not None:
+        # The application already resolved this operation. Do not ask a model
+        # to repeat fixed filters (or turn JSON null into the string "null").
+        return {'type': 'object', 'properties': {}, 'required': [], 'additionalProperties': False}
+    return argument_model.model_json_schema()
+
+
+async def live_selection(context, message, telemetry, *, arguments, descriptions, tool_dispatch, prompt, request=None, bound_arguments=None):
     """Shared bounded protocol; callers supply only code-owned tool registries."""
     guarded = quarantine_request(context, message, telemetry)
     if guarded:
@@ -201,7 +209,9 @@ async def live_selection(context, message, telemetry, *, arguments, descriptions
     execution = execution_context('meta', model)
     telemetry['execution'] = execution
     permitted = arguments
-    tool_specs = [{'type': 'function', 'function': {'name': n, 'description': descriptions[n], 'parameters': a.model_json_schema()}} for n, a in permitted.items()]
+    bound_arguments = bound_arguments or {}
+    tool_specs = [{'type': 'function', 'function': {'name': n, 'description': descriptions[n],
+        'parameters': tool_parameters(a, bound_arguments.get(n))}} for n, a in permitted.items()]
     messages = [{'role': 'system', 'content': prompt + '\nFixed scope: ' + json.dumps(context['view']['scope'])}, {'role': 'user', 'content': message}]
     trace, known, call_count = [], {}, 0
     for _ in range(POLICY.max_rounds):
@@ -221,7 +231,12 @@ async def live_selection(context, message, telemetry, *, arguments, descriptions
             name = call['function']['name']
             if name not in permitted:
                 raise ValueError('Tool not permitted')
-            args = permitted[name].model_validate(json.loads(call['function']['arguments'])).model_dump()
+            raw_args = json.loads(call['function']['arguments'])
+            if name in bound_arguments:
+                if raw_args != {}:
+                    raise ValueError('The model changed the bound record request; this tool accepts no arguments')
+                raw_args = bound_arguments[name]
+            args = permitted[name].model_validate(raw_args).model_dump()
             validated.append((call, name, args))
         call_count += len(validated)
         if call_count > POLICY.max_tool_calls:

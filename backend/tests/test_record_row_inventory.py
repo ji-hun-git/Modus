@@ -127,6 +127,34 @@ def test_repeated_rows_match_one_to_one_and_conflicting_value_is_kept():
     assert check['matched_rows'] == 1 and [r['value'] for r in check['omissions']] == ['29.40','39.40']
 
 
+def test_reverse_disagreement_keeps_extra_proposals_and_original_evidence():
+    boilerplate = field(kind='recorded_text', label='Example disclaimer',
+        value='No diagnoses are made in this example.', unit=None, occurred_on=None,
+        source_quote='Example disclaimer: No diagnoses are made in this example.')
+    result, _, transport = run(ArtificialInventoryReader(rows=[field()], proposed=[field(), boilerplate]),
+                              raw=pdf(TEXT+'\n'+boilerplate['source_quote']))
+    assert len(transport.calls) == 3 and len(result['fields']) == 2
+    assert result['fields'][0]['inventory_check']['status'] == 'matched'
+    extra = result['fields'][1]
+    assert extra['verification']['status'] == 'supported'  # Same-model agreement is insufficient.
+    assert extra['inventory_check']['status'] == 'unmatched'
+    assert extra['source_quote'] == boilerplate['source_quote']
+    assert result['completeness_check']['omissions'] == []
+
+
+@pytest.mark.parametrize('output', [TimeoutError('Artificial timeout'),
+    inventory([],readability='limited'), inventory([],readability='unreadable'),
+    inventory([],truncated=True)])
+def test_incomplete_inventory_does_not_claim_a_proposed_field_was_not_found(output):
+    result, _, _ = run(ArtificialInventoryReader(inventory_output=output))
+    assert result['fields'][0]['inventory_check']['status'] == 'unavailable'
+
+
+def test_one_inventory_row_cannot_confirm_two_proposed_duplicates():
+    result, _, _ = run(ArtificialInventoryReader(rows=[field()],proposed=[field(),field()]))
+    assert [f['inventory_check']['status'] for f in result['fields']] == ['matched','unmatched']
+
+
 def test_same_text_on_another_page_is_not_a_row_match():
     parsed = InventoryResponse.model_validate(inventory([field()], page=2))
     pages = [{'page': n, 'text': SPAN, 'text_source':'pdf_text'} for n in (1,2)]

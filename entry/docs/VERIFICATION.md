@@ -1,5 +1,60 @@
 # Verification
 
+## Live report reading and bounded Ask — 3 November 2026
+
+A small development probe used the actual import and Ask paths with
+`muse-spark-1.3`: a two-page mixed-test PDF, a scanned table and a reference-only
+PDF containing an instruction-injection footer. The files and expected fields
+were authored before the calls. They are assistant-authored and assistant-reviewed,
+not independent human labels or held-out evidence.
+
+Both extraction rounds retained all 16 measurement rows with exact label, value,
+unit, recorded date, lab range, specimen and method. Both conflicting Ferritin
+rows and the literal value `<0.5` survived. Initially, the scan also produced one
+spurious record from a document disclaimer. The revised prompts excluded that
+boilerplate while retaining the genuine recorded note. The reference-only PDF
+produced no records; the deterministic document guard quarantined its instruction
+footer. This does not demonstrate a hosted Guard model.
+
+The separate row inventory now checks disagreement in both directions: missing
+rows remain reviewable, and proposed entries absent from a complete readable-page
+inventory receive a review warning. Limited or failed page reads cannot establish
+absence. No proposed field is silently deleted. Neither live round omitted a
+measurement, so this probe does **not** measure natural omission-detection recall.
+
+Two live Ask attempts failed safely because Muse returned the string `"null"`
+instead of JSON null for filters the application had already resolved. The final
+interface exposes a zero-argument read for resolved questions, supplies the fixed
+filters in code and still rejects any model-supplied filters before executing a
+batch. A third attempt completed in two real requests and returned the recorded
+Ferritin disagreement with clickable evidence for both original rows. No value
+was chosen as correct. The general investigation tool protocol is unchanged.
+
+Browser verification explicitly reviewed and saved 17 entries, asked about an
+exact prior result, opened the live disagreement's two source excerpts and
+downloaded an unchanged original scan. Read-only checks also confirmed original
+PDF bytes, earlier availability excluding the new imports and the normal
+workspace's unchanged history. The orbit interface was preserved.
+
+This session made **20 provider requests**: 16 for the two extraction rounds,
+two failed Ask requests and two for the completed Ask. Recorded usage was
+57,726 input and 13,850 output tokens. Estimated cost was **$0.13102**, treating
+all input as uncached at the published [Meta Standard rates](https://dev.meta.ai/docs/pricing-rate-limits);
+this is a usage estimate, not an invoice or an account-wide total. Request IDs,
+latencies, raw responses, failures and source/build identities were retained
+privately. The paid session was closed and its live credential removed.
+
+Final offline service check: **1,384 backend tests passed, 2 skipped; 221 frontend
+tests passed; production build passed**. Fourteen read-only service checks passed,
+and all 17 served build assets matched the checked files. The existing
+Starlette/httpx deprecation warning remains. Extraction was verified before the
+final Ask-only change; its extraction code stayed unchanged across that change.
+
+The same three files were re-read after tuning, so these are development results,
+not a general accuracy estimate. Real-history quality, independent human review,
+live omission recall and final release qualification remain unproven. Protected
+evaluation and held-out artifacts were not accessed or changed.
+
 ## Complete offline rehearsal — 3 November 2026
 
 The rehearsal found and fixed two usability failures: natural questions such as
