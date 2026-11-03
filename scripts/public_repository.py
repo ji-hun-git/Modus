@@ -44,6 +44,8 @@ def protected(name):
 
 
 def path_problem(name):
+    if any(part in name.lower() for part in ('.modus-vault.json','.modus-lock','.encrypting-','.encrypted-backup-')):
+        return 'credential_or_runtime_file'
     normalized=name.replace('\\','/')
     path=PurePosixPath(normalized)
     lower=normalized.lower()
@@ -63,7 +65,7 @@ def path_problem(name):
 def content_findings(name, text):
     found=[]
     for number,line in enumerate(text.splitlines(),1):
-        if SECRET.search(line) or re.search(r'modus_(?:local|session)_[A-Za-z0-9_-]{43}', line):
+        if SECRET.search(line) or re.search(r'modus_(?:local|session)_[A-Za-z0-9_-]{43}|modus_db_key_[0-9a-f]{64}', line):
             found.append(Finding(name,'credential_pattern',number))
         if (name.endswith('.md') and not name.startswith(('data/licenses/','entry/prompts/','prompts/'))
                 and name not in {'SCOREBOARD.md','docs/ONTOLOGY_RAG_EVALUATION.md','entry/docs/BENCHMARK.md'}

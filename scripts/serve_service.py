@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 from check_service import inputs, build_inputs, protected
-from offline_environment import offline_environment
+from offline_environment import offline_environment, local_connection
 from private_storage import secure_runtime_directory
 from local_access_file import publish_access_file
 
@@ -46,7 +46,7 @@ def child(port, ui_port=None):
                 return
             if protected(name):
                 raise PermissionError('Offline service preview excludes evaluation and secret files')
-        if event == 'socket.connect' and (not isinstance(args[1], tuple) or args[1][0] not in ('127.0.0.1','::1','localhost')):
+        if event == 'socket.connect' and not local_connection(args[0], args[1]):
             raise PermissionError('Offline service preview forbids external network')
 
     sys.addaudithook(guard)

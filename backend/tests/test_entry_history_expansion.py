@@ -109,7 +109,9 @@ def test_invalid_demo_original_rolls_back_the_whole_seed(tmp_path, invalid):
     path = tmp_path / 'rejected.db'
     with pytest.raises(ValueError):
         RecordStore(path, seed_provider=lambda: data)
-    with sqlite3.connect(path) as db:
+    from modus.record_crypto import encrypted_connection
+    from modus.record_keys import database_key
+    with encrypted_connection(path, database_key(path)) as db:
         assert db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall() == []
 
 

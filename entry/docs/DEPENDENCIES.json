@@ -1,9 +1,10 @@
 {
-  "scope": "Independent entry; same locked application runtime/build/test package versions as full Modus. No OCR/training packages bundled.",
+  "scope": "Independent entry application runtime/build/test package inventory, including native encrypted storage dependencies. No model weights or training packages bundled.",
   "limitations": "Declared package metadata and retained notices, not a legal compatibility determination. Uninstalled platform packages have no locally retained notice.",
   "lock_sha256": {
-    "backend/requirements.lock.txt": "939f7bdc12bada55fa78bab56bc07d68033c47e1d0a06b36e1aea09cb4cfbdf7",
-    "entry/frontend/package-lock.json": "ccef261212b85c6b7e119d4435f368a4bca33305629a705ba079821a23ff9192"
+    "backend/requirements.lock.txt": "efc6b8613de0e788a82510e0b94b6a97324a35b8fe98a1a8abc530c0bfa8151e",
+    "entry/frontend/package-lock.json": "ccef261212b85c6b7e119d4435f368a4bca33305629a705ba079821a23ff9192",
+    "backend/encryption-requirements.lock.txt": "ce3874a45dac7cbf9b18b887c72d9f070906b607fc30f1277da113d23f7e58e2"
   },
   "packages": [
     {
@@ -1999,6 +2000,251 @@
           "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
         }
       ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "backports-tarfile",
+      "version": "1.2.0",
+      "declared_license": null,
+      "metadata_source": "uninstalled platform dependency; consult pinned upstream distribution",
+      "notices": []
+    },
+    {
+      "ecosystem": "python",
+      "name": "cffi",
+      "version": "2.1.1",
+      "declared_license": null,
+      "metadata_source": "uninstalled platform dependency; consult pinned upstream distribution",
+      "notices": []
+    },
+    {
+      "ecosystem": "python",
+      "name": "cryptography",
+      "version": "50.0.2",
+      "declared_license": null,
+      "metadata_source": "uninstalled platform dependency; consult pinned upstream distribution",
+      "notices": []
+    },
+    {
+      "ecosystem": "python",
+      "name": "importlib-metadata",
+      "version": "10.1.0",
+      "declared_license": null,
+      "metadata_source": "uninstalled platform dependency; consult pinned upstream distribution",
+      "notices": []
+    },
+    {
+      "ecosystem": "python",
+      "name": "jaraco-classes",
+      "version": "3.4.0",
+      "declared_license": null,
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/jaraco-classes-3.4.0/1-LICENSE",
+          "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "jaraco-context",
+      "version": "6.1.2",
+      "declared_license": "MIT",
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/jaraco-context-6.1.2/7-LICENSE",
+          "sha256": "9755a18519666e5f0f4cae3daad3d7012bcae48a600b31237d75e9fe134e6683"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "jaraco-functools",
+      "version": "4.6.0",
+      "declared_license": "MIT",
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/jaraco-functools-4.6.0/8-LICENSE",
+          "sha256": "9755a18519666e5f0f4cae3daad3d7012bcae48a600b31237d75e9fe134e6683"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "jeepney",
+      "version": "0.9.0",
+      "declared_license": null,
+      "metadata_source": "uninstalled platform dependency; consult pinned upstream distribution",
+      "notices": []
+    },
+    {
+      "ecosystem": "python",
+      "name": "keyring",
+      "version": "25.7.0",
+      "declared_license": "MIT",
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/keyring-25.7.0/7-LICENSE",
+          "sha256": "5a57cb4db85e2a2dd88c290628908add57e3451449e0a9a71fdfb38776fd759d"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "more-itertools",
+      "version": "11.2.1",
+      "declared_license": "MIT",
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/more-itertools-11.2.1/5-LICENSE",
+          "sha256": "09f1c8c9e941af3e584d59641ea9b87d83c0cb0fd007eb5ef391a7e2643c1a46"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "portalocker",
+      "version": "3.2.0",
+      "declared_license": "BSD-3-Clause",
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/portalocker-3.2.0/5-LICENSE",
+          "sha256": "a50570fa3b3102a42d7babb0569238b0b3c0aedce0063c8e4d65060dfd3f7293"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "pycparser",
+      "version": "3.12",
+      "declared_license": null,
+      "metadata_source": "uninstalled platform dependency; consult pinned upstream distribution",
+      "notices": []
+    },
+    {
+      "ecosystem": "python",
+      "name": "pywin32",
+      "version": "312",
+      "declared_license": "PSF",
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/14-license.txt",
+          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/43-License.txt",
+          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/45-Scintilla-License.txt",
+          "sha256": "57ec79bbeab4fd1cf7460a7ad450d2ab01471810459aeae9e75e4c66b472095f"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/124-LICENSE.txt",
+          "sha256": "a0fa1e7b8a4230055685e796548ac084a6c0eea395294574093bba72efd9191b"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/164-license.txt",
+          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/165-License.txt",
+          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/166-LICENSE",
+          "sha256": "1c4cf44d2fb8bf2d10214d6da80cc9e05502824cc4460f35be4c7bcb4cde53da"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/167-README.txt",
+          "sha256": "41383bcc95edb8138d37077ae54bfdcbd2a3b77bf745a8529a9c161146e22303"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/168-License.txt",
+          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/169-License.txt",
+          "sha256": "57ec79bbeab4fd1cf7460a7ad450d2ab01471810459aeae9e75e4c66b472095f"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/170-LICENSE.txt",
+          "sha256": "a0fa1e7b8a4230055685e796548ac084a6c0eea395294574093bba72efd9191b"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/171-License.txt",
+          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/251-License.txt",
+          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/383-License.txt",
+          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/485-License.txt",
+          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/571-MAPIStubLibrary-License.txt",
+          "sha256": "1c4cf44d2fb8bf2d10214d6da80cc9e05502824cc4460f35be4c7bcb4cde53da"
+        },
+        {
+          "path": "data/licenses/dependencies/python/pywin32-312/572-NOTICE.md",
+          "sha256": "dedf997c8f5568a0e0aff57d009f501226ea30c401323d67912b6a8f8735a825"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "pywin32-ctypes",
+      "version": "0.2.3",
+      "declared_license": "BSD-3-Clause",
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/pywin32-ctypes-0.2.3/1-LICENSE.txt",
+          "sha256": "dfa83b3e2709adfcdb838d9ad55823ca674abb780e60563d9dd9544ccbf785e9"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "secretstorage",
+      "version": "3.5.0",
+      "declared_license": null,
+      "metadata_source": "uninstalled platform dependency; consult pinned upstream distribution",
+      "notices": []
+    },
+    {
+      "ecosystem": "python",
+      "name": "sqlcipher3",
+      "version": "0.6.4",
+      "declared_license": null,
+      "metadata_source": "installed distribution matching encryption lock",
+      "notices": [
+        {
+          "path": "data/licenses/dependencies/python/sqlcipher3-0.6.4/5-LICENSE",
+          "sha256": "d2af98975b150bf6ff5ef99785b56b4b5979024a4ab3117253f1cd777f98bad6"
+        }
+      ]
+    },
+    {
+      "ecosystem": "python",
+      "name": "zipp",
+      "version": "4.1.2",
+      "declared_license": null,
+      "metadata_source": "uninstalled platform dependency; consult pinned upstream distribution",
+      "notices": []
     }
   ]
 }

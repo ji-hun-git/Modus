@@ -183,5 +183,6 @@ def test_live_auto_choice_does_not_accept_free_text(tmp_path, calls):
 def test_import_closure_without_broad_modules(tmp_path):
     root = Path(__file__).resolve().parents[2]
     script = "import sys; from fastapi.testclient import TestClient; from modus_entry.app import app; c=TestClient(app,base_url='http://127.0.0.1',client=('127.0.0.1',50000),headers={'X-Modus-Request':'1'}); m=app.state.local_access.configure('http://127.0.0.1'); s=c.post('/api/access/unlock',json={'token':m['token']}).json(); c.headers['Authorization']='Bearer '+s['access_token']; assert c.get('/api/records/view',params={'as_of':'2021-12-31'}).status_code==200; assert not set(('modus.app','modus.analysis','modus.agent','modus.seed','modus.memory','modus.models')) & set(sys.modules)"
+    script = "from modus import record_keys; from types import SimpleNamespace; entries={}; record_keys.system_keyring=lambda:SimpleNamespace(get_password=lambda s,u:entries.get((s,u)),set_password=lambda s,u,p:entries.update({(s,u):p})); " + script
     env = {**os.environ, 'PYTHONPATH': '', 'MODUS_ENTRY_DB_PATH': str(tmp_path / 'closure.db'), 'MODUS_PROVIDER': 'offline', 'MODEL_API_KEY': ''}
     subprocess.run([sys.executable, '-c', script], cwd=root / 'backend', env=env, check=True, capture_output=True)

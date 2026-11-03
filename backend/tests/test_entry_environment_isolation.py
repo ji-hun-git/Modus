@@ -12,7 +12,21 @@ from modus import provider
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from offline_environment import MODEL_CREDENTIALS, offline_environment
+from offline_environment import MODEL_CREDENTIALS, offline_environment, local_connection
+
+
+def test_offline_boundary_allows_native_ipc_but_rejects_external_tcp():
+    from types import SimpleNamespace
+    import socket
+    inet = SimpleNamespace(family=socket.AF_INET)
+    assert local_connection(inet, ('127.0.0.1', 8031))
+    assert not local_connection(inet, ('192.0.2.1', 443))
+    assert not local_connection(inet, ('api.meta.ai', 443))
+    assert not local_connection(inet, '/run/user/1000/bus')
+    if hasattr(socket, 'AF_UNIX'):
+        native = SimpleNamespace(family=socket.AF_UNIX)
+        assert local_connection(native, '/run/user/1000/bus')
+        assert local_connection(native, b'\x00authored-session-bus')
 
 
 def test_test_collection_has_cleared_every_model_credential():

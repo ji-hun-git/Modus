@@ -5,12 +5,14 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import sqlite3
+import sqlcipher3 as sqlite3
 
 from .record_conflicts import conflicts
 from .record_models import Observation, ReviewedObservation
 from .temporal import instant, utc_now
 from .record_history_models import date_information, temporal_original_allowed
+from .record_crypto import database_lock, encrypted_connection, is_plaintext, verify_integrity, StorageError
+from .record_keys import database_key, key_metadata_path
 
 
 def packed_json_rows(db, query, parameters=()):
@@ -34,7 +36,7 @@ class RecordStore:
     schema_version = "1"
 
     def __init__(self, path, *, seed_provider, application_id="modus-records-v1",
-                 clock=utc_now, require_review=True, commit_event_factory=None):
+                 clock=utc_now, require_review=True, commit_event_factory=None, storage_key=None):
         if not callable(seed_provider):
             raise TypeError("An explicit record seed provider is required")
         if not isinstance(application_id, str) or not re.fullmatch(r"[a-z][a-z0-9-]{1,63}", application_id):
@@ -47,9 +49,18 @@ class RecordStore:
         self.require_review = require_review
         self._seed_provider = seed_provider
         self._commit_event_factory = commit_event_factory
+        with database_lock(self.path, exclusive=True):
+            if is_plaintext(self.path):
+                raise StorageError('Incompatible plaintext record database. Stop Modus and run the encryption migration first.')
+            exists = Path(self.path).exists()
+            if not exists and key_metadata_path(self.path).exists():
+                raise StorageError('The record database is missing. Restore it with its key metadata; a replacement was not created.')
+            self._key = storage_key if storage_key is not None else database_key(self.path, create=not exists)
+            self._initialize_database(create=not exists)
+
+    def _initialize_database(self, *, create):
         self._preflight_identity()
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with self.connect() as db:
+        with self._connection(create=create) as db:
             db.execute('BEGIN IMMEDIATE')
             self._check_identity(db)
             for statement in (
@@ -99,8 +110,9 @@ class RecordStore:
         if not path.exists() or path.stat().st_size == 0:
             return
         try:
-            db = sqlite3.connect(path.resolve().as_uri() + '?mode=ro', uri=True, timeout=15)
+            db = encrypted_connection(path, self._key, readonly=True)
             try:
+                verify_integrity(db)
                 self._check_identity(db)
             finally:
                 db.close()
@@ -156,9 +168,13 @@ class RecordStore:
 
     @contextmanager
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=15)
-        db.execute('PRAGMA foreign_keys=ON')
-        db.row_factory = sqlite3.Row
+        with database_lock(self.path):
+            with self._connection() as db:
+                yield db
+
+    @contextmanager
+    def _connection(self, *, create=False):
+        db = encrypted_connection(self.path, self._key, create=create)
         try:
             yield db
             db.commit()

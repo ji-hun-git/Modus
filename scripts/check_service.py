@@ -9,9 +9,10 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tempfile
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-from offline_environment import offline_environment
+from offline_environment import offline_environment, local_connection
 from public_repository import require_public
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,6 +23,7 @@ TESTS = ['test_entry_archive_seed.py', 'test_entry_narrative_comparison.py', 'te
 TESTS.extend(['test_record_row_inventory.py', 'test_entry_row_inventory.py', 'test_entry_omission_review.py', 'test_garak_record_boundaries.py'])
 TESTS.extend(['test_entry_local_security.py', 'test_private_storage.py'])
 TESTS.append('test_entry_local_access.py')
+TESTS.append('test_record_encryption.py')
 
 
 def protected(name):
@@ -63,11 +65,12 @@ def child():
             if protected(name):
                 blocked.append(name)
                 raise PermissionError('Offline service checks exclude evaluation and secret files')
-        if event=='socket.connect' and (not isinstance(args[1],tuple) or args[1][0] not in ('127.0.0.1','::1','localhost')):
+        if event=='socket.connect' and not local_connection(args[0], args[1]):
             raise PermissionError('Offline service checks forbid external network')
     sys.addaudithook(guard)
-    os.environ['MODUS_ENTRY_DB_PATH']=str(OUT/'entry-module.db')
-    os.environ['MODUS_DB_PATH']=str(OUT/'research-module.db')
+    isolated = tempfile.TemporaryDirectory(prefix='modus-offline-check-')
+    os.environ['MODUS_ENTRY_DB_PATH']=str(Path(isolated.name)/'entry-module.db')
+    os.environ['MODUS_DB_PATH']=str(Path(isolated.name)/'research-module.db')
     os.chdir(ROOT/'backend')
     sys.path.insert(0,str(ROOT/'backend'))
     import pytest

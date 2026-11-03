@@ -3,6 +3,8 @@ import json
 import os
 import asyncio
 import sqlite3
+import sqlcipher3
+from starlette.formparsers import MultiPartParser
 from hashlib import sha256
 from datetime import date
 from pathlib import Path
@@ -125,6 +127,11 @@ def preview_response(saved, *, reused=False, store=None):
 
 
 def create_entry_app(database=None, clock=None):
+    # The boundary rejects larger bodies before multipart parsing. Accepted
+    # uploads stay in memory instead of spooling originals to plaintext OS
+    # temporary files. This process serves only the bounded entry application.
+    from .local_security import MAX_REQUEST_BYTES
+    MultiPartParser.spool_max_size = MAX_REQUEST_BYTES
     app = FastAPI(title='Modus Records', version=RELEASE, docs_url=None, redoc_url=None, openapi_url=None,
         description='Synthetic record reconciliation and availability replay. Contest eligibility remains unconfirmed.')
     app.state.local_access = LocalAccess()
@@ -149,6 +156,7 @@ def create_entry_app(database=None, clock=None):
     preview_lock = asyncio.Lock()
 
     @app.exception_handler(sqlite3.OperationalError)
+    @app.exception_handler(sqlcipher3.OperationalError)
     async def database_busy(request, error):
         if getattr(error, 'sqlite_errorcode', 0) & 0xff in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
             return JSONResponse(status_code=503, headers={'Retry-After': '1'},

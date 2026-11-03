@@ -200,7 +200,7 @@ def test_correction_conflict_does_not_replace_a_different_source(service):
 
 def test_atomic_rollback_when_audit_cannot_be_saved(service):
     from modus.record_amendments import commit_amendment, AmendmentCommitRequest
-    import sqlite3
+    import sqlcipher3 as sqlite3
     client, store, _, identity, _ = service
     body = prepare(client, identity, value='5.8')
     with store.connect() as db:

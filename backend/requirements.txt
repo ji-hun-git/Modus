@@ -8,3 +8,4 @@ pypdf>=5,<7
 Pillow>=13,<14
 pypdfium2>=4.30,<6
 pytest>=8,<10
+-r encryption-requirements.txt

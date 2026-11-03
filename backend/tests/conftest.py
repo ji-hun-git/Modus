@@ -16,6 +16,26 @@ for name in MODEL_CREDENTIALS:
 os.environ['PYTHON_DOTENV_DISABLED'] = '1'
 
 
+class IsolatedTestKeyring:
+    """Real SQLCipher, ephemeral test keys; never read the developer's OS vault."""
+    def __init__(self):
+        self.entries = {}
+    def get_password(self, service, username):
+        return self.entries.get((service, username))
+    def set_password(self, service, username, password):
+        self.entries[service, username] = password
+
+
+try:
+    from modus import record_keys
+except ModuleNotFoundError as error:
+    if error.name != 'modus':
+        raise
+else:
+    test_keyring = IsolatedTestKeyring()
+    record_keys.system_keyring = lambda: test_keyring
+
+
 @pytest.fixture(autouse=True)
 def isolated_provider_environment(monkeypatch):
     monkeypatch.setenv('MODUS_PROVIDER', 'offline')
