@@ -29,6 +29,7 @@ import {
 } from "./importQueue";
 import "./import-queue.css";
 import ExtractionReviewSummary from "./ExtractionReviewSummary";
+import ReportCompletenessReview from './ReportCompletenessReview';
 import GenericFactReview from "./GenericFactReview";
 import type { FactReviewRow } from "./historyTypes";
 
@@ -397,6 +398,12 @@ export default function ImportWorkflow({
             {draft?.extraction_review && referenceOnly > 0 && (
               <ExtractionReviewSummary review={draft.extraction_review} />
             )}
+            {draft?.extraction_review?.completeness_check && <ReportCompletenessReview
+              key={draft.id} check={draft.extraction_review.completeness_check}
+              saved={current.status !== 'skipped'}
+              originalHref={current.receipt
+                ? `/api/history/sources/${encodeURIComponent(draft.source.id)}/original?known_at=${encodeURIComponent(current.receipt.available_at)}`
+                : !draft.already_committed ? `/api/drafts/${encodeURIComponent(draft.id)}/original` : undefined} />}
             <div className="import-queue-actions">
               {current.status === "skipped" && (
                 <button
@@ -505,7 +512,7 @@ export default function ImportWorkflow({
                 </label>
                 <p className="safe-note">
                   {extraction === "meta"
-                    ? "Meta reads up to 12 pages in groups, then checks the proposed fields. At most 8 model requests per file. Page details show what was processed; you review before saving."
+                    ? "Meta reads up to 12 pages in groups, checks the fields, and separately looks for missed rows. At most 12 model requests per file. You review before saving."
                     : "Structured CSV keeps named fields. Unrecognized prose stays editable source text. Up to 30 PDF pages; scanned pages require Meta."}
                 </p>
               </details>
@@ -584,7 +591,9 @@ export default function ImportWorkflow({
               </p>
             ))}
             {draft.extraction_review && (
-              <ExtractionReviewSummary review={draft.extraction_review} />
+              <ExtractionReviewSummary review={draft.extraction_review}
+                originalHref={draft.source.original_available && !draft.already_committed
+                  ? `/api/drafts/${encodeURIComponent(draft.id)}/original` : undefined} />
             )}
             {generic ? (
               <GenericFactReview

@@ -4,6 +4,7 @@
 Supported source file
   → bounded local text parsing or explicitly selected Meta extraction
   → schema-checked proposal with original evidence
+  → source-only row inventory; possible omissions flagged separately
   → explicit human review
   → transactional reviewed records
   → captured occurrence and availability scope
@@ -18,6 +19,13 @@ Muse Spark is the only hosted model in the product path. Extraction and its
 verification pass propose fields; neither commits records. Agent tools are
 allowlisted reads. Arguments cannot select another owner, widen captured scope,
 write SQL/code, choose an arbitrary endpoint or modify records.
+
+A third source-only Muse reading inventories recorded rows without seeing the
+proposal. Code compares that inventory against the draft and flags possible
+omissions with original-page excerpts. The candidates never become facts or
+commit IDs. A failed, limited or empty inventory cannot establish completeness.
+The same model can miss rows in both readings; offline injected responses verify
+the software contract, not live omission-detection quality.
 
 Offline parsers and numerical tools are ordinary software, explicitly labelled
 as such. Failed model calls are retained as failures; an offline result is never

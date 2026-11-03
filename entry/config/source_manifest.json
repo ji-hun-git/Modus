@@ -3,6 +3,26 @@
   "scope": "Exact bounded source candidate. No eligibility or publication approval implied.",
   "files": [
     {
+      "source": "backend/modus/record_row_inventory.py",
+      "destination": "backend/modus/record_row_inventory.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_record_row_inventory.py",
+      "destination": "backend/tests/test_record_row_inventory.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_row_inventory.py",
+      "destination": "backend/tests/test_entry_row_inventory.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ReportCompletenessReview.tsx",
+      "destination": "entry/frontend/src/ReportCompletenessReview.tsx",
+      "behavior": true
+    },
+    {
       "source": "entry/frontend/src/HomeReportEvidence.tsx",
       "destination": "entry/frontend/src/HomeReportEvidence.tsx",
       "behavior": true

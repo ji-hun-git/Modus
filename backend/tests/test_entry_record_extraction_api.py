@@ -203,7 +203,7 @@ def test_mixed_draft_preserves_unsaved_facts_after_supported_commit(api):
     assert all('extraction_proposal' not in source for source in view['sources'])
 
 
-def test_http_runs_real_two_pass_pipeline_with_artificial_transport(api, monkeypatch):
+def test_http_runs_real_source_checks_and_inventory_with_artificial_transport(api, monkeypatch):
     from modus import provider
     from modus.record_extraction import extract_record_document
     from io import BytesIO
@@ -218,6 +218,9 @@ def test_http_runs_real_two_pass_pipeline_with_artificial_transport(api, monkeyp
         calls.append(payload)
         content = ({'extraction': {'document_type': 'lab_report', 'fields': [field]}} if len(calls) == 1 else
             {'checks': [{'field_id': 'field-1', 'status': 'supported', 'reason': 'matches_source'}]})
+        if payload['response_format']['json_schema']['name'] == 'InventoryReportRows':
+            from test_record_extraction import inventory
+            content = inventory([field])
         return {'id': f'artificial-{len(calls)}', 'model': payload['model'],
             'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(content)}}],
             'usage': {'prompt_tokens': 100, 'completion_tokens': 50, 'total_tokens': 150}}
@@ -229,7 +232,7 @@ def test_http_runs_real_two_pass_pipeline_with_artificial_transport(api, monkeyp
         files={'file': ('artificial.png', image.getvalue(), 'image/png')})
     assert response.status_code == 200, response.text
     draft = store.draft(response.json()['id'])
-    assert len(calls) == 2 and all('tools' not in payload for payload in calls)
+    assert len(calls) == 3 and all('tools' not in payload for payload in calls)
     assert all(payload['reasoning_effort'] == 'minimal' and payload['max_completion_tokens'] == 4000 for payload in calls)
     assert all(any(part['type'] == 'image_url' for part in payload['messages'][1]['content']) for payload in calls)
     assert draft['extraction_proposal']['fields'][0]['local_support']['status'] == 'unavailable'
@@ -237,16 +240,16 @@ def test_http_runs_real_two_pass_pipeline_with_artificial_transport(api, monkeyp
     trace = draft['source']['extraction_telemetry']['calls']
     assert 'local_ocr' not in draft['source']['extraction_telemetry']
     assert draft['extraction_proposal']['extraction']['local_ocr_status'] == 'not_requested'
-    assert [call['stage'] for call in trace] == ['ExtractRecordedFields', 'VerifyRecordedFields']
+    assert [call['stage'] for call in trace] == ['ExtractRecordedFields', 'VerifyRecordedFields', 'InventoryReportRows']
     assert store.observations() == before
     activity = client.get('/api/changes').json()['changes']
     assert activity[0]['kind'] == 'extraction' and activity[0]['status'] == 'review_required'
-    assert len(activity[0]['telemetry']['calls']) == 2
+    assert len(activity[0]['telemetry']['calls']) == 3
     assert activity[0]['telemetry']['calls'][1]['response_id'] == 'artificial-2'
     # Re-upload returns the saved draft, not a newly billed but discarded extract.
     again = client.post('/api/imports/preview', data={'synthetic_confirmed': 'true', 'use_meta': 'true'},
         files={'file': ('artificial.png', image.getvalue(), 'image/png')})
-    assert again.status_code == 200 and len(calls) == 2
+    assert again.status_code == 200 and len(calls) == 3
     assert 'Existing review reopened. This file was not read again.' in again.json()['warnings']
     assert len(client.get('/api/changes').json()['changes']) == len(activity)
     # The product uses the generic history review for all eight record kinds.
@@ -267,7 +270,7 @@ def test_http_runs_real_two_pass_pipeline_with_artificial_transport(api, monkeyp
     assert fact['value'] == '5.7' and fact['source_quote'] == ROW['source_span']
     assert 'value' in fact['reviewed_fields'] and fact['available_at'].startswith('2026-10-28')
     assert client.get('/api/history/view', params={'known_at': '2026-10-27T00:00:00Z'}).json()['counts']['facts'] == before_history['counts']['facts']
-    assert len(calls) == 2  # Review and commit never call either model again.
+    assert len(calls) == 3  # Review and commit never call the model again.
 
 
 @pytest.mark.parametrize('stage,problem', [('extract', 'timeout'), ('extract', 'malformed'),
@@ -285,6 +288,9 @@ def test_actual_http_pipeline_exposes_failures_without_fallback_or_automatic_wri
         {'kind', 'label', 'value', 'unit', 'occurred_on', 'source_quote', 'page', 'bbox', 'model_confidence'}}
     async def artificial_transport(payload):
         calls.append(payload)
+        if payload['response_format']['json_schema']['name'] == 'InventoryReportRows':
+            from test_record_extraction import inventory, response
+            return response(inventory([field]))
         current = 'extract' if len(calls) == 1 else 'verify'
         if current == stage and problem == 'timeout':
             raise TimeoutError('SYNTHETIC_ERROR_MUST_NOT_LEAK')
@@ -308,7 +314,7 @@ def test_actual_http_pipeline_exposes_failures_without_fallback_or_automatic_wri
         files={'file': ('artificial-failure.png', image.getvalue(), 'image/png')})
     assert client.get('/api/history/view').json() == before
     assert 'SYNTHETIC_ERROR_MUST_NOT_LEAK' not in response.text
-    assert len(calls) == (1 if stage == 'extract' else 2)
+    assert len(calls) == (1 if stage == 'extract' else 3)
     activity = client.get('/api/changes').json()['changes']
     assert len(activity) == 1 and 'SYNTHETIC_ERROR_MUST_NOT_LEAK' not in json.dumps(activity)
     if stage == 'extract':
@@ -328,8 +334,8 @@ def test_actual_http_pipeline_exposes_failures_without_fallback_or_automatic_wri
         assert stored['extraction_proposal']['fields'][0]['value'] == '5.6'
         assert activity[0]['status'] == 'review_required'
         trace = activity[0]['telemetry']['calls']
-        assert [call['stage'] for call in trace] == ['ExtractRecordedFields', 'VerifyRecordedFields']
-        assert trace[-1]['result_validation'] == ('passed' if problem == 'mismatch' else 'failed')
+        assert [call['stage'] for call in trace] == ['ExtractRecordedFields', 'VerifyRecordedFields', 'InventoryReportRows']
+        assert trace[1]['result_validation'] == ('passed' if problem == 'mismatch' else 'failed')
 
 
 def test_pytest_disables_dotenv_before_parsing_any_credential_file(tmp_path, monkeypatch):

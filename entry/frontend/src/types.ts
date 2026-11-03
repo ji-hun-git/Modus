@@ -95,6 +95,27 @@ export type ExtractionReview = {
   verification_status: string;
   facts: ExtractedFactReview[];
   coverage?: ReportCoverage;
+  completeness_check?: ReportCompleteness;
+};
+export type ReportCompleteness = {
+  version: 'report-row-inventory-v1';
+  status: 'completed' | 'partial' | 'unavailable';
+  completeness: 'not_established';
+  review_required: true;
+  inventory_rows: number;
+  matched_rows: number;
+  omissions: {
+    id: string; page: number; label: string; value: string; unit: string | null;
+    source_quote: string; bbox: number[] | null;
+    local_support: 'matched_text' | 'mismatch' | 'unavailable';
+    matched_field_id: null;
+    reason: 'not_in_proposal' | 'source_unconfirmed';
+  }[];
+  pages: {
+    page: number; status: 'checked' | 'unavailable';
+    readability: 'readable' | 'limited' | 'unreadable' | null;
+    truncated: boolean; independent_text_available: boolean;
+  }[];
 };
 export type ReportCoverage = {
   version: "whole-report-v1";

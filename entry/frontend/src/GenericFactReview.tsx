@@ -248,6 +248,9 @@ export default function GenericFactReview({
           {kept} included · {rows.length - kept} excluded.
           <br />
           Saving keeps your review and the original.
+          {!!draft.extraction_review?.completeness_check?.omissions.length && <>
+            <br />Possible missing rows flagged above are not included.
+          </>}
         </p>
         <div>
           <button

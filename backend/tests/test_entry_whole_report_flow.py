@@ -43,11 +43,11 @@ def test_whole_report_review_save_original_and_duplicate_flow(api):
     coverage = draft['extraction_review']['coverage']
     assert coverage['processed_pages'] == coverage['page_count'] == 4
     assert coverage['completeness'] == 'not_established'
-    assert coverage['request_count'] == len(transport.calls) == 4
+    assert coverage['request_count'] == len(transport.calls) == 6
     assert [row['page'] for row in draft['facts']] == [1,2,3,4]
     assert client.get('/api/history/view').json()['counts'] == before
     assert client.get(f"/api/drafts/{draft['id']}/original").content == raw
-    assert upload(client, raw).status_code == 200 and len(transport.calls) == 4
+    assert upload(client, raw).status_code == 200 and len(transport.calls) == 6
     rows = [{key: row[key] for key in ('id','kind','label','value','unit','occurred_on','facility')} for row in draft['facts']]
     rows[3]['value'] = '74.50'
     body = {'draft_id':draft['id'],'synthetic_confirmed':True,'reviewed_facts':rows}
@@ -83,12 +83,13 @@ def test_failed_middle_group_exposes_only_processing_ledger_and_saves_nothing(ap
 
 def test_empty_report_retains_original_and_coverage_but_cannot_commit(api):
     client, store, transport = api
-    transport.change = lambda stage, pages, content: response({'extraction':{'document_type':'other','fields':[]}})
+    transport.change = lambda stage, pages, content: response({'extraction':{'document_type':'other','fields':[]}}) if stage == 'ExtractRecordedFields' else None
     raw = pdf(4)
     result = upload(client, raw)
     assert result.status_code == 200, result.text
     draft = result.json()
-    assert draft['facts']==[] and len(transport.calls)==2
+    assert draft['facts']==[] and len(transport.calls)==4
+    assert len(draft['extraction_review']['completeness_check']['omissions']) == 4
     assert all(page['status']=='no_fields' for page in draft['extraction_review']['coverage']['pages'])
     assert client.get(f"/api/drafts/{draft['id']}/original").content==raw
     assert client.post('/api/history/commit',json={'draft_id':draft['id'],'synthetic_confirmed':True,'reviewed_facts':[]}).status_code==422

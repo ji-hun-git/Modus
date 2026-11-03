@@ -45,6 +45,12 @@ def verification(checks=None):
     return {'checks': [{'field_id': 'field-1', 'status': 'supported', 'reason': 'matches_source'}] if checks is None else checks}
 
 
+def inventory(rows=None, page=1, **changes):
+    rows = [field()] if rows is None else rows
+    return {'pages': [{'page': page, 'readability': 'readable', 'truncated': False,
+        'rows': [{k: row[k] for k in ('label','value','unit','source_quote','bbox')} for row in rows], **changes}]}
+
+
 def response(content):
     return {'id': 'test-response', 'model': 'muse-spark-1.3', 'choices': [{'finish_reason': 'stop', 'message': {
         'content': json.dumps(content) if not isinstance(content, str) else content}}], 'usage': {'prompt_tokens': 12, 'completion_tokens': 20, 'total_tokens': 32}}
@@ -55,6 +61,8 @@ def run(*, first=None, second=None, raw=None, mime='application/pdf', filename='
     payloads, telemetry = [], {}
     async def request(payload):
         payloads.append(payload)
+        if payload['response_format']['json_schema']['name'] == 'InventoryReportRows':
+            return response(inventory())
         out = outputs.pop(0)
         if isinstance(out, BaseException):
             raise out
@@ -64,9 +72,9 @@ def run(*, first=None, second=None, raw=None, mime='application/pdf', filename='
     return result, payloads, telemetry
 
 
-def test_text_layer_two_pass_preserves_exact_source_and_requires_review():
+def test_text_layer_source_checks_and_blind_inventory_preserve_original_and_require_review():
     result, payloads, telemetry = run()
-    assert len(payloads) == 2
+    assert len(payloads) == 3
     assert all('tools' not in payload and payload['max_completion_tokens'] == 4000 for payload in payloads)
     assert all(payload['reasoning_effort'] == 'minimal' for payload in payloads)
     assert all(part['type'] == 'text' for part in payloads[0]['messages'][1]['content'])
@@ -76,8 +84,8 @@ def test_text_layer_two_pass_preserves_exact_source_and_requires_review():
     assert result['observations'][0]['source_span'] == SPAN
     assert result['review_required'] is True
     assert result['extraction']['confidence_basis'] == 'model_self_report_not_calibrated'
-    assert telemetry['usage']['total_tokens'] == 64
-    assert [call['stage'] for call in telemetry['calls']] == ['ExtractRecordedFields', 'VerifyRecordedFields']
+    assert telemetry['usage']['total_tokens'] == 96
+    assert [call['stage'] for call in telemetry['calls']] == ['ExtractRecordedFields', 'VerifyRecordedFields', 'InventoryReportRows']
 
 
 def date_passage(**updates):
@@ -224,7 +232,7 @@ def test_invalid_first_pass_produces_no_draft(bad):
 ])
 def test_verifier_failure_keeps_unconfirmed_draft_and_bounded_reason(bad):
     result, calls, telemetry = run(second=bad)
-    assert len(calls) == 2 and len(telemetry['calls']) == 2
+    assert len(calls) == 3 and len(telemetry['calls']) == 3
     assert result['verification']['status'] == 'unavailable'
     assert result['fields'][0]['verification']['status'] == 'unavailable'
     assert result['fields'][0]['value'] == '5.6' and result['review_required']
@@ -233,7 +241,8 @@ def test_verifier_failure_keeps_unconfirmed_draft_and_bounded_reason(bad):
 
 def test_empty_extract_does_not_claim_verification_or_retry():
     result, calls, _ = run(first=extraction([]))
-    assert len(calls) == 1 and result['verification']['status'] == 'not_run'
+    assert len(calls) == 2 and result['verification']['status'] == 'not_run'
+    assert len(result['completeness_check']['omissions']) == 1
     assert result['fields'] == result['observations'] == []
 
 

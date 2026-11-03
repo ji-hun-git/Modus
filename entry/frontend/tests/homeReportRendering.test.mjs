@@ -32,6 +32,7 @@ const result = await build({
       'export { default as GenericFactReview } from "./GenericFactReview";',
       'export { default as ReportCoverageSummary } from "./ReportCoverageSummary";',
       'export { default as ExtractionReviewSummary } from "./ExtractionReviewSummary";',
+      'export { default as ReportCompletenessReview } from "./ReportCompletenessReview";',
       'export { default as HistoryAnswerView } from "./HistoryAnswerView";',
       'export { default as HistoryQuestionPanel, historySuggestions, continuationLabel } from "./HistoryQuestionPanel";',
     ].join("\n"),
@@ -58,7 +59,7 @@ const result = await build({
     },
   ],
 });
-const { HomeReportEvidence, ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
+const { ReportCompletenessReview, HomeReportEvidence, ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
   await import(
     "data:text/javascript;base64," +
       Buffer.from(result.outputFiles[0].text).toString("base64")
@@ -299,6 +300,60 @@ test("whole-report coverage distinguishes processing, failed pages and unproven 
   assert.match(html,/Image supplied; text could not be checked locally/);
   assert.match(html,/<details[^>]*open/);
   assert.doesNotMatch(html,/100%|all facts|clinically verified|complete history/i);
+});
+
+const completeness = (overrides={}) => ({version:'report-row-inventory-v1',status:'completed',
+  completeness:'not_established',review_required:true,inventory_rows:2,matched_rows:1,
+  pages:[{page:1,status:'checked',readability:'readable',truncated:false,independent_text_available:true}],
+  omissions:[{id:'inventory-1-2',page:1,label:'Ferritin',value:'29.40',unit:'ng/mL',
+    source_quote:'Ferritin 29.40 ng/mL 2024-02-03',bbox:null,local_support:'matched_text',
+    matched_field_id:null,reason:'not_in_proposal'}],...overrides});
+
+test('omitted row review remains visible even when extraction found no editable fields', () => {
+  const html=render(ExtractionReviewSummary,{review:{document_type:'lab_report',verification_status:'not_run',
+    facts:[],completeness_check:completeness()},originalHref:'/api/drafts/authored/original'});
+  assert.match(html,/No fields found/); assert.match(html,/1 possible missing row/);
+  assert.match(html,/Ferritin 29.40 ng\/mL 2024-02-03/);
+  assert.match(html,/Page 1/); assert.match(html,/not included when you save/);
+  assert.match(html,/href="\/api\/drafts\/authored\/original"/);
+  assert.doesNotMatch(html,/<input|<textarea/); // A flag cannot become a selectable field.
+});
+
+test('failed or limited inventory is never presented as zero omissions or complete reading', () => {
+  for(const status of ['unavailable','partial']) {
+    const html=render(ExtractionReviewSummary,{review:{document_type:'lab_report',verification_status:'completed',
+      facts:[],completeness_check:completeness({status,omissions:[],pages:[{page:2,status:'unavailable',readability:null,
+        truncated:false,independent_text_available:false}]})}});
+    assert.match(html,/Check page 2 directly/);
+    assert.doesNotMatch(html,/No additional rows flagged|100%|all rows found/);
+  }
+});
+
+test('omission list is bounded and untrusted labels or excerpts cannot inject markup', () => {
+  const row=completeness().omissions[0];
+  const omissions=Array.from({length:20},(_,i)=>({...row,id:`inventory-1-${i+1}`,
+    label:`<script>bad${i}</script>`,source_quote:'<img src=x onerror=alert(1)>'}));
+  const html=render(ExtractionReviewSummary,{review:{document_type:'other',verification_status:'completed',facts:[],
+    completeness_check:completeness({omissions,inventory_rows:20,matched_rows:0})}});
+  assert.match(html,/20 possible missing rows/); assert.match(html,/1–6 of 20/);
+  assert.match(html,/Next rows/); assert.match(html,/Previous rows/);
+  assert.doesNotMatch(html,/<script|<img|bad6/); assert.match(html,/&lt;script&gt;bad5/);
+});
+
+test('a zero-flag result still says the check can miss rows', () => {
+  const html=render(ExtractionReviewSummary,{review:{document_type:'lab_report',verification_status:'completed',
+    facts:[],completeness_check:completeness({omissions:[]})}});
+  assert.match(html,/No additional rows flagged/); assert.match(html,/This check can miss rows/);
+  assert.doesNotMatch(html,/100%|all rows found/);
+});
+
+test('saved omission warnings retain evidence without pretending fields are still editable', () => {
+  const html=render(ReportCompletenessReview,{check:completeness(),saved:true,
+    originalHref:'/api/history/sources/authored/original?known_at=2026-11-03T09%3A00%3A00Z'});
+  assert.match(html,/These rows were not included in the saved fields/);
+  assert.match(html,/Ferritin 29.40 ng\/mL 2024-02-03/);
+  assert.match(html,/Download original to review/);
+  assert.doesNotMatch(html,/before saving|editable fields|when you save/);
 });
 
 test("flagged fields show their source concern in the actual review, without duplicate expanded summaries", () => {

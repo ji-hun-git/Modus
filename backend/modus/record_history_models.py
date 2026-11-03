@@ -89,6 +89,8 @@ def temporal_original_allowed(source, as_of):
     """Unknown or later source facts cannot leak through a dated original view."""
     if as_of is None:
         return True
+    if source.get('unresolved_row_inventory') is True:
+        return False
     if 'source_fact_dates' in source:
         dates = source['source_fact_dates']
         return bool(dates) and all(isinstance(day, str) and day <= as_of for day in dates)

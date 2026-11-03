@@ -171,3 +171,9 @@
     padding-top: 8px;
   }
 }
+.report-completeness { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.report-completeness h4 { margin: 0 0 8px; font-size: 15px; }
+.report-completeness > p { margin: 8px 0; max-width: 70ch; }
+.report-completeness > a { margin-top: 12px; }
+.completeness-pages { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.completeness-pages span { font-size: 12px; font-variant-numeric: tabular-nums; }

@@ -88,6 +88,14 @@ def review_draft(filename, raw, result):
         draft['extraction_review']['coverage'] = coverage
         if not result['fields']:
             draft['facts'] = []  # Read-only review of an empty proposal; commits still reject.
+    if 'completeness_check' in result:
+        # Server-generated comparison of validated inventory rows. These remain
+        # review warnings, never eligible field IDs for either commit endpoint.
+        draft['extraction_review']['completeness_check'] = result['completeness_check']
+        check = result['completeness_check']
+        # A possible omitted row has no reviewed date. Do not expose its full
+        # original through a dated history view merely because extracted rows fit.
+        draft['source']['unresolved_row_inventory'] = bool(check['omissions'] or check['status'] != 'completed')
     # Preserve exact model proposals, checks and non-calibrated confidence for
     # later review without exposing them as committed or historically known facts.
     draft['extraction_proposal'] = result

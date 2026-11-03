@@ -1,5 +1,45 @@
 # Modus Records API v1
 
+## Report row inventory — 3 November 2026
+
+Explicit Meta PDF/image reading adds a third, source-only `InventoryReportRows`
+request for each page group. It receives the same original pages without the
+extracted fields or verifier results. Each response must cover exactly that
+group's original page numbers, with bounded verbatim rows, proposed regions,
+readability and truncation flags. The extraction/source-check passes are unchanged.
+The maximum is now 12 provider requests for 12 pages (three per group); an empty
+extraction skips field verification but still runs the inventory. No automatic
+retry, repair, alternative provider or model-authorized write is added.
+
+`extraction_review.completeness_check` is additive: version
+`report-row-inventory-v1`, `status:completed|partial|unavailable`, fixed
+`completeness:not_established`, `review_required:true`, `inventory_rows`,
+`matched_rows`, `pages` and `omissions`. Every omission includes a server ID,
+original page, literal label/value/unit, excerpt, proposed bbox,
+`local_support:matched_text|mismatch|unavailable`, null `matched_field_id` and
+`reason:not_in_proposal|source_unconfirmed`. Page entries retain checked/unavailable
+status, model readability, truncation and independent text availability.
+
+Code compares rows one-to-one using the same original page, exact label/value/unit
+and overlapping contiguous excerpts. It does not merge aliases, convert units,
+coerce numerical spelling or drop repeated rows. Unsupported text remains a
+flag requiring source review. Image/OCR agreement never becomes independent text
+support. Inventory failure preserves the extracted draft with an unavailable
+check; partial/unreadable/truncated pages remain visible. Zero flags never prove
+complete extraction. This is a same-model second reading, not an independent
+model-quality measurement.
+
+Inventory candidates are not editable/savable facts and cannot supply commit IDs.
+Only the existing explicitly reviewed fields can be saved. Flags remain in the
+stored draft and on re-opening, without re-extraction or extra calls. Original
+bytes and page evidence remain unchanged. The review UI shows at most six flagged
+rows at once, with paging and an original download. Existing cached drafts are
+not retroactively inventoried. Offline readers do not claim to run this model check.
+Possible omissions and unavailable/partial inventories have unreviewed dates.
+After commit, the full original remains available in the unbounded recorded-date
+view, but a dated view withholds the whole document/excerpts using the existing
+partial-source rules. Extracted dates cannot authorize disclosure of omitted rows.
+
 Fresh demo stores include an authored open-label checkup. Re-uploading that
 exact file returns its existing proposal with `already_committed:true` and
 `extraction_mode:"authored_seed"`, even if Meta reading was requested. No model
@@ -280,7 +320,7 @@ Home, Records and Documents send their displayed history bounds to this route. E
 
 ## T3 whole-report reading and investigation (29 October)
 
-Explicit Meta extraction groups up to 12 prepared PDF pages into consecutive groups of three. Each group receives schema-constrained extraction and, when fields exist, a separate source-check pass. The hard ceiling is eight provider requests, 100 fields per group and 200 fields per report. Existing 8 MB input, text/image preparation and per-pass token limits remain. No automatic retry occurs. Global page numbers, original bytes, original quotations and numeric spelling are preserved. Failure of any extraction group rejects the entire proposal; successful earlier groups are not silently accepted. A failed verification pass leaves its fields unconfirmed for owner review.
+Explicit Meta extraction groups up to 12 prepared PDF pages into consecutive groups of three. Each group receives schema-constrained extraction, a source-check pass when fields exist, and a source-only row inventory. The hard ceiling is twelve provider requests, 100 extracted fields per group and 200 extracted fields per report. Inventory is separately bounded to 100 rows per group. Existing 8 MB input, text/image preparation and per-pass token limits remain. No automatic retry occurs. Global page numbers, original bytes, original quotations and numeric spelling are preserved. Failure of any extraction group rejects the entire proposal; successful earlier groups are not silently accepted. A failed verification pass leaves its fields unconfirmed for owner review; a failed inventory keeps an explicit unavailable completeness check.
 
 Successful previews add `extraction_review.coverage:{version:"whole-report-v1",status:"completed",completeness:"not_established",page_count,processed_pages,pages_per_group:3,max_provider_calls:8,request_count,pages}`. Each page has `{page,status:"not_run"|"processed"|"no_fields"|"failed",field_count,verification_status:"not_run"|"completed"|"unavailable",readability:"text_available"|"image_only"|"unreadable",text_available,vision_supplied}`. This records processing, not extraction recall or medical completeness. A report with no fields retains its original and page ledger in review but cannot save an empty history transaction.
 
