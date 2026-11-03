@@ -12,10 +12,11 @@ import sys
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from offline_environment import offline_environment
+from public_repository import require_public
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'release/service-check'
-TESTS = ['test_service_preview.py', 'test_entry_report_briefs.py', 'test_entry_report_summary.py', 'test_entry_lab_context.py', 'test_entry_history_conversation.py', 'test_entry_natural_history.py', 'test_entry_medical_retrieval.py', 'test_entry_concurrency.py', 'test_entry_history_pages.py', 'test_entry.py', 'test_entry_adversarial.py', 'test_entry_amendments.py', 'test_entry_blood_pressure.py', 'test_entry_brief_api.py', 'test_entry_briefs.py', 'test_entry_document_guard.py', 'test_entry_document_guard_import.py', 'test_entry_environment_isolation.py', 'test_entry_history_agent_adversarial.py', 'test_entry_history_api.py', 'test_entry_history_compare_api.py', 'test_entry_history_expansion.py', 'test_entry_history_selection_limits.py', 'test_entry_history_tools.py', 'test_entry_investigation_flow.py', 'test_entry_ocr_api.py', 'test_entry_record_answers.py', 'test_entry_record_extraction_api.py', 'test_entry_retrieval.py', 'test_entry_routing.py', 'test_entry_runtime_identity.py', 'test_entry_whole_report_flow.py', 'test_whole_report_reader.py', 'test_record_units.py', 'test_record_store.py', 'test_record_history.py', 'test_record_extraction.py', 'test_record_retrieval.py', 'test_history_ingest.py', 'test_history_audit.py', 'test_extraction_layouts.py', 'test_ontology.py']
+TESTS = ['test_public_repository.py', 'test_service_preview.py', 'test_entry_report_briefs.py', 'test_entry_report_summary.py', 'test_entry_lab_context.py', 'test_entry_history_conversation.py', 'test_entry_natural_history.py', 'test_entry_medical_retrieval.py', 'test_entry_concurrency.py', 'test_entry_history_pages.py', 'test_entry.py', 'test_entry_adversarial.py', 'test_entry_amendments.py', 'test_entry_blood_pressure.py', 'test_entry_brief_api.py', 'test_entry_briefs.py', 'test_entry_document_guard.py', 'test_entry_document_guard_import.py', 'test_entry_environment_isolation.py', 'test_entry_history_agent_adversarial.py', 'test_entry_history_api.py', 'test_entry_history_compare_api.py', 'test_entry_history_expansion.py', 'test_entry_history_selection_limits.py', 'test_entry_history_tools.py', 'test_entry_investigation_flow.py', 'test_entry_ocr_api.py', 'test_entry_record_answers.py', 'test_entry_record_extraction_api.py', 'test_entry_retrieval.py', 'test_entry_routing.py', 'test_entry_runtime_identity.py', 'test_entry_whole_report_flow.py', 'test_whole_report_reader.py', 'test_record_units.py', 'test_record_store.py', 'test_record_history.py', 'test_record_extraction.py', 'test_record_retrieval.py', 'test_history_ingest.py', 'test_history_audit.py', 'test_extraction_layouts.py', 'test_ontology.py']
 
 
 def protected(name):
@@ -73,6 +74,12 @@ def child():
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     if '--child' in sys.argv: return child()
+    try:
+        public_report=require_public(ROOT)
+    except ValueError as error:
+        print(str(error),flush=True)
+        return 1
+    (OUT/'public-source.json').write_text(json.dumps(public_report,indent=2)+'\n',encoding='utf-8')
     before=inputs()
     python=ROOT/'.venv'/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
     if not python.exists(): python=Path(sys.executable)

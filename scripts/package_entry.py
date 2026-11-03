@@ -5,9 +5,11 @@ import json
 from pathlib import Path
 import shutil
 from entry_release import ROOT, entries, assert_current, STAMP
+from public_repository import require_public
 
 
 def package(destination, include_build=False):
+    require_public(ROOT, selection_only=True)
     assert_current(ROOT, require_build=include_build)
     destination = Path(destination).resolve()
     if destination.exists():

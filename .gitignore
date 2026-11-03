@@ -35,3 +35,12 @@ Thumbs.db
 *.safetensors
 research/medical_adapter/checkpoints/
 research/medical_adapter/runs/
+
+# Local conversations, working notes and handoffs are never public source.
+private/
+private-notes/
+notes/
+handoff/
+attachments/
+docs/archive/
+docs/private/

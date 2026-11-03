@@ -76,7 +76,7 @@ Whole-history search uses `literal_and_medical_aliases_v2`, with the code-owned 
 
 `GET /api/history/page` also returns optional `retrieval` metadata for search. Recognized concepts use the same matcher before paging; fields retain their original names and are not merged. A query requiring clarification has zero matching rows and `retrieval.status: "clarify"` with `retrieval.clarification`. Unrecognized queries keep existing substring behavior. Literal/unknown modifiers never acquire clinical semantics. Complete captured counts remain separate from query/page counts.
 
-Reference links are fixed server-owned HTTPS addresses on NIDDK/MedlinePlus, contain no owner data and are not fetched automatically. UI links suppress referrers and reject unexpected origins/credentials/query strings. Source buttons/downloads remain separate and preserve existing availability/partial-document restrictions. No new write tool, external-reference API or medical-advice route is added. See [scope and offline verification](../../docs/T8_MEDICAL_TERMINOLOGY_2026-10-30.md).
+Reference links are fixed server-owned HTTPS addresses on NIDDK/MedlinePlus, contain no owner data and are not fetched automatically. UI links suppress referrers and reject unexpected origins/credentials/query strings. Source buttons/downloads remain separate and preserve existing availability/partial-document restrictions. No new write tool, external-reference API or medical-advice route is added. See [verification boundaries](VERIFICATION.md).
 
 ## Paginated whole history — 30 October 2026
 
@@ -102,13 +102,13 @@ Response retains `scope`, full-capture `counts` and `profile`. `facts` plus `und
 
 Snapshots are process-local and immutable, with a 600-second lifetime, at most four captures and an approximate 48 MiB encoded-record budget (not a resident-memory guarantee). Unknown/expired/evicted tokens return `410` with an explicit refresh message. Reconstruct from the displayed bounds when reopening a historical view; do not silently replace it with latest history. A single capture exceeding the budget returns `422` asking for an earlier date cutoff. Initial projection/filtering is still whole-capture work; this is not SQL keyset pagination.
 
-History writes increment a transactional generation counter; new lookups see committed changes, while existing tokens retain their captured versions. Audit writes do not invalidate history. Original downloads continue to require the captured temporal bounds and existing partial-document restrictions. The model gains no write tool. See [T7 verification and limits](../../docs/T7_HISTORY_PAGINATION_2026-10-30.md).
+History writes increment a transactional generation counter; new lookups see committed changes, while existing tokens retain their captured versions. Audit writes do not invalidate history. Original downloads continue to require the captured temporal bounds and existing partial-document restrictions. The model gains no write tool. See [verification boundaries](VERIFICATION.md).
 
 ## Correction recovery and contention — 30 October 2026
 
 Amendment requests/receipts retain their schema and idempotency. The frontend keeps the exact reviewed pending request in tab memory across evidence-dialog unmounts and workspace navigation; checking an uncertain result resends that identical request. It never automatically retries or persists medical text to browser storage. Reload/crash recovery is not provided. Read-only revision lists remain scope-bound; resuming a latest-version edit from another historical scope requires explicit owner action.
 
-SQLite BUSY/LOCKED errors return HTTP `503`, `Retry-After: 1`, and `{"detail":"Your records are busy. Please try again shortly."}`. A correction client must retain the identical pending body on this response, as it does for other uncertain outcomes. Definitive non-timeout/non-rate-limit 4xx rejections invalidate the preview and require review again. History snapshots still capture clock/rows in one transaction; decoding/projection and offline Ask work run outside database locks/event-loop work respectively. See the [verification report](../../docs/T6_CORRECTION_RECOVERY_2026-10-30.md).
+SQLite BUSY/LOCKED errors return HTTP `503`, `Retry-After: 1`, and `{"detail":"Your records are busy. Please try again shortly."}`. A correction client must retain the identical pending body on this response, as it does for other uncertain outcomes. Definitive non-timeout/non-rate-limit 4xx rejections invalidate the preview and require review again. History snapshots still capture clock/rows in one transaction; decoding/projection and offline Ask work run outside database locks/event-loop work respectively. See the [verification contract](VERIFICATION.md).
 
 Implementation contract for the independent entry. All dates/times are strings; instants require a timezone. JSON requests forbid extra fields. No broad assessment, medication, genetics or reference routes exist.
 
