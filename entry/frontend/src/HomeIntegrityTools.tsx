@@ -56,12 +56,13 @@ export default function HomeIntegrityTools({
   </>;
   if (orbit) return <section className="home-integrity-tools orbit-telemetry" aria-label="History controls">
     <header className="orbit-timeline-heading">
-      <div><span>Your timeline</span><strong>{scope.as_of ? `Through ${dateLabel(scope.as_of)}` : 'All recorded dates'}</strong></div>
+      <div><span>Recorded dates</span><strong>{scope.as_of ? `Through ${dateLabel(scope.as_of)}` : 'All recorded dates'}</strong></div>
+      <div><span>Files available through</span><strong><time dateTime={scope.known_at}>{timeLabel(scope.known_at)}</time></strong></div>
     </header>
     {timeline}
+    <div className="home-replay-controls">{dateControls}</div>
     <details className="orbit-history-options">
-      <summary>History options <span>{knowledge === 'latest' ? 'Files available now' : `Files available ${dateLabel(scope.known_at.slice(0, 10))}`}</span></summary>
-      <div className="home-replay-controls">{dateControls}</div>
+      <summary>More history tools</summary>
       <div className="home-integrity-actions">
         {pendingCount > 0 && <button type="button" className="secondary" onClick={onReview}>
           <Inbox size={15} aria-hidden="true" /> Continue review <span>{pendingCount}</span>
@@ -73,7 +74,7 @@ export default function HomeIntegrityTools({
           <FileText size={15} aria-hidden="true" /> Prepare a brief
         </button>
       </div>
-      <p className="home-integrity-notes">Files available through {timeLabel(scope.known_at)}.{pendingCount > 0 && ' Unsaved reviews stay in this tab.'}</p>
+      {pendingCount > 0 && <p className="home-integrity-notes">Unsaved reviews stay in this tab.</p>}
     </details>
   </section>;
   return (

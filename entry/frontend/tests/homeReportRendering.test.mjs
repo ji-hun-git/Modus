@@ -99,7 +99,7 @@ const viewOf = (facts) => ({
 });
 const noop = () => {};
 
-test('Home starts with readings and orbit while history details stay opt-in', () => {
+test('Home exposes both clocks and the scrubber while advanced history tools stay opt-in', () => {
   const html=renderToStaticMarkup(createElement(HealthRecordOverview,{
     view:viewOf([row('a','2026-10-20')]), hasDraft:false, onImport:noop, onNavigate:noop,
     dates:['2026-10-20'], currentDay:'2026-11-02', knowledge:'now', pendingCount:0, onDate:noop,
@@ -107,7 +107,12 @@ test('Home starts with readings and orbit while history details stay opt-in', ()
   assert.match(html,/Readings in this report/);
   assert.match(html,/Your source files in orbit/);
   assert.match(html,/Ask about your medical history/);
-  assert.match(html,/<details class="home-timeline-disclosure"><summary>View history by date/);
+  assert.doesNotMatch(html,/home-timeline-disclosure/);
+  assert.match(html,/Files available through<\/span><strong><time dateTime="2026-10-29T00:00:00Z"/);
+  const tools=html.indexOf('<details class="orbit-history-options"');
+  assert.ok(html.indexOf('aria-label="Scrub recorded history"')<tools);
+  assert.ok(html.indexOf('aria-label="Home file availability"')<tools);
+  assert.ok(tools<html.indexOf('class="orbit-workspace"'));
   assert.doesNotMatch(html,/This reading across your history|Compare with previous checkup|Close history/);
 });
 
@@ -210,7 +215,7 @@ test("orbit keeps core actions visible and puts secondary history controls in a 
   const html=render(HomeIntegrityTools,{scope:viewOf([]).scope,dates:['2012-01-01'],currentDay:'2026-10-29',
     knowledge:'latest',pendingCount:0,onDate:noop,onNavigate:noop,onReview:noop,orbit:true});
   assert.doesNotMatch(html,/Ask about your history/); // One Home composer owns this action.
-  assert.match(html,/<details class="orbit-history-options"><summary>History options/);
+  assert.match(html,/<details class="orbit-history-options"><summary>More history tools/);
   assert.doesNotMatch(html,/Review queue|Continue review|T\+/);
   assert.match(html,/aria-label="Home file availability"/);
 });

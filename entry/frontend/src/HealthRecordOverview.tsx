@@ -62,6 +62,9 @@ export default function HealthRecordOverview({
           {hasDraft ? "Continue review" : "Add records"}
         </button>
       </header>
+      <HomeIntegrityTools scope={view.scope} dates={dates} currentDay={currentDay}
+        knowledge={knowledge} pendingCount={pendingCount} onDate={onDate}
+        onNavigate={onNavigate} onReview={onImport} orbit />
       {!!differenceCount && <div className="overview-conflict-banner">
         <AlertCircle size={16} aria-hidden="true" />
         <p>{differenceCount === 1 ? "Recorded values differ." : `${differenceCount} recorded differences to review.`}</p>
@@ -109,11 +112,6 @@ export default function HealthRecordOverview({
         </aside>
       </div>}
       <div className="sr-only" role="status">{report ? !detailView && view.page ? `Opening ${report.source.title}.` : `Selected file: ${report.source.title}. ${facts.length} recorded items.` : 'No source files in this view.'}</div>
-      <details className="home-timeline-disclosure"><summary>View history by date</summary>
-      <HomeIntegrityTools scope={view.scope} dates={dates} currentDay={currentDay}
-        knowledge={knowledge} pendingCount={pendingCount} onDate={onDate}
-        onNavigate={onNavigate} onReview={onImport} orbit />
-      </details>
       <OverviewRecordDetails view={detailView || view} selection={null} inspected={inspected} onInspect={setInspected}
         onCloseSource={() => setInspected(null)} onCloseSelection={() => {}} />
       {reportComparisonOpen && report && <ReportComparison key={`${view.page?.snapshot_id}:${report.source.id}`}
