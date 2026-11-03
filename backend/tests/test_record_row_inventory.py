@@ -192,6 +192,17 @@ def test_unit_disagreement_requires_same_complete_passage_not_partial_overlap():
     assert result['completeness_check']['disagreements'] == []
 
 
+def test_two_different_printed_units_never_collapse_even_with_one_shared_passage():
+    quote = 'Glucose 100 mg/dL; Glucose 100 mmol/L'
+    proposed = field(label='Glucose',value='100',unit='mg/dL',source_quote=quote)
+    inventoried = {**proposed,'unit':'mmol/L'}
+    result, _, _ = run(ArtificialInventoryReader(rows=[inventoried],proposed=[proposed]),raw=pdf(quote))
+    assert result['completeness_check']['disagreements'] == []
+    missing, = result['completeness_check']['omissions']
+    assert missing['unit']=='mmol/L' and missing['local_support']=='matched_text'
+    assert result['fields'][0]['unit']=='mg/dL'
+
+
 def test_matrix_cells_keep_literal_labels_and_duplicate_values_without_alias_matching():
     quote = 'Glucose mg/dL 91 104 91'
     rows = [field(label='Glucose',value=v,unit='mg/dL',source_quote=quote) for v in ['91','104','91']]

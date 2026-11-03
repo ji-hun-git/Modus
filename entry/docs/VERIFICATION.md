@@ -22,12 +22,15 @@ the actual Muse import path with `muse-spark-1.3`.
 The matrix inventory invented date suffixes on test names, creating 12 false
 flags despite complete extraction. Prompts now require each result cell to keep
 the unchanged printed test label. The scan's final measurement lost its unit;
-the inventory found it. A unique unit disagreement on the exact same source
+the inventory found it. A uniquely paired missing unit on the exact same source
 passage now warns on the existing field instead of offering a duplicate row.
 Both proposals remain intact. Exact matches take priority, ambiguous repeats
-stay reviewable, and unsupported labels still cannot match a proposed field. An offline replay
+stay reviewable, and unsupported labels still cannot match a proposed field.
+Two different non-empty units remain separate candidates even if their excerpts
+are identical; a final regression locks that boundary. An offline replay
 of the unchanged real scan responses separately confirmed this deterministic
-behavior; it is not counted as a live rerun.
+behavior; it is not counted as a live rerun. Replaying all six revised live
+inventories through the final boundary produced the same zero-flag results.
 
 The four date differences are retained in the result. The narrative page said
 “Collected” in its header, but did not explicitly date its narrative statements.
@@ -53,7 +56,7 @@ This is a usage estimate, not an invoice or account-wide total. Raw responses,
 request IDs, latency, labels, source hashes and both score definitions remain in
 private development artifacts. The session was closed and its credential removed.
 
-Verification: `python scripts/check_service.py` passed **1,391 backend tests,
+Verification: `python scripts/check_service.py` passed **1,392 backend tests,
 2 skipped; 221 frontend tests; and the production build**. New regressions cover
 matrix duplicates, invented labels, unique/ambiguous unit disagreements, match
 ordering, reviewed correction, duplicate-save rejection and original retention.

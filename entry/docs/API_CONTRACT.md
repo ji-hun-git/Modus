@@ -27,7 +27,9 @@ entries retain the existing literal, one-to-one matching requirements.
 
 `completeness_check.disagreements` additionally retains a unit disagreement
 when exactly one unmatched inventory row and one unmatched field have the same
-page, literal label/value and entire whitespace-normalized source passage.
+page, literal label/value and entire whitespace-normalized source passage, and
+exactly one reading omitted the unit. Two different non-empty units are never
+paired: they may represent separate printed results, even with a shared passage.
 Exact matches take priority; ambiguous repeats and different passages remain
 possible omissions. Neither value nor unit is converted or overwritten. The
 inventory row retains `matched_field_id:null`, `related_field_id` and

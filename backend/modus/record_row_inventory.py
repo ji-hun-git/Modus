@@ -127,8 +127,9 @@ def compare_inventory(inventory, numbers, original_pages, fields):
             row.update(local_support=support, matched_field_id=match['id'] if match else None,
                        reason=None if match else 'source_unconfirmed' if support == 'mismatch' else 'not_in_proposal')
             rows.append(row)
-    # A single differing unit on the exact same printed passage is a field
-    # disagreement, not a second record to add. Keep both proposals unchanged.
+    # One omitted unit on the exact same printed passage is a field
+    # disagreement, not a second record to add. Two nonempty units can mean
+    # separate printed results; never join those. Keep both proposals unchanged.
     # Defer until all exact matches have consumed their fields, and require a
     # unique pairing in BOTH directions. Ambiguous repeats remain omissions.
     links = {}
@@ -137,7 +138,7 @@ def compare_inventory(inventory, numbers, original_pages, fields):
             continue
         candidates = [f for f in fields if f['id'] not in used and f['page'] == row['page']
             and all(compact(f[k] or '') == compact(row[k] or '') for k in ('label', 'value', 'source_quote'))
-            and compact(f['unit'] or '') != compact(row['unit'] or '')]
+            and (f['unit'] is None) != (row['unit'] is None)]
         if len(candidates) == 1:
             links[row['id']] = candidates[0]['id']
     for row in rows:
