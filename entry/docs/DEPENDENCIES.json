@@ -2136,71 +2136,71 @@
       "notices": [
         {
           "path": "data/licenses/dependencies/python/pywin32-312/14-license.txt",
-          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+          "sha256": "bfadf1e499859cd237ce2fd5c1f5390412bd75d83a16edc46a5837e83b703ec6"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/43-License.txt",
-          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+          "sha256": "ae254460373deef5dff3e08104f4c1f03a045c2ae1b34760b5c30f7efcef9078"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/45-Scintilla-License.txt",
-          "sha256": "57ec79bbeab4fd1cf7460a7ad450d2ab01471810459aeae9e75e4c66b472095f"
+          "sha256": "195e757720836a7d57f0f13dc93bf5140ecb186466845cf42c53fa9cbaf6c280"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/124-LICENSE.txt",
-          "sha256": "a0fa1e7b8a4230055685e796548ac084a6c0eea395294574093bba72efd9191b"
+          "sha256": "636c31aaf8c7e98df69560b35f70aca36312576c1fb2e52e6189e9dc8985e529"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/164-license.txt",
-          "sha256": "5ea2f23c7f00c3006bacf267183e816d8d4b6dc95ea57a4ddb0ff81de6d8719e"
+          "sha256": "bfadf1e499859cd237ce2fd5c1f5390412bd75d83a16edc46a5837e83b703ec6"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/165-License.txt",
-          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+          "sha256": "6ad44d8d785d93773a1d0430a17187337841e34f01e7f289c92bd9d8be6156c4"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/166-LICENSE",
-          "sha256": "1c4cf44d2fb8bf2d10214d6da80cc9e05502824cc4460f35be4c7bcb4cde53da"
+          "sha256": "a46919cc8f01eb73f6e4b84af0d41b46b2a33b87c74e864279ef585079f82da4"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/167-README.txt",
-          "sha256": "41383bcc95edb8138d37077ae54bfdcbd2a3b77bf745a8529a9c161146e22303"
+          "sha256": "8e8db0264ccf02ab9fc4557dc000306012a60e50015822fd935b52dca395b12d"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/168-License.txt",
-          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+          "sha256": "ae254460373deef5dff3e08104f4c1f03a045c2ae1b34760b5c30f7efcef9078"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/169-License.txt",
-          "sha256": "57ec79bbeab4fd1cf7460a7ad450d2ab01471810459aeae9e75e4c66b472095f"
+          "sha256": "195e757720836a7d57f0f13dc93bf5140ecb186466845cf42c53fa9cbaf6c280"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/170-LICENSE.txt",
-          "sha256": "a0fa1e7b8a4230055685e796548ac084a6c0eea395294574093bba72efd9191b"
+          "sha256": "636c31aaf8c7e98df69560b35f70aca36312576c1fb2e52e6189e9dc8985e529"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/171-License.txt",
-          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+          "sha256": "ae254460373deef5dff3e08104f4c1f03a045c2ae1b34760b5c30f7efcef9078"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/251-License.txt",
-          "sha256": "a74d826efb242db087b850348e20abbfd591b51e2081f2048735290913872924"
+          "sha256": "ae254460373deef5dff3e08104f4c1f03a045c2ae1b34760b5c30f7efcef9078"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/383-License.txt",
-          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+          "sha256": "6ad44d8d785d93773a1d0430a17187337841e34f01e7f289c92bd9d8be6156c4"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/485-License.txt",
-          "sha256": "fad39c18fc3825fa278db1c86fd52cf88d7c525b3c2fbf7817fa383cbae4d423"
+          "sha256": "6ad44d8d785d93773a1d0430a17187337841e34f01e7f289c92bd9d8be6156c4"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/571-MAPIStubLibrary-License.txt",
-          "sha256": "1c4cf44d2fb8bf2d10214d6da80cc9e05502824cc4460f35be4c7bcb4cde53da"
+          "sha256": "a46919cc8f01eb73f6e4b84af0d41b46b2a33b87c74e864279ef585079f82da4"
         },
         {
           "path": "data/licenses/dependencies/python/pywin32-312/572-NOTICE.md",
-          "sha256": "dedf997c8f5568a0e0aff57d009f501226ea30c401323d67912b6a8f8735a825"
+          "sha256": "969e864208b240a6f31bd6450182f52942e8e0b3fb59d2ccca03579d298f9464"
         }
       ]
     },
@@ -2213,7 +2213,7 @@
       "notices": [
         {
           "path": "data/licenses/dependencies/python/pywin32-ctypes-0.2.3/1-LICENSE.txt",
-          "sha256": "dfa83b3e2709adfcdb838d9ad55823ca674abb780e60563d9dd9544ccbf785e9"
+          "sha256": "cc03ae891a362c85d508a4e47af954314a2e4ccbd445140cb8dca7e2baee19f7"
         }
       ]
     },
@@ -2234,7 +2234,7 @@
       "notices": [
         {
           "path": "data/licenses/dependencies/python/sqlcipher3-0.6.4/5-LICENSE",
-          "sha256": "d2af98975b150bf6ff5ef99785b56b4b5979024a4ab3117253f1cd777f98bad6"
+          "sha256": "fa23cf250126548e90008fe92de4ee76d485bfbb3592f5be8aa731775892a960"
         }
       ]
     },
