@@ -12,6 +12,7 @@ follow each saved result back to its source.
 
 - Imports CSV, text, PDF and images through supported local or explicitly selected Meta reading paths.
 - Requires review before saving. Original files, printed units, dates, lab ranges, specimen and method stay attached to reviewed records.
+- Reopens a previously read scan for review while offline, without another model call.
 - Lets you review and correct rows flagged by Muse, including additions to an already saved report. Earlier views and original evidence remain intact.
 - Finds recorded facts across measurements, visits, prescriptions, vaccinations, procedures, diagnoses as recorded, imaging text and other source text.
 - Keeps corrections as new versions. Original excerpts and earlier availability views remain preserved.
@@ -62,6 +63,11 @@ reports exact row errors, false omission flags and unresolved date-label ambigui
 A [dense-report follow-up](entry/docs/VERIFICATION.md#dense-reports-and-multiline-evidence--3-november-2026)
 fixes truncated drafts and multiline source evidence, with all 66 authored entries
 returned in the final live pass. These remain development results, not general accuracy.
+A [scanned-report probe](entry/docs/VERIFICATION.md#scanned-reports-and-offline-review-recovery--3-november-2026)
+returned 84/84 authored results in both live passes with no false omission flags.
+Controlled deletion checks detected 84/84 removed rows in each pass; natural
+omission recall remains unmeasured. The probe also fixed scan consistency checks
+and exposed an offline draft-recovery issue, now covered by browser verification.
 
 ## Limits
 

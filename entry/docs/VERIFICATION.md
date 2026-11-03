@@ -1,5 +1,87 @@
 # Verification
 
+## Scanned reports and offline review recovery — 3 November 2026
+
+Six new assistant-authored PNGs contained **84 expected recorded results**:
+28 compact two-column fax rows with lab context, 12 rows including a faint
+addendum, a rotated 16-cell history matrix with repeated values, 18 results in
+a shadowed phone-style image, 10 stamped/repeated entries, and an unfilled
+reference-only form. The form included an instruction to invent a result.
+Original image bytes and expected labels were hashed before any model call.
+These files have no PDF text layer; both readers had to inspect image content.
+The baseline was `a0a798f`. Both live passes used the same frozen files and labels.
+
+| Development observation | Baseline | Follow-up |
+| --- | ---: | ---: |
+| Successful imports | 6 / 6 | 6 / 6 |
+| Exact page/name/value/unit results | 84 / 84 | 84 / 84 |
+| Missing / extra rows | 0 / 0 | 0 / 0 |
+| False omission flags | 0 | 0 |
+| Date or lab-context differences | 1 | 0 |
+| Partial / unavailable inventories | 0 / 0 | 0 / 0 |
+| Controlled removed rows detected | 84 / 84 | 84 / 84 |
+| Extra flags in controlled trials | 0 | 0 |
+
+The controlled trials reuse each file's **actual source-only Muse inventory**.
+One correctly extracted row is removed from its proposal, and the deterministic
+comparator is rerun. A detection requires an additional flag for that row, above
+the unchanged proposal's flags. Duplicate identities retain their multiplicity.
+This uses no new model calls and is **not natural omission recall**: neither live
+draft naturally omitted a whole row, so that recall is still unmeasured. The two
+84-trial results are repeated development observations, not 168 independent cases.
+The readers are the same model family, and labels are assistant-authored, not
+independently human-reviewed. These results do not establish clinical or general
+real-document accuracy. Image pixels were not screened by the text-only guard;
+the empty-form result is not proof of visual injection detection.
+
+The baseline changed `10^12/L` to `10*12/L` inside one RBC reference range while
+its excerpt retained the correct symbol. Muse's verifier flagged the mismatch,
+but the local checker returned early for image-only pages. It now also checks a
+proposal's consistency with its own excerpt, with a specific range/unit/value
+warning when they conflict. Agreement still cannot establish independent source
+support. Replaying the 84 original proposals first exposed a false qualifier
+warning on `0.80` followed by `<0.10` in a history row; the comparator now binds
+that inequality to its following value. The corrected local replay flags only
+the real range typo and never promotes a scan to independently matched text.
+Proposals, originals and baseline failures remain retained, without automatic
+repair. The follow-up's zero context errors reflect a fresh model response;
+the extraction prompt and model were unchanged, so no model-accuracy improvement
+is attributed to these local-check fixes.
+
+The browser also found that an already-read scan could not be reopened once API
+access was removed. The import UI now offers **Reopen previous draft** in that
+case. An explicit cache-only request either returns the existing draft for those
+exact bytes or fails without invoking a reader, provider or fallback. This works
+after service restart and preserves the draft's original warnings and save state.
+
+Browser verification reopened the baseline fax while offline, checked **224 form
+values/selections**, corrected the range, and explicitly saved all 28 fields.
+Its orbit satellite opened those readings and the unchanged original excerpt.
+The downloaded scan matched the uploaded bytes exactly. The saved record shows
+the range edit while the cached model proposal still retains `10*12/L`.
+“When was my RBC 4.62 10^12/L?” returned **2024-03-12** with source evidence and
+the explicit **Offline · no model called** label. Earlier availability still
+excludes the newly saved records and their original. Twenty concurrent cached
+recoveries, using four workers, returned the same draft without new records,
+activity or model calls; a changed-byte cache miss did not fall back to a model.
+
+`python scripts/check_service.py`: **1,421 backend passed, 2 skipped; 222 frontend
+passed; production build passed**. All **49 service checks** passed, including
+the saved correction, original preservation, past availability, offline Ask,
+cache-only recovery and served build identity. The existing Starlette/httpx
+deprecation warning remains. The orbit layout and styling are unchanged.
+
+The two live passes made **34 real `muse-spark-1.3` requests**, 17 per pass:
+170,256 input and 47,001 output tokens. Estimated Standard cost was
+**$0.41257425**, charging all input as uncached at
+[Meta's published rates](https://dev.meta.ai/docs/pricing-rate-limits).
+This is a session estimate, not an invoice or account-wide total. The $2 cap was
+not reached; both services are now offline with credentials removed. Private
+artifacts retain request IDs, latency, usage, raw responses, hashes, baseline
+errors and the controlled/local replay results. No protected evaluation or
+held-out artifacts were accessed or changed. Production privacy qualification,
+independent model-quality evidence and final contest release remain unfinished.
+
 ## Dense reports and multiline evidence — 3 November 2026
 
 Four new assistant-authored development files contained 66 expected entries:
