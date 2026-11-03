@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import Shell, { type Page } from "./Shell";
+import DownloadOriginal from './DownloadOriginal';
 import ImportWorkflow from "./ImportWorkflow";
 import CorrectionRecoveryNotice from "./CorrectionRecoveryNotice";
 import SourceCubeHome from "./SourceCubeHome";
@@ -158,9 +159,9 @@ function EvidenceInspector({
               : "Availability is recorded when reviewed measurements enter Modus."}
           </p>
           {source.original_available ? (
-            <a className="secondary" href={originalUrl(view, source)} download>
+            <DownloadOriginal className="secondary" href={originalUrl(view, source)}>
               Download original in this scope <Download size={15} />
-            </a>
+            </DownloadOriginal>
           ) : (
             <p className="safe-note">
               The full original is not available in this view. It may not have
@@ -227,7 +228,7 @@ function AskWorkspace({
   );
 }
 
-export default function App() {
+export default function App({onLock}: {onLock?: () => void}) {
   const [askSeed, setAskSeed] = useState<{message: string; afterKnownAt: string} | null>(null);
   const [page, setPage] = useState<Page>("Home");
   const [asOf, setAsOf] = useState(() => {
@@ -467,6 +468,7 @@ export default function App() {
         setPage={setPage}
         onImport={openImport}
         hasDraft={hasDraft}
+        onLock={onLock}
       >
         <CorrectionRecoveryNotice />
         {saved && (

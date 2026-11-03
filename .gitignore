@@ -28,6 +28,7 @@ PACKAGE_MANIFEST.json
 *.sqlite3
 *.pem
 *.key
+*.modus-access
 *.p12
 *.pfx
 .DS_Store

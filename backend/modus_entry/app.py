@@ -44,6 +44,7 @@ from .extraction_review import review_draft
 from .document_guard import screen_untrusted
 from .report_coverage import public_coverage, extraction_failure_detail
 from .local_security import LocalSecurityMiddleware
+from .local_access import LocalAccess, access_routes
 
 load_dotenv(ROOT / '.env')
 CHANGE_FIELDS = {'id', 'created_at', 'kind', 'status', 'draft_id', 'source_id', 'available_at',
@@ -126,7 +127,9 @@ def preview_response(saved, *, reused=False, store=None):
 def create_entry_app(database=None, clock=None):
     app = FastAPI(title='Modus Records', version=RELEASE, docs_url=None, redoc_url=None, openapi_url=None,
         description='Synthetic record reconciliation and availability replay. Contest eligibility remains unconfirmed.')
-    app.add_middleware(LocalSecurityMiddleware)
+    app.state.local_access = LocalAccess()
+    app.add_middleware(LocalSecurityMiddleware, access=app.state.local_access)
+    app.include_router(access_routes(app.state.local_access))
 
     @app.exception_handler(RequestValidationError)
     async def private_validation_error(request, error):

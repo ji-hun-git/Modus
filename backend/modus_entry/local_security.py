@@ -51,7 +51,7 @@ def _local_client(scope):
 
 def request_allowed(scope):
     headers = {}
-    sensitive = {b'host', b'origin', b'referer', b'sec-fetch-site', WRITE_HEADER, b'content-length'}
+    sensitive = {b'host', b'origin', b'referer', b'sec-fetch-site', b'authorization', WRITE_HEADER, b'content-length'}
     for key, value in scope['headers']:
         key = key.lower()
         if key in sensitive and key in headers:
@@ -84,8 +84,9 @@ def request_allowed(scope):
 
 
 class LocalSecurityMiddleware:
-    def __init__(self, app):
+    def __init__(self, app, access=None):
         self.app = app
+        self.access = access
 
     async def __call__(self, scope, receive, send):
         if scope['type'] == 'websocket':
@@ -116,8 +117,11 @@ class LocalSecurityMiddleware:
 
         if not request_allowed(scope):
             return await reject(403, 'Open Modus locally and make this request from its own window.')
+        if self.access is not None and not self.access.permits(scope):
+            return await reject(401, 'Open your local access file to unlock Modus.')
         lengths = [v for k, v in scope['headers'] if k.lower() == b'content-length']
-        if lengths and (len(lengths[0]) > 10 or not lengths[0].isdigit() or int(lengths[0]) > MAX_REQUEST_BYTES):
+        maximum = 1024 if scope['path'].startswith('/api/access/') else MAX_REQUEST_BYTES
+        if lengths and (len(lengths[0]) > 10 or not lengths[0].isdigit() or int(lengths[0]) > maximum):
             return await reject(413, 'Request body exceeds the local upload limit.')
         if scope['method'] not in {'GET', 'HEAD'}:
             # Bound bytes BEFORE multipart parsing can spool an oversized file.
@@ -130,7 +134,7 @@ class LocalSecurityMiddleware:
                         return None
                     body = message.get('body', b'')
                     size += len(body)
-                    if size > MAX_REQUEST_BYTES:
+                    if size > maximum:
                         raise OverflowError
                     chunks.append(body)
                     if not message.get('more_body', False):

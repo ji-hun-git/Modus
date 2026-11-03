@@ -1,5 +1,42 @@
 # Verification
 
+## Local access and authenticated evidence — 3 November 2026
+
+Knowing the loopback address previously allowed a local process to read records.
+The service now starts locked and requires a launch-specific owner access file
+to create an expiring session. The static shell stays public; record APIs,
+originals, exports and private development routes require authentication.
+The file-orbit layout and original/history semantics are unchanged.
+
+`python scripts/check_service.py`: **1,489 backend passed, 2 skipped; 232 frontend
+passed; production build passed**. Tests cover unconfigured startup, forged
+credentials, cookie/URL rejection, exact-origin binding, bounded concurrent
+sessions, server-side idle/absolute expiry, restart rotation, throttling and
+owner-only access files. Frontend checks cover memory-only credentials, late
+response rejection and immediate local locking even when server revocation
+fails. Expiry uses controlled clocks; no 8-hour browser endurance claim is made.
+
+All **59 additional local HTTP/artifact checks** passed. Browser verification
+unlocked two windows, imported an authored CSV, changed a proposed value before
+saving, saved a later correction, asked for its recorded history, followed a
+citation and downloaded the exact original bytes. Both reviewed summary export
+flows worked with authentication. Locking one window revoked the other; reload
+returned to the unlock screen. A copied original URL was rejected without a
+session. Earlier availability still returned the first reviewed value. The three
+existing service databases were byte-identical across restarts; counts stayed
+87, 105 and 101 records. Model transports remained offline and no protected
+evaluation or held-out inputs were accessed.
+
+One separate existing limitation surfaced during this check: the offline wording
+"Show my ferritin records from 2024" requested clarification, while "Show my
+ferritin records" returned the saved result and its original evidence. Natural
+year-filter handling is still incomplete; this security change does not fix it.
+
+This is a local access boundary, not production identity management or a security
+certification. Same-OS-user software or an administrator can read the access file.
+Encryption at rest, verified de-identification/deletion and production privacy
+qualification remain unfinished. No live-model quality claim is made here.
+
 ## Local privacy and browser boundary — 3 November 2026
 
 An isolated synthetic probe against `26640e8` reproduced two problems: a

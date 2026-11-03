@@ -2,6 +2,12 @@
   "format": "modus-entry-source-allowlist-v1",
   "scope": "Exact bounded source candidate. No eligibility or publication approval implied.",
   "files": [
+    {"source":"backend/modus_entry/local_access.py","destination":"backend/modus_entry/local_access.py","behavior":true},
+    {"source":"scripts/local_access_file.py","destination":"scripts/local_access_file.py","behavior":true},
+    {"source":"backend/tests/test_entry_local_access.py","destination":"backend/tests/test_entry_local_access.py","behavior":true},
+    {"source":"entry/frontend/src/AccessGate.tsx","destination":"entry/frontend/src/AccessGate.tsx","behavior":true},
+    {"source":"entry/frontend/src/DownloadOriginal.tsx","destination":"entry/frontend/src/DownloadOriginal.tsx","behavior":true},
+    {"source":"entry/frontend/src/local-access.css","destination":"entry/frontend/src/local-access.css","behavior":true},
     {"source":"backend/modus_entry/local_security.py","destination":"backend/modus_entry/local_security.py","behavior":true},
     {"source":"scripts/private_storage.py","destination":"scripts/private_storage.py","behavior":true},
     {"source":"backend/tests/test_entry_local_security.py","destination":"backend/tests/test_entry_local_security.py","behavior":true},

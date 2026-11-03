@@ -137,15 +137,15 @@ export default function TimelineFact({
           </div>
         </dl>
         {source?.original_available && (
-          <a
+          <DownloadOriginal
             className="text-button"
             href={`/api/history/sources/${encodeURIComponent(source.id)}/original?${originalQuery}`}
-            download
           >
             Download original <ArrowUpRight size={13} />
-          </a>
+          </DownloadOriginal>
         )}
       </details>
     </article>
   );
 }
+import DownloadOriginal from './DownloadOriginal';

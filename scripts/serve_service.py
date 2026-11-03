@@ -9,6 +9,7 @@ import sys
 from check_service import inputs, build_inputs, protected
 from offline_environment import offline_environment
 from private_storage import secure_runtime_directory
+from local_access_file import publish_access_file
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,7 +30,7 @@ def configure_offline():
     os.environ['MODUS_ENTRY_PROVIDER'] = 'offline'
 
 
-def child(port):
+def child(port, ui_port=None):
     configure_offline()
     os.environ['MODUS_ENTRY_DB_PATH'] = str(ROOT/'release/offline-service/records.db')
     secure_runtime_directory(ROOT/'release/offline-service')
@@ -51,6 +52,8 @@ def child(port):
     sys.addaudithook(guard)
     sys.path.insert(0, str(ROOT/'backend'))
     from modus_entry.app import app
+    access_file = publish_access_file(app, ROOT/'release/offline-service', port, ui_port=ui_port)
+    print(f'Open this file in the Modus unlock screen: {access_file}', flush=True)
     import uvicorn
     uvicorn.run(app, host='127.0.0.1', port=port, proxy_headers=False, access_log=False, server_header=False)
 
@@ -58,17 +61,22 @@ def child(port):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8011, choices=range(1024,65536), metavar='1024..65535')
+    parser.add_argument('--ui-port', type=int, choices=range(1024,65536), metavar='1024..65535',
+                        help='Bind access to a local Vite proxy port instead of the backend port')
     parser.add_argument('--child', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
     verify_service()
     if args.child:
-        child(args.port)
+        child(args.port, args.ui_port)
         return
     python = ROOT/'.venv'/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
     if not python.is_file():
         raise ValueError('Run python scripts/setup_entry.py first')
     print(f'Checked offline development preview: http://127.0.0.1:{args.port}/ (not a final release qualification)', flush=True)
-    subprocess.run([str(python), str(Path(__file__).resolve()), '--child', '--port', str(args.port)],
+    command = [str(python), str(Path(__file__).resolve()), '--child', '--port', str(args.port)]
+    if args.ui_port is not None:
+        command += ['--ui-port', str(args.ui_port)]
+    subprocess.run(command,
                    cwd=ROOT, env=offline_environment(), check=True)
 
 

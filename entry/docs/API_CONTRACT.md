@@ -11,8 +11,50 @@ only the static `/` shell. No cross-origin API access or preflight is granted.
 Every POST, PUT, PATCH or DELETE requires `X-Modus-Request: 1`, including local
 scripts. The frontend adds this through `localRequest`, including multipart
 imports and summary exports. It is a request-intent header, **not a password or
-authentication token**. Same-OS-user software can still access this local service.
-Vite development must use its existing same-origin `/api` proxy.
+authentication token**. The session below is required in addition to this header.
+Vite development uses the existing same-origin `/api` proxy and the launcher's
+explicit `--ui-port 5174`; open `http://127.0.0.1:5174`, not a hostname alias.
+
+### Local access sessions
+
+`create_entry_app` starts unconfigured and private routes fail closed. The
+checked launcher writes an owner-only `Modus-<port>.modus-access` file containing
+a random 256-bit bootstrap credential and its exact loopback origin. A restart
+replaces that credential and invalidates sessions. The browser reads the chosen
+file, validates the origin before transmission, and sends it only to the local
+unlock endpoint. Provider keys are unrelated and never enter this flow.
+
+- `GET /api/access/status` returns `{configured, authenticated}` without records
+  or extending idle time. This and unlock are the only public API endpoints.
+- `POST /api/access/unlock` accepts `{token}` and returns a separate random
+  `{access_token, idle_seconds:1800, expires_in:28800}`. Five failed attempts
+  within a minute throttle further attempts with 429 and `Retry-After`.
+- All other APIs and private routes require `Authorization: Bearer <access_token>`.
+  This includes health, originals, exports and unknown API paths. Missing,
+  expired or revoked sessions return 401 before request parsing or record access.
+  Cookies and URL parameters cannot authenticate. Access request bodies are
+  limited to 1024 bytes, and validation errors omit supplied credentials.
+- `POST /api/access/touch` renews idle activity. The UI sends this for user input
+  at most once a minute. Other authenticated requests also renew idle activity.
+- `POST /api/access/lock` revokes **all** sessions. Idle sessions expire after
+  30 minutes; all sessions expire after 8 hours regardless of activity. At most
+  eight exist; issuing another evicts the least recently used. Only token hashes
+  are held on the server. No authentication state is written into history.
+
+The UI retains its session only in module memory. Reload locks the window.
+Lock unmounts the record workspace; other windows detect revocation on the next
+request or a 15-second status poll. Already accepted server operations may finish.
+Unsaved reviews close; saved records and original bytes remain unchanged. Original
+downloads and exports use authenticated fetches, then a temporary Blob URL without
+credentials. The static shell, bundled assets and authored examples remain public.
+
+This follows the random-token, server-expiry and logout principles in the
+[OWASP session guidance](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html).
+The memory-only bearer transport is a local design choice: cookies are not isolated
+by port. Loopback HTTP and an owner-only access file are **not** production accounts,
+TLS, encryption at rest or protection from software running with the same OS user's
+permissions. Such software or an administrator can read the access file. Sharing
+the file grants access until restart. The launcher must remain bound to loopback.
 
 Request bodies are limited to 8 MiB plus 128 KiB of multipart overhead before
 parsing; each file still has its separate 8 MiB limit. Chunking cannot evade
@@ -450,7 +492,7 @@ Current facts retain their stable `id`, a `revision_id`, `previous_revision_id` 
 
 History comparison now includes `updated:[{before,after}]` and `removed_from_scope:[fact]`; `unchanged_count` excludes corrected records. A corrected occurrence date can move a record outside the selected scope without deleting it. Briefs and Ask use the same versioned projection. Historical briefs remain valid for their original bounds. Correction reasons and reviewer identities do not enter model tools. The model has no amendment tool.
 
-Source details offers latest-version editing, a required reason, before/after review and explicit save. Choosing to edit latest is separate from inspecting a historical version. Saving preserves the open historical view; **Open updated history** explicitly loads current records. An unconfirmed save retries the exact body. General retractions, erasure, authentication and production privacy remain unimplemented.
+Source details offers latest-version editing, a required reason, before/after review and explicit save. Choosing to edit latest is separate from inspecting a historical version. Saving preserves the open historical view; **Open updated history** explicitly loads current records. An unconfirmed save retries the exact body. General retractions, erasure, production accounts and production privacy remain unimplemented; the local session boundary above protects access to this prototype.
 
 ## Whole-history questions
 

@@ -1,4 +1,5 @@
 import { ArrowUpRight, RotateCcw } from "lucide-react";
+import DownloadOriginal from './DownloadOriginal';
 import RecordDateEvidence from "./RecordDateEvidence";
 import {
   factKindLabels,
@@ -41,13 +42,12 @@ export default function GenericFactReview({
       {draft.source.original_available &&
         !uncertain &&
         !draft.already_committed && (
-          <a
+          <DownloadOriginal
             className="text-button"
             href={`/api/drafts/${encodeURIComponent(draft.id)}/original`}
-            download
           >
             Download original <ArrowUpRight size={14} />
-          </a>
+          </DownloadOriginal>
         )}
       {rows.map((row, index) => {
         const flagged = omissionProposal(draft, row.id);

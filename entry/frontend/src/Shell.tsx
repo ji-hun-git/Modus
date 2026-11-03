@@ -14,6 +14,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   SunMoon,
+  LockKeyhole,
 } from "lucide-react";
 import { Brand } from "./ui";
 import AboutWorkspaceDialog from "./AboutWorkspaceDialog";
@@ -62,12 +63,14 @@ export default function Shell({
   setPage,
   onImport,
   hasDraft,
+  onLock,
   children,
 }: {
   page: Page;
   setPage: (page: Page) => void;
   onImport: () => void;
   hasDraft: boolean;
+  onLock?: () => void;
   children: React.ReactNode;
 }) {
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -139,6 +142,10 @@ export default function Shell({
           </button>
         ))}
         <AmbientMotionControl />
+        {onLock && <button onClick={() => {
+          if (hasDraft && !window.confirm('Lock your records? Unsaved reviews in this tab will close. Saved records stay intact.')) return;
+          onLock();
+        }}><LockKeyhole size={17} aria-hidden="true" /><span>Lock records</span></button>}
       </div>
     </details>
   );

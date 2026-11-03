@@ -21,6 +21,7 @@ TESTS = ['test_entry_archive_seed.py', 'test_entry_narrative_comparison.py', 'te
 
 TESTS.extend(['test_record_row_inventory.py', 'test_entry_row_inventory.py', 'test_entry_omission_review.py', 'test_garak_record_boundaries.py'])
 TESTS.extend(['test_entry_local_security.py', 'test_private_storage.py'])
+TESTS.append('test_entry_local_access.py')
 
 
 def protected(name):

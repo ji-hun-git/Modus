@@ -134,6 +134,9 @@ def test_browser_attacks_cannot_create_drafts_and_validation_does_not_reflect_in
         with app.state.store.connect() as db:
             assert db.execute('SELECT COUNT(*) FROM drafts').fetchone()[0] == before
         client.headers['X-Modus-Request'] = '1'
+        material = app.state.local_access.configure('http://127.0.0.1')
+        session = client.post('/api/access/unlock', json={'token': material['token']}).json()
+        client.headers['Authorization'] = 'Bearer ' + session['access_token']
         invalid = client.put('/api/profile', json={'date_of_birth': 'PRIVATE_INPUT_CANARY', 'PRIVATE_FIELD_CANARY': 'x'})
         assert invalid.status_code == 422 and 'CANARY' not in invalid.text
         draft = client.post('/api/imports/preview', data={'synthetic_confirmed': 'true'},

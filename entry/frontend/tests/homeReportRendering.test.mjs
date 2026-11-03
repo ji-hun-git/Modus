@@ -346,7 +346,8 @@ test('omitted row review remains visible even when extraction found no editable 
   assert.match(html,/No fields found/); assert.match(html,/1 possible missing row/);
   assert.match(html,/Ferritin 29.40 ng\/mL 2024-02-03/);
   assert.match(html,/Page 1/); assert.match(html,/not included when you save/);
-  assert.match(html,/href="\/api\/drafts\/authored\/original"/);
+  assert.match(html,/<button[^>]*>Download original/);
+  assert.doesNotMatch(html,/href="\/api\/drafts\//);
   assert.doesNotMatch(html,/<input|<textarea/); // A flag cannot become a selectable field.
 });
 
@@ -778,12 +779,13 @@ function sourceEvidence(facts, extra = {}) {
   return render(SourceCubeEvidence,{source:view.sources[0],facts,view,initialFactId:facts[0]?.id,...extra});
 }
 
-test('single evidence shows one result heading and a direct scoped original link before the excerpt', () => {
+test('single evidence shows one result heading and an authenticated original action before the excerpt', () => {
   const html = sourceEvidence([row('bp','2025-01-01',{label:'Blood pressure',value:'100/70',unit:'mmHg',source_quote:'Printed: 100/70 mmHg'})]);
   assert.equal((html.match(/<h3>Blood pressure<\/h3>/g)||[]).length,1);
   assert.doesNotMatch(html,/Choose a record|aria-label="Select a record"|Specimen|Not recorded/);
   assert.match(html,/<blockquote>Printed: 100\/70 mmHg<\/blockquote>/);
-  assert.match(html,/known_at=2026-10-29T00%3A00%3A00Z&amp;as_of=2026-10-20/);
+  assert.match(html,/<button[^>]*class="text-button"[^>]*>[\s\S]*Download original<\/button>/);
+  assert.doesNotMatch(html,/href="\/api\//);
   assert.ok(html.indexOf('Download original') < html.indexOf('<blockquote>'));
   assert.match(html,/Correct saved record/);
   assert.match(html,/View saved versions/);

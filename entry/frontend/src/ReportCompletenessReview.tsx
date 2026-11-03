@@ -61,6 +61,7 @@ export default function ReportCompletenessReview({ check, originalHref, saved = 
       </nav>}
     </details>}
     {originalHref && (count > 0 || needsLook.length > 0 || check.status !== 'completed') &&
-      <a className="text-button" href={originalHref} download>Download original to review</a>}
+      <DownloadOriginal className="text-button" href={originalHref}>Download original to review</DownloadOriginal>}
   </section>;
 }
+import DownloadOriginal from './DownloadOriginal';

@@ -52,7 +52,7 @@ def path_problem(name):
     if any(p.lower() in PRIVATE_DIRS for p in path.parts) or path.name.lower() in PRIVATE_NAMES:
         return 'private_working_material'
     if (path.name.lower().startswith('.env') and path.name != '.env.example'
-            or path.suffix.lower() in {'.key','.pem','.p12','.pfx','.db','.sqlite','.sqlite3','.safetensors'}):
+            or path.suffix.lower() in {'.key','.pem','.p12','.pfx','.db','.sqlite','.sqlite3','.safetensors','.modus-access'}):
         return 'credential_or_runtime_file'
     if path.suffix.lower()=='.md' and normalized not in PUBLIC_DOCS:
         if not lower.startswith('data/licenses/'):
@@ -63,7 +63,8 @@ def path_problem(name):
 def content_findings(name, text):
     found=[]
     for number,line in enumerate(text.splitlines(),1):
-        if SECRET.search(line): found.append(Finding(name,'credential_pattern',number))
+        if SECRET.search(line) or re.search(r'modus_(?:local|session)_[A-Za-z0-9_-]{43}', line):
+            found.append(Finding(name,'credential_pattern',number))
         if (name.endswith('.md') and not name.startswith(('data/licenses/','entry/prompts/','prompts/'))
                 and name not in {'SCOREBOARD.md','docs/ONTOLOGY_RAG_EVALUATION.md','entry/docs/BENCHMARK.md'}
                 and PERSONAL_DOC.search(line)):

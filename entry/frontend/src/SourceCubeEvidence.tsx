@@ -127,9 +127,9 @@ export default function SourceCubeEvidence({
         No records from this document are available in the selected view.
       </p>}
       <div className="source-evidence-file-link">
-        {source.original_available ? <a className="text-button" href={originalDownloadUrl(source.id, view.scope)} download>
+        {source.original_available ? <DownloadOriginal className="text-button" href={originalDownloadUrl(source.id, view.scope)}>
           <ArrowDownToLine size={14} aria-hidden="true" /> Download original
-        </a> : <span className="source-evidence-original-missing">Original unavailable in this view</span>}
+        </DownloadOriginal> : <span className="source-evidence-original-missing">Original unavailable in this view</span>}
       </div>
       {selected && (
         <div className="source-evidence-proof" id={proofId}>
@@ -267,3 +267,4 @@ export default function SourceCubeEvidence({
     </section>
   );
 }
+import DownloadOriginal from './DownloadOriginal';

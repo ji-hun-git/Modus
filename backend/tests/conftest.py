@@ -37,6 +37,18 @@ def local_service_client_defaults(monkeypatch):
         if not args:
             kwargs.setdefault('base_url', 'http://127.0.0.1')
         kwargs.setdefault('client', ('127.0.0.1', 50000))
-        kwargs.setdefault('headers', {'X-Modus-Request': '1'})
+        headers = {'X-Modus-Request': '1'}
+        if 'headers' not in kwargs and hasattr(getattr(app, 'state', None), 'local_access'):
+            from modus_entry.local_security import _origin
+            origin = kwargs.get('base_url', 'http://127.0.0.1').rstrip('/')
+            # Test code possesses the server-side owner capability; no network
+            # endpoint, environment flag or production auth bypass is added.
+            material = getattr(app.state, '_test_access_material', None)
+            if material is None:
+                material = app.state.local_access.configure(origin)
+                app.state._test_access_material = material
+            session = app.state.local_access.unlock(material['token'], _origin(origin))
+            headers['Authorization'] = 'Bearer ' + session['access_token']
+        kwargs.setdefault('headers', headers)
         original(self, app, *args, **kwargs)
     monkeypatch.setattr(TestClient, '__init__', initialize)

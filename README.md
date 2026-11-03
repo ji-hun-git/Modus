@@ -38,12 +38,24 @@ Open **http://127.0.0.1:8011/**. This checked development preview verifies the
 source and frontend build, strips model credentials and runs offline. Saved data
 stays in the ignored local database across restarts.
 
-The checked launcher restricts its data directory to the OS owner. The local
-API blocks cross-origin browser requests, requires an explicit header for
+Choose **Open access file** and select the `Modus-8011.modus-access` file at
+the location printed by the launcher. Keep it private. Restarting replaces it;
+reloading the browser requires opening it again. **More → Lock records** locks
+every session. Sessions expire after 30 minutes without activity or 8 hours total.
+
+The checked launcher restricts its data directory and access file to the OS
+owner. Record APIs, originals and exports require a short-lived local session.
+Session credentials stay in memory, outside browser storage, cookies and URLs.
+The API also blocks cross-origin browser requests, requires an explicit header for
 writes, bounds uploads before parsing and prevents browser caching of responses.
 Errors omit raw validation input, and request URLs are not written to access
 logs. These [local protections](entry/docs/API_CONTRACT.md#local-privacy-boundary--3-november-2026)
 preserve original evidence; they are not encryption or multi-user authentication.
+
+For Vite development, start the checked backend with `--port 8011 --ui-port 5174`,
+then run `npm run dev` in `entry/frontend` and open `http://127.0.0.1:5174`.
+Use the generated `Modus-5174.modus-access` file. Access is bound to that proxy
+origin; the backend's direct browser origin cannot unlock the same session.
 
 The starter records and supplied examples are authored synthetic data. They are
 not a real person's history or evidence of clinical validation.
