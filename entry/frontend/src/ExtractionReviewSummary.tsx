@@ -2,7 +2,7 @@ import { AlertCircle, FileCheck2 } from "lucide-react";
 import { metricLabel, type ExtractionReview } from "./types";
 import "./extraction-review.css";
 import ReportCoverageSummary from "./ReportCoverageSummary";
-import ReportCompletenessReview from './ReportCompletenessReview';
+import ReportCompletenessReview, { type OmissionActions } from './ReportCompletenessReview';
 
 const documentLabels: Record<string, string> = {
   lab: "Lab report",
@@ -44,9 +44,11 @@ function fieldLabel(label: string) {
 export default function ExtractionReviewSummary({
   review,
   originalHref,
+  omissionActions,
 }: {
   review: ExtractionReview;
   originalHref?: string;
+  omissionActions?: OmissionActions;
 }) {
   const unsupported = review.facts.filter((fact) => !fact.commit_supported);
   const flagged = review.facts.filter((fact) => fact.review_reasons.length > 0);
@@ -74,7 +76,7 @@ export default function ExtractionReviewSummary({
       </header>
       <div className="extraction-review-inner">
         {review.completeness_check && <ReportCompletenessReview key={originalHref || 'saved'}
-          check={review.completeness_check} originalHref={originalHref} />}
+          check={review.completeness_check} originalHref={originalHref} {...omissionActions} />}
         {review.coverage && (
           <ReportCoverageSummary coverage={review.coverage} />
         )}

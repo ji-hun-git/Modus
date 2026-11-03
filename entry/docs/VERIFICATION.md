@@ -1,5 +1,26 @@
 # Verification
 
+## Reviewed omissions — 3 November 2026
+
+Offline service check: **1,347 backend tests passed, 2 skipped; 220 frontend
+tests passed; production build passed**. The existing Starlette/httpx test-client
+deprecation warning remains. The checked source stayed unchanged during the run.
+
+New regressions cover explicit selection, edited values, missing dates, original
+evidence retention, additions to saved sources, temporal snapshots in both APIs,
+later corrections, exact retries, concurrent requests and transactional rollback.
+Twenty-six pinned NVIDIA garak payloads exercise inert document handling; seven
+browser-script payloads also pass through the actual React review renderer.
+[Open-source scope and attribution](OPEN_SOURCE.md) distinguish corpus reuse from
+a live scanner or model test.
+
+Browser verification used two authored PDFs with explicitly artificial model
+responses in an isolated offline store. It exercised an initial save, an edited
+missing-row addition, an empty extraction, reload/reopen and remaining-row save.
+The changed value was visible in the file orbit beside its unchanged original
+excerpt. Downloaded original bytes matched the uploaded PDF. No model call,
+protected evaluation access or medical-quality claim is part of this evidence.
+
 Run the offline service gate on the revision being reviewed:
 
 ```sh

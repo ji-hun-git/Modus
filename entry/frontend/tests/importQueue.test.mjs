@@ -49,6 +49,82 @@ const draft = (extra = {}) => ({
 });
 const review = () => queue.acceptDraft(selected(), draft());
 
+const flaggedDraft = (extra = {}) => draft({ facts: [], observations: [],
+  extraction_review: { facts: [], completeness_check: { version: 'report-row-inventory-v1', omissions: [
+    { id: 'inventory-1-1', label: 'Ferritin', value: '29.40', unit: 'ng/mL', page: 1,
+      source_quote: 'Ferritin 29.40 ng/mL', bbox: null, local_support: 'matched_text' },
+    { id: 'inventory-1-2', label: 'Sodium', value: '140', unit: 'mmol/L', page: 1,
+      source_quote: 'Sodium 140 mmol/L', bbox: null, local_support: 'matched_text' },
+  ] } }, ...extra });
+
+test('an empty extract can explicitly review an inventory row without auto-including any flags', () => {
+  const initial = queue.acceptDraft(selected(), flaggedDraft());
+  assert.equal(initial.status, 'review');
+  assert.deepEqual(initial.factRows, []);
+  assert.throws(() => queue.beginFactCommit(initial), /at least one/);
+  const editing = queue.addOmissionToReview(initial, 'inventory-1-1');
+  assert.equal(editing.factRows.length, 1);
+  assert.equal(editing.factRows[0].occurred_on, null);
+  editing.factRows[0].value = '30.00';
+  editing.factRows[0].kind = 'measurement';
+  const pending = queue.beginFactCommit(editing);
+  assert.deepEqual(pending.factAttempt, []);
+  assert.equal(pending.omissionAttempt[0].value, '30.00');
+  assert.equal(pending.omissionAttempt[0].source_quote, undefined);
+  assert.equal(pending.omissionAttempt[0].bbox, undefined);
+  assert.equal(pending.omissionAttempt[0].available_at, undefined);
+  assert.equal(editing.factRows[0].source_quote, 'Ferritin 29.40 ng/mL');
+  assert.equal(editing.draft.extraction_review.completeness_check.omissions[0].value, '29.40');
+  assert.equal(queue.addOmissionToReview(editing, 'inventory-1-1').factRows.length, 1);
+});
+
+test('uncertain omission saves retain the identical reviewed request and lock adding more flags', () => {
+  const editing = queue.addOmissionToReview(queue.acceptDraft(selected(), flaggedDraft()), 'inventory-1-1');
+  const pending = queue.beginFactCommit(editing);
+  const failed = queue.failCommit(pending, false, false, 'connection lost');
+  failed.factRows[0].value = 'changed after request';
+  const retry = queue.beginFactCommit(failed);
+  assert.deepEqual(retry.omissionAttempt, pending.omissionAttempt);
+  assert.equal(retry.omissionAttempt[0].value, '29.40');
+  assert.equal(queue.addOmissionToReview(failed, 'inventory-1-2'), failed);
+  assert.equal(queue.navigationLocked([failed]), true);
+});
+
+test('saved and reopened reports allow only unsaved flags and never overwrite saved fields', () => {
+  const reopened = queue.acceptDraft(selected(), flaggedDraft({already_committed:true,
+    omission_reviews:[{candidate_id:'inventory-1-1', available_at:'2026-11-03T09:00:00Z'}]}));
+  assert.equal(queue.addOmissionToReview(reopened, 'inventory-1-1'), reopened);
+  const editing = queue.addOmissionToReview(reopened, 'inventory-1-2');
+  const pending = queue.beginFactCommit(editing);
+  assert.deepEqual(pending.factAttempt, []);
+  assert.equal(pending.omissionAttempt[0].id, 'inventory-1-2');
+  const finished = queue.finishCommit(pending, {...receipt(), omission_ids:['inventory-1-2']});
+  assert.equal(finished.draft.omission_reviews.length, 2);
+  assert.equal(queue.addOmissionToReview(finished, 'inventory-1-2'), finished);
+  editing.factRows.push({...editing.factRows[0], id:'original-field'});
+  assert.throws(() => queue.beginFactCommit(editing), /Corrections/);
+});
+
+test('excluded flagged rows and forged IDs cannot accidentally enter a commit', () => {
+  const original = queue.acceptDraft(selected(), flaggedDraft());
+  assert.equal(queue.addOmissionToReview(original, 'foreign-candidate'), original);
+  const editing = queue.addOmissionToReview(original, 'inventory-1-1');
+  editing.factRows[0].keep = false;
+  assert.throws(() => queue.beginFactCommit(editing), /Include at least one/);
+  const restored = queue.addOmissionToReview(editing, 'inventory-1-1');
+  assert.equal(restored.factRows.length, 1);
+  assert.equal(restored.factRows[0].keep, true);
+});
+
+test('queue totals retain earlier saves when the same report receives a reviewed addition', () => {
+  let item = queue.acceptDraft(selected(), flaggedDraft());
+  item = queue.finishCommit(item, {...receipt(),inserted:1});
+  item = queue.finishCommit(item, {...receipt(),inserted:2});
+  item = queue.finishCommit(item, {...receipt(),duplicate:true,inserted:0});
+  assert.equal(queue.summary([item]).measurements,3);
+  assert.equal(queue.summary([item]).saved,1);
+});
+
 test("a processed empty report retains review and original access but cannot be saved", () => {
   const empty = draft({observations:[],facts:[],extraction_review:{facts:[],coverage:{version:'whole-report-v1',status:'completed',page_count:4}}});
   const item = queue.acceptDraft(selected(),empty);

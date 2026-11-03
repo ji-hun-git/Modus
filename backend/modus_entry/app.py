@@ -20,6 +20,8 @@ from modus.ingest import make_draft, MAX_BYTES, NoObservationsError
 from modus.history_ingest import make_history_draft
 from modus.record_history import commit_history, history_view, get_profile, update_profile
 from modus.record_history_models import proposed_facts
+from modus.record_omissions import commit_omissions, omission_review_state, OmissionConflict
+from .models import OmissionCommitRequest
 from modus.record_amendments import (AmendmentRequest, AmendmentCommitRequest, AmendmentConflict,
                                     preview_amendment, commit_amendment, revision_history)
 from modus.provider import provider_status
@@ -108,7 +110,7 @@ def attachment(document):
         'Content-Security-Policy': "sandbox; default-src 'none'"})
 
 
-def preview_response(saved, *, reused=False):
+def preview_response(saved, *, reused=False, store=None):
     warnings = list(saved.get('warnings', []))
     if reused and saved.get('extraction_mode') != 'authored_seed':
         warnings.append('Existing review reopened. This file was not read again.')
@@ -117,7 +119,8 @@ def preview_response(saved, *, reused=False):
         'extraction_mode': saved['extraction_mode'], 'already_committed': saved['already_committed'],
         'facts': [] if saved.get('facts') == [] else list(proposed_facts(saved).values()),
         **({'document_guard': saved['document_guard']} if 'document_guard' in saved else {}),
-        **({'extraction_review': saved['extraction_review']} if 'extraction_review' in saved else {})}
+        **({'extraction_review': saved['extraction_review']} if 'extraction_review' in saved else {}),
+        **(omission_review_state(store, saved['id']) if store is not None else {})}
 
 
 def create_entry_app(database=None, clock=None):
@@ -224,10 +227,20 @@ def create_entry_app(database=None, clock=None):
     def save_history(request: HistoryCommitRequest):
         try:
             receipt = commit_history(store, request.draft_id,
-                [row.model_dump(exclude_unset=True) for row in request.reviewed_facts])
+                [row.model_dump(exclude_unset=True) for row in request.reviewed_facts],
+                reviewed_omissions=[row.model_dump() for row in request.reviewed_omissions])
             return {**receipt, 'bundle_id': BUNDLE_ID}
         except ValueError as error:
             raise HTTPException(404 if str(error) == 'Draft not found' else 422, str(error)) from None
+
+    @app.post('/api/history/omissions/commit')
+    def save_omissions(request: OmissionCommitRequest):
+        try:
+            return {**commit_omissions(store, request.draft_id,
+                [row.model_dump() for row in request.reviewed_omissions]), 'bundle_id': BUNDLE_ID}
+        except ValueError as error:
+            status = 409 if isinstance(error, OmissionConflict) else 404 if str(error) == 'Draft not found' else 422
+            raise HTTPException(status, str(error)) from None
 
     @app.get('/api/history/sources/{source_id}/original')
     def history_original(source_id: str, known_at: AwareDatetime, as_of: date | None = None):
@@ -299,7 +312,7 @@ def create_entry_app(database=None, clock=None):
         if existing is not None:
             # Existing review state wins; do not bill for an extraction whose
             # proposal INSERT OR IGNORE would silently discard.
-            return preview_response(existing, reused=True)
+            return preview_response(existing, reused=True, store=store)
         telemetry = {}
         mode = 'meta' if use_meta else 'local'
         try:
@@ -332,7 +345,7 @@ def create_entry_app(database=None, clock=None):
                 recorded_run('extraction', status='review_required', draft_id=saved['id'], mode=mode,
                     message='A draft was read. No measurements were saved.',
                     execution=telemetry.get('execution'), telemetry=telemetry)
-            return preview_response(saved)
+            return preview_response(saved, store=store)
         except RuntimeError:
             recorded_run('extraction_failure', status='failed', mode=mode, error='Model extraction failed; no draft was accepted.', execution=telemetry.get('execution'), telemetry=telemetry)
             raise HTTPException(502, extraction_failure_detail('Model extraction failed; no draft was accepted. No local fallback was used.', telemetry)) from None

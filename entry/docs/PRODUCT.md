@@ -40,11 +40,14 @@ Charts connect observations only when the backend comparison policy permits it.
 1. Add a supported synthetic document. Show the actual extraction mode and failures.
 2. Review proposed fields beside the original. Edit, exclude or accept explicitly.
    Meta reading also flags possible missing rows from a separate source-only
-   pass. Review their page and excerpt; these warnings are not included in a save.
+   pass. Choose a flagged row to review and correct it beside its page excerpt.
+   Only explicitly selected rows enter the save. The original flag stays intact.
    Unavailable checks remain explicit, and no result claims every row was found.
 3. Save the selected rows as one idempotent transaction. Recover uncertain saves using the same reviewed payload.
 4. Inspect the new history without silently replacing a chosen historical view.
 5. Correct saved transcriptions through a reviewed amendment. Keep the original and earlier versions.
+   Reopen a report to add remaining flagged rows. Each addition gets its actual
+   save time; neither the original file nor an earlier history view is rewritten.
 6. Compare selected reports and review a source-linked summary before downloading it.
 
 Original-file downloads obey the same occurrence and availability scope as the

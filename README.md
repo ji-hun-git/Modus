@@ -12,6 +12,7 @@ follow each saved result back to its source.
 
 - Imports CSV, text, PDF and images through supported local or explicitly selected Meta reading paths.
 - Requires review before saving. Original files, printed units, dates, lab ranges, specimen and method stay attached to reviewed records.
+- Lets you review and correct rows flagged by Muse, including additions to an already saved report. Earlier views and original evidence remain intact.
 - Finds recorded facts across measurements, visits, prescriptions, vaccinations, procedures, diagnoses as recorded, imaging text and other source text.
 - Keeps corrections as new versions. Original excerpts and earlier availability views remain preserved.
 - Displays conflicting values without choosing a winner.

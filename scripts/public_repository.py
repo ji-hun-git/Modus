@@ -18,6 +18,7 @@ PUBLIC_DOCS = frozenset({
     'entry/docs/DATA.md', 'entry/docs/CONTRIBUTIONS.md', 'entry/docs/VERIFICATION.md',
     'entry/docs/WHOLE_HISTORY_AGENT.md', 'entry/docs/TERMINOLOGY_RETRIEVAL.md',
     'entry/docs/RECORD_BRIEF.md', 'entry/docs/BENCHMARK.md',
+    'entry/docs/OPEN_SOURCE.md', 'backend/tests/fixtures/garak/NOTICE.md',
     'entry/frontend/README.md', 'data/synthetic/brief-demo/README.md',
     'entry/demo/longitudinal/README.md',
     'entry/prompts/records.md', 'entry/prompts/history.md', 'prompts/extract.md',

@@ -22,8 +22,10 @@ write SQL/code, choose an arbitrary endpoint or modify records.
 
 A third source-only Muse reading inventories recorded rows without seeing the
 proposal. Code compares that inventory against the draft and flags possible
-omissions with original-page excerpts. The candidates never become facts or
-commit IDs. A failed, limited or empty inventory cannot establish completeness.
+omissions with original-page excerpts. The candidates become facts only after
+explicit owner selection and review through the omission commit contract.
+Original inventory evidence is immutable; corrections are stored separately.
+A failed, limited or empty inventory cannot establish completeness.
 The same model can miss rows in both readings; offline injected responses verify
 the software contract, not live omission-detection quality.
 

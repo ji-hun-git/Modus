@@ -29,16 +29,51 @@ check; partial/unreadable/truncated pages remain visible. Zero flags never prove
 complete extraction. This is a same-model second reading, not an independent
 model-quality measurement.
 
-Inventory candidates are not editable/savable facts and cannot supply commit IDs.
-Only the existing explicitly reviewed fields can be saved. Flags remain in the
-stored draft and on re-opening, without re-extraction or extra calls. Original
-bytes and page evidence remain unchanged. The review UI shows at most six flagged
-rows at once, with paging and an original download. Existing cached drafts are
-not retroactively inventoried. Offline readers do not claim to run this model check.
+Inventory candidates never become facts automatically. The owner can explicitly
+select a flagged row, edit its fields, and save through the separate reviewed
+omission contract below. A candidate ID is still invalid in `reviewed_facts`.
+Flags remain unchanged in the stored draft and on re-opening, without
+re-extraction or extra calls. Original bytes and page evidence remain unchanged.
+The review UI shows at most six flagged rows at once, with paging and an original
+download. Existing cached drafts are not retroactively inventoried. Offline
+readers do not claim to run this model check.
 Possible omissions and unavailable/partial inventories have unreviewed dates.
 After commit, the full original remains available in the unbounded recorded-date
 view, but a dated view withholds the whole document/excerpts using the existing
 partial-source rules. Extracted dates cannot authorize disclosure of omitted rows.
+
+### Explicit review of flagged rows
+
+`POST /api/history/commit` adds optional `reviewed_omissions: ReviewedFact[]`
+(maximum 400). `reviewed_facts` may be empty only when omissions are selected.
+The initial import saves both selections atomically. Omission IDs must come from
+this stored draft's immutable inventory; duplicates, foreign IDs and client
+source/provenance/timestamp fields are rejected. There is no automatic date,
+facility, test-kind or lab-context inference. The editor begins with recorded
+text and unknown date; the owner supplies corrections and confirms by saving.
+
+`POST /api/history/omissions/commit` accepts `{draft_id,synthetic_confirmed:true,
+reviewed_omissions:[ReviewedFact]}` for an already saved report. It appends new
+facts with server-owned availability and `availability_basis:reviewed_row_addition`.
+It preserves the original source, draft, extraction proposal, bytes, initial
+commit receipt and earlier facts. Original inventory label/value/unit remain in
+`source_proposal`; `row_inventory` retains candidate identity/support/reason.
+The source quote/page/proposed region are copied only from the stored candidate.
+Saved entries use the existing correction/version mechanism thereafter.
+
+Identical batches return their original receipt with `duplicate:true,inserted:0`.
+A changed batch containing a previously saved candidate returns 409; duplicates
+are never silently overwritten or partially accepted. Original receipt fields
+are retained, with additive `omission_ids`. Row inserts, audit and receipts share
+one transaction. Initial upload review remains the route for unsaved sources.
+Preview re-opening adds `omission_reviews:[{candidate_id,fact_id,available_at}]`
+and nullable `saved_available_at` without another model call. UI saves preserve
+an uncertain payload in tab memory for exact retry; reloading loses unsaved edits.
+
+Both generic history and legacy measurement snapshots filter individual added
+rows by availability. Existing captured views stay unchanged. Saving flagged
+rows does not certify that the inventory is complete or remove dated-document
+restrictions: unreadable, missed or undated source material can still exist.
 
 Fresh demo stores include an authored open-label checkup. Re-uploading that
 exact file returns its existing proposal with `already_committed:true` and

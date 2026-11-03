@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
+import { readFile } from 'node:fs/promises';
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { build } from "esbuild";
@@ -79,6 +80,36 @@ const row = (id, date, extra = {}) => ({
   source_quote: "HbA1c 5.7 %",
   page: 1,
   ...extra,
+});
+
+test('flagged rows expose review actions and retain original proposals after edits', () => {
+  const candidate = {id:'inventory-1-1',label:'Ferritin',value:'29.40',unit:'ng/mL',page:1,
+    source_quote:'Ferritin 29.40 ng/mL',bbox:null,local_support:'matched_text'};
+  const check = {status:'completed',omissions:[candidate],pages:[]};
+  const active = render(ReportCompletenessReview,{check,onReviewRow:noop,rowStates:{}});
+  assert.match(active,/Review Ferritin/);
+  const saved = render(ReportCompletenessReview,{check,onReviewRow:noop,rowStates:{'inventory-1-1':'saved'}});
+  assert.match(saved,/Saved after your review/);
+  assert.doesNotMatch(saved,/Review Ferritin<\/button>/);
+  const fact = {...candidate,kind:'measurement',occurred_on:null,facility:null,keep:true,value:'30.00'};
+  const html = render(GenericFactReview,{draft:{id:'d',facts:[],source:{},extraction_review:{facts:[],completeness_check:check}},
+    rows:[fact],locked:false,busy:false,uncertain:false,onChange:noop,onSave:noop,onSkip:noop});
+  assert.match(html,/Original proposal: Ferritin/);
+  assert.match(html,/29.40/);
+  assert.match(html,/>30.00<\/textarea>/);
+  assert.match(html,/A blank date stays unknown/);
+  assert.match(html,/Save 1 reviewed field/);
+});
+
+test('NVIDIA garak browser-script payloads remain escaped text in omission review', async () => {
+  const fixture = JSON.parse(await readFile(new URL('../../../backend/tests/fixtures/garak/markdown_js.json',import.meta.url),'utf8'));
+  for (const payload of fixture.payloads) {
+    const check = {status:'completed', pages:[], omissions:[{id:'inventory-1-1',label:payload,
+      value:payload,unit:null,page:1,source_quote:payload,bbox:null,local_support:'unavailable'}]};
+    const html=render(ReportCompletenessReview,{check,onReviewRow:noop});
+    assert.doesNotMatch(html,/<script\b|<iframe\b|<img\b|href="(?:javascript:|data:)| onerror=/i);
+    assert.match(html,/No independent text check/);
+  }
 });
 const viewOf = (facts) => ({
   facts,

@@ -2,6 +2,15 @@
   "format": "modus-entry-source-allowlist-v1",
   "scope": "Exact bounded source candidate. No eligibility or publication approval implied.",
   "files": [
+    {"source":"entry/docs/OPEN_SOURCE.md","destination":"entry/docs/OPEN_SOURCE.md","behavior":false},
+    {"source":"backend/modus/record_omissions.py","destination":"backend/modus/record_omissions.py","behavior":true},
+    {"source":"backend/tests/test_entry_omission_review.py","destination":"backend/tests/test_entry_omission_review.py","behavior":true},
+    {"source":"backend/tests/test_garak_record_boundaries.py","destination":"backend/tests/test_garak_record_boundaries.py","behavior":true},
+    {"source":"backend/tests/fixtures/garak/sql_injection.json","destination":"backend/tests/fixtures/garak/sql_injection.json","behavior":true},
+    {"source":"backend/tests/fixtures/garak/python_code_execution.json","destination":"backend/tests/fixtures/garak/python_code_execution.json","behavior":true},
+    {"source":"backend/tests/fixtures/garak/markdown_js.json","destination":"backend/tests/fixtures/garak/markdown_js.json","behavior":true},
+    {"source":"backend/tests/fixtures/garak/LICENSE","destination":"backend/tests/fixtures/garak/LICENSE","behavior":false},
+    {"source":"backend/tests/fixtures/garak/NOTICE.md","destination":"backend/tests/fixtures/garak/NOTICE.md","behavior":false},
     {
       "source": "backend/modus/record_row_inventory.py",
       "destination": "backend/modus/record_row_inventory.py",

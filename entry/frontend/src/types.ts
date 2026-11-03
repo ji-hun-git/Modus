@@ -68,6 +68,8 @@ export type Comparison = {
   new_conflicts: Conflict[];
 };
 export type Draft = {
+  omission_reviews?: { candidate_id: string; fact_id?: string; available_at: string }[];
+  saved_available_at?: string | null;
   id: string;
   source: Source;
   observations: Observation[];
@@ -140,6 +142,7 @@ export type Reviewed = Pick<
   "id" | "metric" | "value" | "unit" | "date"
 >;
 export type Commit = {
+  omission_ids?: string[];
   draft_id: string;
   source_id: string;
   inserted: number;

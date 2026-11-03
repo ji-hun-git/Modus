@@ -181,8 +181,8 @@ class RecordStore:
             source_rows = packed_json_rows(db,
                 'SELECT data FROM sources WHERE available_at<=?', (cutoff,))
             observation_rows = packed_json_rows(db,
-                'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id',
-                (cutoff,))
+                "SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? AND COALESCE(json_extract(o.data,'$.available_at'),s.available_at)<=? ORDER BY o.date,o.id",
+                (cutoff, cutoff))
             amendment_rows = packed_json_rows(db, 'SELECT data FROM history_amendments WHERE available_at<=? ORDER BY available_at,sequence', (cutoff,))
         sources = json.loads(source_rows)
         observations = json.loads(observation_rows)
@@ -348,8 +348,8 @@ class RecordSnapshot:
         self._sources = {source['id']: deepcopy(source) for source in sources}
         self._amendments = []
         self._observations = [
-            {**deepcopy(observation), 'available_at': self._sources[observation['source_id']]['available_at'],
-             'availability_basis': self._sources[observation['source_id']]['availability_basis']}
+            {**deepcopy(observation), 'available_at': observation.get('available_at') or self._sources[observation['source_id']]['available_at'],
+             'availability_basis': observation.get('availability_basis') or self._sources[observation['source_id']]['availability_basis']}
             for observation in observations
         ]
 
@@ -365,7 +365,7 @@ class RecordSnapshot:
         cutoff = min(instant(known_at), self.known_at) if known_at is not None else self.known_at
         sources = [source for source in self._sources.values() if source['available_at'] <= cutoff]
         ids = {source['id'] for source in sources}
-        result = self._derive_snapshot(cutoff, sources, [row for row in self._observations if row['source_id'] in ids])
+        result = self._derive_snapshot(cutoff, sources, [row for row in self._observations if row['source_id'] in ids and row['available_at'] <= cutoff])
         result._amendments = deepcopy([row for row in self._amendments if row['available_at'] <= cutoff and row['source_id'] in ids])
         return result
 

@@ -8,6 +8,7 @@ import {
 import { type Draft } from "./types";
 import "./generic-records.css";
 import { LabContextReview } from './LabContext';
+import { omissionProposal } from './importQueue';
 
 export default function GenericFactReview({
   draft,
@@ -49,7 +50,8 @@ export default function GenericFactReview({
           </a>
         )}
       {rows.map((row, index) => {
-        const original = draft.facts?.find((fact) => fact.id === row.id);
+        const flagged = omissionProposal(draft, row.id);
+        const original = draft.facts?.find((fact) => fact.id === row.id) || flagged;
         const reasons =
           draft.extraction_review?.facts.find((fact) => fact.id === row.id)
             ?.review_reasons || [];
@@ -163,7 +165,7 @@ export default function GenericFactReview({
                   </label>
                 </fieldset>
                 <LabContextReview row={row} index={index} disabled={locked || !row.keep} onChange={onChange} />
-                <details className="review-field-details">
+                <details className="review-field-details" open={flagged ? true : undefined}>
                   <summary>
                     Type, facility and proposal{changed ? " · edited" : ""}
                   </summary>
@@ -231,13 +233,14 @@ export default function GenericFactReview({
                 aria-label={`Original excerpt for field ${index + 1}`}
               >
                 <p className="review-source-label">
-                  In your original{row.page ? ` · page ${row.page}` : ""}
+                  {flagged ? 'Flagged excerpt' : 'In your original'}{row.page ? ` · page ${row.page}` : ""}
                 </p>
                 <blockquote>
                   {row.source_quote ||
                     "No excerpt was returned. Compare with the original file."}
                 </blockquote>
                 <RecordDateEvidence evidence={row.date_evidence} currentDate={row.occurred_on} reviewing />
+                {flagged && <p>Confirm the entry type and date from your report. A blank date stays unknown.</p>}
               </aside>
             </div>
           </article>
@@ -249,7 +252,7 @@ export default function GenericFactReview({
           <br />
           Saving keeps your review and the original.
           {!!draft.extraction_review?.completeness_check?.omissions.length && <>
-            <br />Possible missing rows flagged above are not included.
+            <br />Only flagged rows you include in this review will be saved.
           </>}
         </p>
         <div>
@@ -263,7 +266,7 @@ export default function GenericFactReview({
           </button>
           <button
             className="primary"
-            disabled={busy || !!draft.already_committed || !kept}
+            disabled={busy || !kept || (!!draft.already_committed && rows.some(row => row.keep && !omissionProposal(draft, row.id)))}
           >
             {busy
               ? "Saving…"

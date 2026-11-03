@@ -14,6 +14,7 @@ import {
   appendFiles,
   acceptDraft,
   beginFactCommit,
+  addOmissionToReview,
   failCommit,
   finishCommit,
   navigationLocked,
@@ -70,7 +71,7 @@ export default function ImportWorkflow({
   const referenceOnly =
     draft?.extraction_review?.facts.filter((fact) => !fact.commit_supported)
       .length || 0;
-  const locked = busy || !!attempt || !!draft?.already_committed;
+  const locked = busy || !!attempt;
   const queueLocked = navigationLocked(queue);
   const totals = summary(queue);
   const unconfirmedSaves = queue.filter(
@@ -91,6 +92,18 @@ export default function ImportWorkflow({
     setQueue((items) =>
       items.map((item) => (item.id === id ? { ...item, ...value } : item)),
     );
+  const reviewOmission = (id: string) => {
+    if (!current || locked) return;
+    setQueue(items => items.map(item => item.id === current.id ? addOmissionToReview(item, id) : item));
+  };
+  const rowStates: Record<string, 'reviewing' | 'saved'> = {};
+  factRows.filter(row => row.keep).forEach(row => { rowStates[row.id] = 'reviewing'; });
+  draft?.omission_reviews?.forEach(row => { rowStates[row.candidate_id] = 'saved'; });
+  const omissionActions = { onReviewRow: reviewOmission, rowStates, disabled: locked };
+  const originalTime = current?.receipt?.available_at || draft?.saved_available_at;
+  const originalHref = draft?.source.original_available ? draft.already_committed
+    ? originalTime ? `/api/history/sources/${encodeURIComponent(draft.source.id)}/original?known_at=${encodeURIComponent(originalTime)}` : undefined
+    : `/api/drafts/${encodeURIComponent(draft.id)}/original` : undefined;
   useEffect(() => {
     onDraftChange(totals.pending > 0, totals.pending);
   }, [totals.pending, onDraftChange]);
@@ -172,8 +185,7 @@ export default function ImportWorkflow({
       !current ||
       !draft ||
       inFlight.current ||
-      !includedCount ||
-      draft.already_committed
+      !includedCount
     )
       return;
     let submitting: QueueItem;
@@ -187,10 +199,11 @@ export default function ImportWorkflow({
     inFlight.current = true;
     patch(current.id, submitting);
     try {
-      const result = await post<Commit>("/history/commit", {
+      const result = await post<Commit>(draft.already_committed ? "/history/omissions/commit" : "/history/commit", {
         draft_id: draft.id,
         synthetic_confirmed: true,
-        reviewed_facts: submitting.factAttempt,
+        ...(!draft.already_committed ? { reviewed_facts: submitting.factAttempt } : {}),
+        reviewed_omissions: submitting.omissionAttempt || [],
       });
       setQueue((items) =>
         items.map((item) =>
@@ -200,7 +213,7 @@ export default function ImportWorkflow({
       onCommitted(result);
     } catch (failure) {
       const definitive =
-        failure instanceof ApiError && [400, 404, 422].includes(failure.status);
+        failure instanceof ApiError && [400, 404, 409, 422].includes(failure.status);
       const message =
         definitive && !wasUncertain
           ? `The review was not accepted. No records were saved by this request. Correct the fields or skip this file. ${(failure as Error).message}`
@@ -401,9 +414,7 @@ export default function ImportWorkflow({
             {draft?.extraction_review?.completeness_check && <ReportCompletenessReview
               key={draft.id} check={draft.extraction_review.completeness_check}
               saved={current.status !== 'skipped'}
-              originalHref={current.receipt
-                ? `/api/history/sources/${encodeURIComponent(draft.source.id)}/original?known_at=${encodeURIComponent(current.receipt.available_at)}`
-                : !draft.already_committed ? `/api/drafts/${encodeURIComponent(draft.id)}/original` : undefined} />}
+              originalHref={originalHref} {...omissionActions} />}
             <div className="import-queue-actions">
               {current.status === "skipped" && (
                 <button
@@ -571,7 +582,9 @@ export default function ImportWorkflow({
                     ? "Save unconfirmed · Retry the same fields."
                     : factRows.length
                       ? "Check these against your report."
-                      : "No fields are available to save. Review the source below."}
+                      : draft.extraction_review?.completeness_check?.omissions.length
+                        ? "Choose a flagged row below to review."
+                        : "No fields are available to save. Review the source below."}
               </strong>
               <span>
                 {draft.extraction_mode === "local-teleocr"
@@ -590,10 +603,13 @@ export default function ImportWorkflow({
                 <AlertCircle size={13} /> {warning}
               </p>
             ))}
-            {draft.extraction_review && (
+            {draft.extraction_review && !draft.already_committed && (
               <ExtractionReviewSummary review={draft.extraction_review}
-                originalHref={draft.source.original_available && !draft.already_committed
-                  ? `/api/drafts/${encodeURIComponent(draft.id)}/original` : undefined} />
+                originalHref={originalHref} omissionActions={omissionActions} />
+            )}
+            {draft.already_committed && draft.extraction_review?.completeness_check && (
+              <ReportCompletenessReview check={draft.extraction_review.completeness_check}
+                originalHref={originalHref} saved {...omissionActions} />
             )}
             {generic ? (
               <GenericFactReview
