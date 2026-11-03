@@ -3,6 +3,11 @@
   "scope": "Exact bounded source candidate. No eligibility or publication approval implied.",
   "files": [
     {
+      "source": "entry/frontend/src/HomeReportEvidence.tsx",
+      "destination": "entry/frontend/src/HomeReportEvidence.tsx",
+      "behavior": true
+    },
+    {
       "source": "backend/modus/__init__.py",
       "destination": "backend/modus/__init__.py",
       "behavior": true

@@ -20,6 +20,7 @@ import HistoryPager from './HistoryPager';
 import PagedRecordList from './PagedRecordList';
 import ReportComparison from './ReportComparison';
 import LongitudinalWorkspace from './LongitudinalWorkspace';
+import HomeReportEvidence from './HomeReportEvidence';
 
 export default function HealthRecordOverview({
   view, hasDraft, onImport, onNavigate, dates, currentDay, knowledge, pendingCount, onDate,
@@ -52,9 +53,18 @@ export default function HealthRecordOverview({
   const anchor = facts.find((fact) => fact.id === anchorId) || facts[0];
   const differences = scopedDifferences(detailView || view);
   const differenceCount = view.page ? view.counts.conflicts : differences.length;
-  const selectReport = (id: string) => { setSourceId(id); setAnchorId(null); setJourneyOpen(false); setInspected(null); };
+  const selectReport = (id: string) => {
+    setSourceId(id); setAnchorId(null); setJourneyOpen(false); setInspected(null);
+    requestAnimationFrame(() => {
+      if (window.matchMedia('(max-width:900px)').matches) {
+        const dock = homeRef.current?.querySelector<HTMLElement>('.report-focus');
+        dock?.scrollIntoView({ block: 'start' });
+        dock?.focus({ preventScroll: true });
+      }
+    });
+  };
   return (
-    <div ref={homeRef} className="health-record-overview orbit-overview report-first-home">
+    <div ref={homeRef} className="health-record-overview orbit-overview report-first-home orbit-centered-home">
       <header className="orbit-hero">
         <div><span className="orbit-eyebrow">{dateLabel(currentDay)}</span><h1>Your medical history.</h1></div>
         <button className="primary orbit-add" onClick={onImport}>
@@ -74,27 +84,41 @@ export default function HealthRecordOverview({
         parent={view} anchor={anchor} onCompare={()=>setReportComparisonOpen(true)} onClose={()=>{
           setJourneyOpen(false);requestAnimationFrame(()=>homeRef.current?.querySelector<HTMLElement>('.report-focus')?.focus());
         }} files={<OrbitMap reports={reports} total={view.page?.total} selectedId={report?.source.id} onSelect={selectReport} compact />} /> : <div className="orbit-workspace">
-        <section className="report-focus" aria-label="Selected report" tabIndex={-1}>
+        <section className="home-orbit-stage" aria-label="Your history in orbit">
+          <OrbitMap reports={reports} total={view.page?.total} selectedId={report?.source.id}
+            onSelect={selectReport} prominent onOpenAll={() => onNavigate('Records')} />
+          <HomeAskBar view={view} />
+        </section>
+        <section id="home-selected-report" className="report-focus" aria-label="Selected report" tabIndex={-1}>
+          <button type="button" className="text-button report-back-to-orbit" onClick={() => {
+            const selected = homeRef.current?.querySelector<SVGGElement>('.home-orbit-stage .orbit-satellite.is-selected');
+            homeRef.current?.querySelector('.home-orbit-stage')?.scrollIntoView({ block: 'start' });
+            selected?.focus({ preventScroll: true });
+          }}>Back to files</button>
           {report ? <>
             <header className="report-focus-heading"><div>
               <span className="report-section-label">Your selected report</span>
               <h2>{report.latestDate ? dateLabel(report.latestDate) : 'Date not fully recorded'}</h2>
-              <p>{report.source.title}</p>
-            </div><div className="report-focus-actions"><span className="report-item-count">{report.count ?? facts.length} recorded {(report.count ?? facts.length)===1?'entry':'entries'}</span>
+            </div><div className="report-focus-actions"><span className="report-item-count">{report.count ?? facts.length} {(report.count ?? facts.length)===1?'entry':'entries'}</span>
               <button type="button" className="text-button" disabled={!view.page?.snapshot_id}
                 title={!view.page?.snapshot_id?'Refresh your history to compare reports':undefined}
                 onClick={()=>setReportComparisonOpen(true)}>Compare reports</button>
-            </div></header>
+            </div><p>{report.source.title}</p></header>
             {view.page && !detailView && <div role={detail.error ? 'alert' : 'status'}><p>{detail.error || 'Opening your report…'}</p>
               {detail.error && <button onClick={detail.refresh}>Reload report</button>}</div>}
             {detailView && <HistoryPager view={detailView} onPage={detail.setOffset} noun="items" />}
-            <HomeReportReadings facts={facts} selected={journeyOpen ? anchor : undefined} onSelect={fact=>{setAnchorId(fact.id);setJourneyOpen(true);}} />
+            <HomeReportReadings facts={facts} selected={anchor} onSelect={fact=>setAnchorId(fact.id)} />
             {facts.length>4 && <label className="report-more-items">More from this report
-              <select value={anchor?.id || ''} onChange={event=>{setAnchorId(event.target.value);setJourneyOpen(true);}}>
+              <select value={anchor?.id || ''} onChange={event=>setAnchorId(event.target.value)}>
                 {groupReportFacts(facts).map(group=><optgroup key={group.name} label={group.name}>
                   {group.facts.map(fact=><option key={fact.id} value={fact.id}>{friendlyRecordName(fact.label)} · {recordedDate(fact)} · {fact.value_withheld?'Hidden by date filter':fact.value ?? 'Not recorded'}</option>)}
                 </optgroup>)}
               </select></label>}
+            {anchor && detailView && <>
+              <HomeReportEvidence fact={anchor} view={detailView} onOpen={setInspected} />
+              {!journeyOpen && <button type="button" className="text-button report-history-open"
+                onClick={() => setJourneyOpen(true)}>View this record across my history <ArrowUpRight size={14} aria-hidden="true" /></button>}
+            </>}
             {anchor && journeyOpen && <div className="report-expanded-history">
               <button type="button" className="text-button" onClick={()=>{
                 homeRef.current?.querySelector<HTMLButtonElement>('.report-reading-choice[aria-pressed="true"]')?.focus();
@@ -104,12 +128,7 @@ export default function HealthRecordOverview({
             </div>}
             {detailView && !facts.length && <p>No recorded items are visible from this file.</p>}
           </> : <div className="orbit-empty-proof"><h2>Start with a medical report.</h2><p>Add a checkup, lab report or visit record. Review it once, then find it in your history.</p></div>}
-          <HomeAskBar view={view} />
         </section>
-        <aside className="report-orbit-navigator" aria-label="Choose another report">
-          <OrbitMap reports={reports} total={view.page?.total} selectedId={report?.source.id} onSelect={selectReport} compact />
-          <p className="report-orbit-instruction">Open a report to revisit your results.</p>
-        </aside>
       </div>}
       <div className="sr-only" role="status">{report ? !detailView && view.page ? `Opening ${report.source.title}.` : `Selected file: ${report.source.title}. ${facts.length} recorded items.` : 'No source files in this view.'}</div>
       <OverviewRecordDetails view={detailView || view} selection={null} inspected={inspected} onInspect={setInspected}

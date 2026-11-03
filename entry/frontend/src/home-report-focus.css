@@ -1,4 +1,4 @@
-/* Report-first Home. Existing monochrome orbit tokens remain authoritative. */
+/* Home and report details share the existing monochrome orbit tokens. */
 .lab-context { margin:12px 0; font-size:13px; display:grid; gap:8px; }
 .lab-context > div { display:grid; grid-template-columns:minmax(110px,1fr) 1.3fr; gap:12px; }
 .lab-context dt { color:var(--muted); }
@@ -128,3 +128,63 @@
 .home-timeline-disclosure > summary:focus-visible { outline:2px solid var(--star); outline-offset:4px; }
 .report-expanded-history > .text-button { margin-top:16px; font-size:12px; }
 .report-focus .home-ask-bar { margin-top:24px; }
+
+/* The orbit is Home's primary surface. Its selected source opens beside it. */
+.orbit-centered-home .orbit-workspace { grid-template-columns:minmax(0,1.7fr) minmax(310px,1fr); gap:32px; }
+.orbit-centered-home .orbit-telemetry { grid-template-columns:minmax(0,1fr) auto; column-gap:32px; row-gap:8px; align-items:end; }
+.orbit-centered-home .orbit-timeline-heading { grid-column:1; grid-row:1; justify-content:flex-start; gap:24px; }
+.orbit-centered-home .home-replay-controls { margin:12px 0 18px; }
+.orbit-centered-home .home-replay-track { grid-column:1 / -1; grid-row:2; order:0; }
+.orbit-centered-home .orbit-history-options { grid-column:2; grid-row:1; min-width:168px; border:0; align-self:center; }
+.orbit-centered-home .orbit-history-options[open] { grid-column:1 / -1; grid-row:3; }
+.home-orbit-stage { min-width:0; scroll-margin-top:84px; }
+.home-orbit-stage .orbit-map-heading { padding:0; font:13px/1.5 var(--font-body); letter-spacing:0; text-transform:none; }
+.home-orbit-stage .orbit-chart { width:100%; max-width:600px; height:auto; min-height:0; margin:0 auto; }
+.orbit-map-prominent .orbit-node-title { display:none; }
+.orbit-map-prominent .orbit-node-date { font:14px var(--font-body); fill:var(--orbit-muted); }
+.orbit-map-prominent .is-selected .orbit-node-date { fill:var(--star); }
+.orbit-map-prominent .orbit-hit-area { r:30px; }
+.orbit-map-prominent .orbit-node-halo { r:20px; }
+.orbit-map-prominent .orbit-file-picker { display:flex; align-items:center; gap:12px; }
+.orbit-map-prominent .orbit-file-picker > select { flex:1; }
+.orbit-map-prominent footer { padding:10px 0 0; font-size:12px; line-height:1.5; align-items:center; }
+.orbit-map-prominent footer .text-button { font-size:12px; flex-shrink:0; }
+.home-orbit-stage > .home-ask-bar { margin-top:28px; }
+.orbit-centered-home .report-focus { padding:20px 0 0 24px; border-block:0; border-left:1px solid var(--line); scroll-margin-top:84px; }
+.orbit-centered-home .report-focus-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; gap:6px 16px; margin-bottom:20px; }
+.orbit-centered-home .report-focus-heading h2 { font-size:24px; }
+.orbit-centered-home .report-focus-heading > p { grid-column:1 / -1; margin:0; }
+.orbit-centered-home .report-reading-choices { grid-template-columns:minmax(0,1fr); gap:0; }
+.orbit-centered-home .report-reading-choice { display:grid; grid-template-columns:minmax(0,1fr) minmax(50px,auto); column-gap:16px; row-gap:5px; padding:14px 10px; border:0; border-bottom:1px solid var(--line); border-radius:0; }
+.orbit-centered-home .report-reading-choice[aria-pressed=true] { background:var(--void-2); box-shadow:inset 2px 0 0 var(--star); }
+.orbit-centered-home .report-reading-name { min-height:0; grid-column:1; grid-row:1; align-self:center; }
+.orbit-centered-home .report-reading-number { grid-column:2; grid-row:1; text-align:right; font-size:24px; }
+.orbit-centered-home .report-reading-unit { grid-column:2; grid-row:2; text-align:right; }
+.orbit-centered-home .report-reading-date { grid-column:1; grid-row:2; margin:0; }
+.orbit-centered-home .report-reading-choice[data-record-kind]:not([data-record-kind=measurement]) .report-reading-number { font-size:14px; max-width:18ch; line-height:1.5; }
+.report-source-excerpt { margin-top:24px; }
+.report-source-excerpt > header { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12px; color:var(--muted); }
+.report-source-excerpt > header .text-button { display:inline-flex; align-items:center; gap:5px; min-height:44px; padding:8px 0; font-size:12px; }
+.report-source-excerpt blockquote { margin:0; padding:12px 14px; border:1px solid var(--line); border-radius:6px; font:13px/1.65 var(--font-body); max-height:160px; overflow:auto; overflow-wrap:anywhere; white-space:pre-wrap; }
+.report-source-excerpt > p { font-size:12px; line-height:1.6; color:var(--muted); margin:8px 0; }
+.report-history-open { display:flex; align-items:center; gap:6px; min-height:44px; margin-top:12px; padding:8px 0; font-size:12px; text-align:left; }
+.orbit-centered-home .report-back-to-orbit { display:none; }
+@media(max-width:900px) {
+ .orbit-centered-home .orbit-telemetry { grid-template-columns:minmax(0,1fr); }
+ .orbit-centered-home .orbit-timeline-heading { justify-content:space-between; gap:12px; }
+ .orbit-centered-home .orbit-history-options,.orbit-centered-home .orbit-history-options[open] { grid-column:1; grid-row:3; }
+}
+@media(max-width:900px) {
+ .orbit-centered-home .orbit-workspace { grid-template-columns:minmax(0,1fr); gap:28px; }
+ .home-orbit-stage .orbit-chart { max-width:580px; }
+ .orbit-centered-home .report-focus { border-left:0; border-top:1px solid var(--line); padding:12px 0 0; }
+ .orbit-centered-home .report-back-to-orbit { display:inline-flex; min-height:44px; padding:8px 0; margin-bottom:12px; font-size:12px; }
+}
+@media(max-width:540px) {
+ .home-orbit-stage .orbit-map-heading { font-size:12px; }
+ .orbit-map-prominent .orbit-node-date { font-size:20px; }
+ .orbit-map-prominent .orbit-hit-area { r:38px; }
+ .orbit-map-prominent .orbit-file-picker { flex-wrap:wrap; }
+ .orbit-map-prominent .orbit-file-picker > select { flex-basis:100%; font-size:16px; }
+ .home-orbit-stage > .home-ask-bar { margin-top:24px; }
+}

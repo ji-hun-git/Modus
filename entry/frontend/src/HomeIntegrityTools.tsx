@@ -60,9 +60,9 @@ export default function HomeIntegrityTools({
       <div><span>Files available through</span><strong><time dateTime={scope.known_at}>{timeLabel(scope.known_at)}</time></strong></div>
     </header>
     {timeline}
-    <div className="home-replay-controls">{dateControls}</div>
     <details className="orbit-history-options">
       <summary>More history tools</summary>
+      <div className="home-replay-controls">{dateControls}</div>
       <div className="home-integrity-actions">
         {pendingCount > 0 && <button type="button" className="secondary" onClick={onReview}>
           <Inbox size={15} aria-hidden="true" /> Continue review <span>{pendingCount}</span>

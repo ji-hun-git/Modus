@@ -17,6 +17,7 @@ const result = await build({
       'export { default as HomeIntegrityTools } from "./HomeIntegrityTools";',
       'export { default as OrbitMap } from "./OrbitMap";',
       'export { default as HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts } from "./HomeReportReadings";',
+      'export { default as HomeReportEvidence } from "./HomeReportEvidence";',
       'export { default as MedicalTestReference } from "./MedicalTestReference";',
       'export { default as LabContext, LabContextReview } from "./LabContext";',
       'export { default as CheckupComparison } from "./CheckupComparison";',
@@ -57,7 +58,7 @@ const result = await build({
     },
   ],
 });
-const { ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
+const { HomeReportEvidence, ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
   await import(
     "data:text/javascript;base64," +
       Buffer.from(result.outputFiles[0].text).toString("base64")
@@ -111,7 +112,7 @@ test('Home exposes both clocks and the scrubber while advanced history tools sta
   assert.match(html,/Files available through<\/span><strong><time dateTime="2026-10-29T00:00:00Z"/);
   const tools=html.indexOf('<details class="orbit-history-options"');
   assert.ok(html.indexOf('aria-label="Scrub recorded history"')<tools);
-  assert.ok(html.indexOf('aria-label="Home file availability"')<tools);
+  assert.ok(html.indexOf('aria-label="Home file availability"')>tools); // Precise inputs stay available without crowding the orbit.
   assert.ok(tools<html.indexOf('class="orbit-workspace"'));
   assert.doesNotMatch(html,/This reading across your history|Compare with previous checkup|Close history/);
 });
@@ -122,6 +123,51 @@ test('Home names use exact catalog aliases and preserve qualified or unfamiliar 
   assert.equal(friendlyRecordName('eGFR'),'Kidney filtering estimate (eGFR)');
   assert.equal(friendlyRecordName('HbA1c pending'),'HbA1c pending');
   assert.equal(friendlyRecordName('Custom assay'),'Custom assay');
+});
+
+test('Home puts the file orbit before its report with direct original evidence and one Ask bar',()=>{
+  const fact=row('a','2026-10-20');
+  const html=render(HealthRecordOverview,{view:viewOf([fact]),hasDraft:false,onImport:noop,onNavigate:noop,
+    dates:['2026-10-20'],currentDay:'2026-11-03',knowledge:'latest',pendingCount:0,onDate:noop});
+  assert.ok(html.indexOf('class="home-orbit-stage"')<html.indexOf('id="home-selected-report"'));
+  assert.match(html,/orbit-map-prominent/);
+  assert.match(html,/aria-controls="home-selected-report"/);
+  assert.match(html,/Open evidence/);
+  assert.match(html,/<blockquote>HbA1c 5.7 %<\/blockquote>/);
+  assert.equal((html.match(/name="history-question"/g)||[]).length,1);
+});
+
+test('Home evidence resolves the current source and preserves corrections without trusting a stale selection',()=>{
+  const original=row('a','2026-10-20');
+  const corrected={...original,value:'5.9',previous_revision_id:'revision-1',reviewed_fields:['value']};
+  const html=render(HomeReportEvidence,{fact:{...corrected,source_quote:'Stale fabricated quote'},view:viewOf([corrected]),onOpen:noop});
+  assert.match(html,/<blockquote>HbA1c 5.7 %<\/blockquote>/);
+  assert.match(html,/Corrected after saving/);
+  assert.doesNotMatch(html,/Stale fabricated quote/);
+  assert.equal(render(HomeReportEvidence,{fact:corrected,view:viewOf([]),onOpen:noop}),'');
+  assert.equal(render(HomeReportEvidence,{fact:{...corrected,source_id:'other'},view:viewOf([corrected]),onOpen:noop}),'');
+});
+
+test('Home evidence hides original passages under either date-withholding flag and escapes document text',()=>{
+  for(const flag of ['value_withheld','source_quote_withheld']) {
+    const fact=row('a','2026-10-20',{source_quote:'PRIVATE EXCERPT',[flag]:true});
+    const html=render(HomeReportEvidence,{fact,view:viewOf([fact]),onOpen:noop});
+    assert.doesNotMatch(html,/PRIVATE EXCERPT/);
+    assert.match(html,/hidden in this date view/);
+  }
+  const fact=row('a','2026-10-20',{source_quote:'<script>untrusted</script>'});
+  assert.match(render(HomeReportEvidence,{fact,view:viewOf([fact]),onOpen:noop}),/&lt;script&gt;untrusted&lt;\/script&gt;/);
+});
+
+test('Prominent orbit retains native file selection, honest pagination and unknown dates',()=>{
+  const fact=row('a',null,{occurred_on:'2016'}),view=viewOf([fact]);
+  const html=render(OrbitMap,{reports:[{source:view.sources[0],facts:[fact],latestDate:null}],selectedId:fact.source_id,
+    onSelect:noop,total:80,prominent:true,onOpenAll:noop});
+  assert.match(html,/1 of 80/);
+  assert.match(html,/<label class="orbit-file-picker">Open a report<select/);
+  assert.match(html,/All files/);
+  assert.match(html,/Undated/);
+  assert.doesNotMatch(html,/2016-01-01/);
 });
 
 test('Home choices are bounded and keep a selected extra field without changing any record',()=>{
@@ -290,7 +336,7 @@ test("orbit buttons preserve original file identity, keyboard access and indepen
   assert.equal((html.match(/aria-pressed="true"/g) || []).length, 1);
   for (const title of ['Original a.png', 'Original b.png', 'Undated note.txt']) assert.ok(html.includes(`Open source file: ${title}`));
   assert.match(html, />You<\/text>/);
-  assert.match(html, />UNDATED<\/text>/);
+  assert.match(html, />Undated<\/text>/);
   assert.doesNotMatch(html, /health score|normal range/i);
 });
 

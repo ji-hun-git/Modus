@@ -36,7 +36,7 @@ export default function HomeReportReadings({facts,selected,onSelect}: {
 }) {
   return <div className="report-reading-choices" aria-label="Readings in this report">
     {readingChoices(facts,selected?.id).map(fact => <button key={fact.id} type="button"
-      className="report-reading-choice" aria-pressed={fact.id === selected?.id} onClick={() => onSelect(fact)}>
+      className="report-reading-choice" data-record-kind={fact.kind} aria-pressed={fact.id === selected?.id} onClick={() => onSelect(fact)}>
       <span className="report-reading-name">{friendlyRecordName(fact.label)}</span>
       <span className="report-reading-number">{fact.value_withheld ? 'Hidden by date filter' : fact.value ?? 'Not recorded'}</span>
       {!fact.value_withheld && (fact.unit || fact.kind==='measurement') && <span className="report-reading-unit">{unitLabel(fact.unit) || 'Unit not recorded'}</span>}
