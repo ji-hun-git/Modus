@@ -1,5 +1,24 @@
 # Modus Records API v1
 
+## Scan review and offline recovery — 3 November 2026
+
+`POST /api/imports/preview` accepts optional `reuse_only=true`. After the usual
+confirmation, size and extension checks, it returns only an existing draft for
+those exact bytes. A cache miss returns 404 without parsing, provider access,
+new model requests or writes. The UI offers **Reopen previous draft** for images
+when Meta is unavailable. Original proposals, review warnings and commit state
+are retained; reopening neither re-extracts nor saves records.
+
+Local extraction checks compare populated fields with their proposed excerpt
+even when the page has no text layer. A contradiction, including a changed range
+unit or dropped qualifier, gets a specific review warning. A consistent excerpt
+still has `local_support.status:unavailable`; it is not independently verified.
+`no_independent_page_text` remains visible alongside any mismatch. Inequalities
+in a following history-table cell do not qualify the preceding value. Actual
+censored values and interval/uncertainty expressions remain subject to review.
+Neither the original proposal nor file bytes are repaired automatically, and
+existing saved drafts retain their original checks.
+
 ## Literal-value history questions — 3 November 2026
 
 For an already resolved history request, its hosted read tool accepts only `{}`.

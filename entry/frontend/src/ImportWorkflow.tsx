@@ -84,6 +84,7 @@ export default function ImportWorkflow({
     !!current && ["csv", "txt"].includes(extension(current.file));
   const imageFile =
     !!current && ["png", "jpg", "jpeg"].includes(extension(current.file));
+  const reuseOnly = imageFile && !metaAvailable;
   const readers = current ? readingOptions(current.file, metaAvailable) : [];
   const extractionAvailable = readers.some(
     (reader) => reader.value === extraction && reader.available,
@@ -138,7 +139,7 @@ export default function ImportWorkflow({
   async function upload() {
     if (!current || inFlight.current || queueLocked) return;
     const invalid = fileError(current.file);
-    if (invalid || !confirmed || !extractionAvailable) {
+    if (invalid || !confirmed || (!extractionAvailable && !reuseOnly)) {
       patch(current.id, {
         status: "error",
         error:
@@ -158,8 +159,10 @@ export default function ImportWorkflow({
         item.file,
         item.extraction,
         metaAvailable,
+        reuseOnly,
       );
       body.append("use_meta", readerFields.use_meta);
+      if (readerFields.reuse_only) body.append("reuse_only", readerFields.reuse_only);
       const result = await api<Draft>("/imports/preview", {
         method: "POST",
         body,
@@ -174,7 +177,7 @@ export default function ImportWorkflow({
         status: "error",
         reportCoverage:
           failure instanceof ApiError ? failure.reportCoverage : undefined,
-        error: `This file could not be read. No records were saved. Retry this file or skip it to continue. ${(failure as Error).message}`,
+        error: `${reuseOnly ? "The previous draft could not be reopened. No records were saved." : "This file could not be read. No records were saved. Retry this file or skip it to continue."} ${(failure as Error).message}`,
       });
     } finally {
       inFlight.current = false;
@@ -489,7 +492,7 @@ export default function ImportWorkflow({
               <p className="safe-note">
                 CSV and text are read on this computer. No model is called.
               </p>
-            ) : (
+            ) : !reuseOnly ? (
               <details open={imageFile || extraction !== "local"}>
                 <summary>
                   {imageFile
@@ -527,18 +530,18 @@ export default function ImportWorkflow({
                     : "Structured CSV keeps named fields. Unrecognized prose stays editable source text. Up to 30 PDF pages; scanned pages require Meta."}
                 </p>
               </details>
-            )}
+            ) : null}
             {imageFile && !extractionAvailable && (
               <p className="safe-note">
                 {metaAvailable
                   ? "Choose Meta to read this image, or skip it and continue."
-                  : "Meta must be configured to read this image. You can skip it and continue."}
+                  : "Already read this file? Reopen its previous draft without a model call. Reading a new image requires Meta."}
               </p>
             )}
             <p className="progress-note" role="status">
               {phase === "reading"
-                ? "Reading this file… No records have been saved."
-                : "Reading creates a draft. You decide what to save."}
+                ? reuseOnly ? "Reopening the previous draft… No records have been saved." : "Reading this file… No records have been saved."
+                : reuseOnly ? "You review before saving." : "Reading creates a draft. You decide what to save."}
             </p>
             <div className="import-queue-actions">
               <button
@@ -555,15 +558,17 @@ export default function ImportWorkflow({
                 disabled={
                   !confirmed ||
                   busy ||
-                  !extractionAvailable ||
+                  (!extractionAvailable && !reuseOnly) ||
                   !!fileError(current.file)
                 }
                 onClick={() => void upload()}
               >
                 {busy ? (
                   <>
-                    <LoaderCircle className="spin" size={16} /> Reading…
+                    <LoaderCircle className="spin" size={16} /> {reuseOnly ? "Reopening…" : "Reading…"}
                   </>
+                ) : reuseOnly ? (
+                  "Reopen previous draft"
                 ) : current.status === "error" ? (
                   "Retry reading this file"
                 ) : (

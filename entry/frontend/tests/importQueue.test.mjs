@@ -49,6 +49,18 @@ const draft = (extra = {}) => ({
 });
 const review = () => queue.acceptDraft(selected(), draft());
 
+test('explicit previous-draft recovery never selects a live or local reader', () => {
+  for (const configured of [false, true]) {
+    assert.deepEqual(queue.previewReaderFields(file('scan.png'), 'meta', configured, true),
+      {use_meta: 'false', reuse_only: 'true'});
+  }
+  assert.throws(() => queue.previewReaderFields(file('scan.png'), 'meta', false), /available reading method/);
+  const reopened = queue.acceptDraft(selected(), draft({extraction_mode: 'meta'}));
+  assert.equal(reopened.status, 'review');
+  assert.equal(reopened.receipt, null);
+  assert.equal(reopened.attempt, null);
+});
+
 const flaggedDraft = (extra = {}) => draft({ facts: [], observations: [],
   extraction_review: { facts: [], completeness_check: { version: 'report-row-inventory-v1', omissions: [
     { id: 'inventory-1-1', label: 'Ferritin', value: '29.40', unit: 'ng/mL', page: 1,

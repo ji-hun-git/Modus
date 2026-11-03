@@ -46,7 +46,8 @@ export function readingOptions(file: Pick<File, "name">, metaAvailable: boolean)
   ];
 }
 
-export function previewReaderFields(file: Pick<File, "name">, reader: string, metaAvailable: boolean) {
+export function previewReaderFields(file: Pick<File, "name">, reader: string, metaAvailable: boolean, reuseOnly = false) {
+  if (reuseOnly) return { use_meta: "false", reuse_only: "true" };
   if (!readingOptions(file, metaAvailable).some((option) => option.value === reader && option.available))
     throw new Error("Choose an available reading method. Images require Meta.");
   return { use_meta: String(reader === "meta") };

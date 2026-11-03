@@ -289,13 +289,13 @@ def create_entry_app(database=None, clock=None):
         return captured(request.as_of, request.after_known_at, request.before_known_at)['comparison']
 
     @app.post('/api/imports/preview')
-    async def preview(file: UploadFile = File(...), synthetic_confirmed: bool = Form(False), use_meta: bool = Form(False), use_local_ocr: bool = Form(False)):
+    async def preview(file: UploadFile = File(...), synthetic_confirmed: bool = Form(False), use_meta: bool = Form(False), use_local_ocr: bool = Form(False), reuse_only: bool = Form(False)):
         # A single local profile has one active reader. The content-hash check
         # below then prevents simultaneous duplicate requests spending twice.
         async with preview_lock:
-            return await read_preview(file, synthetic_confirmed, use_meta, use_local_ocr)
+            return await read_preview(file, synthetic_confirmed, use_meta, use_local_ocr, reuse_only)
 
-    async def read_preview(file, synthetic_confirmed, use_meta, use_local_ocr):
+    async def read_preview(file, synthetic_confirmed, use_meta, use_local_ocr, reuse_only):
         if not synthetic_confirmed:
             raise HTTPException(400, 'Confirm that this file contains only synthetic example data')
         if use_local_ocr:
@@ -313,6 +313,10 @@ def create_entry_app(database=None, clock=None):
             # Existing review state wins; do not bill for an extraction whose
             # proposal INSERT OR IGNORE would silently discard.
             return preview_response(existing, reused=True, store=store)
+        if reuse_only:
+            # Explicitly bounded recovery: no parsing, provider check, model
+            # request, new draft, or fallback when these bytes have no draft.
+            raise HTTPException(404, 'No previous draft was found for this exact file. No reading was attempted.')
         telemetry = {}
         mode = 'meta' if use_meta else 'local'
         try:

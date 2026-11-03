@@ -86,7 +86,65 @@ def test_checks_are_visible_and_commit_remains_explicit(api):
     assert store.observations(known_at='2026-10-27T00:00:00Z') == before
 
 
+def test_reuse_only_reopens_exact_image_draft_offline_without_model_or_reader(api, monkeypatch):
+    client, store, _ = api
+    draft = preview(client)
+    stored_before = deepcopy(store.draft(draft['id']))
+    history_before = client.get('/api/history/view').json()
+    changes_before = client.get('/api/changes').json()
+    module = importlib.import_module('modus_entry.app')
+    def forbidden(*args, **kwargs):
+        pytest.fail('Draft recovery must not check the provider or invoke a reader')
+    monkeypatch.setattr(module, 'provider_status', forbidden)
+    monkeypatch.setattr(module, 'extract_record_document', forbidden)
+    monkeypatch.setattr(module, 'make_history_draft', forbidden)
+    response = client.post('/api/imports/preview', data={
+        'synthetic_confirmed': 'true', 'reuse_only': 'true', 'use_meta': 'true'},
+        files={'file': ('renamed-copy.png', RAW, 'image/png')})
+    assert response.status_code == 200
+    reopened = response.json()
+    assert reopened['facts'] == draft['facts']
+    assert reopened['extraction_review'] == draft['extraction_review']
+    assert reopened['already_committed'] is False
+    assert store.draft(draft['id']) == stored_before
+    assert client.get('/api/drafts/' + draft['id'] + '/original').content == RAW
+    assert client.get('/api/history/view').json() == history_before
+    assert client.get('/api/changes').json() == changes_before
+
+
+def test_reuse_only_missing_bytes_never_falls_back_or_creates_a_draft(api, monkeypatch):
+    client, store, _ = api
+    preview(client)
+    module = importlib.import_module('modus_entry.app')
+    def forbidden(*args, **kwargs):
+        pytest.fail('A missing cached draft cannot trigger reading or a model')
+    for name in ('provider_status', 'extract_record_document', 'make_history_draft'):
+        monkeypatch.setattr(module, name, forbidden)
+    with store.connect() as db:
+        before = db.execute('SELECT id,data,committed FROM drafts ORDER BY id').fetchall()
+    for raw in (RAW + b'changed', b'new authored image'):
+        response = client.post('/api/imports/preview', data={
+            'synthetic_confirmed': 'true', 'reuse_only': 'true', 'use_meta': 'true'},
+            files={'file': ('source.png', raw, 'image/png')})
+        assert response.status_code == 404 and 'No reading was attempted' in response.text
+    with store.connect() as db:
+        assert db.execute('SELECT id,data,committed FROM drafts ORDER BY id').fetchall() == before
+
+
+def test_reuse_only_does_not_bypass_confirmation_or_file_validation(api):
+    client, _, _ = api
+    preview(client)
+    missing_confirmation = client.post('/api/imports/preview', data={'reuse_only': 'true'},
+        files={'file': ('source.png', RAW, 'image/png')})
+    assert missing_confirmation.status_code == 400
+    unsupported = client.post('/api/imports/preview', data={'reuse_only': 'true', 'synthetic_confirmed': 'true'},
+        files={'file': ('source.exe', RAW, 'image/png')})
+    assert unsupported.status_code == 422
+
+
 @pytest.mark.parametrize('issues, expected', [
+    (['no_independent_page_text', 'reference_range_not_in_quote'],
+        'The reference range is not included in this excerpt.'),
     (['occurred_on_not_in_quote'], 'The date is not included in this excerpt.'),
     (['specimen_not_in_quote'], 'The specimen is not included in this excerpt.'),
     (['quote_not_on_page'], 'This excerpt could not be located'),

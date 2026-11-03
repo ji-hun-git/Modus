@@ -34,7 +34,7 @@ def support_review_reasons(local):
                 reasons.append(f'The {name} is not included in this excerpt. Check it on the original report.')
         if not reasons:
             reasons.append('Some extracted details could not be matched to this excerpt. Check the original report.')
-    elif local['status'] == 'unavailable':
+    if local['status'] == 'unavailable' or 'no_independent_page_text' in local.get('issues', []):
         reasons.append('The page has no readable text to compare. Check the original image.')
     if 'ocr_text_is_unverified' in local.get('issues', []):
         reasons.append('This comparison uses a local transcription. Check the original image too.')

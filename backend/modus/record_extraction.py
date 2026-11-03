@@ -128,7 +128,11 @@ def _qualified_number(value, text):
         prefix = bool(before and before[-1] in signs)
         if before.endswith('=') and len(before) > 1:
             prefix = before[-2] in '<>'
-        suffix = bool(after and after[0] in signs and re.match(r'^[+\-−±<>≤≥~≈= /]*\d', after))
+        # A following inequality starts the NEXT cell in a historical row
+        # ("0.80 <0.10"), not a qualifier of 0.80. Interval/uncertainty suffixes
+        # still qualify the preceding number; inequalities qualify their operand.
+        suffix = bool(after and after[0] in '+-−±~≈'
+                      and re.match(r'^[+\-−±~≈ /]*\d', after))
         words_before = re.search(r'(?:\b(?:less than|greater than|at least|at most|approximately|about|under|over|below|above|up to)|약|최소|최대)\s*$', before, re.I)
         words_after = re.match(r'^[^\d;:\n]{0,30}(?:미만|이하|이상|초과|내외|정도)(?=$|[\s.,;])', after)
         return prefix or suffix or bool(words_before or words_after)
@@ -139,14 +143,16 @@ def _qualified_number(value, text):
 
 def _local_support(field, pages):
     page = pages[field['page'] - 1]
-    if not any(page.get(k, '').strip() for k in ('text', 'reading_order_text', 'ocr_text')):
-        return {'status': 'unavailable', 'issues': ['no_independent_page_text']}
+    has_text = any(page.get(k, '').strip() for k in ('text', 'reading_order_text', 'ocr_text'))
     quote = _compact(field['source_quote'])
     matched_native = any(quote in text for text in independent_page_texts(page))
     ocr = page.get('ocr_text', '') or (page['text'] if page.get('text_source') == 'local_teleocr' else '')
     matched_ocr = not matched_native and quote in _compact(ocr)
-    issues = []
-    if not matched_native and not matched_ocr:
+    # Even without a text layer, a proposal can contradict its OWN excerpt.
+    # Catch that inconsistency without pretending to have read the image.
+    # Agreement with a model-authored excerpt never establishes source support.
+    issues = [] if has_text else ['no_independent_page_text']
+    if has_text and not matched_native and not matched_ocr:
         issues.append('quote_not_on_page')
     for key in ('label', 'value', 'unit', 'occurred_on', 'reference_range', 'specimen', 'test_method'):
         if key == 'occurred_on' and field.get('date_evidence'):
@@ -159,8 +165,10 @@ def _local_support(field, pages):
         issues.append('numeric_qualifier_not_preserved')
     if page['text_source'] == 'local_teleocr' or matched_ocr:
         issues.append('ocr_text_is_unverified')
-    nonerrors = {'ocr_text_is_unverified', 'date_link_requires_review', 'date_evidence_unavailable'}
+    nonerrors = {'no_independent_page_text', 'ocr_text_is_unverified',
+                 'date_link_requires_review', 'date_evidence_unavailable'}
     status = ('mismatch' if any(issue not in nonerrors for issue in issues)
+              else 'unavailable' if not has_text
               else 'review_required' if any(i.startswith('date_') for i in issues) else 'matched_text')
     return {'status': status, 'issues': issues}
 

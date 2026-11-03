@@ -159,6 +159,58 @@ def test_image_date_anchor_remains_without_independent_text_support():
     assert result['fields'][0]['date_evidence']['relation'] == 'requires_review'
 
 
+@pytest.mark.parametrize('patch,issue', [
+    ({'reference_range': '3.80-5.20 10*12/L'}, 'reference_range_not_in_quote'),
+    ({'unit': '10*12/L'}, 'unit_not_in_quote'),
+    ({'value': '4.26'}, 'value_not_in_quote'),
+    ({'specimen': 'Serum'}, 'specimen_not_in_quote'),
+    ({'test_method': 'Impedance'}, 'test_method_not_in_quote'),
+])
+def test_image_proposal_contradictions_are_flagged_without_promoting_its_quote(patch, issue):
+    from PIL import Image
+    image = io.BytesIO()
+    Image.new('RGB', (64, 64), 'white').save(image, format='PNG')
+    quoted = 'RBC: 4.62 10^12/L\nRange: 3.80-5.20 10^12/L\nSpecimen: Whole blood'
+    proposed = field(label='RBC', value='4.62', unit='10^12/L', occurred_on=None,
+        reference_range='3.80-5.20 10^12/L', specimen='Whole blood', source_quote=quoted)
+    proposed.update(patch)
+    result, _, _ = run(first=extraction([proposed]), raw=image.getvalue(),
+        mime='image/png', filename='artificial.png')
+    actual = result['fields'][0]
+    assert actual['verification']['status'] == 'supported'  # Deliberately wrong artificial verifier.
+    assert actual['local_support']['status'] == 'mismatch'
+    assert issue in actual['local_support']['issues']
+    assert 'no_independent_page_text' in actual['local_support']['issues']
+    assert 'quote_not_on_page' not in actual['local_support']['issues']
+    assert actual['source_quote'] == quoted
+    assert all(actual[k] == v for k, v in patch.items())  # Never repair model output.
+
+
+def test_consistent_image_proposal_is_still_unverified_and_cannot_lose_a_qualifier():
+    page = {'page': 1, 'text': '', 'text_source': 'none'}
+    proposed = field(source_quote='HbA1c 5.6 % 2024-02-03')
+    assert pipeline._local_support(proposed, [page]) == {
+        'status': 'unavailable', 'issues': ['no_independent_page_text']}
+    proposed['source_quote'] = 'HbA1c <5.6 % 2024-02-03'
+    checked = pipeline._local_support(proposed, [page])
+    assert checked == {'status': 'mismatch', 'issues': [
+        'no_independent_page_text', 'numeric_qualifier_not_preserved']}
+
+
+@pytest.mark.parametrize('next_cell', ['<0.10', '<= 0.10', '>0.10', '≤0.10', '≥0.10'])
+def test_history_cell_does_not_borrow_the_next_cells_inequality(next_cell):
+    quote = f'CRP mg/L <0.10 0.80 {next_cell} 1.10'
+    proposed = field(label='CRP', value='0.80', unit='mg/L', occurred_on=None, source_quote=quote)
+    for page in ({'page': 1, 'text': '', 'text_source': 'none'},
+                 {'page': 1, 'text': quote, 'text_source': 'pdf_text'}):
+        checked = pipeline._local_support(proposed, [page])
+        assert 'numeric_qualifier_not_preserved' not in checked['issues']
+        assert checked['status'] == ('unavailable' if not page['text'] else 'matched_text')
+        # The same passage still cannot turn its censored 0.10 into a point.
+        censored = pipeline._local_support({**proposed, 'value': '0.10'}, [page])
+        assert 'numeric_qualifier_not_preserved' in censored['issues']
+
+
 def test_printed_date_occurrence_never_confirms_its_connection():
     row = field(source_quote='HbA1c 5.6 %', date_evidence=date_passage(source_quote='Printed: 2024-02-03'))
     result, _, _ = run(first=extraction([row]), raw=pdf('Printed: 2024-02-03\nHbA1c 5.6 %'))
