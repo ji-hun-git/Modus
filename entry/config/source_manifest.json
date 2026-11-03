@@ -2896,6 +2896,46 @@
       "source": "entry/frontend/public/examples/checkup-october-2026.csv",
       "destination": "entry/frontend/public/examples/checkup-october-2026.csv",
       "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_archive_seed.py",
+      "destination": "backend/tests/test_entry_archive_seed.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2010.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2010.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2013.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2013.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2016.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2016.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2019.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2019.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2022.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2022.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2024.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2024.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2025.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2025.csv",
+      "behavior": true
     }
   ]
 }

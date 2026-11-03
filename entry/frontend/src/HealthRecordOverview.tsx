@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, FileText, GitCompareArrows, Inbox, Plus } from "lucide-react";
 import type { Page } from "./Shell";
 import type { HistoryFact, HistoryView } from "./historyTypes";
@@ -23,6 +23,7 @@ import HomeReportEvidence from './HomeReportEvidence';
 
 export default function HealthRecordOverview({
   view, hasDraft, onImport, onNavigate, dates, currentDay, knowledge, pendingCount, onDate,
+  requestedDate, updating = false, onCurrent,
 }: {
   view: HistoryView;
   hasDraft: boolean;
@@ -33,6 +34,9 @@ export default function HealthRecordOverview({
   knowledge: KnowledgeMode;
   pendingCount: number;
   onDate: (date: string, knowledge: KnowledgeMode) => void;
+  requestedDate?: string;
+  updating?: boolean;
+  onCurrent?: () => void;
 }) {
   const [sourceId, setSourceId] = useState<string | null>(null);
   const [anchorId, setAnchorId] = useState<string | null>(null);
@@ -42,6 +46,15 @@ export default function HealthRecordOverview({
   const [inspected, setInspected] = useState<HistoryFact | null>(null);
   const [comparison, setComparison] = useState<string | null>(null);
   const [reportComparisonOpen, setReportComparisonOpen] = useState(false);
+  const [scrubTarget, setScrubTarget] = useState<string | null>(null);
+  const timeUpdating = updating || !!scrubTarget && scrubTarget !== (view.scope.as_of || currentDay);
+  useEffect(() => {
+    setSourceId(null); setAnchorId(null); setExpandedPage(null); setJourneyOpen(false);
+    setInspected(null); setComparison(null); setReportComparisonOpen(false);
+  }, [view.scope.scope_id]);
+  useEffect(() => {
+    if (timeUpdating) { setInspected(null); setComparison(null); setReportComparisonOpen(false); }
+  }, [timeUpdating]);
   const reports = reportSummaries(view);
   const report = reports.find((item) => item.source.id === sourceId) || reports[0];
   const detail = useHistoryView(view.scope, view.scope.as_of === null, { snapshot_id: view.page?.snapshot_id,
@@ -78,7 +91,9 @@ export default function HealthRecordOverview({
       </header>
       <HomeIntegrityTools scope={view.scope} dates={dates} currentDay={currentDay}
         knowledge={knowledge} pendingCount={pendingCount} onDate={onDate}
-        onNavigate={onNavigate} onReview={onImport} orbit />
+        onNavigate={onNavigate} onReview={onImport} requestedDate={requestedDate}
+        updating={timeUpdating} onPreview={setScrubTarget} onCurrent={onCurrent} orbit />
+      <div className={timeUpdating ? 'home-evidence-surface is-time-updating' : 'home-evidence-surface'} aria-busy={timeUpdating} inert={timeUpdating || undefined}>
       <div className="home-record-actions" role="group" aria-label="Actions for your history">
         {!!differenceCount && <button type="button" className="text-button"
           aria-label={`Review ${differenceCount} recorded ${differenceCount===1?'difference':'differences'}`}
@@ -135,6 +150,7 @@ export default function HealthRecordOverview({
           </> : <div className="orbit-empty-proof"><h2>Start with a medical report.</h2><p>Add a checkup, lab report or visit record. Review it once, then find it in your history.</p></div>}
         </section>
       </div>}
+      </div>
       <div className="sr-only" role="status">{report ? !detailView && view.page ? `Opening ${report.source.title}.` : `Selected file: ${report.source.title}. ${facts.length} recorded items.` : 'No source files in this view.'}</div>
       <OverviewRecordDetails view={detailView || view} selection={null} inspected={inspected} onInspect={setInspected}
         onCloseSource={() => setInspected(null)} onCloseSelection={() => {}} />

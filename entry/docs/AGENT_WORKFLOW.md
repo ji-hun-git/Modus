@@ -2,7 +2,7 @@
 
 ```text
 Supported source file
-  → bounded local parsing/OCR or explicitly selected Meta extraction
+  → bounded local text parsing or explicitly selected Meta extraction
   → schema-checked proposal with original evidence
   → explicit human review
   → transactional reviewed records

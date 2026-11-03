@@ -160,6 +160,17 @@ test('Empty Home keeps summary access honest without fabricated conflict or revi
   assert.doesNotMatch(html,/Review differences|Continue review|home-review-count|No conflicts|All clear/);
 });
 
+test('A pending scrub keeps its live date control usable and retained evidence inert',()=>{
+  const html=render(HealthRecordOverview,{view:viewOf([row('a','2026-10-20')]),hasDraft:false,pendingCount:0,
+    onImport:noop,onNavigate:noop,dates:['2010-04-12','2026-10-20'],currentDay:'2026-11-03',
+    knowledge:'latest',onDate:noop,requestedDate:'2013-12-31',updating:true,onCurrent:noop});
+  assert.match(html,/aria-label="Selected history date">Through 31 Dec 2013/);
+  assert.match(html,/Updating records/);
+  assert.match(html,/home-evidence-surface is-time-updating" aria-busy="true" inert=""/);
+  assert.ok(html.indexOf('aria-label="Scrub recorded history"')<html.indexOf('inert=""'));
+  assert.match(html,/>Today<\/button>/);
+});
+
 test('Home evidence resolves the current source and preserves corrections without trusting a stale selection',()=>{
   const original=row('a','2026-10-20');
   const corrected={...original,value:'5.9',previous_revision_id:'revision-1',reviewed_fields:['value']};
@@ -868,4 +879,57 @@ test('hidden evidence cannot leak its date passage through either inspector',()=
     render(HomeSourceEvidence,{fact,view,onOpen:noop})]) {
     assert.doesNotMatch(html,/Date in the original|Collected:|untrusted/);
   }
+});
+
+
+test('Orbit retains source formats in accessible descriptions without adding format or axis clutter',()=>{
+  const formats=[['pdf','Review.pdf','PDF'],['image/png','Scan.png','IMG'],['text/csv','Labs.csv','CSV'],['text/plain','Note.txt','TXT']];
+  const reports=formats.map(([type,title],i)=>({source:{id:'format-'+i,type,title},latestDate:'2024-02-20',
+    facts:[row('format-'+i,'2024-02-20')]}));
+  const original=structuredClone(reports);
+  const html=render(OrbitMap,{reports,selectedId:'format-2',onSelect:noop,prominent:true});
+  for(const [,title,format] of formats) {
+    assert.ok(html.includes(`Open source file: ${title}; ${format};`));
+    assert.ok(!html.includes(`>${format}</text>`));
+  }
+  assert.match(html,/orbit-file-relations/);
+  assert.match(html,/orbit-connection/);
+  assert.doesNotMatch(html,/orbit-crosshair|2020–2024|M300 18V426|Rings group recorded years/);
+  assert.deepEqual(reports,original);
+});
+
+test('Twelve relational orbit files retain separate actions, the selected source and unknown precision',()=>{
+  const reports=Array.from({length:12},(_,i)=>({source:{id:'same-'+i,type:'text/csv',title:'Same filename.csv'},
+    latestDate:i===11?null:'2024-02-20',facts:[row('same-'+i,i===11?null:'2024-02-20')]}));
+  const html=render(OrbitMap,{reports,selectedId:'same-8',total:198,onSelect:noop,onOpenAll:noop,prominent:true});
+  assert.equal((html.match(/role="button"/g)||[]).length,12);
+  assert.equal((html.match(/aria-pressed="true"/g)||[]).length,1);
+  assert.equal((html.match(/<option value="same-/g)||[]).length,12);
+  assert.match(html,/12 of 198/);
+  assert.match(html,/>Undated<\/text>/);
+  assert.match(html,/All files/);
+  assert.doesNotMatch(html,/clinical relationship|health score|risk score/i);
+});
+
+test('Twelve same-era orbit targets have mobile touch clearance and outward date labels',()=>{
+  const reports=Array.from({length:12},(_,i)=>({source:{id:'dense-'+i,type:'text/csv',title:'Same filename.csv'},
+    latestDate:i===11?null:'2026-10-20',facts:[row('dense-'+i,i===11?null:'2026-10-20')]}));
+  const html=render(OrbitMap,{reports,selectedId:'dense-0',onSelect:noop,prominent:true});
+  const positions=[...html.matchAll(/class="orbit-satellite[^"]*" transform="translate\(([^)]+)\)"/g)]
+    .map(match=>match[1].split(' ').map(Number));
+  assert.equal(positions.length,12);
+  for(let i=0;i<positions.length;i++) for(let j=i+1;j<positions.length;j++) {
+    const distance=Math.hypot(positions[i][0]-positions[j][0],positions[i][1]-positions[j][1]);
+    assert.ok(distance>76,'38-unit mobile hit areas must not overlap');
+    assert.ok(distance*358/600>44,'Targets remain separately reachable in the 390px viewport');
+  }
+  const labels=[...html.matchAll(/class="orbit-node-date" x="([^"]+)" y="([^"]+)"/g)]
+    .map(match=>[Number(match[1]),Number(match[2])]);
+  assert.equal(labels.length,12);
+  labels.forEach(([x,y],index)=>{
+    const [nodeX,nodeY]=positions[index];
+    assert.ok(x*(nodeX-300)+y*(nodeY-222)>0,'Year labels extend away from the owner and other nodes');
+    assert.ok(nodeX+x>15 && nodeX+x<585 && nodeY+y>10 && nodeY+y<450);
+  });
+  assert.match(html,/>Undated<\/text>/);
 });

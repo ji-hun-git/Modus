@@ -1,9 +1,9 @@
 import { createContext, useCallback, useLayoutEffect, useState } from "react";
 
 const storageKey = "modus.ambient-motion";
-const readPreference = () => {
-  try { return localStorage.getItem(storageKey) !== "off"; }
-  catch { return true; }
+const readPreference = (): 'auto' | 'on' | 'off' => {
+  try { const value = localStorage.getItem(storageKey); return value === 'on' || value === 'off' ? value : 'auto'; }
+  catch { return 'auto'; }
 };
 
 export const AmbientMotionContext = createContext({
@@ -16,7 +16,9 @@ export default function useAmbientMotion() {
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [visible, setVisible] = useState(() =>
     typeof document === "undefined" || document.visibilityState !== "hidden");
-  const enabled = preferred && !reduced;
+  // System preference is the default. An explicit in-app choice can opt into
+  // gentle opacity-only motion, without changing any operating-system setting.
+  const enabled = preferred === 'on' || preferred === 'auto' && !reduced;
 
   useLayoutEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -43,13 +45,10 @@ export default function useAmbientMotion() {
   }, [enabled, visible]);
 
   const toggle = useCallback(() => {
-    if (reduced) return;
-    setPreferred(previous => {
-      const next = !previous;
-      try { localStorage.setItem(storageKey, next ? "on" : "off"); }
-      catch { /* Preference remains usable when storage is unavailable. */ }
-      return next;
-    });
-  }, [reduced]);
+    const next = enabled ? 'off' : 'on';
+    try { localStorage.setItem(storageKey, next); }
+    catch { /* Preference remains usable when storage is unavailable. */ }
+    setPreferred(next);
+  }, [enabled]);
   return { enabled, reduced, toggle };
 }

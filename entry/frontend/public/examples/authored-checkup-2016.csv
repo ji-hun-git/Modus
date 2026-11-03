@@ -1,0 +1,9 @@
+kind,label,value,unit,date,facility,reference_range,specimen,test_method
+measurement,Ferritin,27.4,ng/mL,2016-05-20,Example lab,15-150 ng/mL,Serum,Immunoassay
+measurement,C-reactive protein,0.6,mg/L,2016-05-20,Example lab,<5 mg/L,Serum,Immunoturbidimetry
+measurement,Glucose,90,mg/dL,2016-05-20,Example lab,70-99 mg/dL,Plasma,Hexokinase
+measurement,TSH,1.72,mIU/L,2016-05-20,Example lab,0.40-4.00 mIU/L,Serum,Immunoassay
+measurement,Hemoglobin,13.9,g/dL,2016-05-20,Example lab,12.0-16.0 g/dL,Whole blood,Photometry
+measurement,White blood cells,6.1,10^9/L,2016-05-20,Example lab,4.0-10.0 10^9/L,Whole blood,Flow cytometry
+measurement,Platelets,238,10^9/L,2016-05-20,Example lab,150-400 10^9/L,Whole blood,Impedance
+measurement,ALT,20,U/L,2016-05-20,Example lab,7-35 U/L,Serum,Enzymatic

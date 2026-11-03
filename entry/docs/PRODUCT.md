@@ -22,6 +22,15 @@ under More history tools; both applied clocks and the scrubber remain visible.
 Opening a summary does not export anything: selection, source review and an
 explicit reviewed download are still required.
 
+Dragging the history timeline updates its date immediately and requests the
+matching records during the drag, at most once per 120 ms plus a final flush.
+The control remains mounted; superseded requests are cancelled and cannot replace
+the final selected view. Retained evidence is marked busy and non-interactive
+until its requested occurrence/availability scope arrives. Today restores the
+current view. File spokes mean ownership, not inferred clinical relationships.
+Slow opacity-only orbit motion can be paused. System reduced motion is the
+default, with a separate explicit choice to enable gentle motion in this app.
+
 Use familiar descriptions beside original test names where supported. A display
 alias never rewrites the saved label, changes units or supplies clinical meaning.
 Charts connect observations only when the backend comparison policy permits it.

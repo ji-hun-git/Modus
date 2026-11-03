@@ -285,10 +285,14 @@ export default function App() {
   const [changesError, setChangesError] = useState("");
   const sequence = useRef(0),
     epoch = useRef(0);
+  const viewRequest = useRef<AbortController | null>(null);
   const view = loaded?.key === key ? loaded.view : null;
   const pair = comparison?.key === key ? comparison.data : null;
-  const displayed = view;
-  const ready = !!displayed && !loading && !comparing;
+  // Keep Home's scrubber mounted while a new scope is loading. Its old evidence
+  // is explicitly busy and inert until both scoped reads have completed.
+  const retainHome = page === "Home" && !!loaded && !error;
+  const displayed = view || (retainHome ? loaded?.view ?? null : null);
+  const ready = !!view && !loading && !comparing;
   const scopeExpanded = page === "Replay" || scopeOpen;
   const canCompare = mode !== "latest" || !!saved;
   const [currentDay, setCurrentDay] = useState(localCalendarDay);
@@ -360,6 +364,9 @@ export default function App() {
       .catch(() => setHealth(null));
   }, []);
   async function refresh() {
+    viewRequest.current?.abort();
+    const controller = new AbortController();
+    viewRequest.current = controller;
     const requestKey = key,
       request = ++sequence.current;
     epoch.current++;
@@ -378,11 +385,12 @@ export default function App() {
           (requestedKnown
             ? "&known_at=" + encodeURIComponent(requestedKnown)
             : ""),
+        { signal: controller.signal },
       );
       if (request === sequence.current && requestKey === keyRef.current)
         setLoaded({ key: requestKey, view: result });
     } catch (e) {
-      if (request === sequence.current) {
+      if (!controller.signal.aborted && request === sequence.current && requestKey === keyRef.current) {
         setLoaded(null);
         setError((e as Error).message);
       }
@@ -392,6 +400,7 @@ export default function App() {
   }
   useEffect(() => {
     void refresh();
+    return () => viewRequest.current?.abort();
   }, [key]);
   async function compareCurrent(baseline = currentHistoryScope()) {
     if (!view || !baseline || loading || comparing) return;
@@ -645,7 +654,7 @@ export default function App() {
               </div>
             </div>
           )}
-        {loading || comparing || (!view && !error) ? (
+        {!retainHome && (loading || comparing || (!view && !error)) ? (
           <div className="panel loading" role="status">
             <LoaderCircle className="spin" size={25} />
             <span>
@@ -654,7 +663,7 @@ export default function App() {
                 : "Loading records for the selected dates…"}
             </span>
           </div>
-        ) : !view ? (
+        ) : !displayed ? (
           <div role="alert" className="panel empty">
             <AlertCircle size={26} />
             <strong>This evidence view could not be loaded.</strong>
@@ -670,6 +679,7 @@ export default function App() {
               <SourceCubeHome
                 view={displayed}
                 dates={homeDates} currentDay={currentDay} knowledge={mode}
+                requestedDate={asOf} loadingScope={loading || !view}
                 pendingCount={pendingCount} onDates={captureHomeDates}
                 onDate={(date, knowledge) => { setAsOf(date); setMode(knowledge); }}
                 onScope={captureDisplayedScope}
@@ -717,7 +727,7 @@ export default function App() {
               <HistoryReplayWorkspace
                 pair={pair}
                 scope={
-                  pair?.before.scope || comparisonBaseline.current || view.scope
+                  pair?.before.scope || comparisonBaseline.current || displayed.scope
                 }
                 onReset={() => {
                   setComparison(null);

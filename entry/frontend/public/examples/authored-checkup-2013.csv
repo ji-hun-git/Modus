@@ -1,0 +1,9 @@
+kind,label,value,unit,date,facility,reference_range,specimen,test_method
+measurement,Ferritin,31.6,ng/mL,2013-05-17,Example lab,15-150 ng/mL,Serum,Immunoassay
+measurement,C-reactive protein,1.2,mg/L,2013-05-17,Example lab,<5 mg/L,Serum,Immunoturbidimetry
+measurement,Glucose,91,mg/dL,2013-05-17,Example lab,70-99 mg/dL,Plasma,Hexokinase
+measurement,TSH,1.85,mIU/L,2013-05-17,Example lab,0.40-4.00 mIU/L,Serum,Immunoassay
+measurement,Vitamin D,24.0,ng/mL,2013-05-17,Example lab,20-50 ng/mL,Serum,LC-MS/MS
+measurement,Creatinine,0.78,mg/dL,2013-05-17,Example lab,0.6-1.2 mg/dL,Serum,Enzymatic
+measurement,HDL cholesterol,55,mg/dL,2013-05-17,Example lab,40-60 mg/dL,Serum,Direct enzymatic
+measurement,Triglycerides,93,mg/dL,2013-05-17,Example lab,<150 mg/dL,Serum,Enzymatic

@@ -1,11 +1,20 @@
 # Data provenance
 
-The clean starter database contains four authored synthetic documents and 17
-measurements across 11 distinct test labels. Three older examples retain HbA1c,
+The clean starter database contains eleven authored synthetic documents and 73
+measurements. Three older examples retain HbA1c,
 eGFR and LDL; the October 2026 checkup adds glucose, hemoglobin, white blood
 cells, platelets, ferritin, TSH, vitamin D and ALT with printed lab context and
 an original CSV. Its occurrence date is October 22; its authored availability
 is October 23. No human or model review is claimed for starter fixtures.
+
+Seven additional `authored-checkup-YYYY.csv` files contain 56 fictional
+measurements across 12 test names, recorded in 2010, 2013, 2016, 2019, 2022,
+2024 and 2025. Their built-in archive arrival is explicitly authored as
+2 November 2026 at 12:00 UTC. It is separate from the recorded dates and
+does not claim these files were imported in those earlier years. Ferritin,
+C-reactive protein, glucose and TSH recur; the other rows vary by report.
+An absent row does not establish missed care. Each CSV is also importable
+through normal review, which uses actual server commit availability.
 
 These examples and their printed ranges are invented, not a real person's
 history, clinical guidance or Synthea output. Existing databases are never
@@ -27,8 +36,8 @@ commits. Corrections create new versions rather than rewriting originals.
 
 ## What leaves the device
 
-Local deterministic processing makes no model request. Optional local OCR uses
-a separately installed model. Explicit Meta processing sends the selected
+Local deterministic processing makes no model request. The shipped import path
+uses text parsing locally; scanned images require Meta. Explicit Meta processing sends the selected
 supported document or permitted request context to the configured service.
 Credentials remain server-side. Original documents may contain identifiers;
 the current prototype does not claim automatic anonymization or zero retention.

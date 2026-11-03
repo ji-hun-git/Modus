@@ -44,6 +44,9 @@ export default function useHistoryView(scope: HistoryView['scope'] | Scope, allD
     return () => controller.abort();
   }, [key]);
   return { view: options.enabled !== false && loaded?.key === key ? loaded.view : null,
+    // Only for an explicitly busy, non-interactive transition surface. Never
+    // use retained evidence to answer or export under a newly requested scope.
+    retainedView: loaded?.view ?? null,
     metadata: loaded?.captureKey === captureKey ? { ...loaded.view, facts: [], undated_facts: [], sources: [], conflicts: [], fields: [], retrieval: null,
       page: loaded.view.page ? {...loaded.view.page, total: 0, returned: 0, next_offset:null,previous_offset:null} : undefined } as HistoryView : null,
     error: failure?.key === key ? failure.message : null,

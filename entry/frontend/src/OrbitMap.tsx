@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { orbitLayout, type HomeReportSummary } from "./homeReportData";
 import { sourceDateRange, sourceTitle } from "./sourceDisplay";
 import AmbientMotionControl from "./AmbientMotionControl";
+import { sourceKind, sourceKindLabel } from "./svg/SourceGlyph";
 
 export default function OrbitMap({ reports, selectedId, onSelect, total, compact = false, prominent = false, onOpenAll }: {
   reports: HomeReportSummary[];
@@ -13,13 +14,13 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
   onOpenAll?: () => void;
 }) {
   const layout = orbitLayout(reports);
-  const rings = layout.rings;
   const nodes = compact || prominent ? layout.nodes.map((node,index)=> {
-    if (prominent && node.era === null) return { ...node, y: 430 };
-    const radius = rings.find(ring=>ring.era===node.era)?.radius ?? 208;
     const angle=(-90+index*360/Math.max(layout.nodes.length,1))*Math.PI/180;
-    return {...node,x:300+radius*Math.cos(angle),y:222+radius*Math.sin(angle)};
+    // Distance means ownership, not a date scale. Equal spacing keeps separate
+    // files selectable even when many reports share the same recorded year.
+    return {...node,x:300+174*Math.cos(angle),y:222+174*Math.sin(angle)};
   }) : layout.nodes;
+  const rings = compact || prominent ? nodes.length ? [{era:-1,radius:104},{era:-2,radius:174}] : [] : layout.rings;
   const buttons = useRef(new Map<string, SVGGElement>());
   const selected = nodes.find((node) => node.id === selectedId);
   return (
@@ -30,18 +31,14 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
       </header>
       <svg className="orbit-chart" viewBox="0 0 600 480" role="group" aria-label="Select a source file">
         <g className="orbit-guides" aria-hidden="true">
-          <path d="M300 18V426 M76 222H524" />
-          {rings.map((ring) => <g key={ring.era}>
-            <circle className="orbit-ring" cx="300" cy="222" r={ring.radius} pathLength="1" />
-            <text x={prominent ? 12 : 308} y={222 - ring.radius + 14}>{ring.label}</text>
-          </g>)}
-          <path className="orbit-crosshair" d="M288 18H312 M288 426H312 M76 210V234 M524 210V234" />
+          {rings.map((ring, index) => <circle key={ring.era} className="orbit-ring" cx="300" cy="222"
+            r={ring.radius} pathLength="1" style={{ animationDelay: `${-index * 3}s` }} />)}
+        </g>
+        <g className="orbit-file-relations" aria-hidden="true">
+          {nodes.filter(node => node.id !== selectedId).map(node =>
+            <path key={node.id} d={`M300 222 L${node.x} ${node.y}`} />)}
         </g>
         <g className="orbit-ambient" aria-hidden="true">
-          {rings.map((ring, index) => <g key={ring.era} className="orbit-drift"
-            style={{ animationDuration: `${48 + index * 14}s`, animationDelay: `${-index * 11}s` }}>
-            <circle cx="300" cy={222 - ring.radius} r="2.2" />
-          </g>)}
           <g className="orbit-presence"><circle cx="300" cy="222" r="58" /></g>
         </g>
         {selected && <path key={selected.id} className="orbit-connection" aria-hidden="true"
@@ -55,10 +52,15 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
           const report = reports.find((item) => item.source.id === node.id)!;
           const active = node.id === selectedId;
           const right = node.x >= 300;
+          const outwardX = (node.x - 300) / 174;
+          const outwardY = (node.y - 222) / 174;
+          const yearAnchor = outwardX < -.2 ? 'end' : outwardX > .2 ? 'start' : 'middle';
+          const kind = sourceKind(report.source.type || '', report.source.title);
+          const format = sourceKindLabel(kind);
           return <g key={node.id} ref={(element) => { if (element) buttons.current.set(node.id, element); else buttons.current.delete(node.id); }}
             role="button" tabIndex={0} aria-pressed={active}
             aria-controls={prominent ? 'home-selected-report' : undefined}
-            aria-label={`Open source file: ${report.source.title}; ${report.dateRange || sourceDateRange(report.facts)}`}
+            aria-label={`Open source file: ${report.source.title}; ${format}; ${report.dateRange || sourceDateRange(report.facts)}`}
             className={`orbit-satellite${active ? ' is-selected' : ''}`} transform={`translate(${node.x} ${node.y})`}
             onClick={() => onSelect(node.id)}
             onKeyDown={(event) => {
@@ -69,15 +71,20 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
                 buttons.current.get(nodes[(index + step + nodes.length) % nodes.length].id)?.focus();
               }
             }}>
-            <title>{`${report.source.title} · ${report.count ?? report.facts.length} recorded items`}</title>
+            <title>{`${report.source.title}; ${format}; ${report.dateRange || sourceDateRange(report.facts)}; ${report.count ?? report.facts.length} recorded items`}</title>
             <circle className="orbit-hit-area" r="23" />
             <circle className="orbit-node-presence" r="25" aria-hidden="true"
               style={{ animationDelay: `${-index * 1.3}s` }} />
             <g className="orbit-satellite-mark">
               <circle className="orbit-node-halo" r="17" />
-              <path className="orbit-file-glyph" d="M-7-9 H3 L8-4 V10 H-7Z M3-9V-4H8 M-3 1H4 M-3 5H4" />
+              <path className="orbit-file-glyph" d="M-7-9 H3 L8-4 V10 H-7Z M3-9V-4H8" />
+              <path className="orbit-file-glyph" d={kind === 'csv' ? 'M-4-1H5V7H-4Z M-4 3H5 M0-1V7'
+                : kind === 'image' ? 'M-4 7L-1 2L2 5L4 2L6 7 M-3-2H-1'
+                : 'M-3 0H4 M-3 4H4 M-3 7H1'} />
             </g>
-            <text className="orbit-node-date" x={prominent ? 0 : right ? 27 : -27} y={prominent ? 38 : -6} textAnchor={prominent ? 'middle' : right ? 'start' : 'end'}>
+            <text className="orbit-node-date" x={prominent ? outwardX * 35 : right ? 27 : -27}
+              y={prominent ? outwardY * 35 : -6} textAnchor={prominent ? yearAnchor : right ? 'start' : 'end'}
+              dominantBaseline={prominent ? 'central' : undefined}>
               {report.latestDate ? report.latestDate.slice(0, 4) : 'Undated'}
             </text>
             <text className="orbit-node-title" x={right ? 27 : -27} y="13" textAnchor={right ? 'start' : 'end'}>
@@ -94,7 +101,7 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
       </label>}
       {(!prominent || !!total && total > reports.length) && <footer><span>{prominent ? 'More files are available in Records.' : 'One satellite. One source file.'}</span>
         {total && total > reports.length && onOpenAll ? <button type="button" className="text-button" onClick={onOpenAll}>All files</button>
-          : !prominent && <span>Rings group recorded years.</span>}</footer>}
+          : !prominent && <span>Each file belongs to your history.</span>}</footer>}
     </section>
   );
 }

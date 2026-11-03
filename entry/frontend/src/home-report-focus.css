@@ -138,6 +138,11 @@
 .orbit-centered-home .orbit-workspace { grid-template-columns:minmax(0,1.7fr) minmax(310px,1fr); gap:32px; }
 .orbit-centered-home .orbit-telemetry { grid-template-columns:minmax(0,1fr) auto; column-gap:32px; row-gap:8px; align-items:end; }
 .orbit-centered-home .orbit-timeline-heading { grid-column:1; grid-row:1; justify-content:flex-start; gap:24px; }
+.orbit-timeline-heading output { font-variant-numeric:tabular-nums; }
+.orbit-timeline-heading .home-time-feedback { display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-left:auto; min-width:110px; min-height:44px; }
+.home-time-feedback > span { font:12px/1.4 var(--font-body); color:var(--muted); }
+.home-time-feedback .text-button { min-height:44px; padding:8px 0; font-size:12px; }
+.home-evidence-surface.is-time-updating .report-focus { opacity:.45; }
 .orbit-centered-home .home-replay-controls { margin:12px 0 18px; }
 .orbit-centered-home .home-replay-track { grid-column:1 / -1; grid-row:2; order:0; }
 .orbit-centered-home .orbit-history-options { grid-column:2; grid-row:1; min-width:168px; border:0; align-self:center; }
@@ -187,6 +192,9 @@
  .orbit-centered-home .report-back-to-orbit { display:inline-flex; min-height:44px; padding:8px 0; margin-bottom:12px; font-size:12px; }
 }
 @media(max-width:540px) {
+ .orbit-timeline-heading .home-time-feedback { min-width:40px; }
+ .home-time-feedback > span { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+ .orbit-centered-home .orbit-timeline-heading { gap:8px; }
  .home-orbit-stage .orbit-map-heading { font-size:12px; }
  .orbit-map-prominent .orbit-node-date { font-size:20px; }
  .orbit-map-prominent .orbit-hit-area { r:38px; }

@@ -5,6 +5,11 @@ exact file returns its existing proposal with `already_committed:true` and
 `extraction_mode:"authored_seed"`, even if Meta reading was requested. No model
 request or owner review is implied; the warning identifies authored demo data.
 Existing stores are not reseeded. All uploaded additions still require review.
+Fresh stores also include seven authored archive checkups (56 fields across
+12 test labels). Their recorded dates span 2010–2025; their explicitly authored
+archive availability is 2026-11-02T12:00:00Z. Ordinary reviewed uploads always use
+actual server commit availability. The supplied archive files never alter an
+existing store merely because the application restarts.
 
 ## Longitudinal evidence series
 
