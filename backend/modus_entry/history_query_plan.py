@@ -102,7 +102,7 @@ OPERATORS = (
 )
 OP_PATTERN = re.compile(r'(?<!\w)(?P<operator>' + '|'.join('(?:'+p+')' for _, p in OPERATORS)
     + r')\s*(?P<value>'+NUMBER+r')(?!\d|\.\d)', re.I)
-UNIT_PATTERN = re.compile(r'\s*([%]|[A-Za-zµμ][A-Za-z0-9µμ%^.*\[\]-]*(?:\s*/\s*[A-Za-z0-9µμ^.*\[\]-]+)+|mmHg|bpm|mIU|IU|U)(?=\s|[?.,!]|$)')
+UNIT_PATTERN = re.compile(r'\s*([%]|10\^(?:9|12)/L|[A-Za-zµμ][A-Za-z0-9µμ%^.*\[\]-]*(?:\s*/\s*[A-Za-z0-9µμ^.*\[\]-]+)+|mmHg|bpm|mIU|IU|U|fL|pg)(?=\s|[?.,!]|$)')
 BARE_VALUE = re.compile(r'\s+(?:(?:of|at|was|were|is)\s+)?(?P<value>'+NUMBER+r')(?!\d|\.\d)', re.I)
 CLINICAL = re.compile(r'\b(?:diagnos(?:e|ing)|treat(?:ment|ments)?|advice|recommend\w*|should|'
     r'interpret\w*|normal|abnormal|healthy|dangerous|risk|caus\w*|improv\w*|worsen\w*|'

@@ -95,6 +95,25 @@ def test_t1_latest_selects_latest_occurrence_and_opens_original(query_service):
     assert original.status_code == 200 and original.content == raw
 
 
+@pytest.mark.parametrize('label,value,unit', [('MPV','9.8','fL'),('MCH','29.9','pg'),
+    ('WBC','6.2','10^9/L'),('RBC','4.62','10^12/L')])
+def test_exact_blood_count_units_retain_original_and_never_convert_or_drop_filters(query_service,label,value,unit):
+    client, _, _ = query_service
+    receipt, raw = import_rows(client,[row(value,'2024-03-12',label,unit),
+        row(value,'2025-01-02',label,'different-unit')],filename='authored-blood-count.csv')
+    answer = ask(client,f'When was my {label} {value} {unit}?')
+    assert_plan(answer)
+    assert answer['query_plan']['condition']['unit'] == unit
+    found = facts(answer)
+    assert len(found) == 1 and found[0]['unit'] == unit and found[0]['occurred_on'] == '2024-03-12'
+    assert value in answer['answer'] and '2024-03-12' in answer['answer']
+    original = client.get(f'/api/history/sources/{receipt["source_id"]}/original',params={'known_at':answer['scope']['known_at']})
+    assert original.status_code == 200 and original.content == raw
+    restricted = ask(client,f'When was my {label} {value} {unit} after fasting?')
+    assert restricted['query_plan']['intent'] == 'clarification'
+    assert restricted['query_plan']['reason'] == 'unapplied_filter'
+
+
 @pytest.mark.parametrize('question', [
     'When was my eGFR last below 60?',
     'When did I last have eGFR under 60?',

@@ -59,6 +59,9 @@ failures. Its [results and limitations](entry/docs/VERIFICATION.md#live-report-r
 are separate from protected evaluations and do not establish general accuracy.
 A [harder six-report follow-up](entry/docs/VERIFICATION.md#harder-live-report-probes--3-november-2026)
 reports exact row errors, false omission flags and unresolved date-label ambiguity.
+A [dense-report follow-up](entry/docs/VERIFICATION.md#dense-reports-and-multiline-evidence--3-november-2026)
+fixes truncated drafts and multiline source evidence, with all 66 authored entries
+returned in the final live pass. These remain development results, not general accuracy.
 
 ## Limits
 

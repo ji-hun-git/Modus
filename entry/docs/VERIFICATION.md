@@ -1,5 +1,72 @@
 # Verification
 
+## Dense reports and multiline evidence — 3 November 2026
+
+Four new assistant-authored development files contained 66 expected entries:
+a two-page 32-result panel with lab context, a historical matrix with repeated
+values, an explicitly dated visit and a skewed two-column scan. Files and labels
+were hashed before any calls. The baseline was `079be7a`; all later passes used
+those same unchanged bytes and labels through the real `muse-spark-1.3` import.
+
+| Development observation | Baseline | Final live pass |
+| --- | ---: | ---: |
+| Successful report imports | 3 / 4 | 4 / 4 |
+| Exact page/name/value/unit entries returned | 34 / 66 | 66 / 66 |
+| Missing rows within accepted drafts | 0 | 0 |
+| Extra rows / false omission flags | 0 / 0 | 0 / 0 |
+| Date or lab-context differences among returned entries | 0 | 0 |
+| Partial / unavailable inventories | 0 / 1 | 0 / 0 |
+
+The dense baseline failed with `finish_reason:length` at exactly 4,000 output
+tokens. All 32 entries in that document were unavailable; no partial draft or
+saved records were accepted. They count against the end-to-end returned-entry
+score, not as silently omitted rows in a successful draft. Natural omission
+recall is still **unmeasured** because no accepted draft naturally missed a row.
+These are small, development-tuned synthetic probes, not independent human-gold,
+held-out or clinical-quality results.
+
+The first fix set fixed per-stage output ceilings of 16,000 for extraction,
+6,000 for verification and 12,000 for inventory, without adding retries. That
+pass returned all 66 entries, but 32 dense-report excerpts omitted their printed
+range/specimen/method lines. One narrative inventory also marked itself limited;
+that partial result is retained. A second pass included the context lines but
+exposed another issue: layout-mode PDF text interleaved adjacent columns, causing
+32 exact-excerpt checks to fail. The local checker now also retains the original
+PDF's content-stream text order. A passage must occur wholly in one ordering on
+its cited page; no concatenation, fuzzy repair, cross-page rescue or OCR promotion
+is allowed. Both transcriptions count toward the existing text bounds.
+
+The final live pass returned all 66 entries and had **zero local excerpt
+mismatches**. Dates, ranges, specimen, methods, repeated values and qualified
+results matched the frozen labels. Scanned-image evidence still lacks independent
+native-text support, and separate date linkage still requires review. An exact
+text occurrence does not prove the model's interpretation or completeness.
+
+All four rounds are retained: **46 real requests** (10 baseline, then three
+12-call passes), 160,759 input and 70,990 output tokens. The estimated Standard
+cost was **$0.50265625**, treating input as uncached at
+[Meta's published rates](https://dev.meta.ai/docs/pricing-rate-limits). This is
+session usage, not a provider invoice or account total. The $2 session cap was
+not reached; the session was closed and its credential removed. Private artifacts
+retain raw responses, request IDs, latency, hashes, failed imports and intermediate
+checks. No protected evaluation or held-out files were accessed or modified.
+
+The browser reopened the final cached draft without another model call, checked
+and saved its 32 fields, opened its orbit satellite and downloaded the original
+bytes unchanged. Asking “When was my MPV 9.8 fL?” initially revealed an offline
+unit-parser gap. Literal blood-count units now work without conversion or dropping
+unsupported conditions. The same browser question returned **2024-03-12** with
+the page-2 excerpt, collection-date passage, lab range, specimen and method.
+
+`python scripts/check_service.py`: **1,406 backend passed, 2 skipped; 221 frontend
+passed; production build passed**. New regressions cover dense output, truncation
+at every stage, multiline columns, non-stitching/page boundaries, OCR status,
+combined text bounds, exact blood-count units and retained restrictions. The
+existing Starlette/httpx deprecation warning remains. All **39 read-only service
+checks** passed after save and restart, including historical availability,
+unchanged originals, exact offline Ask, served build identity and unchanged
+normal-workspace history. The orbit design is unchanged.
+
 ## Harder live report probes — 3 November 2026
 
 Six new synthetic files contained 59 expected recorded entries: a two-column

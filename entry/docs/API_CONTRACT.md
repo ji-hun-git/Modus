@@ -19,6 +19,11 @@ earliest/latest selection and captured availability remain binding; units are
 not converted. The same anchored plan is required of any optional Muse planner.
 No endpoint, authority or model call is added.
 
+Literal blood-count units `fL`, `pg`, `10^9/L` and `10^12/L` are recognized in
+that same condition parser. For example, “When was my MPV 9.8 fL?” uses the saved
+test label and exact printed unit. Another unit is not interchangeable; extra
+wording such as “after fasting” still requires clarification.
+
 ## Report row inventory — 3 November 2026
 
 Historical tables inventory each result cell with its unchanged printed test
@@ -289,7 +294,9 @@ Implementation contract for the independent entry. All dates/times are strings; 
 
 The product's only remote provider is Meta. Server configuration prefers `MODUS_META_KEY`, falling back to `MODEL_API_KEY` only when the preferred variable is empty. `/api/health` exposes only whether a Meta credential is configured, never its value. Evaluation-only provider credentials do not activate the product or provide a fallback. Ordinary pytest, offline check/build subprocesses and CI clear model credentials and disable dotenv loading; explicitly authorized live evaluation is separate.
 
-The current schema extractor and bounded entry tool/claim selector explicitly request `reasoning_effort:"minimal"`. Extraction keeps a 4,000-token completion cap per pass; tool selection keeps the 1,600-token policy cap per request. This is the 29 October candidate configuration after a capped live extraction ended with `finish_reason:length`; it is not evidence of improved quality or a reason to discard that failure. There is no automatic retry, cap expansion or model substitution. The preserved legacy extraction comparator retains its original request settings.
+The current schema extractor and bounded entry tool/claim selector explicitly request `reasoning_effort:"minimal"`. Report reading has fixed completion ceilings of 16,000 tokens for extraction, 6,000 for verification and 12,000 for the independent row inventory, per page group. Each call's internal telemetry records its requested ceiling alongside usage and finish reason. These replace the earlier 4,000-token ceiling, which truncated a live 32-row contextual report. Tool selection keeps the 1,600-token policy cap per request. There is no automatic retry, dynamic cap expansion or model substitution. The existing 12-page, 200-field and 12-call report bounds remain. A `length` finish rejects the entire extraction draft; a truncated verifier or inventory remains explicitly unavailable and cannot certify completeness. Reports can still exceed these bounds. The preserved legacy extraction comparator retains its original request settings.
+
+Local PDF evidence checks retain layout and content-stream text order from the same original bytes. A whitespace-normalized excerpt must occur wholly in one representation on its cited page; the checker never concatenates representations or searches another page to rescue a quote. This supports multiline result/context blocks in separate columns. Both representations count toward the existing page/document text bounds. OCR remains unverified, date linkage still requires review, and exact text occurrence does not establish clinical meaning or visual geometry. The model still receives the existing layout transcription; the extra ordering is local evidence-checking data only.
 
 `ScopeRequest = {as_of: YYYY-MM-DD, known_at?: timestamp|null, compare_from?: timestamp|null}`. Null/omitted known_at captures current server time. A non-null compare_from requests a comparison from that availability bound to known_at, keeping as_of fixed. Both views derive from one frozen capture. Future instants are capped at that capture; reversed resolved comparison bounds are rejected.
 
