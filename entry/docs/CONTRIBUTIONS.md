@@ -1,5 +1,9 @@
 # Contributions and provenance
 
+**Entry:** Indie Developer · Build for Your World. **Team and submitter:** Jihun
+Chae (solo). The owner selected the MIT license on 4 November 2026; it applies
+to first-party Modus source, with third-party notices retained.
+
 The team has declared the first-party Modus source to have been created after
 the 26 October 2026 kickoff, within the 26 October–4 November event period.
 Git commits retain their actual creation dates; imported source is not presented
@@ -51,10 +55,10 @@ that these planned/research capabilities are part of the shown product.
 
 The contest scope is record integrity: no diagnosis, medical interpretation,
 risk scoring, treatment advice or nutrition/mental-health coaching. The proposed
-theme is **Build for Your World**. Track and team roster are submission choices,
-not inferred from source code. This scope is an implementation boundary, not an
+theme is **Build for Your World**, in the **Indie Developer** track. Jihun Chae
+is the sole team member and designated submitter. This scope is an implementation boundary, not an
 organizer ruling on eligibility.
 
 Public source is not a contest submission or an eligibility confirmation.
-First-party license selection remains pending. See
+First-party source uses the [MIT License](../../LICENSE). See
 [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) for dependency terms.

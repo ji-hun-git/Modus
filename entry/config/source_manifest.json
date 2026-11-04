@@ -3226,6 +3226,11 @@
       "source": "data/licenses/dependencies/python/sqlcipher3-0.6.4/5-LICENSE",
       "destination": "data/licenses/dependencies/python/sqlcipher3-0.6.4/5-LICENSE",
       "behavior": false
+    },
+    {
+      "source": "LICENSE",
+      "destination": "LICENSE",
+      "behavior": false
     }
   ]
 }
