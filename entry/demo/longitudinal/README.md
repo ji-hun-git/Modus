@@ -58,7 +58,7 @@ remain open. These checks do not demonstrate live Muse quality.
 
 ## Recorded demonstration
 
-[Watch the 2:42 demonstration](https://ji-hun-git.github.io/Modus/),
+[Watch the 2:46 demonstration](https://ji-hun-git.github.io/Modus/),
 [open the MP4](../Modus-demo.mp4), or [read the transcript](../video-transcript.txt).
 The player is published from `codex/demo-video`; application source is on `main`.
 
@@ -83,13 +83,17 @@ mock outputs. Cuts follow narration; elapsed video time is not model latency.
 The original 14-case development comparison remains unchanged and distinct from
 the six recording calls. No protected evaluation set was accessed or rerun.
 
-Narration uses pinned local Kokoro-82M weights and its bundled `af_heart` voice,
-not a cloned voice, paid narration service or Muse Voice. Attribution remains in
-[third-party notices](../../../THIRD_PARTY_NOTICES.md). Sentence-aligned captions
-are burned in and available as [WebVTT](../captions.vtt). The film is 161.92 seconds,
-all frames decode, and its longest gap below -40 dB is 0.437 seconds. Local ASR
-also checked the dates, values and method names. These checks do not establish
-subjective voice quality.
+Narration is AI-generated locally using pinned Qwen3-TTS 1.7B VoiceDesign
+weights. It is one continuous, original female voice designed for this film;
+no person's voice was cloned. This is post-production media, separate from the
+Meta-only product path. [Third-party notices](../../../THIRD_PARTY_NOTICES.md)
+credit the model and runtime. Captions are burned in and available as
+[WebVTT](../captions.vtt).
+
+The film is 166.12 seconds. Every frame decodes; its
+longest measured gap below -40 dB is 0.669
+seconds. Offline speech recognition checks script fidelity and caption timing;
+signal checks do not establish an objective ranking of voice quality.
 
 The [hero](../figures/hero.svg), [architecture](../figures/architecture.svg),
 [investigation](../figures/investigation.svg), [two clocks](../figures/two-clocks.svg)

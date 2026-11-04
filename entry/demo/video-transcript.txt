@@ -1,26 +1,26 @@
 00:00:00.000 Find the record you remember.
-Years of checkups. Different files. When you need one old result, the search starts again. Modus brings that history around you. Every satellite is a real file. Open one, and its recorded readings stay connected to the original.
+Your history is scattered across years of checkups and different files. When you need one old result, the search starts again. Modus brings that history together. Each satellite opens a file, its readings, and the original evidence.
 
-00:00:13.433 An answer you can open.
-Ask: when did I last have blood pressure of one hundred? Modus first asks which number you mean. Choose the top number. It finds May fourth, twenty sixteen. Open the answer, and there is the original: one hundred over seventy. The date and evidence are part of the answer.
+00:00:14.500 An answer you can open.
+Ask, when did I last have blood pressure of one hundred? Modus asks which number you mean. Choose the top number, and it finds May fourth, twenty sixteen. Open the source: one hundred over seventy. The answer comes with its date and original evidence.
 
-00:00:29.033 From a report to reviewed records.
-Now bring in a new report. Muse Spark reads the image, checks proposed evidence, and looks again for missing rows. It found all three rows here, but left the header date and specimen for review. I confirm those from the original before saving. The warning stays visible: source checks can miss things.
+00:00:31.633 From a report to reviewed records.
+Now add a new report. Muse Spark reads the image, verifies proposed evidence, and checks for missing rows. Here it found all three rows, but left the header date and specimen for review. I confirm those from the original before saving. The source-check warning remains visible.
 
-00:00:46.333 The same number can hide a difference.
-Compare that report with an earlier checkup. Muse must inspect the selected reports, then check related records within the same captured history. Here, two earlier copies both say five point six. But one says H P L C, and the other says immunoassay. The number matches. The recorded method does not.
+00:00:49.633 The same number can hide a difference.
+Compare it with an earlier checkup. Muse inspects the selected reports, then follows related records. Two earlier copies both say five point six. One says H P L C; the other says immunoassay. The value matches, but the recorded methods disagree. That difference was hidden behind the same number.
 
-00:01:04.833 Both reports stay in view.
-Open the finding. Both original sources are here. Modus explains the recorded difference without deciding which copy is right. It also withholds a numerical comparison when the context is uncertain. Muse can request bounded reads and select checked findings. It cannot rewrite the record.
+00:01:09.733 Both reports stay in view.
+Open the finding and both sources are right here. Modus keeps the disagreement visible, without choosing a winner. If the context is uncertain, it withholds a numerical comparison. Muse can investigate through bounded tools, but it cannot rewrite your record.
 
-00:01:21.933 Correct the record. Keep the original.
-If a saved field needs correction, review the exact change before saving it. The previous explanation becomes stale and asks for a refresh. Your correction becomes a new version. The original file, its printed wording, and the earlier saved version remain available. Nothing is silently replaced.
+00:01:24.733 Correct the record. Keep the original.
+Corrections need your review. Confirm the exact change, then save a new version. The previous explanation becomes stale and asks for a refresh. Your original file, its printed wording, and the earlier saved version remain available. You can correct your history without losing its evidence.
 
-00:01:39.700 What happened. What was known.
-An old report can arrive years later. This result was recorded in twenty nineteen, but its file arrived in twenty twenty-six. Today's history can include it. Replay what was available in twenty twenty-five, and it stays outside that view. New evidence changes today's picture without rewriting what was known then.
+00:01:43.100 What happened. What was known.
+A report can also arrive years late. This result is dated twenty nineteen, but its file arrived in twenty twenty-six. Today's history includes it. Replay what was available in twenty twenty-five, and it stays outside that view. New evidence does not rewrite what was known then.
 
-00:01:58.200 A history system around the model.
-Behind the interface, Muse reads and investigates. Typed tools own comparisons and bind findings to exact records and versions. Human-reviewed transactions own every record write. Encrypted local storage keeps originals, revisions, and both dates together. That is how an answer remains inspectable after files arrive, disagree, or change.
+00:02:01.300 A history system around the model.
+Muse reads and investigates. Typed tools check comparisons and bind findings to exact records and versions. Human-reviewed transactions control every save. Encrypted local storage preserves originals, revisions, and both dates. This is record integrity: answers you can inspect, corrections you can trace, and history you can replay.
 
-00:02:19.633 Measured, with the limits visible.
-We tested the investigation on fourteen authored three-report cases using real Muse calls. After fixing the comparison rules, it caught all nine expected discrepancies, with zero false flags. These are development results, not independent accuracy. Take a reviewed summary with its sources. Modus Records: find the answer, open the evidence, and keep your history.
+00:02:23.900 Measured, with the limits visible.
+On fourteen authored three-report cases with real Muse calls, revised comparison rules caught all nine expected discrepancies, with zero false flags. These are development results on the same inspected cases, not independent accuracy. Export a reviewed summary with its sources. Modus Records: your history, with the original beside it.

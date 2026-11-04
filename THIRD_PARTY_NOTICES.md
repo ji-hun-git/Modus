@@ -28,14 +28,17 @@ organizer agreement remain separate matters.
 
 ## Demonstration media
 
-The revised demonstration uses locally generated narration from
-[hexgrad/Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M), revision
-`f3ff3571791e39611d31c381e3a41a3af07b4987`, voice `af_heart`, with the Apache-2.0
-[Kokoro](https://github.com/hexgrad/kokoro) inference library 0.9.4.
-The upstream model card declares Apache-2.0 weights and documents its training
-data attribution. No person's voice was cloned for this film. Weights and the
-isolated media environment are not distributed with the app. This narration
-is post-production media, not a non-Meta model in the product path.
+The final demonstration uses AI-generated female narration from
+[Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign),
+revision `5ecdb67327fd37bb2e042aab12ff7391903235d3`, with the
+[Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) runtime `qwen-tts` 0.1.1.
+The publisher declares Apache-2.0 for the model and runtime. Narration was
+synthesized locally on an RTX 5080 as an original designed voice; no person's
+voice was cloned. Model weights and the isolated media environment are not
+distributed with the application. This is post-production narration, not a
+non-Meta model in the product path.
+
+The final video receipt identifies the model, revision and file hashes used.
 
 The hero and system figures are Modus-authored SVGs, rendered with resvg 2.6.2;
 the hero embeds an actual application capture of authored demo records.

@@ -7,7 +7,7 @@ histories, clinical reference ranges or training/evaluation data.
 - [July checkup](July%20checkup.csv): HbA1c 5.6%, HPLC.
 - [July copy](July%20lab%20copy.csv): the same value and date, Immunoassay.
 
-The 2:42 video uses application behavior at `9c6dc2c`. The two July CSVs were
+The 2:46 video uses application behavior at `9c6dc2c`. The two July CSVs were
 read and saved through the offline import/review handlers in an isolated
 synthetic workspace. The November image was uploaded through the real UI with
 Meta selected. Three actual Muse requests extracted, verified and inventoried

@@ -1,79 +1,75 @@
 {
   "status": "passed",
-  "duration_seconds": 161.92000000000002,
+  "duration_seconds": 166.12,
   "full_decode": true,
   "video": "H264 1920x1080 30 fps",
   "audio": "AAC stereo-compatible narration",
-  "mean_volume_db": -16.5,
-  "peak_db": -1.4,
+  "mean_volume_db": -17.3,
+  "peak_db": -1.5,
   "silence_threshold_db": -40,
-  "longest_silent_gap_seconds": 0.436646,
+  "longest_silent_gap_seconds": 0.669292,
   "gaps_over_one_second": 0,
   "section_frame_checks": [
     {
       "section": "01",
-      "frames": 403,
-      "expected": 403
+      "frames": 435,
+      "expected": 435
     },
     {
       "section": "02",
-      "frames": 468,
-      "expected": 468
+      "frames": 514,
+      "expected": 514
     },
     {
       "section": "03",
-      "frames": 519,
-      "expected": 519
+      "frames": 540,
+      "expected": 540
     },
     {
       "section": "04",
-      "frames": 555,
-      "expected": 555
+      "frames": 603,
+      "expected": 603
     },
     {
       "section": "05",
-      "frames": 513,
-      "expected": 513
+      "frames": 450,
+      "expected": 450
     },
     {
       "section": "06",
-      "frames": 533,
-      "expected": 533
+      "frames": 551,
+      "expected": 551
     },
     {
       "section": "07",
-      "frames": 555,
-      "expected": 555
+      "frames": 546,
+      "expected": 546
     },
     {
       "section": "08",
-      "frames": 643,
-      "expected": 643
+      "frames": 678,
+      "expected": 678
     },
     {
       "section": "09",
-      "frames": 667,
-      "expected": 667
+      "frames": 666,
+      "expected": 666
     }
   ],
   "previews": [
     "preview-002.jpg",
-    "preview-010.jpg",
-    "preview-022.jpg",
-    "preview-034.jpg",
-    "preview-043.jpg",
-    "preview-056.jpg",
-    "preview-065.jpg",
-    "preview-076.jpg",
+    "preview-007.jpg",
+    "preview-023.jpg",
+    "preview-041.jpg",
+    "preview-060.jpg",
+    "preview-077.jpg",
     "preview-094.jpg",
-    "preview-103.jpg",
-    "preview-112.jpg",
-    "preview-126.jpg",
-    "preview-142.jpg",
-    "preview-152.jpg",
-    "preview-159.jpg"
+    "preview-113.jpg",
+    "preview-133.jpg",
+    "preview-156.jpg",
+    "preview-164.jpg"
   ],
-  "sha256": "080e767f4e2875b58927a4af23bb2f2c4224b48cfa325d15fa3d28aab2323dba",
+  "sha256": "c7946ccec37b818501316599b43e708779a50a4b52229c7711fd8beae8fda277",
   "encoding_and_validation_api_calls": 0,
   "limitation": "Signal integrity and caption alignment do not establish subjective narration quality."
 }

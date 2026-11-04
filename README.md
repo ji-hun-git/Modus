@@ -6,7 +6,7 @@ Meta Global AI Developer Hackathon 2026 / **Indie Developer** / **Build for Your
 
 Built by **Jihun Chae** (solo), during the 26 October–4 November event.
 
-[Watch the 2:42 demonstration](https://ji-hun-git.github.io/Modus/) · [Run locally](#run-locally) · [Inspect the architecture](#a-history-system-around-the-model)
+[Watch the 2:46 demonstration](https://ji-hun-git.github.io/Modus/) · [Run locally](#run-locally) · [Inspect the architecture](#a-history-system-around-the-model)
 
 [![Offline service checks on Windows and Ubuntu](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml/badge.svg)](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml)
 
@@ -25,14 +25,15 @@ medical meaning or give health advice.
 | In the demonstration | What you can inspect |
 | --- | --- |
 | **0:00 — Ask your history** | “Blood pressure of 100?” is clarified, matched to 4 May 2016, and opened as the original `100/70` record. Offline tools are labelled. |
-| **0:29 — Read a report** | Fresh Muse extraction, verification and row inventory. Three rows found; header date and specimen completed during explicit review. |
-| **0:46 — Find a discrepancy** | Muse follows related reports and catches different recorded methods behind identical values. Both sources open. |
-| **1:22 — Keep the original** | A reviewed correction creates a version and invalidates the old explanation. Historical replay respects file availability. |
-| **1:58 — Inspect the system** | Shipped architecture, bounded authority and a measured development comparison. |
+| **0:32 — Read a report** | Fresh Muse extraction, verification and row inventory. Three rows found; header date and specimen completed during explicit review. |
+| **0:50 — Find a discrepancy** | Muse follows related reports and catches different recorded methods behind identical values. Both sources open. |
+| **1:25 — Keep the original** | A reviewed correction creates a version and invalidates the old explanation. Historical replay respects file availability. |
+| **2:01 — Inspect the system** | Shipped architecture, bounded authority and a measured development comparison. |
 
 The recording uses application behavior at [`9c6dc2c`](https://github.com/ji-hun-git/Modus/tree/9c6dc2ccfe7092d6227f0d7571f8da674b84f84d),
 with **six fresh real `muse-spark-1.3` requests**. Playback is edited, not model
-latency. [Recording inputs and per-call receipts](entry/demo/showcase/) ·
+latency. The female narration is AI-generated locally for the video; it is
+separate from the Meta-only product path. [Recording inputs and per-call receipts](entry/demo/showcase/) ·
 [Transcript](entry/demo/video-transcript.txt) · [Provenance](entry/demo/longitudinal/README.md#recorded-demonstration).
 
 ## The same number can hide a difference
