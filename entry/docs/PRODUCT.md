@@ -1,94 +1,88 @@
-# Product flow
+# Product guide
 
-Modus connects a person's reviewed medical records across time while keeping
-each original source inspectable. Address the person as the owner of their
-history. The contest application is a record-integrity service, not a health
-advisor.
+Modus connects reviewed medical records across time while keeping the original
+sources inspectable. The person using it owns the history and approves every
+saved change. The application retrieves and compares recorded facts; it does
+not provide clinical interpretation or health advice.
 
-## A simple Home, detail when requested
+## Navigate the workspace
 
-Home centers the owner in a source-file orbit, with four readings initially,
-one Ask bar and one Add records action. "Show all" expands the selected report's
-current page (at most 50 entries); larger reports retain pagination. Home uses
-open-ended saved labels, including tests outside the legacy three-metric API.
-File satellites open actual source evidence. Records, trends, replay, discrepancies and summaries remain
-available through deeper navigation.
+| Destination | Use it to |
+| --- | --- |
+| Home | Select a source file, inspect readings and their history, ask a question or add records. |
+| Records | Browse recorded events on the timeline. |
+| More → Ask | Search the captured history and continue supported questions. |
+| More → Summary | Select records, review their evidence and download a summary. |
+| More → Trends | Explore compatible recorded measurements over time. |
+| More → Documents | Browse saved source files. |
+| More → Replay | Compare historical views using recorded and availability dates. |
+| More → Changes | Inspect record activity. |
 
-Home exposes the actual recorded-difference group count and a direct action to
-prepare a source-backed summary. The single Add records action becomes Continue
-review with the pending file count when this tab has unfinished imports. Empty
-states show no invented differences or pending work. Precise time controls stay
-under More history tools; both applied clocks and the scrubber remain visible.
-Opening a summary does not export anything: selection, source review and an
-explicit reviewed download are still required.
+Home's orbit represents source files owned by the person at its center. Each
+file opens actual evidence; the connecting lines do not imply medical
+relationships. The selected report initially shows four readings. Larger
+reports use expandable, paginated lists, and every chart point opens its source.
 
-Dragging the history timeline updates its date immediately and requests the
-matching records during the drag, at most once per 120 ms plus a final flush.
-The control remains mounted; superseded requests are cancelled and cannot replace
-the final selected view. Retained evidence is marked busy and non-interactive
-until its requested occurrence/availability scope arrives. Today restores the
-current view. File spokes mean ownership, not inferred clinical relationships.
-Slow opacity-only orbit motion can be paused. System reduced motion is the
-default, with a separate explicit choice to enable gentle motion in this app.
+The timeline controls recorded dates. **More history tools** exposes both date
+bounds; **Today** restores the current view. Evidence remains unavailable while
+a changed view loads, so a previous answer cannot appear to describe the new
+selection. Appearance supports light, dark and system settings. Orbit motion
+can be paused and respects reduced-motion preferences.
 
-Use familiar descriptions beside original test names where supported. A display
-alias never rewrites the saved label, changes units or supplies clinical meaning.
-Charts connect observations only when the backend comparison policy permits it.
+## Add and review records
 
-## Review and preserve
+1. Choose **Add records** and a supported synthetic document. Local parsing and
+   Meta reading are separate, labelled modes. Failures remain visible.
+2. Review each proposed entry beside its source excerpt. Edit or exclude fields
+   before saving. Meta reading includes a separate source-only row inventory
+   that can flag possible omissions; it does not establish completeness.
+3. Review any flagged row you want to include. Its original proposal remains
+   intact beside your edits. Navigation preserves the draft, and save validation
+   checks all included entries, including those on another page.
+4. Save the explicitly selected rows as one transaction. If the response is lost,
+   retry the same reviewed payload to recover its receipt without duplication.
+5. Inspect the updated history. Importing does not silently replace a historical
+   view you already selected.
 
-1. Add a supported synthetic document. Show the actual extraction mode and failures.
-2. Review proposed fields beside the original. Edit, exclude or accept explicitly.
-   Meta reading also flags possible missing rows from a separate source-only
-   pass. Choose a flagged row to review and correct it beside its page excerpt.
-   Only explicitly selected rows enter the save. The original flag stays intact.
-   Unavailable checks remain explicit, and no result claims every row was found.
-3. Save the selected rows as one idempotent transaction. Recover uncertain saves using the same reviewed payload.
-4. Inspect the new history without silently replacing a chosen historical view.
-5. Correct saved transcriptions through a reviewed amendment. Keep the original and earlier versions.
-   Reopen a report to add remaining flagged rows. Each addition gets its actual
-   save time; neither the original file nor an earlier history view is rewritten.
-6. Compare selected reports and review a source-linked summary before downloading it.
+An unfinished import changes Home's action to **Continue review**. Drafts remain
+in the current tab and are not restored after reload. Reopening a saved report
+can recover remaining flagged rows for a new review; additions receive their
+actual save time without rewriting the original file or earlier views.
 
-Original-file downloads obey the same occurrence and availability scope as the
-selected evidence. A source containing later records cannot bypass an earlier
-view. Conflicting sources remain separate; no value is automatically declared
-correct.
+## Inspect and correct evidence
 
-### Focused review and source inspection
+The source inspector places the saved value, recorded date and availability
+date beside the original passage and printed lab context. Entry navigation stays
+within that source and history scope. Closing the inspector returns keyboard
+focus to the control that opened it.
 
-The review workspace keeps a bounded entry list beside one editable entry and
-its literal source excerpt. Previous/next controls move without discarding edits
-or exclusions. At most 30 navigation rows render per page, while save validation
-checks every included entry. An invalid entry on another page is brought into
-view before any save request. Flagged omissions join this same review and retain
-their original proposal. There is no automatic approval on navigation.
+**Correct saved record** creates a reviewed amendment with a reason. It preserves
+the original bytes, excerpt and earlier saved versions. A correction refreshes
+the current history and invalidates explanations that used the changed record.
+Conflicting sources remain separate; no value is automatically declared correct.
 
-The source inspector places the saved value and its occurrence/availability
-dates beside the original passage and printed lab context. Its entry navigation
-stays inside the selected source and captured view. Corrections and saved versions
-remain available below; closing the inspector returns keyboard focus to its
-trigger. Home shows these two dates alongside its selected original excerpt.
+Original downloads respect the same history bounds as the selected evidence.
+A document containing later records cannot expose those records through an
+earlier view. Display aliases never rewrite a saved test name, convert its units
+or supply clinical meaning.
 
-## Ask and continue
+## Ask, compare and export
 
-Questions return recorded facts, explicit uncertainty and clickable evidence.
-No-match means no supported match in the available reviewed records, not that
-an event never happened. Numerical comparison requires compatible saved context.
-Temporary conversation tokens are scoped to the captured history; changed scope,
-expiry or ambiguous references require a full question.
+[Ask](WHOLE_HISTORY_AGENT.md) returns recorded facts, uncertainty and clickable
+evidence. Follow-ups remain attached to the captured history; expired or changed
+context requires a new question.
 
-From Compare reports, **Explain changes and discrepancies** investigates the
-chosen pair without saving anything. Conflicting same-day values come first,
-including a related copy in a third file. Each finding opens the exact records
-and their original excerpts. Compatible changes use typed arithmetic; differences
-in unit, specimen, method or source support explain why a numerical change is
-withheld. The first six findings are shown initially, with all remaining findings
-one click away. Owner corrections require a fresh investigation while earlier
-captures remain preserved. Ask accepts two quoted exact filenames or an
-unambiguous latest-two-reports request, ranked by recorded date.
+**Compare reports → Explain changes and discrepancies** investigates a selected
+pair and related records in the same view. Conflicting same-day results appear
+first, including copies in a third file. Typed tools calculate compatible
+changes and explain when units, specimen, method or source support prevent a
+numerical comparison. Each finding opens its exact records and original excerpts.
 
-The assistant never diagnoses, recommends treatment, infers current medication
-use, scores risk or interprets scan images. Original clinical statements can be
-retained as source text with attribution. [API behavior](API_CONTRACT.md) defines
-the exact supported operations and limits.
+**Prepare a summary** lets you choose records, inspect their sources and review
+the full preview before downloading HTML or JSON. Opening the preview exports
+nothing. See [Reviewed summaries](RECORD_BRIEF.md) for the selection and recovery
+limits, and [Data provenance](DATA.md) for storage and external processing.
+
+[Run locally](../../README.md#run-locally) ·
+[Try the sample records](../demo/longitudinal/README.md) ·
+[API contract](API_CONTRACT.md) · [Verification](VERIFICATION.md)

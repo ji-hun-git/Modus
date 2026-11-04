@@ -1,4 +1,4 @@
-# Modus Records API v1
+# Modus API v1
 
 ## Local privacy boundary — 3 November 2026
 

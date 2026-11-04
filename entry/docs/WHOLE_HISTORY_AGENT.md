@@ -1,30 +1,74 @@
-# Whole-history record agent — 28 October 2026
+# History questions
 
-The user value is finding a fact across years of reports and opening the exact record that supports it. The agent can now read measurements with arbitrary names, visits, diagnoses as recorded, procedures, prescriptions, vaccinations, imaging-report text and other recorded text. Upload, review and save still precede access. This milestone extends the existing eight-kind store to questions; it does not claim every medical file format is understood.
+Ask searches reviewed records within the selected history and returns findings
+that open their supporting evidence. It covers measurements, visits, recorded
+diagnoses, procedures, prescriptions, vaccinations, imaging-report text and
+other recorded text. Recorded clinical statements retain their source attribution;
+Modus does not turn them into a new diagnosis or recommendation.
 
-| Question | Result |
-|---|---|
-| Show my prescription records | Source-attributed historical prescriptions, without inferring current use |
-| Find my vaccination records | Recorded entries with exact, partial or unknown dates preserved |
-| Find my imaging reports | The report's recorded wording, without interpreting scan images |
-| Find records mentioning "Height" | Literal matching across eligible reviewed facts |
-| Which records became available between these views? | Additions between explicitly selected availability bounds |
-| Show conflicting measurement records | Existing same-label/day discrepancies, with both values retained |
+## Supported questions
 
-## Runtime and evidence
+| Example | Behavior |
+| --- | --- |
+| “What is my latest heart rate record?” | Find the latest dated group, including supported aliases such as Pulse. |
+| “What about the one before that?” | Continue the same subject within the captured history; preserve ties and date limitations. |
+| “When did I last have blood pressure of 100?” | Clarify which pressure component is intended, then retrieve matching recorded values. |
+| “Show my prescription records.” | Return attributed historical entries without inferring current use. |
+| “Find my vaccination records.” | Preserve exact, partial and unknown dates. |
+| “Find my imaging reports.” | Retrieve recorded report text without interpreting scan images. |
+| “Compare the latest two reports.” | Select an unambiguous pair by recorded date and investigate changes and discrepancies. |
+| “Show conflicting measurement records.” | Return supported same-day discrepancies with the original sources. |
 
-`history_views` captures one SQLite transaction and clock for both views. `history_tools` removes profile, age, reviewer and original proposals before tool access. Occurrence dates and availability timestamps remain separate. Historical projections withhold text/originals from mixed-period documents; excluded future rows cannot make a source appear safe.
+For a specific report pair, use **Compare reports → Explain changes and
+discrepancies**, or name both exact filenames in quotes in Ask. Numerical
+predicates outside supported query forms and ambiguous references may require
+clarification. A no-match result describes the available records; it does not
+establish that an event never occurred.
 
-The server parses a bounded factual request and fixes its tool name/arguments. Offline mode executes that tool directly. Live mode lets Muse Spark invoke that same bound tool and select exact returned claims through the shared validation loop. Material limitation claims remain mandatory. This is constrained orchestration, not autonomous clinical reasoning. Unknown tools, altered filters, invented claim IDs, refusals and failed requests cannot become a successful answer.
+## Retrieval and model roles
 
-Retrieval is literal across reviewed labels, values, permitted quotes and source metadata. It supports quoted phrases and explicit dates; it does not infer medical synonyms or relationships. Results are paged/bounded and show omissions. Measurement discrepancy detection does not detect contradictions in prescriptions, diagnoses or free text. No prescription proves current use; no absent result proves missed care.
+The server captures the history scope before executing a request. Literal
+matching and a controlled vocabulary of medical names support retrieval;
+the model cannot invent aliases or widen access. See
+[Terminology and record retrieval](TERMINOLOGY_RETRIEVAL.md).
 
-## Interface
+Offline execution uses deterministic tools with no model call. With Meta
+selected, Muse Spark requests permitted reads and selects exact tool-produced
+claims. Unknown tools, changed filters, invented claim IDs and failed requests
+cannot become successful answers. Actual provider identity and execution mode
+remain visible.
 
-Home keeps results and dates first. Home, Records and Documents include a question panel with concrete examples, optional availability comparison and source inspection. Each answer remains attached to the dates used to produce it. Scope changes invalidate answers and their dialogs. Exact original excerpts and downloads use those same bounds. Trends and the older Replay question interface retain their three-metric scope.
+Report investigation reads the selected pair and then checks related records
+within the same captured history. Typed rules compare recorded values, units,
+reference ranges, specimen, method and facility. Known differences and required
+limitations remain in the answer even if the model selects fewer claims.
+Missing metadata stays uncertain; it is not a contradiction by itself.
 
-## Verification and remaining work
+## Evidence and continuation
 
-Fresh authored tests cover all kinds, exact decimals, unknown dates, late availability, source withholding, injection-like text, authority rejection, evidence privacy, live-path mock failures and stale-response handling. The separate development comparison uses the unchanged legacy three-metric agent as a capability reference on new authored cases. It is not a frozen held-out evaluation, clinical study or proof of SOTA quality. Existing frozen baselines and held-outs are untouched.
+Every finding binds saved facts, revisions, source identity and both time bounds.
+Opening a source uses the same scope as the answer. Text and original downloads
+are withheld when a mixed-period document would expose records outside that view.
+Corrections invalidate affected explanations, including those using a related
+third file. Original excerpts can differ from corrected values; both stay visible.
 
-Real personal data remains outside this synthetic prototype. Profile omission is data minimization, not comprehensive de-identification: names or identifiers in record text are not automatically masked. Production access control, encryption/key management, redaction quality and deletion/retention controls require separate implementation and validation. The broader product goals remain in the project plan; anatomy navigation, appointment briefs and clinical interpretation are not delivered by this milestone.
+Follow-ups use opaque server context, limited to 30 minutes, available capacity
+and the current process lifetime. A changed view, expired context or ambiguous
+reference requires a fresh question. This is temporary navigation context,
+not persistent personal conversation memory.
+
+## Limits and verification
+
+Retrieval is bounded and supports controlled names, not a comprehensive medical
+ontology. Discrepancy checks cover recorded measurements and metadata, not
+arbitrary contradictions in narrative text. Clinical interpretation, treatment
+advice, risk scoring and appointment management are outside the application.
+
+Local access requires a session and stored records use encryption. These controls
+do not establish production readiness or automatic anonymization; original text
+can contain identifiers. [Data handling](DATA.md) ·
+[API contract](API_CONTRACT.md) · [Agent workflow](AGENT_WORKFLOW.md)
+
+[Verification](VERIFICATION.md) separates offline regressions, browser checks
+and real Muse development runs. Authored fixtures and mocked provider failures
+test software behavior; they do not measure independent model accuracy.

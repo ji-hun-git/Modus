@@ -1,148 +1,142 @@
-# Modus Records
+# Modus
 
-**Your history, with the original beside it.**
+Personal medical records, connected across time and traceable to the original.
 
-Meta Global AI Developer Hackathon 2026 / **Indie Developer** / **Build for Your World**
+[Watch the demo · 2:46](https://ji-hun-git.github.io/Modus/) · [Run locally](#run-locally) · [Architecture](#architecture) · [Documentation](#documentation)
 
-Built by **Jihun Chae** (solo), during the 26 October–4 November event.
+[![Offline checks on Windows and Ubuntu](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml)
 
-[Watch the 2:46 demonstration](https://ji-hun-git.github.io/Modus/) · [Run locally](#run-locally) · [Inspect the architecture](#a-history-system-around-the-model)
+[![Modus Home showing source files, recorded readings and an original excerpt. All displayed records are synthetic.](entry/demo/figures/hero.png)](https://ji-hun-git.github.io/Modus/)
 
-[![Offline service checks on Windows and Ubuntu](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml/badge.svg)](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml)
+Medical records arrive in separate files, from different institutions, over many
+years. Modus brings them into one history. Find a past result, compare reports,
+and inspect the source behind an answer. Corrections preserve the original file
+and every earlier saved version.
 
-[![Actual Modus Home: you at the center, clickable source files, selected readings and original evidence.](entry/demo/figures/hero.png)](https://ji-hun-git.github.io/Modus/)
+Built by **Jihun Chae**, solo entrant in the **Meta Global AI Developer Hackathon
+2026** — **Indie Developer / Build for Your World**. The application uses Meta
+Muse Spark for document reading and factual investigation. All distributed
+records are synthetic. Modus does not provide diagnoses or health advice.
 
-Find a result from years ago. See what changed between reports. Open the evidence
-behind the answer. Modus connects medical records into a personal history while
-preserving original files, disagreements and earlier saved versions.
+## What you can do
 
-Muse Spark reads and investigates. **You review every record write.** This entry
-provides record integrity and source retrieval; it does not diagnose, interpret
-medical meaning or give health advice.
+1. **Add and review a report.** Import CSV, text, PDF or images. Check proposed
+   fields beside the source, correct or exclude entries, then save the reviewed rows.
+2. **Find a recorded fact.** Ask “When did I last have blood pressure of 100?”
+   Clarify the intended number, then open the dated result and its original.
+3. **Compare reports.** Inspect changes and discrepancies across selected reports
+   and related files. Conflicting values and missing context remain visible.
+4. **Correct without erasing.** Save a reviewed amendment with a reason. Earlier
+   versions stay available; explanations using the changed record need refreshing.
+5. **Revisit or share a history.** Reconstruct what was available at an earlier
+   date, or review a source-linked summary before downloading HTML or JSON.
 
-## Watch one complete story
+The [demo](https://ji-hun-git.github.io/Modus/) shows this workflow in the actual
+application: history lookup at **0:00**, Muse document reading at **0:32**,
+cross-report investigation at **0:50**, and correction and replay at **1:25**.
+It includes six real Muse requests; the edit does not represent response latency.
+Narration is AI-generated for the video. [Transcript](entry/demo/video-transcript.txt)
+· [Recording inputs and receipts](entry/demo/showcase/)
 
-| In the demonstration | What you can inspect |
+## Why preserving context matters
+
+Two reports can contain the same value and still disagree. In this example,
+both report HbA1c as 5.6%, but list different test methods: HPLC and Immunoassay.
+Modus surfaces the difference and opens both sources without choosing a winner.
+
+![The same recorded value with two different test methods, shown beside both original sources.](entry/demo/figures/investigation.png)
+
+Numerical comparisons use typed tools that check dates, units, reference ranges,
+specimen and method. Incompatible or uncertain context can prevent a calculation.
+A missing record does not establish that care never happened.
+
+## Architecture
+
+![Source files pass through extraction and human review into versioned storage. Read-only investigation returns checked findings with original evidence.](entry/demo/figures/architecture.png)
+
+| Layer | Responsibility |
 | --- | --- |
-| **0:00 — Ask your history** | “Blood pressure of 100?” is clarified, matched to 4 May 2016, and opened as the original `100/70` record. Offline tools are labelled. |
-| **0:32 — Read a report** | Fresh Muse extraction, verification and row inventory. Three rows found; header date and specimen completed during explicit review. |
-| **0:50 — Find a discrepancy** | Muse follows related reports and catches different recorded methods behind identical values. Both sources open. |
-| **1:25 — Keep the original** | A reviewed correction creates a version and invalidates the old explanation. Historical replay respects file availability. |
-| **2:01 — Inspect the system** | Shipped architecture, bounded authority and a measured development comparison. |
+| React / TypeScript | File navigation, source inspection, review, questions and summaries. |
+| FastAPI / Python | Validate proposals, enforce review, capture history scope and check evidence. |
+| Meta Muse Spark | Extract and check document fields; request bounded reads and select supported findings. |
+| Typed record tools | Retrieve facts, calculate compatible changes and identify recorded discrepancies. |
+| SQLCipher / OS credential store | Store encrypted records and originals; keep the database key in the native credential store. |
 
-The recording uses application behavior at [`9c6dc2c`](https://github.com/ji-hun-git/Modus/tree/9c6dc2ccfe7092d6227f0d7571f8da674b84f84d),
-with **six fresh real `muse-spark-1.3` requests**. Playback is edited, not model
-latency. The female narration is AI-generated locally for the video; it is
-separate from the Meta-only product path. [Recording inputs and per-call receipts](entry/demo/showcase/) ·
-[Transcript](entry/demo/video-transcript.txt) · [Provenance](entry/demo/longitudinal/README.md#recorded-demonstration).
+Models cannot run shell commands or SQL, open arbitrary URLs, or write records.
+Saving requires explicit human review. Offline parsers and record tools work
+without model credentials and identify their execution mode.
 
-## The same number can hide a difference
+Every fact has two dates: **when it was recorded** and **when its reviewed
+version became available in Modus**. A 2019 result uploaded in 2026 can appear
+in today's history without appearing in a view of files available in 2025.
 
-![Two July reports both show 5.6 percent; one says HPLC, the other Immunoassay. Both originals stay visible.](entry/demo/figures/investigation.png)
+[Agent workflow](entry/docs/AGENT_WORKFLOW.md) · [API contract](entry/docs/API_CONTRACT.md)
+· [Two-clock diagram](entry/demo/figures/two-clocks.svg)
 
-Choose two files in **Compare reports**, then **Explain changes and discrepancies**.
-Muse requests bounded reads of the selected and related records. Typed tools
-check values, dates, literal units, ranges, specimen and test methods. Findings
-open the exact source records. Unknown context stays unknown; no source is
-silently chosen as correct.
+## Verification
 
-## A history system around the model
+The current offline suite covers **1,603 backend tests and 240 frontend tests**,
+with two backend skips. The production frontend builds, and CI runs on Windows
+and Ubuntu. These are software checks, separate from model-quality measurements.
 
-![Original files become Muse proposals, then human-reviewed transactions. Scoped investigation uses typed findings and opens encrypted, versioned evidence.](entry/demo/figures/architecture.png)
+A live development comparison used the same 14 authored three-report cases:
 
-- **Originals survive edits.** Corrections append versions, retain reasons and
-  invalidate explanations that used a changed source.
-- **Two clocks preserve earlier knowledge.** A 2019 report received in 2026 can
-  update today's reconstruction while remaining outside what was available in 2025.
-- **Models propose; reviewed transactions save.** Muse cannot execute SQL, shell
-  commands, arbitrary URLs, record writes or permission changes.
-- **Answers have checkable support.** Typed tools calculate and compare within a
-  captured history. A source ID alone cannot justify an unsupported sentence.
-
-![A result recorded in 2019 and received in 2026 stays outside the view of files known in 2025.](entry/demo/figures/two-clocks.png)
-
-Meta Muse Spark is the only hosted model in the product path. Offline record
-tools remain usable without credentials and are labelled separately. The shipped
-document guard is deterministic. SAM, hosted Guard, Voice and a medical fine-tune
-are **not** demonstrated product features.
-
-[Agent contract](entry/docs/AGENT_WORKFLOW.md) · [API and storage](entry/docs/API_CONTRACT.md) ·
-[Editable architecture](entry/demo/figures/architecture.svg) · [Event contribution map](entry/docs/CONTRIBUTIONS.md)
-
-## Measured, with the limits visible
-
-| Real Muse investigation | Expected discrepancies caught | False flags | Completed cases |
+| Version | Expected discrepancies found | False flags | Cases completed |
 | --- | ---: | ---: | ---: |
 | Baseline `6b2f625` | 4/9 | 5 | 14/14 |
-| Revised typed comparison rules | 9/9 | 0 | 14/14 |
+| Revised typed rules `9c6dc2c` | 9/9 | 0 | 14/14 |
 
-The same **14 AI-authored three-report cases** were inspected and used for tuning.
-Both versions made 42 real Muse requests. The improvement belongs to the typed
-comparison rules; the model weights and minimal reasoning setting did not change.
-This is a small development result on reviewed CSV records, **not independent,
-held-out, scanned-extraction or clinical accuracy**.
-[Cases, failures, source hashes and run receipts](entry/docs/VERIFICATION.md#live-cross-report-development-check--4-november-2026).
-
-Software checks and model measurements are separate. Windows and Ubuntu CI run
-offline regression checks. Historical results in [SCOREBOARD.md](SCOREBOARD.md)
-remain version-specific and are not generalized to later code.
+Each version made 42 real Muse requests. The comparison rules changed; model
+weights and reasoning settings did not. These cases were AI-authored and used
+for tuning, with no independent human label review. The result does not measure
+general accuracy, scanned-document extraction or clinical performance.
+[Method, failures and receipts](entry/docs/VERIFICATION.md#live-cross-report-development-check--4-november-2026)
 
 ## Run locally
 
-Requires Python 3.11+, Node.js 20.19+ or 22.12+, and an unlocked native OS
+Requires **Python 3.11+**, **Node.js 20.19+ or 22.12+**, and an unlocked native
 credential store: Windows Credential Manager, macOS Keychain or Linux Secret Service.
 
 ```sh
+git clone https://github.com/ji-hun-git/Modus.git
+cd Modus
 python scripts/setup_entry.py
 python scripts/check_service.py
 python scripts/serve_service.py --port 8011
 ```
 
-Open **http://127.0.0.1:8011/**. Choose **Open access file** and select the
-`Modus-8011.modus-access` file at the location printed by the launcher. Keep it
-private. The checked launcher runs offline, strips model credentials, and verifies
-source/build identity. It does not run protected evaluations.
+Open **http://127.0.0.1:8011/**, choose **Open access file**, and select
+`Modus-8011.modus-access` from the location printed by the launcher. Keep that
+file private. The checked preview runs offline and verifies source/build identity.
 
-For a separate persistent rehearsal, use a new take name:
+Follow the [sample-record walkthrough](entry/demo/longitudinal/README.md) to try
+imports, conflicting results, corrections and replay in a separate workspace.
+For frontend development, see the [development guide](entry/frontend/README.md).
 
-```sh
-python scripts/serve_service.py --rehearsal take-01 --port 8035
-```
+## Scope and privacy
 
-Each take gets its own encrypted history and access file. Reusing its name resumes
-that take; a new name does not reset earlier workspaces. [Step-by-step walkthrough](entry/demo/longitudinal/README.md).
+Modus is a local, single-owner synthetic prototype. Stored records, originals
+and journals are encrypted; local APIs and downloads require a session. Optional
+Meta reading sends the selected document or permitted record context to Meta.
+Provider credentials remain on the server.
 
-Supported imports include CSV, text, PDF and images through local or explicitly
-selected Meta reading. Review preserves printed lab context, uncertain fields,
-possible omitted rows and original bytes. Ask can retrieve measurements, visits,
-prescriptions, vaccinations, procedures, diagnoses **as recorded**, imaging text
-and other source text. Comparisons and reviewed HTML/JSON summaries retain sources.
+Real-history production qualification, multi-user accounts, portable key
+recovery, verified masking/deletion and persistent conversation memory remain
+unfinished. Exports are not encrypted by Modus. Moving the database alone is
+insufficient for recovery; its original OS-held key is also required.
+[Data handling](entry/docs/DATA.md) · [Storage and recovery](entry/docs/API_CONTRACT.md#encrypted-local-storage--4-november-2026)
 
-## Privacy and limits
+## Documentation
 
-The local record database, stored originals and journals use SQLCipher with a
-random 256-bit key held in the OS credential store. APIs and downloads require a
-short-lived local session. Browser credentials stay in memory, outside URLs,
-cookies and browser storage. Cross-origin requests are blocked; uploads and
-tool arguments are bounded. Provider keys belong only on the server, never Git,
-the browser, CI or pytest.
+| Read | Purpose |
+| --- | --- |
+| [Product guide](entry/docs/PRODUCT.md) | Navigation, review, corrections and historical views. |
+| [History questions](entry/docs/WHOLE_HISTORY_AGENT.md) | Supported questions, follow-ups and evidence limits. |
+| [Reviewed summaries](entry/docs/RECORD_BRIEF.md) | Select, verify and export a factual record summary. |
+| [Agent workflow](entry/docs/AGENT_WORKFLOW.md) | Model roles, tool permissions and evidence checks. |
+| [API contract](entry/docs/API_CONTRACT.md) | Routes, schemas, access and storage behavior. |
+| [Verification](entry/docs/VERIFICATION.md) | Dated software and live-model evidence. |
+| [Contributions](entry/docs/CONTRIBUTIONS.md) | Event-built work, dependencies and AI assistance. |
 
-Existing plaintext stores require the explicit, verified migration described in
-[storage and recovery](entry/docs/API_CONTRACT.md#encrypted-local-storage--4-november-2026).
-Copying the encrypted database to another machine is insufficient: recovery
-also needs its original OS-held key. Exported files are not encrypted by Modus.
-
-This is a **local synthetic prototype**. Real-history production qualification,
-multi-user accounts, portable key recovery, verified masking/deletion and durable
-personal conversational memory remain unfinished. Software tests do not establish
-clinical validation or model superiority. Organizer eligibility is not determined
-by this repository, and publishing is not a contest submission.
-
-## Documentation and license
-
-[Product flow](entry/docs/PRODUCT.md) · [Verification](entry/docs/VERIFICATION.md) ·
-[Data provenance](entry/docs/DATA.md) · [Terminology](entry/docs/TERMINOLOGY_RETRIEVAL.md) ·
-[Reviewed summaries](entry/docs/RECORD_BRIEF.md) · [Contributions](entry/docs/CONTRIBUTIONS.md)
-
-First-party code is [MIT licensed](LICENSE). Existing models, libraries and other
-materials retain their own terms in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+First-party source is [MIT licensed](LICENSE). Dependencies and other materials
+retain their terms in [Third-party notices](THIRD_PARTY_NOTICES.md).

@@ -1,4 +1,4 @@
-# Modus Records engineering contract
+# Modus engineering contract
 
 Read README.md and entry/docs/{API_CONTRACT,PRODUCT,AGENT_WORKFLOW}.md before changing behavior.
 
