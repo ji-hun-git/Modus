@@ -55,3 +55,31 @@ TSH copies. Sixteen HTTP assertions covered the baseline, late availability,
 conflicts and original bytes. See [verification](../../docs/VERIFICATION.md).
 Full keyboard and narrow-layout qualification of this new recording setup
 remain open. These checks do not demonstrate live Muse quality.
+
+## Recorded demonstration
+
+[Watch the 2:52 MP4](https://raw.githubusercontent.com/ji-hun-git/Modus/main/entry/demo/Modus-demo.mp4)
+or [open the repository copy](../Modus-demo.mp4).
+[Read the narration transcript](../video-transcript.txt).
+The recording was made on 4 November 2026 from application revision
+`9d8b65aefb6a5c0025b50f899db845e7e7d6072b`. Subsequent recording/documentation
+commits do not change that application behavior. The saved Muse review was
+opened in the preserved workspace using the same application source.
+
+The video combines actual browser captures, a timed orbit/evidence interaction
+and edited still holds. Its narration is generated offline with the Windows
+speech synthesizer. The footage contains authored examples, not real personal
+medical records. The first card identifies the event-built app and credits the
+pre-existing Meta models and libraries.
+
+The Meta segment reopens an actual previously generated `muse-spark-1.3` draft.
+It is **not a fresh live request**, and its unavailable independent image-text
+check remains visible. All other recorded reading and Ask actions are offline
+and labelled accordingly. Edited playback time is not model latency. No model
+credits were spent recording this video. The video demonstrates record review,
+source evidence, temporal availability, conflicts and export, not medical
+interpretation, held-out quality, SAM, hosted Guard, Voice or fine-tune quality.
+
+Media integrity, duration and source identity are recorded in
+[the video receipt](../video-receipt.json). This video is an artifact for the
+entrant to review; publishing it does not submit the competition entry.

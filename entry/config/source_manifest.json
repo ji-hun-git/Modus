@@ -3231,6 +3231,21 @@
       "source": "LICENSE",
       "destination": "LICENSE",
       "behavior": false
+    },
+    {
+      "source": "entry/demo/Modus-demo.mp4",
+      "destination": "entry/demo/Modus-demo.mp4",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/video-receipt.json",
+      "destination": "entry/demo/video-receipt.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/video-transcript.txt",
+      "destination": "entry/demo/video-transcript.txt",
+      "behavior": false
     }
   ]
 }

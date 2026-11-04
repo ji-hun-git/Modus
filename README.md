@@ -1,6 +1,7 @@
 # Modus Records
 
-**Meta Global AI Developer Hackathon 2026** · **Indie Developer** · **Build for Your World**  
+**Meta Global AI Developer Hackathon 2026** · **Indie Developer** · **Build for Your World**
+
 Built by **Jihun Chae** (solo). Event contributions: **26 October–4 November 2026**.
 
 Muse Spark reads reports and checks possible omitted rows. You review what enters
@@ -8,6 +9,12 @@ your history; original evidence, conflicts and earlier versions stay inspectable
 This entry provides record integrity and source retrieval, without medical advice.
 See the [event contribution map](entry/docs/CONTRIBUTIONS.md) and
 [reproducible demo walkthrough](entry/demo/longitudinal/README.md).
+
+**[Watch the 2:52 demonstration](https://raw.githubusercontent.com/ji-hun-git/Modus/main/entry/demo/Modus-demo.mp4).**
+The edited recording shows the actual app, authored examples and an existing
+genuine Muse draft reopened offline. CSV reading and Ask in this recording are
+deterministic; no new model request is presented as live. See the
+[recording provenance and limitations](entry/demo/longitudinal/README.md#recorded-demonstration).
 
 [![Offline service checks](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml/badge.svg)](https://github.com/ji-hun-git/Modus/actions/workflows/verify.yml)
 

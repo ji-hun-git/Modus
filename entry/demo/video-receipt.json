@@ -1,0 +1,35 @@
+{
+  "recorded_on": "2026-11-04",
+  "title": "Modus Records demonstration",
+  "duration_seconds": 172.02,
+  "bytes": 4582196,
+  "sha256": "409854b64c90fa50dc895ca0c090726691fdadfae9d2c4ceadfc7d1a2790593a",
+  "recorded_application_commit": "9d8b65aefb6a5c0025b50f899db845e7e7d6072b",
+  "application_source_manifest_sha256": "0c764502ea2d98ff5e3db8b00839470e5b1e16d9d10cff3881e8089ed891ad54",
+  "saved_muse_workspace_application_source_matches": true,
+  "source_comparison": "All checked behavior files match after CRLF/LF normalization; source-manifest behavior entries match. Nonbehavior license/docs/media entries differ.",
+  "format": "1920x1080 H.264 / AAC",
+  "capture": "Real browser screenshots and a timed 12-second orbit/evidence interaction, assembled with edited still holds.",
+  "narration": "Offline Windows speech synthesis of the accompanying transcript.",
+  "data": "Authored synthetic records only.",
+  "meta_segment": "A genuine previously generated muse-spark-1.3 scan draft reopened offline. Limitations are visible.",
+  "other_segments": "Offline deterministic CSV reading, history queries, replay, conflict review and summary export.",
+  "new_model_requests": 0,
+  "api_spending_usd": 0,
+  "protected_evaluation_contents_accessed": false,
+  "verification": {
+    "full_media_decode": "passed",
+    "all_section_frame_counts": "passed",
+    "maximum_duration_seconds": 180,
+    "backend_passed": 1522,
+    "backend_skipped": 2,
+    "frontend_passed": 232,
+    "application_ci": "https://github.com/ji-hun-git/Modus/actions/runs/41785492549"
+  },
+  "limitations": [
+    "Not a continuous unedited session or response-latency benchmark.",
+    "Not a fresh live model demonstration, independent model-quality result or held-out score.",
+    "No SAM, hosted Guard, Voice, fine-tune-quality or clinical-validation claim.",
+    "Publishing a video does not submit the hackathon entry."
+  ]
+}
