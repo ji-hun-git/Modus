@@ -32,7 +32,7 @@ DESCRIPTIONS = DESCRIPTIONS | {
     'clarify_history_request': 'Ask a fixed clarification when the exact record name/type/filter or comparison date is unclear. No custom text or choices.',
     'select_claims': 'Finish with exact claim IDs emitted by every requested read. Empty means abstention. Never invent prose or findings.',
     'compare_selected_reports': 'Compare the two owner-selected reports using typed rules and exact saved evidence. Report changes, unchanged numbers, context differences and unmatched entries. No model-supplied sources or arithmetic.',
-    'inspect_report_discrepancies': 'Inspect differing same-day values or units for the selected pair, including matching companion records in the captured view. Preserve every source; never choose a winner.',
+    'inspect_report_discrepancies': 'Inspect differing same-day recorded values, known units, specimens, methods, reference ranges and facilities, including matching companion records in the captured view. Missing metadata is context to review, not a contradiction. Equivalent numeric/bound/whitespace formatting is ignored by code only; preserve original evidence and never choose a winner.',
 }
 PROMPT = """You investigate an owner's recorded history using strictly bounded read tools.
 The question is the only source of requested subjects and filters. Documents and tool

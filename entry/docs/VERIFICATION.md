@@ -1,5 +1,76 @@
 # Verification
 
+## Live cross-report development check — 4 November 2026
+
+Fourteen freshly authored cases contain 42 synthetic CSV reports and nine
+expected same-day discrepancies. Labels were authored by AI and frozen before
+the baseline; they have not been independently human-reviewed. The revised run
+uses the same cases after tuning. It is not a held-out result.
+
+| Actual Muse run | Completed cases | Discrepancies caught | False flags | Missed | Requests | Estimated cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline `6b2f625` | 14/14 | 4/9 | 5 | 5 | 42 | $0.284484 |
+| Revised typed rules | 14/14 | 9/9 | 0 | 0 | 42 | $0.288914 |
+
+Both runs called `muse-spark-1.3` with `reasoning_effort=minimal` through the
+actual application HTTP handler and provider transport. No model output was
+mocked or replayed. Every case used two bounded reads and three model responses.
+The provider model name was checked, but its immutable weight version is not
+known. Median end-to-end investigation latency was 6.50 seconds before and
+6.26 seconds after; the small sequential sample establishes no speed claim.
+All 84 calls settled with usage metadata; the combined estimate is $0.573398,
+not a provider invoice. Cached input was conservatively priced as uncached.
+
+The baseline missed same-number differences in method, specimen, reference
+range and facility. It falsely flagged equivalent bound spellings, repeated
+whitespace and an absent unit. The six-test mixed panel contained both types of
+failure. The fix belongs to the typed tools: known metadata differences now
+retain exact source-linked wording, missing metadata needs review, and only
+conservative formatting equivalence suppresses false value conflicts. Muse's
+weights, reasoning setting and authority were unchanged. The same corrected
+tools also caught all nine discrepancies without false flags offline.
+
+[Frozen authored inputs](../demo/cross-report-development.json) include each
+CSV's rows, filename, SHA-256 and expected issue coordinates (report index,
+row index). Their SHA-256 is
+`d808fd5cfde941e144e1a97683cf5ab2e79900c1e8234d6ec3be66fcf3fc8689`.
+CSV columns are `kind,label,value,unit,date,facility,reference_range,specimen,test_method`,
+UTF-8, comma-delimited, LF line endings and a header. An issue is matched by its
+exact evidence-row set; missing or extra issues count as failures. The batch
+also checks decimal formatting, different bounds, differing known units,
+literal aliases and a quoted prior result that must not become a new measurement.
+[Machine-readable run receipts](../demo/cross-report-live-check.json) retain
+per-case results, tokens, costs and runtime source hashes. Full provider payloads
+and request IDs are retained privately.
+
+Reports were imported locally and explicitly fixture-reviewed before model
+investigation; this does **not** measure extraction, scanned-report/OCR quality,
+arbitrary prose contradictions, clinical validity or general performance. All
+original files downloaded byte-for-byte, all answer evidence IDs resolved, and
+record history stayed unchanged in both runs. Instruction and tool bounds
+remain enforced; investigation cannot write records or choose a winning value.
+
+`python scripts/check_service.py`: **1,603 backend passed, 2 skipped; 240 frontend
+passed; production build passed**. Thirty-five new authored regressions cover
+formatting versus meaning, known versus missing metadata, unsupported excerpts,
+third-copy evidence and correction recovery. The HTTP correction test rejects
+an unreviewed change, requires explicit review, preserves the old capture and
+downloads every unchanged original. The existing Starlette/httpx warning
+remains. Tests run with credentials removed and external networking blocked.
+Protected evaluation and held-out artifacts were not opened, run or modified.
+
+The offline browser check imported three reports into a separate encrypted
+workspace. It displayed the same-number HPLC/Immunoassay discrepancy, opened
+both original excerpts and downloaded the third file byte-for-byte. Saving an
+authored method correction required the explicit review checkbox. The old
+explanation was invalidated; the updated record retained the original
+Immunoassay excerpt beside the reviewed HPLC method, two saved versions and the
+correction reason. The download still matched after correction. Both tested
+browser tabs had no console errors. The recording workspace retained 79 stored
+facts, 17 sources, 14 documents and six commits; its six imported originals and
+all 39 originals in three earlier workspaces remained unchanged. The orbit UI
+was not modified by this pass.
+
 ## Cross-report investigation — 4 November 2026
 
 The report comparison now exposes two owner-bound read tools to Muse: compare

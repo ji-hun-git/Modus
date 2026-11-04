@@ -25,6 +25,7 @@ TESTS.extend(['test_entry_local_security.py', 'test_private_storage.py'])
 TESTS.append('test_entry_local_access.py')
 TESTS.append('test_record_encryption.py')
 TESTS.append('test_entry_report_investigation.py')
+TESTS.append('test_entry_report_discrepancies.py')
 
 
 def protected(name):

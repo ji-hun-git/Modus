@@ -582,7 +582,9 @@ fallback. This endpoint logs question activity but never commits medical records
 The history-answer response adds `report_investigation` with method
 `cross_report_investigation_v1`, both source IDs/titles, snapshot ID, comparison
 policy and counts (`changed`, `same_number`, `needs_context`, `one_report_only`,
-`discrepancies`, `reviewed_records`, `evidence_records`). Claims include a category,
+`discrepancies`, `related_needs_context`, `reviewed_records`, `evidence_records`).
+`discrepancy_policy_version` identifies the companion-record rules separately
+from the numerical comparison policy. Claims include a category,
 exact evidence IDs and source/revision proofs. `history_evidence` contains every
 linked fact and source within the original scope. Scope, pair and snapshot must
 match before the client displays the response. Related-copy corrections require
@@ -594,8 +596,15 @@ caveats cannot be omitted. Model-provided source IDs, filters, free prose,
 arithmetic, writes or reordered/incomplete reads are rejected. Discrepancy
 inspection includes exact-name/controlled-alias measurement companions with the
 same full recorded date, including other files in the captured view. Different
-printed units are flagged without conversion. Unknown specimen equivalence is
-retained; neither copy is declared correct. No semantic/clinical contradiction
+known printed units, specimens, test methods, reference ranges and facilities
+are flagged even when recorded values match. No unit conversion occurs.
+Partly missing metadata produces a `needs_context` finding, not a contradiction.
+Equivalent decimal spelling, ≤/<= and ≥/>= glyphs, and repeated whitespace are
+ignored only for detecting value discrepancies; original strings remain intact.
+Distinct operators, units, arbitrary wording and range expressions remain
+distinct. Qualified values never receive numerical deltas. Unavailable source
+excerpts produce review caveats instead of supported discrepancy claims.
+Unknown specimen equivalence is retained; neither copy is declared correct. No semantic/clinical contradiction
 detection across arbitrary prose is claimed.
 
 Limits: 48 pair records, 64 total evidence records, 100,000 UTF-8 bytes per typed

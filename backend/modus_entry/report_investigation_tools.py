@@ -9,10 +9,10 @@ from decimal import Decimal
 from hashlib import sha256
 import json
 
-from modus.record_history_models import numeric_value
 from .claim_verification import make_claim, verify_claim, VerificationContext
 from .comparison_rules import test_key
 from .history_tools import claim, evidence
+from .report_discrepancies import describe, POLICY_VERSION as DISCREPANCY_POLICY
 from .report_summary import summarize_sources
 
 COMPARE = 'compare_selected_reports'
@@ -58,23 +58,20 @@ def _discrepancies(view, selected, verification):
         if len(rows) < 2:
             continue
         rows = sorted(rows, key=lambda r: r['id'])
-        units = {r.get('unit') for r in rows}
-        values = [numeric_value(r['value']) for r in rows]
-        numeric = len(units) == 1 and None not in units and all(v is not None for v in values)
-        differs = len({Decimal(v) for v in values}) > 1 if numeric else len({r['value'] for r in rows}) > 1
-        if len(units) == 1 and not differs:
+        finding = describe(rows, _values(rows))
+        if finding is None:
             continue
+        category, explanation = finding
         companions.update({r['id']: r for r in rows})
         if len(companions) > MAX_EVIDENCE_FACTS:
             raise ValueError('Related discrepancies exceed the 64-record evidence limit. Use the record comparison; no companion evidence was silently omitted.')
         label = json.dumps(rows[0]['label'], ensure_ascii=False)
         if not _supported(view, rows, verification):
-            text = f'{label}, {day}: a related recorded discrepancy needs review, but an original excerpt is unavailable. No supported value comparison is stated.'
+            category = 'needs_context'
+            text = f'{label}, {day}: related records need review, but an original excerpt is unavailable. No supported value or metadata comparison is stated.'
         else:
-            reason = ('different printed units; no conversion is performed' if len(units) > 1 else
-                'different recorded numbers' if numeric else 'different recorded wording or qualifiers; no numerical comparison is performed')
-            text = f'{label}, {day}: {reason}: {_values(rows)}. These records stay separate; sample equivalence is unknown and neither is chosen as correct.'
-        findings.append(_claim(view, INSPECT, 'discrepancy', text, rows))
+            text = f'{label}, {day}: {explanation}'
+        findings.append(_claim(view, INSPECT, category, text, rows))
     return findings, list(companions.values())
 
 
@@ -137,25 +134,28 @@ def prepare_reports(context, source_ids, *, snapshot_id=None):
     limitations = [note for note in summary['limitations']
         if note != 'Related discrepancies also involve other files. Open the Home conflict comparison to inspect those records.']
     if companions:
-        limitations.append('Related copies are included in the discrepancy findings; open their linked sources to inspect each original.')
+        limitations.append('Related copies are included in the findings; open their linked sources to inspect each original.')
     overview += ' ' + ' '.join(limitations)
     claims.insert(0, _claim(view, COMPARE, 'coverage', overview, rows))
     if not issues:
         issues = [_claim(view, INSPECT, 'coverage',
-            'No differing same-day measurement values or units were found for the tests and dates in this pair. '
+            'No differing same-day measurement values, known units or known lab metadata were found for the tests and dates in this pair. '
+            'Equivalent decimal, bound-symbol and whitespace formatting is ignored only for this check; originals remain unchanged. '
             'This does not establish that all report text is consistent or that the sources are clinically equivalent.', rows)]
     reads = {}
     for name, findings, records in ((COMPARE, claims, rows), (INSPECT, issues, list(all_rows.values()))):
         reads[name] = {**evidence(view, records), 'claims': findings,
-            'required_claim_ids': [c['id'] for c in findings], 'policy_version': summary['policy_version']}
+            'required_claim_ids': [c['id'] for c in findings], 'policy_version': summary['policy_version'],
+            'discrepancy_policy_version': DISCREPANCY_POLICY}
         if len(json.dumps(reads[name], ensure_ascii=False).encode()) > MAX_RESULT_BYTES:
             raise ValueError('These report excerpts exceed the investigation context budget. Use the paged comparison; no evidence was truncated.')
     metadata = {'method': 'cross_report_investigation_v1',
         'selected_source_id': source_ids[0], 'comparison_source_id': source_ids[1],
         'selected_title': titles[0], 'comparison_title': titles[1], 'snapshot_id': snapshot_id,
         'counts': {**dict(counts), 'discrepancies': sum(c['category'] == 'discrepancy' for c in issues),
+                   'related_needs_context': sum(c['category'] == 'needs_context' for c in issues),
                    'reviewed_records': len(rows), 'evidence_records': len(all_rows)},
-        'policy_version': summary['policy_version']}
+        'policy_version': summary['policy_version'], 'discrepancy_policy_version': DISCREPANCY_POLICY}
     return {**context, 'report_investigation': {'reads': reads, 'metadata': metadata}}
 
 

@@ -47,8 +47,11 @@ In **Compare reports**, choose two files and select **Explain changes and
 discrepancies**. Ask also accepts two exact filenames in double quotes, such as
 `What changed between "2026-checkup.csv" and "2025-checkup.csv"?`.
 The offline path is explicitly labelled. The Muse path uses the same bounded
-comparison and discrepancy tools; injected-response tests verify its protocol,
-not live model quality.
+comparison and discrepancy tools. A live development check on 14 authored
+three-report cases improved from 4/9 discrepancies caught with 5 false flags to
+9/9 with zero false flags after fixing the tools' rules. This is a small,
+development-tuned result on reviewed records, not extraction or clinical
+accuracy. [Cases, limits and live run receipts](entry/docs/VERIFICATION.md#live-cross-report-development-check--4-november-2026).
 
 ## How it works
 

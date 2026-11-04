@@ -1,0 +1,1052 @@
+{
+  "version": "authored-cross-report-dev-1",
+  "split": "development; not independent or held-out",
+  "label_author": "AI-authored from explicit literal report differences, before running the baseline",
+  "limitations": "Not clinically representative; fixtures do not measure extraction, scan/OCR quality or human agreement.",
+  "gold_rule": "A discrepancy has different recorded values/qualifiers, two known different units, or differing known lab context. Equivalent decimal/bound/whitespace formatting is not a discrepancy. Missing context requires review rather than a contradiction claim.",
+  "baseline_commit": "6b2f625e208f7d1cf4e6c504716172344be747f5",
+  "cases": [
+    {
+      "id": "alias_value_conflict",
+      "reports": [
+        {
+          "filename": "alias_value_conflict-selected.csv",
+          "sha256": "02dec3e7e93dcece5d8c8e7949fcc8307a4f2c88e17248b8dfce0c05818ff24a",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "A1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "alias_value_conflict-earlier.csv",
+          "sha256": "bfd6b32220cc0323c9630135ba76191257c31ff30b45e43dda2053798091e308",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "A1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "alias_value_conflict-copy.csv",
+          "sha256": "da53210bcaffff0975731c126b22838663bac77e18d05ab6b087cfafc7e77556",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "6.2",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "label_note": "Exact controlled aliases; the same-day numbers differ."
+    },
+    {
+      "id": "decimal_format_only",
+      "reports": [
+        {
+          "filename": "decimal_format_only-selected.csv",
+          "sha256": "b0e00a88e8befda34b99e18676c691c17673d566f001a66afd658a8f2414dbd3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "decimal_format_only-earlier.csv",
+          "sha256": "2c9052c4574d6fe8d2795c73fdb5d79ddc7258ed7d5534c38a2c98b2ec678c16",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.60",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "decimal_format_only-copy.csv",
+          "sha256": "c069e595e38e8d8c76d41c729cfe0188fa8b3e1941ee710375a1dbbf3503b92c",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.600",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [],
+      "label_note": "Equal decimal numbers are not a discrepancy."
+    },
+    {
+      "id": "bound_format_only",
+      "reports": [
+        {
+          "filename": "bound_format_only-selected.csv",
+          "sha256": "65772a21115637302f872a1fc090a5faf4abd3cc296ba0e66dec41c5efd0bdb1",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "bound_format_only-earlier.csv",
+          "sha256": "40cb04afe205cfd70876880f8bbfca1175949a027ffd5a46a91b8136a791c8b2",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "<0.50",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "bound_format_only-copy.csv",
+          "sha256": "9b5a145e6dfbeecf4c3014fbd47f7d3b5bbc5c3229c658f83f732cf46044d40f",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "<0.5",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [],
+      "label_note": "Same operator, bound and unit; only decimal formatting differs."
+    },
+    {
+      "id": "unicode_bound_only",
+      "reports": [
+        {
+          "filename": "unicode_bound_only-selected.csv",
+          "sha256": "65772a21115637302f872a1fc090a5faf4abd3cc296ba0e66dec41c5efd0bdb1",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "unicode_bound_only-earlier.csv",
+          "sha256": "b808b97a28993c841b00648461143ab3d1dd1276124126a4423ee1a8338d2eeb",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "≤0.50",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "unicode_bound_only-copy.csv",
+          "sha256": "5a7a2ae9e063feb4f23242414ed445ea6bf61b859ba118968e43311bc25e06a5",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "<=0.5",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [],
+      "label_note": "Unicode and ASCII less-than-or-equal express the same bound."
+    },
+    {
+      "id": "different_bounds",
+      "reports": [
+        {
+          "filename": "different_bounds-selected.csv",
+          "sha256": "65772a21115637302f872a1fc090a5faf4abd3cc296ba0e66dec41c5efd0bdb1",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "different_bounds-earlier.csv",
+          "sha256": "9b5a145e6dfbeecf4c3014fbd47f7d3b5bbc5c3229c658f83f732cf46044d40f",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "<0.5",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "different_bounds-copy.csv",
+          "sha256": "dc8b02a07b97599a5f89357f48556d19df7a057a560f6e514a1fe1ddc2401a5c",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay Q",
+              "value": "<5.0",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "label_note": "Bounds differ; neither is an exact number and no delta is permitted."
+    },
+    {
+      "id": "method_same_number",
+      "reports": [
+        {
+          "filename": "method_same_number-selected.csv",
+          "sha256": "b0e00a88e8befda34b99e18676c691c17673d566f001a66afd658a8f2414dbd3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "method_same_number-earlier.csv",
+          "sha256": "24bbf5aebd82ff913f539ecb1c0a98f11f0e5e7ce69f86368d32028f1d51b535",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "method_same_number-copy.csv",
+          "sha256": "6e242569e2facb5f3670ce385e9f8edeaa03756cd7c6c64b6e9e876e816356c0",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "Immunoassay"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "label_note": "Same number but different explicitly recorded methods."
+    },
+    {
+      "id": "specimen_same_number",
+      "reports": [
+        {
+          "filename": "specimen_same_number-selected.csv",
+          "sha256": "b0e00a88e8befda34b99e18676c691c17673d566f001a66afd658a8f2414dbd3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "specimen_same_number-earlier.csv",
+          "sha256": "24bbf5aebd82ff913f539ecb1c0a98f11f0e5e7ce69f86368d32028f1d51b535",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "specimen_same_number-copy.csv",
+          "sha256": "9cfc055dbf5e3b27cdf993c07de9b7a368e0259f95572177f3f7eee3a54f29b3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Plasma",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "label_note": "Different explicitly recorded specimens; no sample equivalence inferred."
+    },
+    {
+      "id": "range_same_number",
+      "reports": [
+        {
+          "filename": "range_same_number-selected.csv",
+          "sha256": "b0e00a88e8befda34b99e18676c691c17673d566f001a66afd658a8f2414dbd3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "range_same_number-earlier.csv",
+          "sha256": "24bbf5aebd82ff913f539ecb1c0a98f11f0e5e7ce69f86368d32028f1d51b535",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "range_same_number-copy.csv",
+          "sha256": "20f8c80aa88a64bb11e7cf5145188c9c6ed257eb5983c28cb8e365e747ad8bdc",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.5",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "label_note": "The original reference-range text differs."
+    },
+    {
+      "id": "printed_units_differ",
+      "reports": [
+        {
+          "filename": "printed_units_differ-selected.csv",
+          "sha256": "b0e00a88e8befda34b99e18676c691c17673d566f001a66afd658a8f2414dbd3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "printed_units_differ-earlier.csv",
+          "sha256": "e01b0826a14fcf426e82de036dacb1069db122c268f6bc4c09aa168cc1d0e2ea",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "mg/L",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "printed_units_differ-copy.csv",
+          "sha256": "8f0f71d7f2ea72194b4804b8f935174b05d43f69eaa30c600c1285eba2f59afa",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "g/L",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "label_note": "Printed units differ; do not infer conversion or a winning record."
+    },
+    {
+      "id": "qualitative_spacing",
+      "reports": [
+        {
+          "filename": "qualitative_spacing-selected.csv",
+          "sha256": "f5983e7a2b55dc3ac47ab7c2826c7126a263e68c4c042f780fdd2b4050c33dea",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay N",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "qualitative_spacing-earlier.csv",
+          "sha256": "297ab18f08e06a7fded998c77be403d2c2b37708bcde5e764933731a2dfecfb5",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay N",
+              "value": "Not detected",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "qualitative_spacing-copy.csv",
+          "sha256": "e10706de58fb2230aa2ff5e363f00cd5e26f3c5e813d0a4db0ea160a06cbbb90",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay N",
+              "value": "Not  detected",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [],
+      "label_note": "Repeated whitespace only; not a different statement."
+    },
+    {
+      "id": "unknown_unit",
+      "reports": [
+        {
+          "filename": "unknown_unit-selected.csv",
+          "sha256": "b0e00a88e8befda34b99e18676c691c17673d566f001a66afd658a8f2414dbd3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "unknown_unit-earlier.csv",
+          "sha256": "e01b0826a14fcf426e82de036dacb1069db122c268f6bc4c09aa168cc1d0e2ea",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "mg/L",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "unknown_unit-copy.csv",
+          "sha256": "44961d07d9d35182c6656eebbf03ed2831db59ad09c772f3e7335b70b61153c0",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [],
+      "label_note": "A missing unit requires context, not a claim that two known printed units conflict."
+    },
+    {
+      "id": "facility_same_number",
+      "reports": [
+        {
+          "filename": "facility_same_number-selected.csv",
+          "sha256": "b0e00a88e8befda34b99e18676c691c17673d566f001a66afd658a8f2414dbd3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "facility_same_number-earlier.csv",
+          "sha256": "24bbf5aebd82ff913f539ecb1c0a98f11f0e5e7ce69f86368d32028f1d51b535",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "facility_same_number-copy.csv",
+          "sha256": "04c0120eca02aff20788df91b3da0daa3212a0c397fe8bb0e1682e6e1b3a33a1",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab B",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "label_note": "Different recorded facilities; no interpretation of lab quality."
+    },
+    {
+      "id": "quoted_prior_result",
+      "reports": [
+        {
+          "filename": "quoted_prior_result-selected.csv",
+          "sha256": "b0e00a88e8befda34b99e18676c691c17673d566f001a66afd658a8f2414dbd3",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "quoted_prior_result-earlier.csv",
+          "sha256": "24bbf5aebd82ff913f539ecb1c0a98f11f0e5e7ce69f86368d32028f1d51b535",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "HbA1c",
+              "value": "5.6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "quoted_prior_result-copy.csv",
+          "sha256": "f409946ca88b8ce2f4dd0b2f00bf0f2aa9134d62c1bbb94130072d98ddc66bd2",
+          "rows": [
+            {
+              "kind": "recorded_text",
+              "label": "Prior-result quotation",
+              "value": "Previous HbA1c was 6.8 % on 2023-02-05",
+              "unit": "",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "",
+              "specimen": "",
+              "test_method": ""
+            }
+          ]
+        }
+      ],
+      "expected_issues": [],
+      "label_note": "A quoted historical value is not a same-day measurement."
+    },
+    {
+      "id": "mixed_panel",
+      "reports": [
+        {
+          "filename": "mixed_panel-selected.csv",
+          "sha256": "aaa7144e644acee289321147052cf5eb1f9965f9a8883bdd952648231565e3e8",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay A",
+              "value": "2",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay B",
+              "value": "3",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay C",
+              "value": "4",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay D",
+              "value": "5",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay E",
+              "value": "6",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay F",
+              "value": "7",
+              "unit": "%",
+              "date": "2026-09-20",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "mixed_panel-earlier.csv",
+          "sha256": "ec19f0f07c1bffbf6e19111c319f50bca0729d20f64009033471d7eabe871855",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay A",
+              "value": "1",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay B",
+              "value": "2",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay C",
+              "value": "<0.50",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay D",
+              "value": "4",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay E",
+              "value": "5",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay F",
+              "value": "6",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        },
+        {
+          "filename": "mixed_panel-copy.csv",
+          "sha256": "bc22aa6929eb821064995d7f8daf5722f1c01fb63356b060457dbaa40173e9bb",
+          "rows": [
+            {
+              "kind": "measurement",
+              "label": "Authored assay A",
+              "value": "7",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay B",
+              "value": "2",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "Method B"
+            },
+            {
+              "kind": "measurement",
+              "label": "Authored assay C",
+              "value": "<0.5",
+              "unit": "%",
+              "date": "2025-07-21",
+              "facility": "Authored lab A",
+              "reference_range": "Authored interval 4.0–6.0",
+              "specimen": "Whole blood",
+              "test_method": "HPLC"
+            }
+          ]
+        }
+      ],
+      "expected_issues": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ]
+      ],
+      "label_note": "Two true discrepancies and one equivalent bound; six tests, many findings, no unbounded selection."
+    }
+  ]
+}

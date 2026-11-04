@@ -50,6 +50,11 @@ Cross-report investigation binds two files to one captured view before calling
 Muse. `compare_selected_reports` checks every visible reviewed item in the pair;
 `inspect_report_discrepancies` checks matching measurement names and full recorded
 dates across related files in that view. Exact vocabulary aliases are allowed.
+It checks both recorded values and known lab metadata, including same-number
+method, specimen, reference-range and facility differences. Missing metadata is
+review context, not a contradiction. Decimal spelling, equivalent bound glyphs
+and whitespace alone do not create value conflicts; original evidence is never
+normalized in storage. Qualified results never become numerical deltas.
 The two reads accept empty arguments, must run in that order, and precede exact
 claim selection. Tool-computed changes, conflicts and context limitations remain
 in the answer even if the model selects only a subset. Conflicts appear first.

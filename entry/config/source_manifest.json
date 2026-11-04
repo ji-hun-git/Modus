@@ -3,6 +3,26 @@
   "scope": "Exact bounded source candidate. No eligibility or publication approval implied.",
   "files": [
     {
+      "source": "entry/demo/cross-report-development.json",
+      "destination": "entry/demo/cross-report-development.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/cross-report-live-check.json",
+      "destination": "entry/demo/cross-report-live-check.json",
+      "behavior": false
+    },
+    {
+      "source": "backend/tests/test_entry_report_discrepancies.py",
+      "destination": "backend/tests/test_entry_report_discrepancies.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/report_discrepancies.py",
+      "destination": "backend/modus_entry/report_discrepancies.py",
+      "behavior": true
+    },
+    {
       "source": "backend/modus_entry/report_investigation_tools.py",
       "destination": "backend/modus_entry/report_investigation_tools.py",
       "behavior": true
