@@ -1,0 +1,29 @@
+Modus Records — demo narration
+Edited actual app capture. Authored examples; no new model calls.
+
+00:00 — MODUS RECORDS / Jihun Chae
+Modus Records turns scattered reports into an inspectable personal history. This demo shows work built by Jihun Chae during the Meta Global AI Developer Hackathon.
+
+00:11 — Your history. Every file connected.
+Your files surround you. Select a report to see its recorded readings, then open the original evidence. This is the working application, using authored examples, without interpreting what a result means.
+
+00:26 — Meta Muse Spark reads. You review.
+Muse Spark reads images and PDFs, proposes structured fields, verifies evidence, and checks for possible omitted rows. Here is an actual saved Meta draft, reopened without another model call. This scan still needs visual review: the app explicitly says that an independent text check was unavailable. Nothing is saved automatically.
+
+00:49 — Only reviewed fields enter your history.
+You decide what enters your history. This separate CSV example is read locally, without a model. Review values, units, dates, specimen and test method against the original, then save the reviewed fields.
+
+01:07 — Ask a precise question. Open its evidence.
+Ask, when did I last have blood pressure of one hundred? Modus first asks which number. Choose systolic. It finds May fourth, twenty sixteen, and links the original one hundred over seventy record. The answer shown here uses deterministic tools, not a new model call. It describes history, not current health.
+
+01:33 — When it happened ≠ when it became available.
+This report records a result from April twenty nineteen, but it arrived in Modus today. Both dates remain visible. When we replay March twenty twenty-five using files available now, it appears. Switch to files available by that date, and the late report disappears. The past is not silently rewritten.
+
+01:58 — Conflicting records stay visible.
+Two reports record different TSH values for the same day: two point five and two point nine. Modus preserves both and their sources. It does not decide which report is right.
+
+02:14 — Take a reviewed, source-linked summary.
+Choose records for a summary. Modus carries their dates and source references, and adds the conflicting copy so the disagreement is not hidden. Review the result before downloading the portable HTML summary. No record is changed.
+
+02:33 — Models read. People approve. Evidence stays.
+Models read. People approve. Evidence stays inspectable. The public MIT repository includes the working app and offline checks, passing on Windows and Ubuntu. Modus organizes records; it does not provide medical advice.
