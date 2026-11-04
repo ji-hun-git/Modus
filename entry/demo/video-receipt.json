@@ -1,35 +1,128 @@
 {
-  "recorded_on": "2026-11-04",
-  "title": "Modus Records demonstration",
-  "duration_seconds": 172.02,
-  "bytes": 4582196,
-  "sha256": "409854b64c90fa50dc895ca0c090726691fdadfae9d2c4ceadfc7d1a2790593a",
-  "recorded_application_commit": "9d8b65aefb6a5c0025b50f899db845e7e7d6072b",
-  "application_source_manifest_sha256": "0c764502ea2d98ff5e3db8b00839470e5b1e16d9d10cff3881e8089ed891ad54",
-  "saved_muse_workspace_application_source_matches": true,
-  "source_comparison": "All checked behavior files match after CRLF/LF normalization; source-manifest behavior entries match. Nonbehavior license/docs/media entries differ.",
-  "format": "1920x1080 H.264 / AAC",
-  "capture": "Real browser screenshots and a timed 12-second orbit/evidence interaction, assembled with edited still holds.",
-  "narration": "Offline Windows speech synthesis of the accompanying transcript.",
-  "data": "Authored synthetic records only.",
-  "meta_segment": "A genuine previously generated muse-spark-1.3 scan draft reopened offline. Limitations are visible.",
-  "other_segments": "Offline deterministic CSV reading, history queries, replay, conflict review and summary export.",
-  "new_model_requests": 0,
-  "api_spending_usd": 0,
-  "protected_evaluation_contents_accessed": false,
-  "verification": {
-    "full_media_decode": "passed",
-    "all_section_frame_counts": "passed",
-    "maximum_duration_seconds": 180,
-    "backend_passed": 1522,
-    "backend_skipped": 2,
-    "frontend_passed": 232,
-    "application_ci": "https://github.com/ji-hun-git/Modus/actions/runs/41785492549"
+  "artifact": "Modus-demo.mp4",
+  "duration_seconds": 108.76666666666665,
+  "sha256": "4981248facfdc100028c6321e90e399d6a9bc972fd71795c995ed1449bda9f40",
+  "bytes": 4930988,
+  "application_commit": "9d8b65aefb6a5c0025b50f899db845e7e7d6072b",
+  "capture": "Real offline app interaction sequences and retained screenshots, edited to narration; not response-latency footage",
+  "meta_disclosure": "Genuine saved Muse draft reopened offline, no new model request. CSV and shown Ask use deterministic tools.",
+  "voice": {
+    "repo": "hexgrad/Kokoro-82M",
+    "revision": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+    "license": "Apache-2.0",
+    "files": {
+      "config.json": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f",
+      "kokoro-v1_0.pth": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+      "voices/af_heart.pt": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+      "README.md": "91dcabced89db6f109b8786642f50402d3ee87450e8189589b6f85520e7f4d78"
+    },
+    "inference": "local CPU",
+    "paid_api_calls": 0,
+    "voice": "af_heart",
+    "runtime": "local CPU for initial sections, local RTX for remaining sections"
   },
-  "limitations": [
-    "Not a continuous unedited session or response-latency benchmark.",
-    "Not a fresh live model demonstration, independent model-quality result or held-out score.",
-    "No SAM, hosted Guard, Voice, fine-tune-quality or clinical-validation claim.",
-    "Publishing a video does not submit the hackathon entry."
+  "editing": "Audio-driven cuts; explicit 140 ms sentence gaps; no fixed minimum section holds. Burned-in and selectable captions.",
+  "diagrams": "Code-native SVG, audited against shipped architecture; hero contains a literal crop of actual Home.",
+  "paid_api_calls": 0,
+  "protected_sets_accessed": false,
+  "sections": [
+    {
+      "id": "01",
+      "start": 0,
+      "duration": 6.3,
+      "visual_shots": 1,
+      "audio_seconds": 6.280666666666667
+    },
+    {
+      "id": "02",
+      "start": 6.3,
+      "duration": 8.033333333333333,
+      "visual_shots": 60,
+      "audio_seconds": 8.032166666666667
+    },
+    {
+      "id": "03",
+      "start": 14.333333333333332,
+      "duration": 7.066666666666666,
+      "visual_shots": 2,
+      "audio_seconds": 7.037583333333333
+    },
+    {
+      "id": "04",
+      "start": 21.4,
+      "duration": 7.066666666666666,
+      "visual_shots": 45,
+      "audio_seconds": 7.051583333333333
+    },
+    {
+      "id": "05",
+      "start": 28.466666666666665,
+      "duration": 8.233333333333333,
+      "visual_shots": 3,
+      "audio_seconds": 8.22125
+    },
+    {
+      "id": "06",
+      "start": 36.699999999999996,
+      "duration": 8.366666666666667,
+      "visual_shots": 50,
+      "audio_seconds": 8.34725
+    },
+    {
+      "id": "07",
+      "start": 45.06666666666666,
+      "duration": 8.4,
+      "visual_shots": 2,
+      "audio_seconds": 8.370958333333334
+    },
+    {
+      "id": "08",
+      "start": 53.46666666666666,
+      "duration": 8.133333333333333,
+      "visual_shots": 2,
+      "audio_seconds": 8.108833333333333
+    },
+    {
+      "id": "09",
+      "start": 61.599999999999994,
+      "duration": 9.066666666666666,
+      "visual_shots": 2,
+      "audio_seconds": 9.061625
+    },
+    {
+      "id": "10",
+      "start": 70.66666666666666,
+      "duration": 8.0,
+      "visual_shots": 2,
+      "audio_seconds": 7.97275
+    },
+    {
+      "id": "11",
+      "start": 78.66666666666666,
+      "duration": 6.1,
+      "visual_shots": 2,
+      "audio_seconds": 6.093875
+    },
+    {
+      "id": "12",
+      "start": 84.76666666666665,
+      "duration": 9.0,
+      "visual_shots": 2,
+      "audio_seconds": 8.997583333333333
+    },
+    {
+      "id": "13",
+      "start": 93.76666666666665,
+      "duration": 10.166666666666666,
+      "visual_shots": 1,
+      "audio_seconds": 10.159208333333334
+    },
+    {
+      "id": "14",
+      "start": 103.93333333333332,
+      "duration": 4.833333333333333,
+      "visual_shots": 1,
+      "audio_seconds": 4.805875
+    }
   ]
 }

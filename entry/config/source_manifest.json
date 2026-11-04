@@ -3246,6 +3246,46 @@
       "source": "entry/demo/video-transcript.txt",
       "destination": "entry/demo/video-transcript.txt",
       "behavior": false
+    },
+    {
+      "source": "entry/demo/captions.vtt",
+      "destination": "entry/demo/captions.vtt",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/video-verification.json",
+      "destination": "entry/demo/video-verification.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/figures/hero.svg",
+      "destination": "entry/demo/figures/hero.svg",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/figures/hero.png",
+      "destination": "entry/demo/figures/hero.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/figures/architecture.svg",
+      "destination": "entry/demo/figures/architecture.svg",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/figures/architecture.png",
+      "destination": "entry/demo/figures/architecture.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/figures/two-clocks.svg",
+      "destination": "entry/demo/figures/two-clocks.svg",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/figures/two-clocks.png",
+      "destination": "entry/demo/figures/two-clocks.png",
+      "behavior": false
     }
   ]
 }

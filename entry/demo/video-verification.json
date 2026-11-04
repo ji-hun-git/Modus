@@ -1,0 +1,103 @@
+{
+  "status": "passed",
+  "duration_seconds": 108.82,
+  "full_decode": true,
+  "video": "H264 1920x1080 30 fps",
+  "audio": "AAC stereo-compatible narration",
+  "mean_volume_db": -16.5,
+  "peak_db": -1.5,
+  "silence_threshold_db": -40,
+  "longest_silent_gap_seconds": 0.402667,
+  "gaps_over_one_second": 0,
+  "section_frame_checks": [
+    {
+      "section": "01",
+      "frames": 189,
+      "expected": 189
+    },
+    {
+      "section": "02",
+      "frames": 241,
+      "expected": 241
+    },
+    {
+      "section": "03",
+      "frames": 212,
+      "expected": 212
+    },
+    {
+      "section": "04",
+      "frames": 212,
+      "expected": 212
+    },
+    {
+      "section": "05",
+      "frames": 247,
+      "expected": 247
+    },
+    {
+      "section": "06",
+      "frames": 251,
+      "expected": 251
+    },
+    {
+      "section": "07",
+      "frames": 252,
+      "expected": 252
+    },
+    {
+      "section": "08",
+      "frames": 244,
+      "expected": 244
+    },
+    {
+      "section": "09",
+      "frames": 272,
+      "expected": 272
+    },
+    {
+      "section": "10",
+      "frames": 240,
+      "expected": 240
+    },
+    {
+      "section": "11",
+      "frames": 183,
+      "expected": 183
+    },
+    {
+      "section": "12",
+      "frames": 270,
+      "expected": 270
+    },
+    {
+      "section": "13",
+      "frames": 305,
+      "expected": 305
+    },
+    {
+      "section": "14",
+      "frames": 145,
+      "expected": 145
+    }
+  ],
+  "previews": [
+    "preview-002.jpg",
+    "preview-010.jpg",
+    "preview-017.jpg",
+    "preview-025.jpg",
+    "preview-033.jpg",
+    "preview-042.jpg",
+    "preview-049.jpg",
+    "preview-057.jpg",
+    "preview-066.jpg",
+    "preview-075.jpg",
+    "preview-082.jpg",
+    "preview-089.jpg",
+    "preview-098.jpg",
+    "preview-106.jpg"
+  ],
+  "sha256": "4981248facfdc100028c6321e90e399d6a9bc972fd71795c995ed1449bda9f40",
+  "paid_api_calls": 0,
+  "limitation": "Signal integrity and caption alignment do not establish subjective narration quality."
+}

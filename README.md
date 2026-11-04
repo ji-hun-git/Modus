@@ -1,5 +1,7 @@
 # Modus Records
 
+[![Modus: every report, one history. Actual orbit Home with clickable files, readings and original evidence.](entry/demo/figures/hero.png)](https://ji-hun-git.github.io/Modus/)
+
 **Meta Global AI Developer Hackathon 2026** · **Indie Developer** · **Build for Your World**
 
 Built by **Jihun Chae** (solo). Event contributions: **26 October–4 November 2026**.
@@ -10,7 +12,7 @@ This entry provides record integrity and source retrieval, without medical advic
 See the [event contribution map](entry/docs/CONTRIBUTIONS.md) and
 [reproducible demo walkthrough](entry/demo/longitudinal/README.md).
 
-**[Watch the 2:52 demonstration](https://ji-hun-git.github.io/Modus/).**
+**[Watch the 1:49 demonstration](https://ji-hun-git.github.io/Modus/).**
 The edited recording shows the actual app, authored examples and an existing
 genuine Muse draft reopened offline. CSV reading and Ask in this recording are
 deterministic; no new model request is presented as live. See the
@@ -39,6 +41,22 @@ follow each saved result back to its source.
 Ask supports exact numeric conditions, earliest/latest matching results, counts,
 source-backed histories and recorded differences. Follow-up questions retain
 the original condition, units and temporal view.
+
+## How it works
+
+![Files, Muse extraction and verification, human review, encrypted history, scoped tools and checked evidence.](entry/demo/figures/architecture.png)
+
+Muse proposes fields and possible omissions. Explicit review controls record
+writes. Questions use a captured historical scope, bounded read-only tools and
+checked source support. The shipped document guard is deterministic; SAM and
+hosted Guard are not included. [Workflow contract](entry/docs/AGENT_WORKFLOW.md)
+· [Full-size editable diagram](entry/demo/figures/architecture.svg).
+
+![A 2019 result received in 2026 stays outside a view of files known in 2025.](entry/demo/figures/two-clocks.png)
+
+A report's recorded date and the date it became available are separate. Late
+files can change today's reconstruction while an earlier knowledge view stays
+intact. The figure uses the authored example shown in the video.
 
 ## Run locally
 

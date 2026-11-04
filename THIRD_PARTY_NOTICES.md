@@ -22,7 +22,24 @@ This entry uses authored synthetic records. It does not bundle Synthea exports, 
 
 The optional local OCR adapter uses the separately installed XingChen-AGI/TeleOCR checkpoint pinned in config/teleocr.json, whose upstream model card declares Apache-2.0. Weights and its isolated environment are not part of the source package. scripts/requirements-ocr.lock.txt records that environment's dependencies; their own licenses apply. Optional OCR runtime qualification does not establish unrestricted production-upload suitability.
 
-The owner has not selected a project-wide open-source license. No unsolicited license grant for the owner's code is made here. Dependency licenses and the competition's organizer agreement are separate matters.
+First-party Modus source is licensed under the [MIT License](LICENSE), selected
+by its owner on 4 November 2026. Dependency licenses and the competition's
+organizer agreement remain separate matters.
+
+## Demonstration media
+
+The revised demonstration uses locally generated narration from
+[hexgrad/Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M), revision
+`f3ff3571791e39611d31c381e3a41a3af07b4987`, voice `af_heart`, with the Apache-2.0
+[Kokoro](https://github.com/hexgrad/kokoro) inference library 0.9.4.
+The upstream model card declares Apache-2.0 weights and documents its training
+data attribution. No person's voice was cloned for this film. Weights and the
+isolated media environment are not distributed with the app. This narration
+is post-production media, not a non-Meta model in the product path.
+
+The hero and system figures are Modus-authored SVGs, rendered with resvg 2.6.2;
+the hero embeds an actual application capture of authored demo records.
+No Palantir branding, proprietary artwork or interface assets are reused.
 
 ## Record terminology
 
