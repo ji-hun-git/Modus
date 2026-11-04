@@ -586,7 +586,7 @@ export default function ImportWorkflow({
                   : attempt
                     ? "Save unconfirmed · Retry the same fields."
                     : factRows.length
-                      ? "Check these against your report."
+                      ? null
                       : draft.extraction_review?.completeness_check?.omissions.length
                         ? "Choose a flagged row below to review."
                         : "No fields are available to save. Review the source below."}
@@ -618,6 +618,7 @@ export default function ImportWorkflow({
             )}
             {generic ? (
               <GenericFactReview
+                key={draft.id}
                 draft={draft}
                 rows={factRows}
                 locked={locked}

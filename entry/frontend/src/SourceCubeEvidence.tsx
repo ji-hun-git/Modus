@@ -5,6 +5,8 @@ import {
   ArrowDownToLine,
   ArrowRight,
   FileText,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type { HistoryFact, HistoryView } from "./historyTypes";
 import { factKindLabels } from "./historyTypes";
@@ -64,6 +66,12 @@ export default function SourceCubeEvidence({
     ? view.conflicts.find((item) => item.fact_ids.includes(selected.id))
     : null;
   const edited = selected?.reviewed_fields || [];
+  const selectedIndex = visibleFacts.findIndex(fact => fact.id === selected?.id);
+  const selectIndex = (index: number) => {
+    if (!visibleFacts[index]) return;
+    setSelectedId(visibleFacts[index].id); setComparisonId(null);
+    setListOffset(Math.floor(index / 50) * 50);
+  };
   const title = sourceTitle(visibleFacts);
   if (!source)
     return (
@@ -127,12 +135,18 @@ export default function SourceCubeEvidence({
         No records from this document are available in the selected view.
       </p>}
       <div className="source-evidence-file-link">
+        {visibleFacts.length > 1 && <nav className="source-evidence-navigation" aria-label="Evidence entries">
+          <button type="button" className="text-button" aria-label="Previous evidence entry" aria-controls={proofId} disabled={selectedIndex <= 0} onClick={() => selectIndex(selectedIndex - 1)}><ChevronLeft size={16} aria-hidden="true" /></button>
+          <span>{selectedIndex + 1} of {visibleFacts.length}</span>
+          <button type="button" className="text-button" aria-label="Next evidence entry" aria-controls={proofId} disabled={selectedIndex + 1 >= visibleFacts.length} onClick={() => selectIndex(selectedIndex + 1)}><ChevronRight size={16} aria-hidden="true" /></button>
+        </nav>}
         {source.original_available ? <DownloadOriginal className="text-button" href={originalDownloadUrl(source.id, view.scope)}>
           <ArrowDownToLine size={14} aria-hidden="true" /> Download original
         </DownloadOriginal> : <span className="source-evidence-original-missing">Original unavailable in this view</span>}
       </div>
       {selected && (
         <div className="source-evidence-proof" id={proofId}>
+          <div className="source-evidence-value-panel">
           <div className="source-evidence-result-heading">
             <div>
               <h3>{recordLabel(selected.label)}</h3>
@@ -153,6 +167,8 @@ export default function SourceCubeEvidence({
             <div><dt>Recorded</dt><dd>{recordedDate(selected)}</dd></div>
             <div><dt>Available in Modus</dt><dd>{timeLabel(selected.available_at || source.available_at)}</dd></div>
           </dl>
+          </div>
+          <div className="source-evidence-source-panel">
           <div className="source-evidence-proof-heading">
             <span>As written in your record</span>
             {sourcePage(selected, source) != null && <span>Page {sourcePage(selected, source)}</span>}
@@ -168,6 +184,7 @@ export default function SourceCubeEvidence({
           )}
           {compact ? (!!selected.reference_range || !!selected.specimen || !!selected.test_method) &&
             <details className="source-evidence-lab-context"><summary>Range, specimen &amp; method</summary><LabContext fact={selected} /></details> : <LabContext fact={selected} />}
+          </div>
           {conflict && (
             <div className="source-evidence-conflict">
               <div>

@@ -22,9 +22,9 @@ export default function LabContext({fact}:{fact:HistoryFact}) {
   </div>)}</dl>;
 }
 
-export function LabContextReview({row,index,disabled,onChange}:{row:FactReviewRow;index:number;disabled:boolean;
+export function LabContextReview({row,index,disabled,onChange,collapsed = false}:{row:FactReviewRow;index:number;disabled:boolean;collapsed?:boolean;
   onChange:(id:string,patch:Partial<FactReviewRow>)=>void}) {
-  return <details className="lab-context-review" open={Object.keys(labFields).some(k=>!!row[k as keyof typeof labFields]) || undefined}>
+  return <details className="lab-context-review" open={!collapsed && Object.keys(labFields).some(k=>!!row[k as keyof typeof labFields]) || undefined}>
     <summary>Range, specimen &amp; method</summary>
     <fieldset disabled={disabled} className="generic-fact-fields">{Object.entries(labFields).map(([key,label])=><label className="field" key={key}>
       {label}<input aria-label={`${label} ${index+1}`} maxLength={key==='reference_range'?400:200}

@@ -55,6 +55,21 @@ selected evidence. A source containing later records cannot bypass an earlier
 view. Conflicting sources remain separate; no value is automatically declared
 correct.
 
+### Focused review and source inspection
+
+The review workspace keeps a bounded entry list beside one editable entry and
+its literal source excerpt. Previous/next controls move without discarding edits
+or exclusions. At most 30 navigation rows render per page, while save validation
+checks every included entry. An invalid entry on another page is brought into
+view before any save request. Flagged omissions join this same review and retain
+their original proposal. There is no automatic approval on navigation.
+
+The source inspector places the saved value and its occurrence/availability
+dates beside the original passage and printed lab context. Its entry navigation
+stays inside the selected source and captured view. Corrections and saved versions
+remain available below; closing the inspector returns keyboard focus to its
+trigger. Home shows these two dates alongside its selected original excerpt.
+
 ## Ask and continue
 
 Questions return recorded facts, explicit uncertainty and clickable evidence.

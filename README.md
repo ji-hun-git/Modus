@@ -44,6 +44,23 @@ the original condition, units and temporal view.
 
 ## How it works
 
+Modus owns the record lifecycle around the model:
+
+- **Two clocks:** a report from 2019 received in 2026 can update today's history
+  while staying outside a view of what was available in 2025.
+- **Corrections with memory:** an edited result gets a new saved version. The
+  earlier value, correction reason and original excerpt remain inspectable.
+- **A controlled save:** extraction proposes; explicit review commits. An
+  uncertain save retries the same transaction instead of silently duplicating it.
+- **Checkable answers:** typed tools filter, count and compare captured records.
+  Values remain linked to their source and version; a citation alone cannot
+  justify an unsupported sentence.
+
+These capabilities keep working without a model request. Muse supplies document
+reading and bounded investigation; Modus supplies the history, authority checks
+and evidence workflow. This is an architectural distinction from a simple
+document-chat interface, not a claim of unique invention or superior model accuracy.
+
 ![Files, Muse extraction and verification, human review, encrypted history, scoped tools and checked evidence.](entry/demo/figures/architecture.png)
 
 Muse proposes fields and possible omissions. Explicit review controls record

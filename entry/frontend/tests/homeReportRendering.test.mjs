@@ -31,6 +31,7 @@ const result = await build({
       'export { historyFields } from "./historyFields";',
       'export { HistoryTrends } from "./MeasurementsWorkspace";',
       'export { default as GenericFactReview } from "./GenericFactReview";',
+      'export { firstInvalidReviewRow, reviewPage } from "./reviewEntries";',
       'export { default as ReportCoverageSummary } from "./ReportCoverageSummary";',
       'export { default as ExtractionReviewSummary } from "./ExtractionReviewSummary";',
       'export { default as ReportCompletenessReview } from "./ReportCompletenessReview";',
@@ -60,7 +61,7 @@ const result = await build({
     },
   ],
 });
-const { ReportCompletenessReview, HomeReportEvidence, ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
+const { firstInvalidReviewRow, reviewPage, ReportCompletenessReview, HomeReportEvidence, ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
   await import(
     "data:text/javascript;base64," +
       Buffer.from(result.outputFiles[0].text).toString("base64")
@@ -462,11 +463,11 @@ test("review headers show every original name, exact value and immutable excerpt
   const rows = ['Pulse','ALT','Glucose','Weight','Unknown panel'].map((label,i) => ({...row(String(i),'2024-02-03',{label,value:'13.70'}),keep:true}));
   const html = render(GenericFactReview,{draft:{id:'draft',source:{original_available:true},facts:rows},rows,
     locked:false,busy:false,uncertain:false,onChange:noop,onSave:noop,onSkip:noop});
-  rows.forEach((row, index) => {
-    const name = html.match(new RegExp(`<input[^>]*aria-label="Name ${index + 1}"[^>]*>`))?.[0];
-    assert.ok(name?.includes(`value="${row.label}"`));
-    assert.ok(name?.includes('required=""'));
-  });
+  rows.forEach((row, index) => assert.ok(html.includes(`aria-label="Review entry ${index + 1}: ${row.label}"`)));
+  const name = html.match(/<input[^>]*aria-label="Name 1"[^>]*>/)?.[0];
+  assert.ok(name?.includes('value="Pulse"'));
+  assert.ok(name?.includes('required=""'));
+  assert.equal((html.match(/aria-label="Recorded value /g) || []).length, 1);
   assert.match(html,/13.70/);
   assert.match(html,/Save 5 reviewed fields/);
   assert.doesNotMatch(html,/>Field [0-9]/);
@@ -1039,4 +1040,61 @@ test('Twelve same-era orbit targets have mobile touch clearance and outward date
     assert.ok(nodeX+x>15 && nodeX+x<585 && nodeY+y>10 && nodeY+y<450);
   });
   assert.match(html,/>Undated<\/text>/);
+});
+
+
+test('focused review bounds the entry list but retains the full save count', () => {
+  const rows = Array.from({length: 500}, (_, i) => ({...row(`field-${i}`, '2024-01-02', {label: `Test ${i}`, value: '<0.40'}), keep: true}));
+  const html = render(GenericFactReview, {draft: {id: 'large', source: {}, facts: rows}, rows,
+    locked: false, busy: false, uncertain: false, onChange: noop, onSave: noop, onSkip: noop});
+  assert.equal((html.match(/aria-label="Review entry /g) || []).length, 30);
+  assert.equal((html.match(/aria-label="Recorded value /g) || []).length, 1);
+  assert.match(html, /Save 500 reviewed fields/);
+  assert.match(html, /&lt;0.40/);
+  assert.equal(reviewPage(rows, 499).rows.at(-1).row.id, 'field-499');
+  assert.equal(reviewPage(rows, 499).rows.length, 20);
+  assert.equal(reviewPage(rows, 499).rows[0].index, 480);
+});
+
+test('review validation finds a hidden invalid entry without changing its original or excluding it', () => {
+  const rows = Array.from({length: 70}, (_, i) => ({...row(`field-${i}`, '2024-01-02', {value:'13.70'}), keep:true}));
+  rows[49].value = '  ';
+  const before = structuredClone(rows);
+  assert.deepEqual(firstInvalidReviewRow(rows), {id:'field-49',index:49,control:'Recorded value',message:'Entry 50 needs a recorded value. Enter it or exclude this entry.'});
+  assert.deepEqual(rows, before);
+  rows[49].keep = false;
+  assert.equal(firstInvalidReviewRow(rows), null);
+  rows[62].label = 'x'.repeat(201);
+  assert.equal(firstInvalidReviewRow(rows).index, 62);
+  rows[62].label = 'Glucose';
+  rows[62].reference_range = 'x'.repeat(401);
+  assert.equal(firstInvalidReviewRow(rows).control, 'Lab’s reference range');
+  rows[62].reference_range = null;
+  rows[62].specimen = 'x'.repeat(201);
+  assert.equal(firstInvalidReviewRow(rows).control, 'Specimen');
+  rows[62].keep = false;
+  assert.equal(firstInvalidReviewRow(rows), null);
+});
+
+test('evidence entry navigation only counts records in the captured source and scope', () => {
+  const first = row('one','2024-01-02');
+  const second = row('two','2024-02-02',{source_id:first.source_id,value:'6.2'});
+  const alien = row('alien','2025-02-02',{value:'PRIVATE-OTHER-SOURCE'});
+  const view = viewOf([first,second,alien]);
+  const html = render(SourceCubeEvidence,{source:view.sources[0],facts:[first,second,alien],view,initialFactId:second.id});
+  assert.match(html,/>2 of 2</);
+  assert.doesNotMatch(html,/PRIVATE-OTHER-SOURCE/);
+  assert.match(html,/aria-label="Next evidence entry"[^>]*disabled/);
+  assert.match(html,/source-evidence-value-panel/);
+  assert.match(html,/source-evidence-source-panel/);
+});
+
+test('Home displays the recorded and availability clocks beside the literal original', () => {
+  const fact = row('late','2016-05-04',{available_at:'2026-11-04T08:00:00Z'});
+  const html = render(HomeReportEvidence,{fact,view:viewOf([fact]),onOpen:noop});
+  assert.match(html,/>Recorded</);
+  assert.match(html,/>Available in Modus</);
+  assert.match(html,/4 May 2016/);
+  assert.match(html,/4 Nov 2026/);
+  assert.match(html,/<blockquote>HbA1c 5.7 %<\/blockquote>/);
 });

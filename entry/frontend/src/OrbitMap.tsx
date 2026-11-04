@@ -23,6 +23,7 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
   const rings = compact || prominent ? nodes.length ? [{era:-1,radius:104},{era:-2,radius:174}] : [] : layout.rings;
   const buttons = useRef(new Map<string, SVGGElement>());
   const selected = nodes.find((node) => node.id === selectedId);
+  const fileCount = `${total && total > reports.length ? `${reports.length} of ${total}` : reports.length} ${total === 1 || !total && reports.length === 1 ? 'file' : 'files'}`;
   const pickerLabels = new Map(reports.map(report => {
     const title = report.source.title;
     const duplicates = reports.filter(other => other.source.title === title);
@@ -34,8 +35,10 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
   return (
     <section className={`orbit-map${compact?' orbit-map-compact':''}${prominent?' orbit-map-prominent':''}`} aria-label="Your source files in orbit">
       <header className="orbit-map-heading">
-        <span>{prominent ? 'Your files, through the years' : 'Your medical records'}</span>
-        <div className="orbit-map-tools"><span>{total && total > reports.length ? `${reports.length} of ${total}` : reports.length} {total === 1 || !total && reports.length === 1 ? 'file' : 'files'}</span><AmbientMotionControl compact /></div>
+        <span>{prominent ? 'Your reports' : 'Your medical records'}</span>
+        <div className="orbit-map-tools">{prominent && total && total > reports.length && onOpenAll
+          ? <button type="button" className="text-button orbit-file-count" aria-label="All files" title="Open all source files" onClick={onOpenAll}>{fileCount}</button>
+          : <span>{fileCount}</span>}<AmbientMotionControl compact /></div>
       </header>
       <svg className="orbit-chart" viewBox="0 0 600 480" role="group" aria-label="Select a source file">
         <g className="orbit-guides" aria-hidden="true">
@@ -54,7 +57,8 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
         <g className="orbit-owner" aria-label="You, at the center of your history">
           <circle cx="300" cy="222" r="49" />
           <circle className="orbit-owner-inner" cx="300" cy="222" r="42" />
-          <text className="orbit-owner-label" x="300" y="222" textAnchor="middle" dominantBaseline="central">You</text>
+          <text className="orbit-owner-label" x="300" y="214" textAnchor="middle" dominantBaseline="central">You</text>
+          <text className="orbit-owner-count" x="300" y="238" textAnchor="middle">{total ?? reports.length} {(total ?? reports.length) === 1 ? 'file' : 'files'}</text>
         </g>
         {nodes.map((node, index) => {
           const report = reports.find((item) => item.source.id === node.id)!;
@@ -107,7 +111,7 @@ export default function OrbitMap({ reports, selectedId, onSelect, total, compact
           {reports.map(report=><option key={report.source.id} value={report.source.id}>{pickerLabels.get(report.source.id)}</option>)}
         </select>
       </label>}
-      {(!prominent || !!total && total > reports.length) && <footer><span>{prominent ? 'More files are available in Records.' : 'One satellite. One source file.'}</span>
+      {!prominent && <footer><span>One satellite. One source file.</span>
         {total && total > reports.length && onOpenAll ? <button type="button" className="text-button" onClick={onOpenAll}>All files</button>
           : !prominent && <span>Each file belongs to your history.</span>}</footer>}
     </section>

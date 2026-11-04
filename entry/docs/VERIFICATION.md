@@ -1,5 +1,44 @@
 # Verification
 
+## Orbit, focused review and source inspection — 4 November 2026
+
+Home keeps the owner and clickable reports in the orbit, with a compact reading
+grid and the selected original excerpt. The source inspector presents the saved
+value, recorded date and availability date beside its original and printed lab
+context. Previous/next navigation stays inside that source and captured view.
+
+Import review renders one editor and at most 30 navigation entries per page.
+All retained entries are validated before saving, including entries on other
+pages. Edits, exclusions and flagged-row proposals remain in the full review.
+
+`python scripts/check_service.py`: **1,522 backend passed, 2 skipped; 236 frontend
+passed; production build passed**. Regressions cover a 500-entry review, hidden
+invalid entries and lab metadata limits, source-scoped navigation, and the two
+dates beside literal evidence. The existing Starlette/httpx warning remains.
+
+An isolated offline browser run imported three authored CSV reports. It changed
+an original value of 94 to 95 during review, excluded a separate text entry, and
+later saved a correction to 96. The earlier availability view retained 95; the
+updated view exposed both saved versions and the correction reason. The original
+excerpt stayed 94, and the downloaded file matched its original SHA-256 hash.
+A second report with 97 remained a separate conflicting record. A blank value
+on entry 31 blocked saving, opened that entry and focused its field; restoring
+the value allowed all 31 entries to save. These are software workflow checks,
+not measurements of Muse extraction quality.
+
+Desktop and 390-pixel layouts were inspected. Review and evidence had no
+horizontal overflow; Escape closed the inspector and restored focus to its
+trigger. Keyboard scrubbing changed the visible source set and readings to
+2010, and returning to today restored the current view. The all-files action
+opened the complete document list. This is targeted browser verification, not a
+complete accessibility audit.
+
+The three earlier working stores and all 39 original-file BLOBs retained their
+logical snapshots and hashes. The separate recording store retained its 79
+history facts, 17 sources, 14 documents, six commits and six byte-exact originals.
+No model API calls were made. Protected evaluation and held-out contents were
+neither accessed nor changed. This pass adds no model-accuracy claim.
+
 ## Isolated recording rehearsal — 4 November 2026
 
 The checked offline launcher now accepts `--rehearsal NAME`. Each name keeps a

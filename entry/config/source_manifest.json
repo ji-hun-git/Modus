@@ -3286,6 +3286,26 @@
       "source": "entry/demo/figures/two-clocks.png",
       "destination": "entry/demo/figures/two-clocks.png",
       "behavior": false
+    },
+    {
+      "source": "entry/frontend/src/ReviewFieldEditor.tsx",
+      "destination": "entry/frontend/src/ReviewFieldEditor.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/reviewEntries.ts",
+      "destination": "entry/frontend/src/reviewEntries.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/review-workspace.css",
+      "destination": "entry/frontend/src/review-workspace.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/record-workspace.css",
+      "destination": "entry/frontend/src/record-workspace.css",
+      "behavior": true
     }
   ]
 }
