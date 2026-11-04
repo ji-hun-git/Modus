@@ -46,6 +46,23 @@ Claims bind saved facts, source identity, revisions and captured scope. Original
 excerpts can differ from reviewed corrections; both remain visible. Referencing
 a source ID alone never establishes support for arbitrary model prose.
 
+Cross-report investigation binds two files to one captured view before calling
+Muse. `compare_selected_reports` checks every visible reviewed item in the pair;
+`inspect_report_discrepancies` checks matching measurement names and full recorded
+dates across related files in that view. Exact vocabulary aliases are allowed.
+The two reads accept empty arguments, must run in that order, and precede exact
+claim selection. Tool-computed changes, conflicts and context limitations remain
+in the answer even if the model selects only a subset. Conflicts appear first.
+No model prose, winning value, clinical explanation or record write is accepted.
+
+The same two reads run without a model offline. Source excerpts, versions and
+both time bounds remain inspectable. A new correction invalidates the displayed
+explanation, including corrections to a related third file. At most 48 pair
+records and 64 total evidence records are investigated; larger results are
+rejected before provider access instead of silently truncated. The paged report
+comparison remains available. This checks recorded values, units and metadata,
+not arbitrary semantic contradictions throughout report prose.
+
 ## Verification
 
 The offline regression runner strips credentials, blocks external backend

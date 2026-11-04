@@ -15,6 +15,7 @@ from .investigation_policy import request_bounds, COMPOUND, LATEST
 from .medical_terms import ambiguous_request, mentions
 from .history_query import plan_for_chat, query_response
 from .history_query_muse import interpret_with_muse
+from .report_investigation_request import report_request, ReportBounds
 
 PROMPT = (Path(__file__).resolve().parents[2] / 'entry/prompts/history.md').read_text(encoding='utf-8')
 UNSUPPORTED = ('I can find recorded measurements, visits, prescriptions, vaccinations, procedures, '
@@ -117,7 +118,14 @@ def evidence_view(context, claims):
     selected_ids={row['id'] for row in selected}
     groups=[g for g in current['conflicts'] if selected_ids.intersection(g['fact_ids'])]
     companion_ids={key for g in groups for key in g['fact_ids']}
-    expanded=selected+[row for row in rows if row['id'] in companion_ids and row['id'] not in selected_ids]
+    if context.get('report_investigation'):
+        # The two report tools already bound all related evidence before any
+        # model call. Do not add unreviewed/hidden companions or silently exceed
+        # that budget while decorating the answer.
+        expanded = selected
+        groups = [g for g in groups if set(g['fact_ids']) <= selected_ids]
+    else:
+        expanded=selected+[row for row in rows if row['id'] in companion_ids and row['id'] not in selected_ids]
     limited=expanded[:64]
     source_ids={row['source_id'] for row in limited}
     facts=[deepcopy(row) for row in limited if row.get('date')]
@@ -142,8 +150,14 @@ def decorate(context, response):
                 if key not in selected:
                     response['claims'].append(emitted[key])
                     selected.add(key)
+    if context.get('report_investigation'):
+        priority = {'discrepancy': 0, 'needs_context': 1, 'changed': 2,
+                    'one_report_only': 3, 'same_number': 4, 'coverage': 5}
+        response['claims'].sort(key=lambda item: priority.get(item.get('category'), 6))
     response['answer'] = '\n'.join(claim['text'] for claim in response['claims'])
     response['history_evidence']=evidence_view(context,response['claims'])
+    if context.get('report_investigation'):
+        response['report_investigation'] = deepcopy(context['report_investigation']['metadata'])
     # Reference links explain code-owned terminology, never support a personal
     # finding. Only attach mappings from a selected tool's actual result.
     mappings = {}
@@ -199,6 +213,12 @@ def offline_chat(context, message):
     guarded = quarantine_request(context, message, {})
     if guarded:
         return decorate(context, guarded)
+    if not UNSAFE.search(_outside_quotes(message)):
+        reports, error = report_request(context, message)
+        if error:
+            return report_clarification(context, error)
+        if reports:
+            return decorate(reports, offline_investigate(reports, ReportBounds()))
     clarification_response = clarify_pressure(context, message) or clarify_term(context, message)
     if clarification_response:
         return clarification_response
@@ -234,6 +254,12 @@ async def live_chat(context, message, telemetry, *, request=None):
     guarded = quarantine_request(context, message, telemetry)
     if guarded:
         return decorate(context, guarded)
+    if not UNSAFE.search(_outside_quotes(message)):
+        reports, error = report_request(context, message)
+        if error:
+            return report_clarification(context, error)
+        if reports:
+            return decorate(reports, await investigate(reports, message, ReportBounds(), telemetry, request=request))
     clarification_response = clarify_pressure(context, message) or clarify_term(context, message)
     if clarification_response:
         return clarification_response
@@ -274,3 +300,10 @@ async def live_chat(context, message, telemetry, *, request=None):
         prompt=PROMPT+'\nResolved record request: '+name+'. Invoke it with empty arguments {}. '
             'The application already fixed all filters; do not resend them.',request=request)
     return decorate(context,response)
+
+
+def report_clarification(context, question):
+    response = result(context, execution_context('request_guard'), [], [])
+    response.update(provider_requests_made=0, clarification={
+        'kind': 'record_investigation', 'question': question, 'choices': []})
+    return decorate(context, response)

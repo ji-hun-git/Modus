@@ -1,5 +1,31 @@
 # Verification
 
+## Cross-report investigation — 4 November 2026
+
+The report comparison now exposes two owner-bound read tools to Muse: compare
+the selected pair, then inspect matching same-day discrepancies across the
+captured view. Typed rules supply arithmetic and source-linked explanations;
+the model cannot change the files, dates or findings. Required context survives
+claim selection. The offline path executes the same reads with zero model calls.
+
+`python scripts/check_service.py`: **1,568 backend passed, 2 skipped; 240 frontend
+passed; production build passed**. The protected-file guard recorded zero
+accesses. Forty-six new authored backend cases cover exact differences,
+metadata incompatibility, same-day third-file copies, alias matching, decimal
+equivalence, unknown dates, withheld text, ambiguous selection, provider failure,
+untrusted instructions, bounded evidence, human correction and original bytes.
+The full run also caught and corrected an interception of the established
+unquoted two-checkup request syntax. An existing Starlette/httpx deprecation
+warning remains; neither skipped test is counted as passing.
+
+The browser's offline comparison of the two authored 2026/2025 reports found
+the 2025 third file's TSH discrepancy (2.5 versus 2.9), retained both sources,
+withheld a TSH delta and calculated three compatible changes. The source link
+opened both originals, including the third-file download. The underlying
+recording store and 39 original files in three preserved workspaces were checked
+unchanged. No live Muse quality measurement, evaluation or held-out execution is
+claimed. Provider protocol tests use labelled injected transport only.
+
 ## Orbit, focused review and source inspection — 4 November 2026
 
 Home keeps the owner and clickable reports in the orbit, with a compact reading

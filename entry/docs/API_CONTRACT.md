@@ -569,6 +569,52 @@ Tests match by an existing exact medical alias or normalized recorded label. Pre
 
 # Two-report summary — 2 November 2026
 
+## Cross-report investigation — 4 November 2026
+
+`POST /api/history/report-investigation` takes exactly the same three fields as
+the summary endpoint: `snapshot_id`, `selected_source_id`, and
+`comparison_source_id`. It reuses the captured occurrence/availability view;
+neither caller nor model supplies replacement dates, report content or prose.
+Expired snapshots return 409. Invalid pairs or budgets return 422 before any
+provider call. Provider/protocol failure returns a sanitized 502 with no offline
+fallback. This endpoint logs question activity but never commits medical records.
+
+The history-answer response adds `report_investigation` with method
+`cross_report_investigation_v1`, both source IDs/titles, snapshot ID, comparison
+policy and counts (`changed`, `same_number`, `needs_context`, `one_report_only`,
+`discrepancies`, `reviewed_records`, `evidence_records`). Claims include a category,
+exact evidence IDs and source/revision proofs. `history_evidence` contains every
+linked fact and source within the original scope. Scope, pair and snapshot must
+match before the client displays the response. Related-copy corrections require
+an explicit refresh; they do not rewrite a previously captured answer.
+
+The only report reads are `compare_selected_reports({})` followed by
+`inspect_report_discrepancies({})`, then `select_claims`. Required findings and
+caveats cannot be omitted. Model-provided source IDs, filters, free prose,
+arithmetic, writes or reordered/incomplete reads are rejected. Discrepancy
+inspection includes exact-name/controlled-alias measurement companions with the
+same full recorded date, including other files in the captured view. Different
+printed units are flagged without conversion. Unknown specimen equivalence is
+retained; neither copy is declared correct. No semantic/clinical contradiction
+detection across arbitrary prose is claimed.
+
+Limits: 48 pair records, 64 total evidence records, 100,000 UTF-8 bytes per typed
+tool result. Exceeding a limit produces no partial investigation. The existing
+120-record paged summary is still available. Provider requests retain the
+existing three-read/four-response ceiling; normal completion uses two reads and
+three model responses (two if the reads are requested in one ordered batch).
+Offline execution returns the same typed findings with zero provider requests.
+Instruction-like tool text is quarantined before being forwarded to Muse.
+
+`POST /api/history/chat` also accepts two exact filenames in double quotes or
+an unambiguous latest-two-reports request. Latest means recorded date, not file
+arrival. Duplicate names, tied latest dates, incomplete/multiple/future dates,
+unknown filters and inferred checkup type require owner clarification without
+provider access. Chat captures its own view and returns `snapshot_id:null` in
+this metadata. Existing advice/write exclusions still apply.
+
+## Deterministic summary
+
 `POST /api/history/report-summary` is a deterministic, read-only operation. Body: `snapshot_id` (32-character token returned by `/history/page`), `selected_source_id`, `comparison_source_id`. Exactly two distinct visible sources are required. Extra fields, model-written facts, free-form claims and caller-supplied scope overrides are rejected. An expired capture returns 409; invalid selections or resource limits return 422. The source picker continues to use `/history/page?section=sources&snapshot_id=...&limit=12&offset=...` (expired page token: 410).
 
 The response format is `modus-report-summary-v1`: original snapshot/scope, policy version, both source identities, grouped rows, checked claims, complete eligible evidence and counts/limitations. Each row retains every matching fact ID on both sides. Fixed exact-name aliases can group measurements; qualifiers and record kinds remain binding. Multiple matching results in either report are not arbitrarily paired. One-sided entries do not establish absent testing or care.

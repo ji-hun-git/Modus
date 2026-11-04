@@ -9,6 +9,7 @@ import ReportComparisonPicker from './ReportComparisonPicker';
 import ReportComparisonRows from './ReportComparisonRows';
 import OverviewRecordDetails from './OverviewRecordDetails';
 import ReportBriefReview from './ReportBriefReview';
+import ReportInvestigation from './ReportInvestigation';
 import './report-comparison.css';
 
 export default function ReportComparison({view, selectedSource, onClose}: {
@@ -90,6 +91,7 @@ export default function ReportComparison({view, selectedSource, onClose}: {
         {error.expired ? <p>Close this comparison and refresh your history before trying again.</p>
           : <button type="button" className="text-button" onClick={()=>{setFailure(null);setRetry(value=>value+1);}}>Retry comparison</button>}</div>}
       {!choosing && summary && !stale && <>
+        <ReportInvestigation key={key} summary={summary} onRefresh={()=>{onClose();window.dispatchEvent(new Event('modus:show-current-history'));}} />
         <header className="report-comparison-result-heading"><h3 ref={resultsHeading} tabIndex={-1}>
           {summary.counts.comparable || summary.counts.not_comparable ? 'Recorded differences' : 'Report summary'}</h3>
           <span>Calculated from saved records · No model used</span></header>

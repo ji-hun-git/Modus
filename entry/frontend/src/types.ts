@@ -182,6 +182,7 @@ export type Claim = {
   evidence_ids: string[];
   tool_name: string;
   status: string;
+  category?: 'discrepancy' | 'needs_context' | 'changed' | 'one_report_only' | 'same_number' | 'coverage';
 };
 export type Answer = {
   mode: string;

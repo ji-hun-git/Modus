@@ -69,3 +69,7 @@
   .report-comparison-sources { padding: 12px; }
   .report-comparison-options { max-height: 240px; }
 }
+.report-investigation { padding: 16px 0; margin-bottom: 16px; border-block: 1px solid var(--line); }
+.report-investigation > p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.report-investigation .history-question-answer { margin-top: 0; }
+.report-investigation > [role=alert] { color: var(--ink); }

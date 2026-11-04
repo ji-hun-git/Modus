@@ -23,6 +23,7 @@ const result = await build({
       'export { default as LabContext, LabContextReview } from "./LabContext";',
       'export { default as CheckupComparison } from "./CheckupComparison";',
       'export { default as ReportComparisonRows } from "./ReportComparisonRows";',
+      'export { default as ReportInvestigation, reportInvestigationMatches } from "./ReportInvestigation";',
       'export { matchesReportSummary } from "./reportComparisonTypes";',
       'export { reportBriefMatches } from "./reportBriefTypes";',
       'export { default as ReportBriefReview, ReportBriefContents } from "./ReportBriefReview";',
@@ -61,7 +62,7 @@ const result = await build({
     },
   ],
 });
-const { firstInvalidReviewRow, reviewPage, ReportCompletenessReview, HomeReportEvidence, ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
+const { ReportInvestigation, reportInvestigationMatches, firstInvalidReviewRow, reviewPage, ReportCompletenessReview, HomeReportEvidence, ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
   await import(
     "data:text/javascript;base64," +
       Buffer.from(result.outputFiles[0].text).toString("base64")
@@ -868,6 +869,66 @@ function twoReportFixture() {
       verification:{status:'SUPPORTED',reason_codes:['EXACT_REVIEWED_EVIDENCE']}}],
     counts:{rows:1,records:2,comparable:1,not_comparable:0,only_selected:0,only_comparison:0},limitations:[]};
 }
+
+function investigationFixture() {
+  const summary = twoReportFixture();
+  return {mode:'offline', scope:summary.scope, history_evidence:summary.history_evidence,
+    trace:[], claims:[], report_investigation:{method:'cross_report_investigation_v1',
+      snapshot_id:summary.snapshot_id, selected_source_id:summary.current_source.id,
+      comparison_source_id:summary.previous_source.id}};
+}
+
+test('cross-report answers must match exact reports, snapshot and both clocks', () => {
+  const summary = twoReportFixture();
+  assert.equal(reportInvestigationMatches(investigationFixture(), summary), true);
+  for (const mutate of [
+    a=>a.report_investigation.selected_source_id='source-b',
+    a=>a.report_investigation.comparison_source_id='source-a',
+    a=>a.report_investigation.snapshot_id='older-snapshot',
+    a=>a.scope={...a.scope,scope_id:'different-capture'},
+    a=>a.history_evidence={...a.history_evidence,scope:{...a.scope,scope_id:'different-evidence'}},
+    a=>a.scope={...a.scope,known_at:'2024-01-01T00:00:00Z'},
+    a=>a.scope={...a.scope,as_of:null},
+    a=>delete a.report_investigation,
+  ]) {
+    const answer=investigationFixture(); mutate(answer);
+    assert.equal(reportInvestigationMatches(answer,summary),false);
+  }
+});
+
+test('cross-report investigation is an explicit read action within comparison', () => {
+  const html=render(ReportInvestigation,{summary:twoReportFixture(),onRefresh:noop});
+  assert.match(html,/Explain changes and discrepancies/);
+  assert.match(html,/Your records stay unchanged/);
+  assert.doesNotMatch(html,/History answer|Checking the reports|Save|Commit/);
+});
+
+test('long report answers start with six source-linked findings and expose the rest', () => {
+  const answer=investigationFixture();
+  answer.claims=Array.from({length:12},(_,i)=>({id:`finding-${i}`,text:`Finding ${i} <script>text</script>`,
+    evidence_ids:['a','b'],tool_name:'compare_selected_reports',status:'observed'}));
+  const html=render(HistoryAnswerView,{answer,pending:false,onClarify:noop});
+  assert.equal((html.match(/history-answer-claim/g)||[]).length,6);
+  assert.equal((html.match(/Open evidence for finding/g)||[]).length,6);
+  assert.match(html,/Show all 12 findings/); assert.match(html,/aria-expanded="false"/);
+  assert.match(html,/Offline · no model called/); assert.match(html,/&lt;script&gt;/);
+  assert.doesNotMatch(html,/<script>/);
+  delete answer.report_investigation;
+  const regular=render(HistoryAnswerView,{answer,pending:false,onClarify:noop});
+  assert.equal((regular.match(/history-answer-claim/g)||[]).length,12);
+});
+
+test('report caveats stay available with evidence without displacing the changed results', () => {
+  const answer=investigationFixture();
+  answer.claims=[{id:'change',category:'changed',text:'Recorded difference: +1.25 mg/L',evidence_ids:['a','b']},
+    {id:'coverage',category:'coverage',text:'Only these two files; no health interpretation.',evidence_ids:['a','b']}];
+  const html=render(HistoryAnswerView,{answer,pending:false,onClarify:noop});
+  assert.match(html,/What changed between these reports/);
+  assert.match(html,/<details[^>]*><summary>Scope and coverage<\/summary>/);
+  assert.match(html,/Only these two files; no health interpretation/);
+  assert.match(html,/Open evidence for finding 2/);
+  assert.ok(html.indexOf('Recorded difference: +1.25') < html.indexOf('Scope and coverage'));
+});
 
 test('report summary rejects stale scopes, swapped sides, unverified differences and incomplete payloads',()=>{
   const fixture=twoReportFixture();

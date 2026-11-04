@@ -3,6 +3,26 @@
   "scope": "Exact bounded source candidate. No eligibility or publication approval implied.",
   "files": [
     {
+      "source": "backend/modus_entry/report_investigation_tools.py",
+      "destination": "backend/modus_entry/report_investigation_tools.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/report_investigation_request.py",
+      "destination": "backend/modus_entry/report_investigation_request.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_report_investigation.py",
+      "destination": "backend/tests/test_entry_report_investigation.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ReportInvestigation.tsx",
+      "destination": "entry/frontend/src/ReportInvestigation.tsx",
+      "behavior": true
+    },
+    {
       "source": "backend/modus/local_files.py",
       "destination": "backend/modus/local_files.py",
       "behavior": true

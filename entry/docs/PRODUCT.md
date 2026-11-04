@@ -78,6 +78,16 @@ an event never happened. Numerical comparison requires compatible saved context.
 Temporary conversation tokens are scoped to the captured history; changed scope,
 expiry or ambiguous references require a full question.
 
+From Compare reports, **Explain changes and discrepancies** investigates the
+chosen pair without saving anything. Conflicting same-day values come first,
+including a related copy in a third file. Each finding opens the exact records
+and their original excerpts. Compatible changes use typed arithmetic; differences
+in unit, specimen, method or source support explain why a numerical change is
+withheld. The first six findings are shown initially, with all remaining findings
+one click away. Owner corrections require a fresh investigation while earlier
+captures remain preserved. Ask accepts two quoted exact filenames or an
+unambiguous latest-two-reports request, ranked by recorded date.
+
 The assistant never diagnoses, recommends treatment, infers current medication
 use, scores risk or interprets scan images. Original clinical statements can be
 retained as source text with attribution. [API behavior](API_CONTRACT.md) defines

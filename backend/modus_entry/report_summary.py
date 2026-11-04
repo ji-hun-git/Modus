@@ -30,6 +30,13 @@ def build_report_summary(view, request):
     if not isinstance(request, ReportSummaryRequest):
         request = ReportSummaryRequest.model_validate(request)
     source_ids = (request.selected_source_id, request.comparison_source_id)
+    return summarize_sources(view, source_ids, snapshot_id=request.snapshot_id)
+
+
+def summarize_sources(view, source_ids, *, snapshot_id=None):
+    """The same typed comparisons for a stored snapshot or captured Ask view."""
+    if len(source_ids) != 2 or len(set(source_ids)) != 2:
+        raise ValueError('Choose two different source files.')
     sources = {s['id']: s for s in view['sources']}
     if any(sid not in sources for sid in source_ids):
         raise ValueError('A selected report is unavailable in this history view. Refresh and choose again.')
@@ -107,7 +114,7 @@ def build_report_summary(view, request):
         limitations.append('Related discrepancies also involve other files. Open the Home conflict comparison to inspect those records.')
     if any(c['verification']['status'] != 'SUPPORTED' for c in claims):
         limitations.append('Some saved records have no accessible original excerpt in this view; their summary claims are not verified.')
-    summary = {'format': 'modus-report-summary-v1', 'snapshot_id': request.snapshot_id,
+    summary = {'format': 'modus-report-summary-v1', 'snapshot_id': snapshot_id,
         'scope': deepcopy(view['scope']), 'policy_version': POLICY_VERSION,
         'current_source': deepcopy(sources[source_ids[0]]), 'previous_source': deepcopy(sources[source_ids[1]]),
         'rows': groups, 'claims': claims, 'history_evidence': evidence, 'limitations': limitations,

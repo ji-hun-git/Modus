@@ -36,11 +36,19 @@ follow each saved result back to its source.
 - Keeps corrections as new versions. Original excerpts and earlier availability views remain preserved.
 - Displays conflicting values without choosing a winner.
 - Compares checkups and exports a human-reviewed summary with source evidence.
+- Investigates two chosen reports: explains compatible recorded changes, flags context mismatches, and follows same-day discrepancies into related files. Every finding opens its source evidence; no value is chosen as the winner.
 - Shows dated measurements alongside clickable original evidence in the file-orbit workspace.
 
 Ask supports exact numeric conditions, earliest/latest matching results, counts,
 source-backed histories and recorded differences. Follow-up questions retain
 the original condition, units and temporal view.
+
+In **Compare reports**, choose two files and select **Explain changes and
+discrepancies**. Ask also accepts two exact filenames in double quotes, such as
+`What changed between "2026-checkup.csv" and "2025-checkup.csv"?`.
+The offline path is explicitly labelled. The Muse path uses the same bounded
+comparison and discrepancy tools; injected-response tests verify its protocol,
+not live model quality.
 
 ## How it works
 

@@ -11,7 +11,8 @@ from .record_topics import mentions as topic_mentions
 MAX_READS = 3
 MAX_RESPONSES = 4
 READ_NAMES = frozenset({'history_inventory', 'search_history_evidence',
-    'history_conflicts', 'compare_history_snapshots', 'latest_history_match'})
+    'history_conflicts', 'compare_history_snapshots', 'latest_history_match',
+    'compare_selected_reports', 'inspect_report_discrepancies'})
 
 
 class ClarificationArgs(Strict):

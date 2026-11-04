@@ -38,7 +38,10 @@ from .history_pages import HistoryPages, SnapshotExpired
 from .report_summary import ReportSummaryRequest, build_report_summary
 from .longitudinal_series import SeriesResponse, build_series
 from .report_briefs import ReportBriefRequest, ReportBriefExportRequest, build_report_brief, validate_report_export
-from .history_tools import capture_history
+from .history_tools import capture_history, safe_view
+from .report_investigation_tools import prepare_reports
+from .report_investigation_request import ReportBounds
+from .investigation import investigate, offline_investigate
 from .history_compare import HistoryCompareRequest, compare_history
 from .briefs import (BriefRequest, BriefExportRequest, BriefChangedError,
                      build_brief, validate_export, render_html, render_json)
@@ -232,6 +235,34 @@ def create_entry_app(database=None, clock=None):
             raise HTTPException(409, str(error)) from None
         except ValueError as error:
             raise HTTPException(422, str(error)) from None
+
+    @app.post('/api/history/report-investigation')
+    async def report_investigation(request: ReportSummaryRequest):
+        try:
+            captured = await run_in_threadpool(store.history_pages.get, request.snapshot_id)
+            context = await run_in_threadpool(prepare_reports,
+                {'view': safe_view(captured['view']), 'comparison': None},
+                (request.selected_source_id, request.comparison_source_id), snapshot_id=request.snapshot_id)
+        except SnapshotExpired as error:
+            raise HTTPException(409, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+        telemetry = {}
+        message = 'Compare these two selected reports and inspect their recorded discrepancies.'
+        try:
+            response = (await investigate(context, message, ReportBounds(), telemetry)
+                if provider_status()['mode'] == 'meta' else
+                await run_in_threadpool(offline_investigate, context, ReportBounds()))
+            response = history_agent.decorate(context, response)
+            await run_in_threadpool(recorded_run, 'question', status='completed' if response['claims'] else 'abstained',
+                message=message, scope=response['scope'], answer=response['answer'],
+                mode=response['mode'], execution=response['execution'], telemetry=response.get('telemetry', {}))
+            return response
+        except Exception:
+            await run_in_threadpool(recorded_run, 'question', status='failed', scope=context['view']['scope'],
+                mode=provider_status()['mode'], error='No validated report investigation was produced.',
+                execution=telemetry.get('execution'), telemetry=telemetry)
+            raise HTTPException(502, 'The report investigation could not complete a validated answer. No records changed and no local fallback was used.') from None
 
     @app.post('/api/history/compare')
     def history_compare(request: HistoryCompareRequest):

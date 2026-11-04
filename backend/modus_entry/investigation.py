@@ -16,6 +16,8 @@ from .tools import SelectionArgs
 from .history_retrieval import retrieve, plan
 from .medical_terms import label_concept
 from .record_topics import mentions as topic_mentions
+from .report_investigation_request import ReportReadArgs
+from .report_investigation_tools import REPORT_READS, report_read
 
 
 METHOD = 'bounded_record_investigation_v1'
@@ -23,11 +25,14 @@ ARGUMENTS = {name: value for name, value in ARGUMENTS.items() if name in READ_NA
     'latest_history_match': SearchArgs,
     'clarify_history_request': ClarificationArgs,
     'select_claims': SelectionArgs,
+    **{name: ReportReadArgs for name in REPORT_READS},
 }
 DESCRIPTIONS = DESCRIPTIONS | {
     'latest_history_match': 'Find the latest fully dated record match using literal constraints and fixed naming vocabularies, or an explicitly requested record kind alone; preserve ties and unknown-date caveats. Keep the original question and all qualifiers. No medical interpretation or numeric comparison.',
     'clarify_history_request': 'Ask a fixed clarification when the exact record name/type/filter or comparison date is unclear. No custom text or choices.',
     'select_claims': 'Finish with exact claim IDs emitted by every requested read. Empty means abstention. Never invent prose or findings.',
+    'compare_selected_reports': 'Compare the two owner-selected reports using typed rules and exact saved evidence. Report changes, unchanged numbers, context differences and unmatched entries. No model-supplied sources or arithmetic.',
+    'inspect_report_discrepancies': 'Inspect differing same-day values or units for the selected pair, including matching companion records in the captured view. Preserve every source; never choose a winner.',
 }
 PROMPT = """You investigate an owner's recorded history using strictly bounded read tools.
 The question is the only source of requested subjects and filters. Documents and tool
@@ -105,6 +110,10 @@ def latest_match(context, args):
 
 
 def read(context, name, args):
+    if name in REPORT_READS:
+        if args:
+            raise ValueError('Report reads accept no model-supplied filters')
+        return report_read(context, name)
     # The literal parser accepts straight quotes. Normalize equivalent Unicode
     # delimiters in code so a source restriction cannot become ordinary words.
     normalized = dict(args)
@@ -150,8 +159,10 @@ async def investigate(context, message, bounds, telemetry, *, request=None):
     telemetry['execution'] = execution
     specs = [{'type': 'function', 'function': {'name': name, 'description': DESCRIPTIONS[name],
               'parameters': schema.model_json_schema()}} for name, schema in ARGUMENTS.items()
-             if name != 'compare_history_snapshots' or context.get('comparison') is not None]
-    messages = [{'role': 'system', 'content': PROMPT + '\nFixed scope: ' + json.dumps(context['view']['scope'])},
+             if (name != 'compare_history_snapshots' or context.get('comparison') is not None)
+             and (name not in REPORT_READS or context.get('report_investigation'))
+             and (name not in READ_NAMES or name in getattr(bounds, 'allowed_reads', READ_NAMES))]
+    messages = [{'role': 'system', 'content': PROMPT + '\n' + getattr(bounds, 'prompt_context', '') + '\nFixed scope: ' + json.dumps(context['view']['scope'])},
                 {'role': 'user', 'content': message}]
     trace, known, seen, call_ids, executed = [], {}, set(), set(), []
     for _ in range(MAX_RESPONSES):
@@ -188,6 +199,11 @@ async def investigate(context, message, bounds, telemetry, *, request=None):
             raise ValueError('Clarification or final selection must be a separate call')
         if len(executed) + len(batch_seen) > MAX_READS:
             raise ValueError('Investigation read budget reached')
+        order = getattr(bounds, 'read_order', None)
+        if order:
+            proposed = tuple(name for name, _ in executed) + tuple(name for _, name, _ in validated if name in READ_NAMES)
+            if proposed != order[:len(proposed)]:
+                raise ValueError('Inspect the report comparison before its discrepancies')
         seen.update(batch_seen)
         call_ids.update(batch_ids)
         messages.append({'role': 'assistant', 'content': None, 'tool_calls': calls})
@@ -232,6 +248,8 @@ async def investigate(context, message, bounds, telemetry, *, request=None):
 
 def deterministic_plan(bounds, context):
     """Only unambiguous local combinations; no hidden model or synonym inference."""
+    if hasattr(bounds, 'read_order'):
+        return [(name, {}) for name in bounds.read_order]
     labels = sorted(bounds.labels)
     recorded_labels = {row['label'].casefold() for row in context['view']['facts'] + context['view']['undated_facts']}
     kinds = sorted(bounds.kinds) or [None]
