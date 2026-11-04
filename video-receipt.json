@@ -16,7 +16,7 @@
       "voices/af_heart.pt": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
       "README.md": "91dcabced89db6f109b8786642f50402d3ee87450e8189589b6f85520e7f4d78"
     },
-    "inference": "local CPU",
+    "inference": "local CPU and RTX",
     "paid_api_calls": 0,
     "voice": "af_heart",
     "runtime": "local CPU for initial sections, local RTX for remaining sections"
@@ -124,5 +124,6 @@
       "visual_shots": 1,
       "audio_seconds": 4.805875
     }
-  ]
+  ],
+  "duration_basis": "Edited frame timeline; measured MP4 container duration is 108.82 seconds."
 }
