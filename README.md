@@ -10,7 +10,7 @@ This entry provides record integrity and source retrieval, without medical advic
 See the [event contribution map](entry/docs/CONTRIBUTIONS.md) and
 [reproducible demo walkthrough](entry/demo/longitudinal/README.md).
 
-**[Watch the 2:52 demonstration](https://raw.githubusercontent.com/ji-hun-git/Modus/main/entry/demo/Modus-demo.mp4).**
+**[Watch the 2:52 demonstration](https://ji-hun-git.github.io/Modus/).**
 The edited recording shows the actual app, authored examples and an existing
 genuine Muse draft reopened offline. CSV reading and Ask in this recording are
 deterministic; no new model request is presented as live. See the

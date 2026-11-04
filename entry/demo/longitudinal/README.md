@@ -58,9 +58,11 @@ remain open. These checks do not demonstrate live Muse quality.
 
 ## Recorded demonstration
 
-[Watch the 2:52 MP4](https://raw.githubusercontent.com/ji-hun-git/Modus/main/entry/demo/Modus-demo.mp4)
+[Watch the 2:52 demonstration](https://ji-hun-git.github.io/Modus/)
 or [open the repository copy](../Modus-demo.mp4).
 [Read the narration transcript](../video-transcript.txt).
+The playback page is published from the isolated `codex/demo-video` assets
+branch. The application source remains on the default `main` branch.
 The recording was made on 4 November 2026 from application revision
 `9d8b65aefb6a5c0025b50f899db845e7e7d6072b`. Subsequent recording/documentation
 commits do not change that application behavior. The saved Muse review was
