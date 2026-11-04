@@ -1,0 +1,79 @@
+{
+  "status": "passed",
+  "duration_seconds": 161.92000000000002,
+  "full_decode": true,
+  "video": "H264 1920x1080 30 fps",
+  "audio": "AAC stereo-compatible narration",
+  "mean_volume_db": -16.5,
+  "peak_db": -1.4,
+  "silence_threshold_db": -40,
+  "longest_silent_gap_seconds": 0.436646,
+  "gaps_over_one_second": 0,
+  "section_frame_checks": [
+    {
+      "section": "01",
+      "frames": 403,
+      "expected": 403
+    },
+    {
+      "section": "02",
+      "frames": 468,
+      "expected": 468
+    },
+    {
+      "section": "03",
+      "frames": 519,
+      "expected": 519
+    },
+    {
+      "section": "04",
+      "frames": 555,
+      "expected": 555
+    },
+    {
+      "section": "05",
+      "frames": 513,
+      "expected": 513
+    },
+    {
+      "section": "06",
+      "frames": 533,
+      "expected": 533
+    },
+    {
+      "section": "07",
+      "frames": 555,
+      "expected": 555
+    },
+    {
+      "section": "08",
+      "frames": 643,
+      "expected": 643
+    },
+    {
+      "section": "09",
+      "frames": 667,
+      "expected": 667
+    }
+  ],
+  "previews": [
+    "preview-002.jpg",
+    "preview-010.jpg",
+    "preview-022.jpg",
+    "preview-034.jpg",
+    "preview-043.jpg",
+    "preview-056.jpg",
+    "preview-065.jpg",
+    "preview-076.jpg",
+    "preview-094.jpg",
+    "preview-103.jpg",
+    "preview-112.jpg",
+    "preview-126.jpg",
+    "preview-142.jpg",
+    "preview-152.jpg",
+    "preview-159.jpg"
+  ],
+  "sha256": "080e767f4e2875b58927a4af23bb2f2c4224b48cfa325d15fa3d28aab2323dba",
+  "encoding_and_validation_api_calls": 0,
+  "limitation": "Signal integrity and caption alignment do not establish subjective narration quality."
+}

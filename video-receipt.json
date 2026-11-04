@@ -1,11 +1,11 @@
 {
   "artifact": "Modus-demo.mp4",
-  "duration_seconds": 108.76666666666665,
-  "sha256": "4981248facfdc100028c6321e90e399d6a9bc972fd71795c995ed1449bda9f40",
-  "bytes": 4930988,
-  "application_commit": "9d8b65aefb6a5c0025b50f899db845e7e7d6072b",
-  "capture": "Real offline app interaction sequences and retained screenshots, edited to narration; not response-latency footage",
-  "meta_disclosure": "Genuine saved Muse draft reopened offline, no new model request. CSV and shown Ask use deterministic tools.",
+  "duration_seconds": 161.86666666666667,
+  "sha256": "080e767f4e2875b58927a4af23bb2f2c4224b48cfa325d15fa3d28aab2323dba",
+  "bytes": 7011051,
+  "application_commit": "9c6dc2ccfe7092d6227f0d7571f8da674b84f84d",
+  "capture": "Actual current app screenshots and orbit interactions; fresh real Meta image reading and cross-report investigation. Edited to narration, not response-latency footage",
+  "meta_disclosure": "Six genuine muse-spark-1.3 requests: extract, verify, row inventory, and three investigation requests. Shown Ask and temporal replay are deterministic offline tools. Header date and specimen were completed during explicit review.",
   "voice": {
     "repo": "hexgrad/Kokoro-82M",
     "revision": "f3ff3571791e39611d31c381e3a41a3af07b4987",
@@ -16,114 +16,80 @@
       "voices/af_heart.pt": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
       "README.md": "91dcabced89db6f109b8786642f50402d3ee87450e8189589b6f85520e7f4d78"
     },
-    "inference": "local CPU and RTX",
+    "inference": "local RTX",
     "paid_api_calls": 0,
     "voice": "af_heart",
-    "runtime": "local CPU for initial sections, local RTX for remaining sections"
+    "runtime": "Pinned local Kokoro weights; no narration API"
   },
-  "editing": "Audio-driven cuts; explicit 140 ms sentence gaps; no fixed minimum section holds. Burned-in and selectable captions.",
+  "editing": "Audio-driven cuts; explicit 160 ms sentence gaps; no fixed minimum section holds. Burned-in and selectable captions.",
   "diagrams": "Code-native SVG, audited against shipped architecture; hero contains a literal crop of actual Home.",
-  "paid_api_calls": 0,
+  "paid_api_calls": 6,
+  "estimated_provider_cost_usd": "0.04740125",
+  "cost_basis": "Reported token usage at published standard pricing, not an invoice",
   "protected_sets_accessed": false,
   "sections": [
     {
       "id": "01",
       "start": 0,
-      "duration": 6.3,
-      "visual_shots": 1,
-      "audio_seconds": 6.280666666666667
+      "duration": 13.433333333333334,
+      "visual_shots": 21,
+      "audio_seconds": 13.414416666666666
     },
     {
       "id": "02",
-      "start": 6.3,
-      "duration": 8.033333333333333,
-      "visual_shots": 60,
-      "audio_seconds": 8.032166666666667
+      "start": 13.433333333333334,
+      "duration": 15.6,
+      "visual_shots": 3,
+      "audio_seconds": 15.57475
     },
     {
       "id": "03",
-      "start": 14.333333333333332,
-      "duration": 7.066666666666666,
-      "visual_shots": 2,
-      "audio_seconds": 7.037583333333333
+      "start": 29.03333333333333,
+      "duration": 17.3,
+      "visual_shots": 5,
+      "audio_seconds": 17.285583333333335
     },
     {
       "id": "04",
-      "start": 21.4,
-      "duration": 7.066666666666666,
-      "visual_shots": 45,
-      "audio_seconds": 7.051583333333333
+      "start": 46.33333333333333,
+      "duration": 18.5,
+      "visual_shots": 3,
+      "audio_seconds": 18.468708333333332
     },
     {
       "id": "05",
-      "start": 28.466666666666665,
-      "duration": 8.233333333333333,
-      "visual_shots": 3,
-      "audio_seconds": 8.22125
+      "start": 64.83333333333333,
+      "duration": 17.1,
+      "visual_shots": 2,
+      "audio_seconds": 17.089875
     },
     {
       "id": "06",
-      "start": 36.699999999999996,
-      "duration": 8.366666666666667,
-      "visual_shots": 50,
-      "audio_seconds": 8.34725
+      "start": 81.93333333333334,
+      "duration": 17.766666666666666,
+      "visual_shots": 3,
+      "audio_seconds": 17.751666666666665
     },
     {
       "id": "07",
-      "start": 45.06666666666666,
-      "duration": 8.4,
-      "visual_shots": 2,
-      "audio_seconds": 8.370958333333334
+      "start": 99.7,
+      "duration": 18.5,
+      "visual_shots": 3,
+      "audio_seconds": 18.482875
     },
     {
       "id": "08",
-      "start": 53.46666666666666,
-      "duration": 8.133333333333333,
-      "visual_shots": 2,
-      "audio_seconds": 8.108833333333333
+      "start": 118.2,
+      "duration": 21.433333333333334,
+      "visual_shots": 1,
+      "audio_seconds": 21.401291666666665
     },
     {
       "id": "09",
-      "start": 61.599999999999994,
-      "duration": 9.066666666666666,
-      "visual_shots": 2,
-      "audio_seconds": 9.061625
-    },
-    {
-      "id": "10",
-      "start": 70.66666666666666,
-      "duration": 8.0,
-      "visual_shots": 2,
-      "audio_seconds": 7.97275
-    },
-    {
-      "id": "11",
-      "start": 78.66666666666666,
-      "duration": 6.1,
-      "visual_shots": 2,
-      "audio_seconds": 6.093875
-    },
-    {
-      "id": "12",
-      "start": 84.76666666666665,
-      "duration": 9.0,
-      "visual_shots": 2,
-      "audio_seconds": 8.997583333333333
-    },
-    {
-      "id": "13",
-      "start": 93.76666666666665,
-      "duration": 10.166666666666666,
-      "visual_shots": 1,
-      "audio_seconds": 10.159208333333334
-    },
-    {
-      "id": "14",
-      "start": 103.93333333333332,
-      "duration": 4.833333333333333,
-      "visual_shots": 1,
-      "audio_seconds": 4.805875
+      "start": 139.63333333333333,
+      "duration": 22.233333333333334,
+      "visual_shots": 3,
+      "audio_seconds": 22.2265
     }
-  ],
-  "duration_basis": "Edited frame timeline; measured MP4 container duration is 108.82 seconds."
+  ]
 }
