@@ -1,103 +1,79 @@
 {
   "status": "passed",
-  "duration_seconds": 108.82,
+  "duration_seconds": 161.92000000000002,
   "full_decode": true,
   "video": "H264 1920x1080 30 fps",
   "audio": "AAC stereo-compatible narration",
   "mean_volume_db": -16.5,
-  "peak_db": -1.5,
+  "peak_db": -1.4,
   "silence_threshold_db": -40,
-  "longest_silent_gap_seconds": 0.402667,
+  "longest_silent_gap_seconds": 0.436646,
   "gaps_over_one_second": 0,
   "section_frame_checks": [
     {
       "section": "01",
-      "frames": 189,
-      "expected": 189
+      "frames": 403,
+      "expected": 403
     },
     {
       "section": "02",
-      "frames": 241,
-      "expected": 241
+      "frames": 468,
+      "expected": 468
     },
     {
       "section": "03",
-      "frames": 212,
-      "expected": 212
+      "frames": 519,
+      "expected": 519
     },
     {
       "section": "04",
-      "frames": 212,
-      "expected": 212
+      "frames": 555,
+      "expected": 555
     },
     {
       "section": "05",
-      "frames": 247,
-      "expected": 247
+      "frames": 513,
+      "expected": 513
     },
     {
       "section": "06",
-      "frames": 251,
-      "expected": 251
+      "frames": 533,
+      "expected": 533
     },
     {
       "section": "07",
-      "frames": 252,
-      "expected": 252
+      "frames": 555,
+      "expected": 555
     },
     {
       "section": "08",
-      "frames": 244,
-      "expected": 244
+      "frames": 643,
+      "expected": 643
     },
     {
       "section": "09",
-      "frames": 272,
-      "expected": 272
-    },
-    {
-      "section": "10",
-      "frames": 240,
-      "expected": 240
-    },
-    {
-      "section": "11",
-      "frames": 183,
-      "expected": 183
-    },
-    {
-      "section": "12",
-      "frames": 270,
-      "expected": 270
-    },
-    {
-      "section": "13",
-      "frames": 305,
-      "expected": 305
-    },
-    {
-      "section": "14",
-      "frames": 145,
-      "expected": 145
+      "frames": 667,
+      "expected": 667
     }
   ],
   "previews": [
     "preview-002.jpg",
     "preview-010.jpg",
-    "preview-017.jpg",
-    "preview-025.jpg",
-    "preview-033.jpg",
-    "preview-042.jpg",
-    "preview-049.jpg",
-    "preview-057.jpg",
-    "preview-066.jpg",
-    "preview-075.jpg",
-    "preview-082.jpg",
-    "preview-089.jpg",
-    "preview-098.jpg",
-    "preview-106.jpg"
+    "preview-022.jpg",
+    "preview-034.jpg",
+    "preview-043.jpg",
+    "preview-056.jpg",
+    "preview-065.jpg",
+    "preview-076.jpg",
+    "preview-094.jpg",
+    "preview-103.jpg",
+    "preview-112.jpg",
+    "preview-126.jpg",
+    "preview-142.jpg",
+    "preview-152.jpg",
+    "preview-159.jpg"
   ],
-  "sha256": "4981248facfdc100028c6321e90e399d6a9bc972fd71795c995ed1449bda9f40",
-  "paid_api_calls": 0,
+  "sha256": "080e767f4e2875b58927a4af23bb2f2c4224b48cfa325d15fa3d28aab2323dba",
+  "encoding_and_validation_api_calls": 0,
   "limitation": "Signal integrity and caption alignment do not establish subjective narration quality."
 }

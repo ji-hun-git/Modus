@@ -1,0 +1,136 @@
+{
+  "application_commit": "9c6dc2ccfe7092d6227f0d7571f8da674b84f84d",
+  "scope": "Fresh synthetic product demonstration, not a quality evaluation",
+  "transport": "actual Meta API; no injected or replayed model response",
+  "requested_model": "muse-spark-1.3",
+  "immutable_provider_version": "not available",
+  "reasoning_effort": "minimal",
+  "provider_requests": 6,
+  "calls": [
+    {
+      "phase": "image_extraction",
+      "index": 1,
+      "model": "muse-spark-1.3",
+      "started_at": "2026-11-04T16:26:51.010822+00:00",
+      "status": "settled",
+      "http_status": 200,
+      "request_id": "4a2c8781-a573-4abe-9730-99b761bf4b7d",
+      "duration_ms": 8455.99,
+      "usage": {
+        "prompt_tokens": 6268,
+        "completion_tokens": 1118
+      },
+      "accounted_usd": "0.01258650"
+    },
+    {
+      "phase": "image_verification",
+      "index": 2,
+      "model": "muse-spark-1.3",
+      "started_at": "2026-11-04T16:26:59.471845+00:00",
+      "status": "settled",
+      "http_status": 200,
+      "request_id": "1658b75b-63a3-49f4-96f5-2a89d799fa25",
+      "duration_ms": 4005.51,
+      "usage": {
+        "prompt_tokens": 2724,
+        "completion_tokens": 145
+      },
+      "accounted_usd": "0.00402125"
+    },
+    {
+      "phase": "source_row_inventory",
+      "index": 3,
+      "model": "muse-spark-1.3",
+      "started_at": "2026-11-04T16:27:03.491762+00:00",
+      "status": "settled",
+      "http_status": 200,
+      "request_id": "6baa5850-a93d-44a1-adce-0aab72e3ec41",
+      "duration_ms": 5433.34,
+      "usage": {
+        "prompt_tokens": 2671,
+        "completion_tokens": 511
+      },
+      "accounted_usd": "0.00551050"
+    },
+    {
+      "phase": "investigation_selected_reports",
+      "index": 4,
+      "model": "muse-spark-1.3",
+      "started_at": "2026-11-04T16:30:29.438574+00:00",
+      "status": "settled",
+      "http_status": 200,
+      "request_id": "4e21313e-30b8-48ce-a74e-422311c13612",
+      "duration_ms": 1405.81,
+      "usage": {
+        "prompt_tokens": 1287,
+        "completion_tokens": 80
+      },
+      "accounted_usd": "0.00194875"
+    },
+    {
+      "phase": "investigation_related_records",
+      "index": 5,
+      "model": "muse-spark-1.3",
+      "started_at": "2026-11-04T16:30:30.851588+00:00",
+      "status": "settled",
+      "http_status": 200,
+      "request_id": "e9a62331-60e0-433a-849f-7d8fc05b4808",
+      "duration_ms": 1164.24,
+      "usage": {
+        "prompt_tokens": 7284,
+        "completion_tokens": 76
+      },
+      "accounted_usd": "0.00942800"
+    },
+    {
+      "phase": "investigation_checked_claims",
+      "index": 6,
+      "model": "muse-spark-1.3",
+      "started_at": "2026-11-04T16:30:32.021592+00:00",
+      "status": "settled",
+      "http_status": 200,
+      "request_id": "2a183323-be5b-44c1-ae62-8d89577c0893",
+      "duration_ms": 2255.23,
+      "usage": {
+        "prompt_tokens": 10462,
+        "completion_tokens": 195
+      },
+      "accounted_usd": "0.01390625"
+    }
+  ],
+  "estimated_cost_usd": "0.04740125",
+  "cost_basis": {
+    "input_per_million_usd": "1.25",
+    "output_per_million_usd": "4.25",
+    "cached_tokens_charged_as_uncached": true,
+    "source": "https://dev.meta.ai/docs/pricing-rate-limits",
+    "checked_on": "2026-11-04",
+    "basis": "usage estimate, not provider invoice"
+  },
+  "review": "All three rows present. Header date and specimen were left blank and explicitly completed from the authored original before saving. The source-check limitation remained visible.",
+  "investigation": "The selected November image and July checkup led to a related July copy. Same 5.6 percent value; HPLC versus Immunoassay recorded methods. Neither source chosen as correct.",
+  "correction": "Authored demonstration changed the copy saved method to HPLC with an explicit reason and review. The original remains Immunoassay; the earlier explanation became stale.",
+  "files": [
+    {
+      "filename": "November checkup.png",
+      "sha256": "663a4b336ab2e2be4247d82e9d3286598f3953dda9418bb5706b310b5e2f729d"
+    },
+    {
+      "filename": "July checkup.csv",
+      "sha256": "6a646e70d55d46f24642157e272fc910fc1cd41aa28bca2be7f57098bf93fdee"
+    },
+    {
+      "filename": "July lab copy.csv",
+      "sha256": "7c7fe81527756c74bc376565fd7c916b08961f94ed99fa20e19f92191b65e316"
+    }
+  ],
+  "original_downloads_byte_exact": true,
+  "protected_sets_accessed": false,
+  "limitations": [
+    "One demonstration image, not extraction accuracy",
+    "Uncertainty and review edits shown",
+    "Edited playback is not model latency",
+    "No clinical interpretation",
+    "Raw requests and responses remain private"
+  ]
+}

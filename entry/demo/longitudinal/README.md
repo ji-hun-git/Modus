@@ -58,44 +58,45 @@ remain open. These checks do not demonstrate live Muse quality.
 
 ## Recorded demonstration
 
-[Watch the 1:49 demonstration](https://ji-hun-git.github.io/Modus/)
-or [open the repository copy](../Modus-demo.mp4).
-[Read the narration transcript](../video-transcript.txt).
-The playback page is published from the isolated `codex/demo-video` assets
-branch. The application source remains on the default `main` branch.
-The recording was made on 4 November 2026 from application revision
-`9d8b65aefb6a5c0025b50f899db845e7e7d6072b`. Subsequent recording/documentation
-commits do not change that application behavior. The saved Muse review was
-opened in the preserved workspace using the same application source.
+[Watch the 2:42 demonstration](https://ji-hun-git.github.io/Modus/),
+[open the MP4](../Modus-demo.mp4), or [read the transcript](../video-transcript.txt).
+The player is published from `codex/demo-video`; application source is on `main`.
 
-The revised film combines actual browser captures, recorded orbit and review
-interactions, and original architecture figures. Edits follow the spoken
-sentences, without fixed minimum holds. Local Kokoro-82M neural narration
-replaces the original desktop synthesizer; this is post-production tooling,
-not Muse Voice or an application feature. The film is 108.82 seconds. Every
-frame decoded, and the longest measured gap below -40 dB was 0.403 seconds.
-These are media checks, not a subjective voice-quality score.
+The replacement recording captures application behavior at
+`9c6dc2ccfe7092d6227f0d7571f8da674b84f84d` on 4 November UTC / 5 November KST,
+before the event deadline. Later media/documentation commits do not change that
+behavior. Every record shown is an authored example, not personal medical data.
+The opening identifies event-built Modus work and credits existing foundations.
 
-The footage contains authored examples, not real personal medical records.
-The opening identifies the event-built app and credits existing models and
-libraries. The [hero](../figures/hero.svg),
-[architecture](../figures/architecture.svg) and
-[two-clock figure](../figures/two-clocks.svg) are editable first-party visuals.
-The hero contains a literal crop of the actual Home screen. Figure labels
-describe shipped behavior, including the boundary between model proposals
-and human-reviewed record transactions.
+The new sequence includes **six fresh real Muse requests**: image extraction,
+verification, source-only row inventory and a three-request bounded investigation.
+All three image rows were extracted; header date and specimen were completed
+explicitly during review. The limitation of the independent source check remains
+visible. The investigation catches the HPLC/Immunoassay difference behind two
+identical 5.6% values, with both original sources. A reviewed authored correction
+then makes that prior explanation stale and preserves the original wording.
+[Exact input files, per-call model/usage and limitations](../showcase/).
 
-The Meta segment reopens an actual previously generated `muse-spark-1.3` draft.
-It is **not a fresh live request**, and its unavailable independent image-text
-check remains visible. All other recorded reading and Ask actions are offline
-and labelled accordingly. Edited playback time is not model latency. No model
-credits were spent recording this video. The video demonstrates record review,
-source evidence, temporal availability, conflicts and export, not medical
-interpretation, held-out quality, SAM, hosted Guard, Voice or fine-tune quality.
+Ask, timeline replay and export use ordinary offline typed tools. These sequences
+come from a preserved separate demonstration history. Model calls are not replayed
+mock outputs. Cuts follow narration; elapsed video time is not model latency.
+The original 14-case development comparison remains unchanged and distinct from
+the six recording calls. No protected evaluation set was accessed or rerun.
 
-Media integrity, duration and source identity are recorded in
-[the video receipt](../video-receipt.json) and
-[decode, frame-timing and silence checks](../video-verification.json).
-[Sentence-aligned captions](../captions.vtt) are also available.
-This video is an artifact for the
-entrant to review; publishing it does not submit the competition entry.
+Narration uses pinned local Kokoro-82M weights and its bundled `af_heart` voice,
+not a cloned voice, paid narration service or Muse Voice. Attribution remains in
+[third-party notices](../../../THIRD_PARTY_NOTICES.md). Sentence-aligned captions
+are burned in and available as [WebVTT](../captions.vtt). The film is 161.92 seconds,
+all frames decode, and its longest gap below -40 dB is 0.437 seconds. Local ASR
+also checked the dates, values and method names. These checks do not establish
+subjective voice quality.
+
+The [hero](../figures/hero.svg), [architecture](../figures/architecture.svg),
+[investigation](../figures/investigation.svg), [two clocks](../figures/two-clocks.svg)
+and [development comparison](../figures/measured.svg) are first-party editable
+figures. Product imagery is actual app capture. The diagrams describe shipped
+behavior; SAM, hosted Guard, Voice, medical fine-tuning and clinical interpretation
+are not presented as features.
+
+[Recording receipt](../video-receipt.json) · [Frame/decode/audio checks](../video-verification.json).
+The entrant still reviews and submits the video link in the competition portal.

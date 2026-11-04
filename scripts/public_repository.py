@@ -21,6 +21,7 @@ PUBLIC_DOCS = frozenset({
     'entry/docs/OPEN_SOURCE.md', 'backend/tests/fixtures/garak/NOTICE.md',
     'entry/frontend/README.md', 'data/synthetic/brief-demo/README.md',
     'entry/demo/longitudinal/README.md',
+    'entry/demo/showcase/README.md',
     'entry/prompts/records.md', 'entry/prompts/history.md', 'prompts/extract.md',
 })
 TEXT_SUFFIXES = {'.py','.ts','.tsx','.js','.mjs','.json','.md','.txt','.yaml','.yml','.toml','.html','.css','.svg'}
