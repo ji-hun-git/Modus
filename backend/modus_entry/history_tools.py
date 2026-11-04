@@ -22,7 +22,7 @@ KIND_LABELS = {
 }
 FACT_FIELDS = (
     'id', 'source_id', 'kind', 'label', 'value', 'unit', 'occurred_on', 'date',
-    'date_precision', 'facility', 'source_quote', 'source_quote_withheld',
+    'date_precision', 'facility', 'reference_range', 'specimen', 'test_method', 'source_quote', 'source_quote_withheld',
     'value_withheld', 'page', 'bbox', 'date_evidence', 'available_at', 'availability_basis',
     'reviewed_fields', 'original_available', 'within_date_scope',
     'revision_id', 'previous_revision_id', 'first_available_at',

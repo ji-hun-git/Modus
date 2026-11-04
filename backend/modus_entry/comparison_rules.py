@@ -5,7 +5,7 @@ from collections import Counter
 from modus.record_history_models import numeric_value
 from .medical_terms import label_concept, normalize
 
-POLICY_VERSION = 'record-comparison-2026-11-02.1'
+POLICY_VERSION = 'record-comparison-2026-11-03.1'
 
 
 def test_key(fact):
@@ -38,6 +38,19 @@ def compare_pair(current, previous, *, current_count=1, previous_count=1, uncert
         add('PREVIOUS_DATE_TIE', 'Several results share the previous date; all remain separate.')
     if uncertain_order and not any(r['code'] == 'INCOMPLETE_DATE' for r in reasons):
         add('INCOMPLETE_DATE', 'Results with incomplete dates may change the ordering.')
+    if all(r.get('kind') != 'measurement' for r in (current, previous)):
+        # Narrative records have no lab-comparability requirement. Compare only
+        # their literal saved wording; never turn numeric-looking prose into a delta.
+        if test_key(current) == test_key(previous) and not any(r['code'] == 'OUT_OF_SCOPE' for r in reasons):
+            if current.get('value') == previous.get('value'):
+                add('RECORDED_WORDING_SAME', 'The recorded wording is the same in both reports; this does not establish that circumstances were unchanged.')
+            else:
+                add('RECORDED_WORDING_DIFFERS', 'The recorded wording differs. Both statements and their original evidence remain separate.')
+        if current.get('facility') != previous.get('facility'):
+            add('FACILITY_DIFFERS', 'The recorded facility differs.')
+        return {'policy_version': POLICY_VERSION, 'status': 'not_comparable',
+                'difference': None, 'unit': None,
+                'reason_codes': [r['code'] for r in reasons], 'notes': [r['message'] for r in reasons]}
     for key, title in (('unit', 'Unit'), ('specimen', 'Specimen'), ('test_method', 'Test method')):
         if not current.get(key) or not previous.get(key):
             add(key.upper() + '_UNKNOWN', f'{title} not recorded for both results; comparability is unknown.')

@@ -22,7 +22,7 @@ def _legacy_fact(observation, source):
         'occurred_on': observation['date'], 'date': observation['date'], 'date_precision': 'day',
         'facility': source.get('provider'), 'source_quote': observation.get('source_span'),
         'page': observation.get('page'), 'bbox': None, 'extractor': source.get('extraction_mode', 'authored_seed'),
-        'available_at': source['available_at'], 'availability_basis': source.get('availability_basis'),
+        'available_at': observation.get('available_at') or source['available_at'], 'availability_basis': observation.get('availability_basis') or source.get('availability_basis'),
         'reviewer': source.get('review', {}).get('reviewer'),
         'reviewed_at': source.get('review', {}).get('reviewed_at'),
         'reviewed_fields': observation.get('reviewed_fields', []), 'legacy_projection': True,
@@ -66,7 +66,7 @@ def _read_history_rows(db, cutoff):
     generic = packed_json_rows(db,
         'SELECT h.data FROM history_facts h JOIN sources s ON s.id=h.source_id WHERE h.available_at<=? AND s.available_at<=? ORDER BY h.date,h.id', (cutoff, cutoff))
     legacy = packed_json_rows(db,
-        'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id', (cutoff,))
+        "SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? AND COALESCE(json_extract(o.data,'$.available_at'),s.available_at)<=? ORDER BY o.date,o.id", (cutoff, cutoff))
     originals = {row[0] for row in db.execute('SELECT id FROM documents')}
     profile_row = db.execute('SELECT data FROM history_profiles WHERE updated_at<=? ORDER BY updated_at DESC,id DESC LIMIT 1', (cutoff,)).fetchone()
     amendments = packed_json_rows(db, 'SELECT data FROM history_amendments WHERE available_at<=? ORDER BY available_at,sequence', (cutoff,))

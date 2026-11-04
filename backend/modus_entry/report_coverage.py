@@ -1,4 +1,5 @@
 """Public processing metadata, never document text or provider error payloads."""
+from modus.whole_report import MAX_PROVIDER_CALLS
 
 
 def public_coverage(value):
@@ -26,14 +27,14 @@ def public_coverage(value):
                                                'readability', 'text_available', 'vision_supplied')})
     requests = value.get('request_count')
     status = value.get('status')
-    if type(requests) is not int or not 0 <= requests <= 8 or not isinstance(status, str) or status not in {'completed', 'failed'}:
+    if type(requests) is not int or not 0 <= requests <= MAX_PROVIDER_CALLS or not isinstance(status, str) or status not in {'completed', 'failed'}:
         return None
     processed = sum(row['status'] in {'processed', 'no_fields'} for row in pages)
     if status == 'completed' and processed != count:
         return None
     return {'version': 'whole-report-v1', 'status': status, 'completeness': 'not_established',
             'page_count': count, 'processed_pages': processed, 'pages_per_group': 3,
-            'max_provider_calls': 8, 'request_count': requests, 'pages': pages}
+            'max_provider_calls': MAX_PROVIDER_CALLS, 'request_count': requests, 'pages': pages}
 
 
 def extraction_failure_detail(message, telemetry):

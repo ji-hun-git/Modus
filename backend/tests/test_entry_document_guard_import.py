@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from modus.record_extraction import extract_record_document
 from modus_entry.document_guard import screen_untrusted
-from test_record_extraction import pdf, field, response, extraction, verification, SPAN
+from test_record_extraction import pdf, field, response, extraction, verification, inventory, SPAN
 
 
 def test_prepared_pdf_screen_runs_before_model_and_preserves_clean_fields():
@@ -20,10 +20,12 @@ def test_prepared_pdf_screen_runs_before_model_and_preserves_clean_fields():
     async def transport(payload):
         order.append(payload['response_format']['json_schema']['name'])
         assert 'tools' not in payload
+        if order[-1] == 'InventoryReportRows':
+            return response(inventory())
         return response(extraction([field()]) if len(order) == 2 else verification())
     result = asyncio.run(extract_record_document(pdf(SPAN + '\n' + instruction), 'authored.pdf',
         'application/pdf', telemetry, request=transport, screen_document=screen))
-    assert order == ['screen', 'ExtractRecordedFields', 'VerifyRecordedFields']
+    assert order == ['screen', 'ExtractRecordedFields', 'VerifyRecordedFields', 'InventoryReportRows']
     assert result['document_guard']['status'] == 'quarantined'
     assert result['document_guard']['image_pixels_screened'] is False
     assert instruction not in json.dumps(result['document_guard'])

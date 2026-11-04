@@ -34,7 +34,7 @@ def support_review_reasons(local):
                 reasons.append(f'The {name} is not included in this excerpt. Check it on the original report.')
         if not reasons:
             reasons.append('Some extracted details could not be matched to this excerpt. Check the original report.')
-    elif local['status'] == 'unavailable':
+    if local['status'] == 'unavailable' or 'no_independent_page_text' in local.get('issues', []):
         reasons.append('The page has no readable text to compare. Check the original image.')
     if 'ocr_text_is_unverified' in local.get('issues', []):
         reasons.append('This comparison uses a local transcription. Check the original image too.')
@@ -69,6 +69,12 @@ def review_draft(filename, raw, result):
             issues.append('The second reading disagrees with this field.')
         elif verified in {'uncertain', 'unavailable'}:
             issues.append('The second reading could not confirm this field.')
+        if field.get('inventory_check', {}).get('status') == 'unmatched':
+            issues.append('The separate row check did not find this proposed entry. Check that it is a recorded result or history item.')
+        elif field.get('inventory_check', {}).get('status') == 'unit_disagreement':
+            proposed_unit = field['inventory_check']['proposed_unit']
+            shown = repr(proposed_unit) if proposed_unit is not None else 'not recorded'
+            issues.append(f'The separate row check read the unit as {shown}. Check this entry\'s unit in the original; do not add a duplicate row.')
         facts.append({
             'id': field['id'], 'label': field['label'], 'value': field['value'],
             'unit': field['unit'], 'date': field['occurred_on'], 'page': field['page'],
@@ -88,6 +94,14 @@ def review_draft(filename, raw, result):
         draft['extraction_review']['coverage'] = coverage
         if not result['fields']:
             draft['facts'] = []  # Read-only review of an empty proposal; commits still reject.
+    if 'completeness_check' in result:
+        # Server-generated comparison of validated inventory rows. These remain
+        # review warnings, never eligible field IDs for either commit endpoint.
+        draft['extraction_review']['completeness_check'] = result['completeness_check']
+        check = result['completeness_check']
+        # A possible omitted row has no reviewed date. Do not expose its full
+        # original through a dated history view merely because extracted rows fit.
+        draft['source']['unresolved_row_inventory'] = bool(check['omissions'] or check.get('disagreements') or check['status'] != 'completed')
     # Preserve exact model proposals, checks and non-calibrated confidence for
     # later review without exposing them as committed or historically known facts.
     draft['extraction_proposal'] = result

@@ -53,7 +53,7 @@ from modus.record_store import RecordStore
 from modus.ingest import make_draft
 from modus.record_models import METRICS
 from modus.record_conflicts import conflicts
-store = RecordStore(sys.argv[2], seed_provider=lambda: ([], []))
+store = RecordStore(sys.argv[2], seed_provider=lambda: ([], []), storage_key=bytes(range(32)))
 snapshot = store.snapshot()
 blocked = [name for name in sys.modules if name in {
     'modus.models', 'modus.memory', 'modus.seed', 'modus.analysis', 'modus.agent', 'modus.app'}]
@@ -88,7 +88,7 @@ def test_incompatible_database_rejected_without_changing_bytes(tmp_path, kind):
     else:
         path.write_bytes(b'not a sqlite database; preserve this input')
     original = path.read_bytes()
-    with pytest.raises(ValueError, match='Incompatible'):
+    with pytest.raises(ValueError, match='Incompatible|key metadata is missing'):
         create_store(path)
     assert path.read_bytes() == original
 

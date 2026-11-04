@@ -45,6 +45,12 @@ def verification(checks=None):
     return {'checks': [{'field_id': 'field-1', 'status': 'supported', 'reason': 'matches_source'}] if checks is None else checks}
 
 
+def inventory(rows=None, page=1, **changes):
+    rows = [field()] if rows is None else rows
+    return {'pages': [{'page': page, 'readability': 'readable', 'truncated': False,
+        'rows': [{k: row[k] for k in ('label','value','unit','source_quote','bbox')} for row in rows], **changes}]}
+
+
 def response(content):
     return {'id': 'test-response', 'model': 'muse-spark-1.3', 'choices': [{'finish_reason': 'stop', 'message': {
         'content': json.dumps(content) if not isinstance(content, str) else content}}], 'usage': {'prompt_tokens': 12, 'completion_tokens': 20, 'total_tokens': 32}}
@@ -55,6 +61,8 @@ def run(*, first=None, second=None, raw=None, mime='application/pdf', filename='
     payloads, telemetry = [], {}
     async def request(payload):
         payloads.append(payload)
+        if payload['response_format']['json_schema']['name'] == 'InventoryReportRows':
+            return response(inventory())
         out = outputs.pop(0)
         if isinstance(out, BaseException):
             raise out
@@ -64,10 +72,12 @@ def run(*, first=None, second=None, raw=None, mime='application/pdf', filename='
     return result, payloads, telemetry
 
 
-def test_text_layer_two_pass_preserves_exact_source_and_requires_review():
+def test_text_layer_source_checks_and_blind_inventory_preserve_original_and_require_review():
     result, payloads, telemetry = run()
-    assert len(payloads) == 2
-    assert all('tools' not in payload and payload['max_completion_tokens'] == 4000 for payload in payloads)
+    assert len(payloads) == 3
+    assert all('tools' not in payload for payload in payloads)
+    assert [payload['max_completion_tokens'] for payload in payloads] == [16000, 6000, 12000]
+    assert [call['max_completion_tokens'] for call in telemetry['calls']] == [16000, 6000, 12000]
     assert all(payload['reasoning_effort'] == 'minimal' for payload in payloads)
     assert all(part['type'] == 'text' for part in payloads[0]['messages'][1]['content'])
     assert result['fields'][0]['local_support'] == {'status': 'matched_text', 'issues': []}
@@ -76,8 +86,8 @@ def test_text_layer_two_pass_preserves_exact_source_and_requires_review():
     assert result['observations'][0]['source_span'] == SPAN
     assert result['review_required'] is True
     assert result['extraction']['confidence_basis'] == 'model_self_report_not_calibrated'
-    assert telemetry['usage']['total_tokens'] == 64
-    assert [call['stage'] for call in telemetry['calls']] == ['ExtractRecordedFields', 'VerifyRecordedFields']
+    assert telemetry['usage']['total_tokens'] == 96
+    assert [call['stage'] for call in telemetry['calls']] == ['ExtractRecordedFields', 'VerifyRecordedFields', 'InventoryReportRows']
 
 
 def date_passage(**updates):
@@ -147,6 +157,58 @@ def test_image_date_anchor_remains_without_independent_text_support():
     assert result['fields'][0]['date_evidence']['check'] == {
         'status': 'unavailable', 'issues': ['no_independent_page_text']}
     assert result['fields'][0]['date_evidence']['relation'] == 'requires_review'
+
+
+@pytest.mark.parametrize('patch,issue', [
+    ({'reference_range': '3.80-5.20 10*12/L'}, 'reference_range_not_in_quote'),
+    ({'unit': '10*12/L'}, 'unit_not_in_quote'),
+    ({'value': '4.26'}, 'value_not_in_quote'),
+    ({'specimen': 'Serum'}, 'specimen_not_in_quote'),
+    ({'test_method': 'Impedance'}, 'test_method_not_in_quote'),
+])
+def test_image_proposal_contradictions_are_flagged_without_promoting_its_quote(patch, issue):
+    from PIL import Image
+    image = io.BytesIO()
+    Image.new('RGB', (64, 64), 'white').save(image, format='PNG')
+    quoted = 'RBC: 4.62 10^12/L\nRange: 3.80-5.20 10^12/L\nSpecimen: Whole blood'
+    proposed = field(label='RBC', value='4.62', unit='10^12/L', occurred_on=None,
+        reference_range='3.80-5.20 10^12/L', specimen='Whole blood', source_quote=quoted)
+    proposed.update(patch)
+    result, _, _ = run(first=extraction([proposed]), raw=image.getvalue(),
+        mime='image/png', filename='artificial.png')
+    actual = result['fields'][0]
+    assert actual['verification']['status'] == 'supported'  # Deliberately wrong artificial verifier.
+    assert actual['local_support']['status'] == 'mismatch'
+    assert issue in actual['local_support']['issues']
+    assert 'no_independent_page_text' in actual['local_support']['issues']
+    assert 'quote_not_on_page' not in actual['local_support']['issues']
+    assert actual['source_quote'] == quoted
+    assert all(actual[k] == v for k, v in patch.items())  # Never repair model output.
+
+
+def test_consistent_image_proposal_is_still_unverified_and_cannot_lose_a_qualifier():
+    page = {'page': 1, 'text': '', 'text_source': 'none'}
+    proposed = field(source_quote='HbA1c 5.6 % 2024-02-03')
+    assert pipeline._local_support(proposed, [page]) == {
+        'status': 'unavailable', 'issues': ['no_independent_page_text']}
+    proposed['source_quote'] = 'HbA1c <5.6 % 2024-02-03'
+    checked = pipeline._local_support(proposed, [page])
+    assert checked == {'status': 'mismatch', 'issues': [
+        'no_independent_page_text', 'numeric_qualifier_not_preserved']}
+
+
+@pytest.mark.parametrize('next_cell', ['<0.10', '<= 0.10', '>0.10', '≤0.10', '≥0.10'])
+def test_history_cell_does_not_borrow_the_next_cells_inequality(next_cell):
+    quote = f'CRP mg/L <0.10 0.80 {next_cell} 1.10'
+    proposed = field(label='CRP', value='0.80', unit='mg/L', occurred_on=None, source_quote=quote)
+    for page in ({'page': 1, 'text': '', 'text_source': 'none'},
+                 {'page': 1, 'text': quote, 'text_source': 'pdf_text'}):
+        checked = pipeline._local_support(proposed, [page])
+        assert 'numeric_qualifier_not_preserved' not in checked['issues']
+        assert checked['status'] == ('unavailable' if not page['text'] else 'matched_text')
+        # The same passage still cannot turn its censored 0.10 into a point.
+        censored = pipeline._local_support({**proposed, 'value': '0.10'}, [page])
+        assert 'numeric_qualifier_not_preserved' in censored['issues']
 
 
 def test_printed_date_occurrence_never_confirms_its_connection():
@@ -224,7 +286,7 @@ def test_invalid_first_pass_produces_no_draft(bad):
 ])
 def test_verifier_failure_keeps_unconfirmed_draft_and_bounded_reason(bad):
     result, calls, telemetry = run(second=bad)
-    assert len(calls) == 2 and len(telemetry['calls']) == 2
+    assert len(calls) == 3 and len(telemetry['calls']) == 3
     assert result['verification']['status'] == 'unavailable'
     assert result['fields'][0]['verification']['status'] == 'unavailable'
     assert result['fields'][0]['value'] == '5.6' and result['review_required']
@@ -233,7 +295,8 @@ def test_verifier_failure_keeps_unconfirmed_draft_and_bounded_reason(bad):
 
 def test_empty_extract_does_not_claim_verification_or_retry():
     result, calls, _ = run(first=extraction([]))
-    assert len(calls) == 1 and result['verification']['status'] == 'not_run'
+    assert len(calls) == 2 and result['verification']['status'] == 'not_run'
+    assert len(result['completeness_check']['omissions']) == 1
     assert result['fields'] == result['observations'] == []
 
 
@@ -331,6 +394,80 @@ def test_ocr_text_cannot_bypass_input_bounds(monkeypatch):
         'pages': [{'page': 1, 'text': 'X' * 16001}], 'telemetry': {'status': 'completed'}})
     with pytest.raises(ValueError, match='text limit'):
         run(raw=pdf(''), use_local_ocr=True)
+
+
+def two_column_pdf():
+    writer = PdfWriter()
+    page = writer.add_blank_page(width=612, height=792)
+    font = DictionaryObject({NameObject('/Type'):NameObject('/Font'), NameObject('/Subtype'):NameObject('/Type1'),
+                             NameObject('/BaseFont'):NameObject('/Helvetica')})
+    page[NameObject('/Resources')] = DictionaryObject({NameObject('/Font'):DictionaryObject({NameObject('/F1'):writer._add_object(font)})})
+    rows = [('Glucose','97','mg/dL','70-99 mg/dL'), ('Ferritin','28.40','ng/mL','15-150 ng/mL')]
+    commands = ['BT /F1 10 Tf 32 740 Td (Collected: 2024-02-03) Tj ET']
+    fields = []
+    for index,(label,value,unit,interval) in enumerate(rows):
+        lines = [f'{label}: {value} {unit}', f'Range: {interval}', 'Specimen: Serum', 'Method: Authored method']
+        for line_index,line in enumerate(lines):
+            commands.append(f'BT /F1 10 Tf {32+index*286} {690-line_index*18} Td ({line}) Tj ET')
+        fields.append(field(label=label,value=value,unit=unit,source_quote='\n'.join(lines),
+            reference_range=interval,specimen='Serum',test_method='Authored method',date_evidence=date_passage(),bbox=None))
+    stream = DecodedStreamObject(); stream.set_data('\n'.join(commands).encode('ascii'))
+    page[NameObject('/Contents')] = writer._add_object(stream)
+    raw = io.BytesIO(); writer.write(raw)
+    return raw.getvalue(), fields
+
+
+def test_multiline_column_evidence_matches_original_stream_order_without_rewriting_the_quote():
+    from test_record_row_inventory import ArtificialInventoryReader
+    raw, fields = two_column_pdf()
+    prepared = asyncio.run(inputs.prepare_document(raw,'columns.pdf','application/pdf',{}))
+    page = prepared['pages'][0]
+    quote = ' '.join(fields[0]['source_quote'].split())
+    assert quote not in ' '.join(page['text'].split())  # Layout interleaves the other column.
+    assert quote in ' '.join(page['reading_order_text'].split())
+    transport = ArtificialInventoryReader(proposed=fields, rows=fields)
+    result = asyncio.run(pipeline.extract_record_document(raw,'columns.pdf','application/pdf',{},request=transport))
+    assert len(result['fields']) == 2
+    for actual, proposed in zip(result['fields'],fields):
+        assert actual['source_quote'] == proposed['source_quote']
+        assert actual['local_support'] == {'status':'review_required','issues':['date_link_requires_review']}
+        assert actual['inventory_check']['status'] == 'matched'
+        assert actual['date_evidence']['relation'] == 'requires_review'
+    assert result['completeness_check']['omissions'] == []
+    assert len(transport.calls) == 3 and result['review_required']
+
+
+@pytest.mark.parametrize('case', ['stitched','wrong_value','other_page','ocr'])
+def test_alternative_pdf_order_never_stitches_passages_or_promotes_ocr(case):
+    from modus.record_row_inventory import _support
+    text = 'Glucose 97 mg/dL Range: 70-99 mg/dL'
+    page = {'page':1,'text':'Glucose 97 mg/dL unrelated column','text_source':'pdf_text','reading_order_text':text}
+    proposed = field(label='Glucose',value='97',unit='mg/dL',occurred_on=None,source_quote=text)
+    if case == 'stitched':
+        page['reading_order_text'] = 'Range: 70-99 mg/dL'  # Only concatenating both views could match.
+        page['text'] = 'Glucose 97 mg/dL'
+    elif case == 'wrong_value':
+        proposed['value'] = '98'  # Absent from both the result and its printed range.
+    elif case == 'other_page':
+        page['reading_order_text'] = ''
+    else:
+        page['text_source'] = 'local_teleocr'
+        page['text'] = text
+    checked = pipeline._local_support(proposed,[page, {'page':2,'text':text,'text_source':'pdf_text'}])
+    if case == 'ocr':
+        assert 'ocr_text_is_unverified' in checked['issues']
+        assert _support(proposed,page) == 'unavailable'
+    else:
+        assert checked['status'] == 'mismatch' and _support(proposed,page) == 'mismatch'
+
+
+def test_both_pdf_transcriptions_count_toward_existing_text_bounds(monkeypatch):
+    raw, _ = two_column_pdf()
+    prepared = asyncio.run(inputs.prepare_document(raw,'columns.pdf','application/pdf',{}))
+    page = prepared['pages'][0]
+    monkeypatch.setattr(inputs,'MAX_PAGE_TEXT',max(len(page['text']),len(page['reading_order_text'])))
+    with pytest.raises(ValueError,match='page text limit'):
+        asyncio.run(inputs.prepare_document(raw,'columns.pdf','application/pdf',{}))
 
 
 def test_pdf_page_count_is_bounded_before_provider():

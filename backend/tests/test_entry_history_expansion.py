@@ -7,6 +7,7 @@ import pytest
 
 from modus.ingest import make_draft
 from modus.record_history_models import proposed_facts
+from pathlib import Path
 
 NOW = datetime(2026, 10, 29, 9, tzinfo=timezone.utc)
 HISTORY = ("kind,label,value,unit,date,facility\n"
@@ -43,6 +44,75 @@ def api(tmp_path, monkeypatch):
 def review(fields):
     return [{key: row[key] for key in ('id','kind','label','value','unit','occurred_on','facility')}
             for row in fields]
+
+
+def test_starter_checkup_has_open_labels_context_and_exact_scoped_original(api):
+    client, _ = api
+    view = client.get('/api/history/view').json()
+    assert view['counts']['facts'] == 17
+    assert len({fact['label'] for fact in view['facts']}) == 11
+    source = next(source for source in view['sources'] if source['title'] == 'checkup-october-2026.csv')
+    rows = [fact for fact in view['facts'] if fact['source_id'] == source['id']]
+    assert {row['label'] for row in rows} == {'Glucose', 'Hemoglobin', 'White blood cells', 'Platelets', 'Ferritin', 'TSH', 'Vitamin D', 'ALT'}
+    assert all(row['reference_range'] and row['specimen'] and row['test_method'] for row in rows)
+    assert all(row['reviewer'] is None and row['extractor'] == 'authored_seed' for row in rows)
+    raw = (Path(__file__).resolve().parents[2] / 'entry/frontend/public/examples/checkup-october-2026.csv').read_bytes()
+    assert all(row['source_quote'] in raw.decode() for row in rows)
+    url = f"/api/history/sources/{source['id']}/original"
+    assert client.get(url, params={'known_at': NOW.isoformat()}).content == raw
+    before_arrival = {'known_at': '2026-10-23T08:59:59Z'}
+    assert client.get('/api/history/view', params=before_arrival).json()['counts']['facts'] == 9
+    assert client.get(url, params=before_arrival).status_code == 404
+    assert client.get(url, params={'known_at': NOW.isoformat(), 'as_of': '2026-10-21'}).status_code == 404
+    # Even a Meta request for the same bytes reuses the fixture without a call,
+    # a fabricated review, or an impossible second-save offer.
+    reopened = client.post('/api/imports/preview', data={'synthetic_confirmed':'true', 'use_meta':'true'},
+        files={'file':('checkup-october-2026.csv', raw, 'text/csv')})
+    assert reopened.status_code == 200
+    assert reopened.json()['already_committed'] is True
+    assert reopened.json()['extraction_mode'] == 'authored_seed'
+    assert 'No owner or model review' in ' '.join(reopened.json()['warnings'])
+    assert client.get('/api/history/view').json()['counts']['facts'] == 17
+
+
+def test_changed_demo_never_adds_to_an_existing_store(tmp_path):
+    from modus.record_store import RecordStore
+    from modus.record_history import history_view
+    from modus_entry.seed import initial_data
+    data = initial_data()
+    path = tmp_path / 'existing.db'
+    old = RecordStore(path, seed_provider=lambda: data[:2], clock=lambda: NOW)
+    before = history_view(old)
+    current = RecordStore(path, seed_provider=initial_data, clock=lambda: NOW)
+    assert history_view(current) == before
+    assert len(before['facts']) == 9
+    # An explicit demo reset uses the complete current seed and keeps originals.
+    current.reset()
+    assert len(history_view(current)['facts']) == 17
+    reopened = RecordStore(path, seed_provider=initial_data, clock=lambda: NOW)
+    assert len(history_view(reopened)['facts']) == 17
+
+
+@pytest.mark.parametrize('invalid', ['changed_bytes', 'invented_quote', 'not_synthetic'])
+def test_invalid_demo_original_rolls_back_the_whole_seed(tmp_path, invalid):
+    import sqlite3
+    from modus.record_store import RecordStore
+    from modus_entry.seed import initial_data
+    data = initial_data()
+    document = data[2][0]
+    if invalid == 'changed_bytes':
+        document['raw'] += b'changed'
+    elif invalid == 'invented_quote':
+        document['draft']['facts'][0]['source_quote'] = 'not present in the original'
+    else:
+        document['draft']['source']['synthetic'] = False
+    path = tmp_path / 'rejected.db'
+    with pytest.raises(ValueError):
+        RecordStore(path, seed_provider=lambda: data)
+    from modus.record_crypto import encrypted_connection
+    from modus.record_keys import database_key
+    with encrypted_connection(path, database_key(path)) as db:
+        assert db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall() == []
 
 
 @pytest.mark.parametrize('proposal', [{'facts': []}, {'extraction_proposal': {'fields': []}}])

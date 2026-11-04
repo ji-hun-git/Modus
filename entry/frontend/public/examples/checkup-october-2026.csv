@@ -1,0 +1,9 @@
+kind,label,value,unit,date,facility,reference_range,specimen,test_method
+measurement,Glucose,94,mg/dL,2026-10-22,Example lab,70-99 mg/dL,Plasma,Hexokinase
+measurement,Hemoglobin,13.8,g/dL,2026-10-22,Example lab,12.0-16.0 g/dL,Whole blood,Photometry
+measurement,White blood cells,6.2,10^9/L,2026-10-22,Example lab,4.0-10.0 10^9/L,Whole blood,Flow cytometry
+measurement,Platelets,246,10^9/L,2026-10-22,Example lab,150-400 10^9/L,Whole blood,Impedance
+measurement,Ferritin,58.6,ng/mL,2026-10-22,Example lab,15-150 ng/mL,Serum,Immunoassay
+measurement,TSH,2.10,mIU/L,2026-10-22,Example lab,0.40-4.00 mIU/L,Serum,Immunoassay
+measurement,Vitamin D,28.4,ng/mL,2026-10-22,Example lab,20-50 ng/mL,Serum,LC-MS/MS
+measurement,ALT,18,U/L,2026-10-22,Example lab,7-35 U/L,Serum,Enzymatic

@@ -28,6 +28,11 @@ PACKAGE_MANIFEST.json
 *.sqlite3
 *.pem
 *.key
+*.modus-access
+*.modus-vault.json
+*.modus-lock
+*.encrypting-*
+*.encrypted-backup-*
 *.p12
 *.pfx
 .DS_Store

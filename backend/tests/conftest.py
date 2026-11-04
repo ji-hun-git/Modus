@@ -16,9 +16,59 @@ for name in MODEL_CREDENTIALS:
 os.environ['PYTHON_DOTENV_DISABLED'] = '1'
 
 
+class IsolatedTestKeyring:
+    """Real SQLCipher, ephemeral test keys; never read the developer's OS vault."""
+    def __init__(self):
+        self.entries = {}
+    def get_password(self, service, username):
+        return self.entries.get((service, username))
+    def set_password(self, service, username, password):
+        self.entries[service, username] = password
+
+
+try:
+    from modus import record_keys
+except ModuleNotFoundError as error:
+    if error.name != 'modus':
+        raise
+else:
+    test_keyring = IsolatedTestKeyring()
+    record_keys.system_keyring = lambda: test_keyring
+
+
 @pytest.fixture(autouse=True)
 def isolated_provider_environment(monkeypatch):
     monkeypatch.setenv('MODUS_PROVIDER', 'offline')
     for name in MODEL_CREDENTIALS:
         monkeypatch.setenv(name, '')
     monkeypatch.setenv('PYTHON_DOTENV_DISABLED', '1')
+
+
+@pytest.fixture(autouse=True)
+def local_service_client_defaults(monkeypatch):
+    """Exercise the production boundary with a real loopback origin/peer.
+
+    Explicit test overrides still work; no production test-host bypass exists.
+    Security tests remove the write header to exercise missing-header rejection.
+    """
+    from starlette.testclient import TestClient
+    original = TestClient.__init__
+    def initialize(self, app, *args, **kwargs):
+        if not args:
+            kwargs.setdefault('base_url', 'http://127.0.0.1')
+        kwargs.setdefault('client', ('127.0.0.1', 50000))
+        headers = {'X-Modus-Request': '1'}
+        if 'headers' not in kwargs and hasattr(getattr(app, 'state', None), 'local_access'):
+            from modus_entry.local_security import _origin
+            origin = kwargs.get('base_url', 'http://127.0.0.1').rstrip('/')
+            # Test code possesses the server-side owner capability; no network
+            # endpoint, environment flag or production auth bypass is added.
+            material = getattr(app.state, '_test_access_material', None)
+            if material is None:
+                material = app.state.local_access.configure(origin)
+                app.state._test_access_material = material
+            session = app.state.local_access.unlock(material['token'], _origin(origin))
+            headers['Authorization'] = 'Bearer ' + session['access_token']
+        kwargs.setdefault('headers', headers)
+        original(self, app, *args, **kwargs)
+    monkeypatch.setattr(TestClient, '__init__', initialize)

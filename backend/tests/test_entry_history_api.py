@@ -44,21 +44,21 @@ def test_whole_history_review_commit_and_two_clocks(api):
     client, store = api
     draft = preview(client)
     assert len(draft['facts']) == 8
-    assert client.get('/api/history/view').json()['counts']['facts'] == 9
+    assert client.get('/api/history/view').json()['counts']['facts'] == 17
     body = {'draft_id': draft['id'], 'synthetic_confirmed': True, 'reviewed_facts': reviewed(draft)}
     body['reviewed_facts'][1]['value'] = '142.5'
     receipt = client.post('/api/history/commit', json=body)
     assert receipt.status_code == 200, receipt.text
     assert receipt.json()['inserted'] == 8 and len(receipt.json()['observation_ids']) == 1
     current = client.get('/api/history/view').json()
-    assert current['counts']['facts'] == 17  # 9 original + 8; bridged HbA1c counted once.
+    assert current['counts']['facts'] == 25  # 17 authored + 8; bridged HbA1c counted once.
     height = next(f for f in current['facts'] if f['label'] == 'Height')
     assert height['value'] == '142.5' and '142.0' in height['source_quote']
     assert height['normalization']['normalized']['value'] == '142.5'
     assert height['normalization']['normalized']['unit'] == 'cm'
     assert height['reviewer'] == 'local-owner' and height['reviewed_at'].startswith('2026-10-28')
     historical = client.get('/api/history/view', params={'known_at': '2026-10-27T00:00:00Z'}).json()
-    assert historical['counts']['facts'] == 9
+    assert historical['counts']['facts'] == 17
     repeated = client.post('/api/history/commit', json=body)
     assert repeated.status_code == 200 and repeated.json()['duplicate'] is True
     assert repeated.json()['available_at'] == receipt.json()['available_at']
@@ -74,7 +74,7 @@ def test_source_fields_are_not_client_authority(api):
     rejected = client.post('/api/history/commit', json={
         'draft_id': draft['id'], 'synthetic_confirmed': True, 'reviewed_facts': rows})
     assert rejected.status_code == 422
-    assert client.get('/api/history/view').json()['counts']['facts'] == 9
+    assert client.get('/api/history/view').json()['counts']['facts'] == 17
 
 
 def test_original_and_undated_text_respect_explicit_date_scope(api):

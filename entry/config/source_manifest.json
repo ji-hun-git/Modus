@@ -3,6 +3,171 @@
   "scope": "Exact bounded source candidate. No eligibility or publication approval implied.",
   "files": [
     {
+      "source": "backend/modus/local_files.py",
+      "destination": "backend/modus/local_files.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_crypto.py",
+      "destination": "backend/modus/record_crypto.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_keys.py",
+      "destination": "backend/modus/record_keys.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_encryption_migration.py",
+      "destination": "backend/modus/record_encryption_migration.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_record_encryption.py",
+      "destination": "backend/tests/test_record_encryption.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/encryption-requirements.txt",
+      "destination": "backend/encryption-requirements.txt",
+      "behavior": true
+    },
+    {
+      "source": "backend/encryption-requirements.lock.txt",
+      "destination": "backend/encryption-requirements.lock.txt",
+      "behavior": true
+    },
+    {
+      "source": "scripts/encrypt_records.py",
+      "destination": "scripts/encrypt_records.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/local_access.py",
+      "destination": "backend/modus_entry/local_access.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/local_access_file.py",
+      "destination": "scripts/local_access_file.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_local_access.py",
+      "destination": "backend/tests/test_entry_local_access.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/AccessGate.tsx",
+      "destination": "entry/frontend/src/AccessGate.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/DownloadOriginal.tsx",
+      "destination": "entry/frontend/src/DownloadOriginal.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/local-access.css",
+      "destination": "entry/frontend/src/local-access.css",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/local_security.py",
+      "destination": "backend/modus_entry/local_security.py",
+      "behavior": true
+    },
+    {
+      "source": "scripts/private_storage.py",
+      "destination": "scripts/private_storage.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_local_security.py",
+      "destination": "backend/tests/test_entry_local_security.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_private_storage.py",
+      "destination": "backend/tests/test_private_storage.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/localRequest.test.mjs",
+      "destination": "entry/frontend/tests/localRequest.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/docs/OPEN_SOURCE.md",
+      "destination": "entry/docs/OPEN_SOURCE.md",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus/record_omissions.py",
+      "destination": "backend/modus/record_omissions.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_omission_review.py",
+      "destination": "backend/tests/test_entry_omission_review.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_garak_record_boundaries.py",
+      "destination": "backend/tests/test_garak_record_boundaries.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/fixtures/garak/sql_injection.json",
+      "destination": "backend/tests/fixtures/garak/sql_injection.json",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/fixtures/garak/python_code_execution.json",
+      "destination": "backend/tests/fixtures/garak/python_code_execution.json",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/fixtures/garak/markdown_js.json",
+      "destination": "backend/tests/fixtures/garak/markdown_js.json",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/fixtures/garak/LICENSE",
+      "destination": "backend/tests/fixtures/garak/LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "backend/tests/fixtures/garak/NOTICE.md",
+      "destination": "backend/tests/fixtures/garak/NOTICE.md",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus/record_row_inventory.py",
+      "destination": "backend/modus/record_row_inventory.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_record_row_inventory.py",
+      "destination": "backend/tests/test_record_row_inventory.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_row_inventory.py",
+      "destination": "backend/tests/test_entry_row_inventory.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ReportCompletenessReview.tsx",
+      "destination": "entry/frontend/src/ReportCompletenessReview.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/HomeReportEvidence.tsx",
+      "destination": "entry/frontend/src/HomeReportEvidence.tsx",
+      "behavior": true
+    },
+    {
       "source": "backend/modus/__init__.py",
       "destination": "backend/modus/__init__.py",
       "behavior": true
@@ -2718,6 +2883,141 @@
       "behavior": false
     },
     {
+      "source": "backend/modus_entry/longitudinal_series.py",
+      "destination": "backend/modus_entry/longitudinal_series.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_longitudinal_series.py",
+      "destination": "backend/tests/test_entry_longitudinal_series.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/LongitudinalWorkspace.tsx",
+      "destination": "entry/frontend/src/LongitudinalWorkspace.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/SeriesChart.tsx",
+      "destination": "entry/frontend/src/SeriesChart.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/SeriesObservationList.tsx",
+      "destination": "entry/frontend/src/SeriesObservationList.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/longitudinal-workspace.css",
+      "destination": "entry/frontend/src/longitudinal-workspace.css",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/longitudinalSeries.ts",
+      "destination": "entry/frontend/src/longitudinalSeries.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/useLongitudinalSeries.ts",
+      "destination": "entry/frontend/src/useLongitudinalSeries.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/tests/longitudinalSeries.test.mjs",
+      "destination": "entry/frontend/tests/longitudinalSeries.test.mjs",
+      "behavior": true
+    },
+    {
+      "source": "entry/demo/longitudinal/README.md",
+      "destination": "entry/demo/longitudinal/README.md",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/provenance.json",
+      "destination": "entry/demo/longitudinal/provenance.json",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2024-checkup.csv",
+      "destination": "entry/demo/longitudinal/2024-checkup.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2016-pressure-record.csv",
+      "destination": "entry/demo/longitudinal/2016-pressure-record.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2025-checkup.csv",
+      "destination": "entry/demo/longitudinal/2025-checkup.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2026-checkup.csv",
+      "destination": "entry/demo/longitudinal/2026-checkup.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2025-conflicting-copy.csv",
+      "destination": "entry/demo/longitudinal/2025-conflicting-copy.csv",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/longitudinal/2019-late-arriving-checkup.csv",
+      "destination": "entry/demo/longitudinal/2019-late-arriving-checkup.csv",
+      "behavior": false
+    },
+    {
+      "source": "backend/modus_entry/history_query.py",
+      "destination": "backend/modus_entry/history_query.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_query_executor.py",
+      "destination": "backend/modus_entry/history_query_executor.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_query_muse.py",
+      "destination": "backend/modus_entry/history_query_muse.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus_entry/history_query_plan.py",
+      "destination": "backend/modus_entry/history_query_plan.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_query_executor.py",
+      "destination": "backend/tests/test_history_query_executor.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_query_integration.py",
+      "destination": "backend/tests/test_history_query_integration.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_query_plan.py",
+      "destination": "backend/tests/test_history_query_plan.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/demo/ask-query-evidence-desktop.png",
+      "destination": "entry/demo/ask-query-evidence-desktop.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/ask-query-evidence-mobile.png",
+      "destination": "entry/demo/ask-query-evidence-mobile.png",
+      "behavior": false
+    },
+    {
+      "source": "entry/demo/ask-query-history-desktop.png",
+      "destination": "entry/demo/ask-query-history-desktop.png",
+      "behavior": false
+    },
+    {
       "source": "scripts/public_repository.py",
       "destination": "scripts/public_repository.py",
       "behavior": true
@@ -2726,6 +3026,206 @@
       "source": "backend/tests/test_public_repository.py",
       "destination": "backend/tests/test_public_repository.py",
       "behavior": true
+    },
+    {
+      "source": "backend/tests/test_history_query_followups.py",
+      "destination": "backend/tests/test_history_query_followups.py",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_narrative_comparison.py",
+      "destination": "backend/tests/test_entry_narrative_comparison.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/useAmbientMotion.ts",
+      "destination": "entry/frontend/src/useAmbientMotion.ts",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/AmbientMotionControl.tsx",
+      "destination": "entry/frontend/src/AmbientMotionControl.tsx",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/src/ambient-motion.css",
+      "destination": "entry/frontend/src/ambient-motion.css",
+      "behavior": true
+    },
+    {
+      "source": "backend/modus/record_history_seed.py",
+      "destination": "backend/modus/record_history_seed.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/checkup-october-2026.csv",
+      "destination": "entry/frontend/public/examples/checkup-october-2026.csv",
+      "behavior": true
+    },
+    {
+      "source": "backend/tests/test_entry_archive_seed.py",
+      "destination": "backend/tests/test_entry_archive_seed.py",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2010.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2010.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2013.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2013.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2016.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2016.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2019.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2019.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2022.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2022.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2024.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2024.csv",
+      "behavior": true
+    },
+    {
+      "source": "entry/frontend/public/examples/authored-checkup-2025.csv",
+      "destination": "entry/frontend/public/examples/authored-checkup-2025.csv",
+      "behavior": true
+    },
+    {
+      "source": "data/licenses/dependencies/python/jaraco-classes-3.4.0/1-LICENSE",
+      "destination": "data/licenses/dependencies/python/jaraco-classes-3.4.0/1-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/jaraco-context-6.1.2/7-LICENSE",
+      "destination": "data/licenses/dependencies/python/jaraco-context-6.1.2/7-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/jaraco-functools-4.6.0/8-LICENSE",
+      "destination": "data/licenses/dependencies/python/jaraco-functools-4.6.0/8-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/keyring-25.7.0/7-LICENSE",
+      "destination": "data/licenses/dependencies/python/keyring-25.7.0/7-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/more-itertools-11.2.1/5-LICENSE",
+      "destination": "data/licenses/dependencies/python/more-itertools-11.2.1/5-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/portalocker-3.2.0/5-LICENSE",
+      "destination": "data/licenses/dependencies/python/portalocker-3.2.0/5-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/14-license.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/14-license.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/43-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/43-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/45-Scintilla-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/45-Scintilla-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/124-LICENSE.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/124-LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/164-license.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/164-license.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/165-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/165-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/166-LICENSE",
+      "destination": "data/licenses/dependencies/python/pywin32-312/166-LICENSE",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/167-README.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/167-README.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/168-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/168-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/169-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/169-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/170-LICENSE.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/170-LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/171-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/171-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/251-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/251-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/383-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/383-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/485-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/485-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/571-MAPIStubLibrary-License.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-312/571-MAPIStubLibrary-License.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-312/572-NOTICE.md",
+      "destination": "data/licenses/dependencies/python/pywin32-312/572-NOTICE.md",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/pywin32-ctypes-0.2.3/1-LICENSE.txt",
+      "destination": "data/licenses/dependencies/python/pywin32-ctypes-0.2.3/1-LICENSE.txt",
+      "behavior": false
+    },
+    {
+      "source": "data/licenses/dependencies/python/sqlcipher3-0.6.4/5-LICENSE",
+      "destination": "data/licenses/dependencies/python/sqlcipher3-0.6.4/5-LICENSE",
+      "behavior": false
     }
   ]
 }

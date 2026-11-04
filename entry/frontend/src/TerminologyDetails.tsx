@@ -2,7 +2,7 @@ export type TermMapping = {
   concept_id: string;
   medical_name: string;
   display_name: string;
-  requested_terms: string[];
+  requested_terms?: string[];
   matched_labels?: string[];
   catalog_version: string;
   reference: {publisher: string; title: string; url: string; checked_on: string};
@@ -30,14 +30,16 @@ export function referenceUrl(value: string) {
 
 export default function TerminologyDetails({ mappings }: {mappings?: TermMapping[]}) {
   if (!mappings?.length) return null;
+  const hasRequestedTerms=mappings.some(term=>term.requested_terms?.length);
   return <details className="history-answer-trace" aria-label="Medical terminology matches">
-    <summary>How I matched your words</summary>
+    <summary>{hasRequestedTerms?'How I matched your words':'Medical terminology'}</summary>
     <p>General terminology references. Your results come from your source records.</p>
     {mappings.map(term => {
       const url = referenceUrl(term.reference.url);
       return <div key={term.concept_id}>
-        <p><strong>{term.requested_terms.join(', ')}</strong> → {term.matched_labels?.length
-          ? term.matched_labels.join(', ') : term.display_name}</p>
+        <p>{term.requested_terms?.length ? <><strong>{term.requested_terms.join(', ')}</strong> → {term.matched_labels?.length
+          ? term.matched_labels.join(', ') : term.display_name}</> : <><strong>{term.display_name}</strong>
+          {term.matched_labels?.length ? ` · Recorded as ${term.matched_labels.join(', ')}` : ''}</>}</p>
         {url && <a href={url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">
           {term.reference.publisher} · {term.reference.title}</a>}
       </div>;

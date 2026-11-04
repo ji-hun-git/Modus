@@ -5,12 +5,14 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import sqlite3
+import sqlcipher3 as sqlite3
 
 from .record_conflicts import conflicts
 from .record_models import Observation, ReviewedObservation
 from .temporal import instant, utc_now
 from .record_history_models import date_information, temporal_original_allowed
+from .record_crypto import database_lock, encrypted_connection, is_plaintext, verify_integrity, StorageError
+from .record_keys import database_key, key_metadata_path
 
 
 def packed_json_rows(db, query, parameters=()):
@@ -34,7 +36,7 @@ class RecordStore:
     schema_version = "1"
 
     def __init__(self, path, *, seed_provider, application_id="modus-records-v1",
-                 clock=utc_now, require_review=True, commit_event_factory=None):
+                 clock=utc_now, require_review=True, commit_event_factory=None, storage_key=None):
         if not callable(seed_provider):
             raise TypeError("An explicit record seed provider is required")
         if not isinstance(application_id, str) or not re.fullmatch(r"[a-z][a-z0-9-]{1,63}", application_id):
@@ -47,9 +49,18 @@ class RecordStore:
         self.require_review = require_review
         self._seed_provider = seed_provider
         self._commit_event_factory = commit_event_factory
+        with database_lock(self.path, exclusive=True):
+            if is_plaintext(self.path):
+                raise StorageError('Incompatible plaintext record database. Stop Modus and run the encryption migration first.')
+            exists = Path(self.path).exists()
+            if not exists and key_metadata_path(self.path).exists():
+                raise StorageError('The record database is missing. Restore it with its key metadata; a replacement was not created.')
+            self._key = storage_key if storage_key is not None else database_key(self.path, create=not exists)
+            self._initialize_database(create=not exists)
+
+    def _initialize_database(self, *, create):
         self._preflight_identity()
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with self.connect() as db:
+        with self._connection(create=create) as db:
             db.execute('BEGIN IMMEDIATE')
             self._check_identity(db)
             for statement in (
@@ -69,12 +80,16 @@ class RecordStore:
                 db.execute('ALTER TABLE sources ADD COLUMN available_at TEXT')
             db.execute('CREATE INDEX IF NOT EXISTS source_available ON sources(available_at)')
             db.execute('CREATE INDEX IF NOT EXISTS observation_event_source ON observations(date,source_id)')
-            seeded_sources, seeded_observations = deepcopy(self._seed_provider())
-            if db.execute('SELECT count(*) FROM sources').fetchone()[0] == 0:
-                self._insert_seed(db, seeded_sources, seeded_observations)
-            self._migrate_availability(db, seeded_sources)
+            # Older callers supply (sources, observations); the entry demo may
+            # also supply authored open-label documents. Never reseed a store
+            # that already owns sources, even when the demo changes.
+            seed = deepcopy(self._seed_provider())
+            seeded_sources = seed[0]
             from .record_history import initialize_history
             initialize_history(db)
+            if db.execute('SELECT count(*) FROM sources').fetchone()[0] == 0:
+                self._insert_seed(db, *seed)
+            self._migrate_availability(db, seeded_sources)
             self._initialize_extensions(db)
 
     def _check_identity(self, db):
@@ -95,8 +110,9 @@ class RecordStore:
         if not path.exists() or path.stat().st_size == 0:
             return
         try:
-            db = sqlite3.connect(path.resolve().as_uri() + '?mode=ro', uri=True, timeout=15)
+            db = encrypted_connection(path, self._key, readonly=True)
             try:
+                verify_integrity(db)
                 self._check_identity(db)
             finally:
                 db.close()
@@ -106,7 +122,7 @@ class RecordStore:
     def _initialize_extensions(self, db):
         """Full-product wrappers may initialize their own reference capability."""
 
-    def _insert_seed(self, db, sources, observations):
+    def _insert_seed(self, db, sources, observations, history_documents=()):
         for source in sources:
             source.update(
                 available_at=instant(source.get('available_at') or source['date'] + 'T00:00:00Z'),
@@ -118,6 +134,9 @@ class RecordStore:
             db.execute('INSERT INTO observations VALUES (?,?,?,?,?)',
                        (observation['id'], observation['source_id'], observation['metric'],
                         observation['date'], json.dumps(observation)))
+        if history_documents:
+            from .record_history_seed import insert_authored_documents
+            insert_authored_documents(db, history_documents)
 
     def _migrate_availability(self, db, seeded_sources):
         """Never infer knowledge time from a measurement date for legacy imports."""
@@ -149,9 +168,13 @@ class RecordStore:
 
     @contextmanager
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=15)
-        db.execute('PRAGMA foreign_keys=ON')
-        db.row_factory = sqlite3.Row
+        with database_lock(self.path):
+            with self._connection() as db:
+                yield db
+
+    @contextmanager
+    def _connection(self, *, create=False):
+        db = encrypted_connection(self.path, self._key, create=create)
         try:
             yield db
             db.commit()
@@ -174,8 +197,8 @@ class RecordStore:
             source_rows = packed_json_rows(db,
                 'SELECT data FROM sources WHERE available_at<=?', (cutoff,))
             observation_rows = packed_json_rows(db,
-                'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? ORDER BY o.date,o.id',
-                (cutoff,))
+                "SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE s.available_at<=? AND COALESCE(json_extract(o.data,'$.available_at'),s.available_at)<=? ORDER BY o.date,o.id",
+                (cutoff, cutoff))
             amendment_rows = packed_json_rows(db, 'SELECT data FROM history_amendments WHERE available_at<=? ORDER BY available_at,sequence', (cutoff,))
         sources = json.loads(source_rows)
         observations = json.loads(observation_rows)
@@ -341,8 +364,8 @@ class RecordSnapshot:
         self._sources = {source['id']: deepcopy(source) for source in sources}
         self._amendments = []
         self._observations = [
-            {**deepcopy(observation), 'available_at': self._sources[observation['source_id']]['available_at'],
-             'availability_basis': self._sources[observation['source_id']]['availability_basis']}
+            {**deepcopy(observation), 'available_at': observation.get('available_at') or self._sources[observation['source_id']]['available_at'],
+             'availability_basis': observation.get('availability_basis') or self._sources[observation['source_id']]['availability_basis']}
             for observation in observations
         ]
 
@@ -358,7 +381,7 @@ class RecordSnapshot:
         cutoff = min(instant(known_at), self.known_at) if known_at is not None else self.known_at
         sources = [source for source in self._sources.values() if source['available_at'] <= cutoff]
         ids = {source['id'] for source in sources}
-        result = self._derive_snapshot(cutoff, sources, [row for row in self._observations if row['source_id'] in ids])
+        result = self._derive_snapshot(cutoff, sources, [row for row in self._observations if row['source_id'] in ids and row['available_at'] <= cutoff])
         result._amendments = deepcopy([row for row in self._amendments if row['available_at'] <= cutoff and row['source_id'] in ids])
         return result
 

@@ -1,11 +1,10 @@
 import { useEffect } from "react";
-import { AlertCircle, ArrowRight, History, LoaderCircle } from "lucide-react";
+import { AlertCircle, LoaderCircle } from "lucide-react";
 import type { HistoryView } from "./historyTypes";
 import type { Page } from "./Shell";
 import type { View } from "./types";
 import HealthRecordOverview from "./HealthRecordOverview";
 import useHistoryView from "./useHistoryView";
-import { dateLabel, timeLabel } from "./ui";
 import { recordedDates } from "./homeReportData";
 import type { KnowledgeMode } from "./HomeIntegrityTools";
 import HistoryPager from './HistoryPager';
@@ -18,7 +17,7 @@ export default function SourceCubeHome({
   onCurrent,
   onNavigate,
   onScope,
-  dates, currentDay, knowledge, pendingCount, onDate, onDates,
+  dates, currentDay, knowledge, pendingCount, onDate, onDates, requestedDate, loadingScope = false,
 }: {
   view: View;
   onImport: () => void;
@@ -33,13 +32,17 @@ export default function SourceCubeHome({
   pendingCount: number;
   onDate: (date: string, knowledge: KnowledgeMode) => void;
   onDates: (dates: string[]) => void;
+  requestedDate?: string;
+  loadingScope?: boolean;
 }) {
   // Generic facts use the same captured availability as the existing tools.
   // An earlier date view never silently expands to all recorded dates.
-  const history = useHistoryView(view.scope, !historical, { section: 'sources', limit: 12 });
+  const history = useHistoryView(view.scope, !historical, { section: 'sources', limit: 12, enabled: !loadingScope });
+  const shown = history.view || history.retainedView;
+  const updating = loadingScope || !history.view;
   useEffect(() => {
-    if (history.view) onScope(history.view.scope);
-  }, [history.view, onScope]);
+    if (history.view && !loadingScope) onScope(history.view.scope);
+  }, [history.view, loadingScope, onScope]);
   useEffect(() => {
     if (history.view && !historical) onDates(history.view.facets?.date_bounds || recordedDates(history.view));
   }, [history.view, historical, onDates]);
@@ -54,7 +57,7 @@ export default function SourceCubeHome({
         </button>
       </section>
     );
-  if (!history.view)
+  if (!shown)
     return (
       <section className="panel loading" role="status">
         <LoaderCircle strokeWidth={1.5} aria-hidden="true" focusable="false" size={24} className="spin" /> Loading your records…
@@ -62,28 +65,16 @@ export default function SourceCubeHome({
     );
   return (
     <div className="health-record-home">
-      {historical && (
-        <div className="historical-notice" role="status">
-          <History strokeWidth={1.5} aria-hidden="true" focusable="false" size={17} />
-          <span>
-            Records through {dateLabel(view.scope.as_of)}. Files available
-            through {timeLabel(view.scope.known_at)}.
-          </span>
-          <button className="text-button" onClick={onCurrent}>
-            Return to today <ArrowRight strokeWidth={1.5} aria-hidden="true" focusable="false" size={14} />
-          </button>
-        </div>
-      )}
       <HealthRecordOverview
-        key={history.view.scope.scope_id}
-        view={history.view}
+        view={shown}
         onImport={onImport}
         hasDraft={hasDraft}
         onNavigate={onNavigate}
         dates={dates} currentDay={currentDay} knowledge={knowledge}
         pendingCount={pendingCount} onDate={onDate}
+        requestedDate={requestedDate} updating={updating} onCurrent={onCurrent}
       />
-      <HistoryPager view={history.view} onPage={history.setOffset} noun="files" />
+      <div inert={updating || undefined}><HistoryPager view={shown} onPage={history.setOffset} noun="files" /></div>
     </div>
   );
 }

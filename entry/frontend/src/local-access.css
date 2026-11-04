@@ -1,0 +1,13 @@
+.local-access-screen { min-height: 100dvh; background: var(--canvas); color: var(--ink); padding: 32px clamp(24px, 5vw, 72px); }
+.local-access-screen header { display: flex; align-items: center; }
+.local-access-content { width: min(100%, 430px); margin: clamp(48px, 10vh, 130px) auto 48px; }
+.local-access-orbit { width: 148px; height: 148px; fill: none; stroke: var(--line-strong); stroke-width: 1; margin: 0 0 32px -10px; }
+.local-access-orbit path { stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+.local-access-content h1 { font: 500 clamp(30px, 5vw, 40px)/1.15 var(--font-body); letter-spacing: -.035em; margin: 0 0 18px; }
+.local-access-content > p { color: var(--muted); line-height: 1.6; max-width: 35ch; }
+.local-access-content > button { margin-top: 16px; min-height: 46px; padding: 12px 20px; }
+.local-access-content details { margin-top: 32px; color: var(--muted); font-size: 13px; max-width: 48ch; }
+.local-access-content summary { cursor: pointer; padding-block: 8px; }
+.local-access-content details p { line-height: 1.65; }
+.local-access-content .local-access-error { color: var(--ink); border-left: 2px solid var(--ink); padding-left: 12px; }
+.original-download-error { display: block; font-size: 13px; color: var(--ink); margin-block: 8px; }

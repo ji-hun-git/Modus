@@ -96,12 +96,27 @@ def test_availability_is_preserved_for_latest_kind(memory):
 
 @pytest.mark.parametrize('question', ['When was my last flu shot without side effects?',
     'When was my last vaccination before 2020?', 'Should I get a flu shot?',
-    'Tell me which medications I am taking now', 'When was my latest heart rate above 100?'])
+    'Tell me which medications I am taking now'])
 def test_unsupported_and_advice_never_read_or_call_models(memory,question):
     store,_=memory
     async def forbidden(_): raise AssertionError('No provider allowed')
     answer=asyncio.run(live_chat(capture_history(store),question,{},request=forbidden))
     assert not answer['trace'] and not answer['claims']
+
+
+def test_numeric_latest_now_executes_typed_condition_without_model_inference(memory):
+    # This question used to belong to the unsupported list. The generic numeric
+    # executor now has an explicit, source-backed contract for it.
+    store, _ = memory
+    commit(store, [field(label='Pulse', value='110', unit='bpm', day='2020-01-01'),
+                   field(label='Pulse', value='90', unit='bpm', day='2024-01-01')])
+    async def forbidden(_): raise AssertionError('No provider allowed')
+    answer = asyncio.run(live_chat(capture_history(store), 'When was my latest heart rate above 100?', {}, request=forbidden))
+    assert answer['query_plan']['condition'] == {'operator':'gt','value':'100','unit':None}
+    assert answer['query_result']['status'] == 'answered'
+    assert [r['value'] for r in answer['history_evidence']['facts']] == ['110']
+    assert answer['provider_requests_made'] == 0
+    assert answer['terminology'][0]['requested_terms'] == ['heart rate']
 
 
 def test_model_cannot_widen_kind_or_drop_qualifier(memory):

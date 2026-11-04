@@ -9,14 +9,21 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tempfile
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-from offline_environment import offline_environment
+from offline_environment import offline_environment, local_connection
 from public_repository import require_public
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'release/service-check'
-TESTS = ['test_public_repository.py', 'test_service_preview.py', 'test_entry_report_briefs.py', 'test_entry_report_summary.py', 'test_entry_lab_context.py', 'test_entry_history_conversation.py', 'test_entry_natural_history.py', 'test_entry_medical_retrieval.py', 'test_entry_concurrency.py', 'test_entry_history_pages.py', 'test_entry.py', 'test_entry_adversarial.py', 'test_entry_amendments.py', 'test_entry_blood_pressure.py', 'test_entry_brief_api.py', 'test_entry_briefs.py', 'test_entry_document_guard.py', 'test_entry_document_guard_import.py', 'test_entry_environment_isolation.py', 'test_entry_history_agent_adversarial.py', 'test_entry_history_api.py', 'test_entry_history_compare_api.py', 'test_entry_history_expansion.py', 'test_entry_history_selection_limits.py', 'test_entry_history_tools.py', 'test_entry_investigation_flow.py', 'test_entry_ocr_api.py', 'test_entry_record_answers.py', 'test_entry_record_extraction_api.py', 'test_entry_retrieval.py', 'test_entry_routing.py', 'test_entry_runtime_identity.py', 'test_entry_whole_report_flow.py', 'test_whole_report_reader.py', 'test_record_units.py', 'test_record_store.py', 'test_record_history.py', 'test_record_extraction.py', 'test_record_retrieval.py', 'test_history_ingest.py', 'test_history_audit.py', 'test_extraction_layouts.py', 'test_ontology.py']
+TESTS = ['test_entry_archive_seed.py', 'test_entry_narrative_comparison.py', 'test_public_repository.py', 'test_history_query_followups.py', 'test_history_query_plan.py', 'test_history_query_executor.py', 'test_history_query_integration.py', 'test_entry_longitudinal_series.py', 'test_service_preview.py', 'test_entry_report_briefs.py', 'test_entry_report_summary.py', 'test_entry_lab_context.py', 'test_entry_history_conversation.py', 'test_entry_natural_history.py', 'test_entry_medical_retrieval.py', 'test_entry_concurrency.py', 'test_entry_history_pages.py', 'test_entry.py', 'test_entry_adversarial.py', 'test_entry_amendments.py', 'test_entry_blood_pressure.py', 'test_entry_brief_api.py', 'test_entry_briefs.py', 'test_entry_document_guard.py', 'test_entry_document_guard_import.py', 'test_entry_environment_isolation.py', 'test_entry_history_agent_adversarial.py', 'test_entry_history_api.py', 'test_entry_history_compare_api.py', 'test_entry_history_expansion.py', 'test_entry_history_selection_limits.py', 'test_entry_history_tools.py', 'test_entry_investigation_flow.py', 'test_entry_ocr_api.py', 'test_entry_record_answers.py', 'test_entry_record_extraction_api.py', 'test_entry_retrieval.py', 'test_entry_routing.py', 'test_entry_runtime_identity.py', 'test_entry_whole_report_flow.py', 'test_whole_report_reader.py', 'test_record_units.py', 'test_record_store.py', 'test_record_history.py', 'test_record_extraction.py', 'test_record_retrieval.py', 'test_history_ingest.py', 'test_history_audit.py', 'test_extraction_layouts.py', 'test_ontology.py']
+
+
+TESTS.extend(['test_record_row_inventory.py', 'test_entry_row_inventory.py', 'test_entry_omission_review.py', 'test_garak_record_boundaries.py'])
+TESTS.extend(['test_entry_local_security.py', 'test_private_storage.py'])
+TESTS.append('test_entry_local_access.py')
+TESTS.append('test_record_encryption.py')
 
 
 def protected(name):
@@ -58,11 +65,12 @@ def child():
             if protected(name):
                 blocked.append(name)
                 raise PermissionError('Offline service checks exclude evaluation and secret files')
-        if event=='socket.connect' and (not isinstance(args[1],tuple) or args[1][0] not in ('127.0.0.1','::1','localhost')):
+        if event=='socket.connect' and not local_connection(args[0], args[1]):
             raise PermissionError('Offline service checks forbid external network')
     sys.addaudithook(guard)
-    os.environ['MODUS_ENTRY_DB_PATH']=str(OUT/'entry-module.db')
-    os.environ['MODUS_DB_PATH']=str(OUT/'research-module.db')
+    isolated = tempfile.TemporaryDirectory(prefix='modus-offline-check-')
+    os.environ['MODUS_ENTRY_DB_PATH']=str(Path(isolated.name)/'entry-module.db')
+    os.environ['MODUS_DB_PATH']=str(Path(isolated.name)/'research-module.db')
     os.chdir(ROOT/'backend')
     sys.path.insert(0,str(ROOT/'backend'))
     import pytest

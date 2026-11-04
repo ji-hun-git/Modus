@@ -101,7 +101,7 @@ def test_cache_invalidates_across_database_connections_and_ignores_audit_writes(
     first=get(client)
     store.save_run({'kind':'test-only'})
     assert get(client)['page']['snapshot_id']==first['page']['snapshot_id']
-    with sqlite3.connect(store.path) as db:
+    with store.connect() as db:
         db.execute('INSERT INTO history_profiles(updated_at,data) VALUES (?,?)',
                    (NOW.isoformat().replace('+00:00','Z'),'{"date_of_birth":"1990-01-01","updated_at":"2026-10-29T08:00:00Z"}'))
     assert get(client)['page']['snapshot_id']!=first['page']['snapshot_id']

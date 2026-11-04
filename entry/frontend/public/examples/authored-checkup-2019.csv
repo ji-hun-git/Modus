@@ -1,0 +1,9 @@
+kind,label,value,unit,date,facility,reference_range,specimen,test_method
+measurement,Ferritin,42.1,ng/mL,2019-05-24,Example lab,15-150 ng/mL,Serum,Immunoassay
+measurement,C-reactive protein,1.7,mg/L,2019-05-24,Example lab,<5 mg/L,Serum,Immunoturbidimetry
+measurement,Glucose,96,mg/dL,2019-05-24,Example lab,70-99 mg/dL,Plasma,Hexokinase
+measurement,TSH,2.03,mIU/L,2019-05-24,Example lab,0.40-4.00 mIU/L,Serum,Immunoassay
+measurement,Vitamin D,31.0,ng/mL,2019-05-24,Example lab,20-50 ng/mL,Serum,LC-MS/MS
+measurement,Creatinine,0.84,mg/dL,2019-05-24,Example lab,0.6-1.2 mg/dL,Serum,Enzymatic
+measurement,HDL cholesterol,59,mg/dL,2019-05-24,Example lab,40-60 mg/dL,Serum,Direct enzymatic
+measurement,Triglycerides,101,mg/dL,2019-05-24,Example lab,<150 mg/dL,Serum,Enzymatic

@@ -1,5 +1,11 @@
-"""Nine authored recorded facts. No care, medication, genetic or reference fixture."""
+"""Authored checkup examples; no real records or fabricated human/model review."""
+from pathlib import Path
+
+from modus.history_ingest import make_history_draft
 from modus.record_models import METRICS
+
+ARCHIVE_AVAILABLE_AT = '2026-11-02T12:00:00Z'
+ARCHIVE_FILES = tuple(f'authored-checkup-{year}.csv' for year in (2010, 2013, 2016, 2019, 2022, 2024, 2025))
 
 
 def initial_data():
@@ -17,4 +23,14 @@ def initial_data():
         sources.append({'id': source_id, 'title': 'Recorded measurements · ' + day,
             'provider': 'Authored synthetic example', 'type': 'lab_report', 'date': day,
             'content': 'SYNTHETIC RECORD — no real person.\n' + '\n'.join(rows), 'synthetic': True})
-    return sources, observations
+    documents = []
+    arrivals = [('checkup-october-2026.csv', '2026-10-23T09:00:00Z')]
+    # One explicitly authored archive arrival, separate from the measurement
+    # dates. Actual re-imports use their reviewed commit time, never this seed date.
+    arrivals.extend((filename, ARCHIVE_AVAILABLE_AT) for filename in ARCHIVE_FILES)
+    for filename, available_at in arrivals:
+        raw = (Path(__file__).resolve().parents[2] / 'entry/frontend/public/examples' / filename).read_bytes()
+        draft = make_history_draft(filename, raw)
+        draft['source']['provider'] = 'Authored synthetic example'
+        documents.append({'draft': draft, 'raw': raw, 'filename': filename, 'available_at': available_at})
+    return sources, observations, documents

@@ -25,7 +25,9 @@ export type QueueItem = {
   attempt: Reviewed[] | null;
   factRows?: FactReviewRow[];
   factAttempt?: ReviewedFact[] | null;
+  omissionAttempt?: ReviewedFact[] | null;
   receipt: Commit | null;
+  totalInserted?: number;
   error: string;
   reportCoverage?: ReportCoverage;
 };
@@ -44,7 +46,8 @@ export function readingOptions(file: Pick<File, "name">, metaAvailable: boolean)
   ];
 }
 
-export function previewReaderFields(file: Pick<File, "name">, reader: string, metaAvailable: boolean) {
+export function previewReaderFields(file: Pick<File, "name">, reader: string, metaAvailable: boolean, reuseOnly = false) {
+  if (reuseOnly) return { use_meta: "false", reuse_only: "true" };
   if (!readingOptions(file, metaAvailable).some((option) => option.value === reader && option.available))
     throw new Error("Choose an available reading method. Images require Meta.");
   return { use_meta: String(reader === "meta") };
@@ -100,6 +103,7 @@ export function acceptDraft(item: QueueItem, draft: Draft): QueueItem {
     !draft.observations.length &&
     !draft.facts?.length &&
     !draft.extraction_review?.facts.length &&
+    !draft.extraction_review?.completeness_check?.omissions.length &&
     !draft.extraction_review?.coverage
   )
     return {
@@ -120,6 +124,7 @@ export function acceptDraft(item: QueueItem, draft: Draft): QueueItem {
     attempt: null,
     factRows: draft.facts?.map((fact) => ({ ...fact, keep: true })),
     factAttempt: null,
+    omissionAttempt: null,
     error: "",
     status: draft.already_committed ? "duplicate" : "review",
   };
@@ -168,11 +173,13 @@ export function beginCommit(item: QueueItem): QueueItem {
 export function beginFactCommit(item: QueueItem): QueueItem {
   if (
     !item.draft?.facts ||
-    item.draft.already_committed ||
     !["review", "uncertain"].includes(item.status)
   )
     throw new Error("Choose a review before saving.");
   const kept = (item.factRows || []).filter((fact) => fact.keep);
+  const omissionIds = new Set(item.draft.extraction_review?.completeness_check?.omissions.map(row => row.id));
+  if (item.draft.already_committed && kept.some(row => !omissionIds.has(row.id)))
+    throw new Error("Saved fields must be edited through Corrections.");
   if (
     !item.factAttempt &&
     (!kept.length ||
@@ -181,25 +188,35 @@ export function beginFactCommit(item: QueueItem): QueueItem {
     throw new Error(
       "Include at least one recorded fact with a name and value.",
     );
+  const reviewed = kept.map(({ id, kind, label, value, unit, occurred_on, facility, reference_range, specimen, test_method }) => ({
+    id, kind, label, value, unit, occurred_on, facility,
+    reference_range: reference_range ?? null, specimen: specimen ?? null, test_method: test_method ?? null,
+  }));
   return {
     ...item,
     status: "saving",
     error: "",
     factAttempt:
       item.factAttempt ||
-      kept.map(({ id, kind, label, value, unit, occurred_on, facility, reference_range, specimen, test_method }) => ({
-        id,
-        kind,
-        label,
-        value,
-        unit,
-        occurred_on,
-        facility,
-        reference_range: reference_range ?? null,
-        specimen: specimen ?? null,
-        test_method: test_method ?? null,
-      })),
+      reviewed.filter(row => !omissionIds.has(row.id)),
+    omissionAttempt: item.omissionAttempt || reviewed.filter(row => omissionIds.has(row.id)),
   };
+}
+
+export function omissionProposal(draft: Draft, id: string): FactReviewRow | undefined {
+  const candidate = draft.extraction_review?.completeness_check?.omissions.find(row => row.id === id);
+  return candidate ? { id, label: candidate.label, value: candidate.value, unit: candidate.unit,
+    kind: 'recorded_text', occurred_on: null, facility: null, reference_range: null, specimen: null,
+    test_method: null, source_quote: candidate.source_quote, page: candidate.page, bbox: candidate.bbox, keep: true } : undefined;
+}
+
+export function addOmissionToReview(item: QueueItem, id: string): QueueItem {
+  if (!item.draft || navigationLocked([item]) || item.draft.omission_reviews?.some(row => row.candidate_id === id)) return item;
+  const candidate = omissionProposal(item.draft, id);
+  if (!candidate) return item;
+  const rows = item.draft.already_committed && ['saved', 'duplicate', 'skipped'].includes(item.status) ? [] : item.factRows || [];
+  return { ...item, status: 'review', error: '', factRows: rows.some(row => row.id === id)
+    ? rows.map(row => row.id === id ? { ...row, keep: true } : row) : [...rows, candidate] };
 }
 
 export function failCommit(
@@ -213,6 +230,7 @@ export function failCommit(
     status: definitive && !wasUncertain ? "review" : "uncertain",
     attempt: definitive && !wasUncertain ? null : item.attempt,
     factAttempt: definitive && !wasUncertain ? null : item.factAttempt,
+    omissionAttempt: definitive && !wasUncertain ? null : item.omissionAttempt,
     error,
   };
 }
@@ -222,8 +240,16 @@ export function finishCommit(item: QueueItem, receipt: Commit): QueueItem {
     ...item,
     status: receipt.duplicate ? "duplicate" : "saved",
     receipt,
+    totalInserted: (item.totalInserted || 0) + receipt.inserted,
     attempt: null,
     factAttempt: null,
+    omissionAttempt: null,
+    draft: item.draft ? { ...item.draft, already_committed: true,
+      saved_available_at: item.draft.saved_available_at || receipt.available_at,
+      omission_reviews: [...(item.draft.omission_reviews || []), ...(receipt.omission_ids || [])
+        .filter(id => !item.draft?.omission_reviews?.some(row => row.candidate_id === id))
+        .map(candidate_id => ({ candidate_id, available_at: receipt.available_at }))],
+    } : null,
     error: "",
   };
 }
@@ -239,10 +265,10 @@ export function summary(items: QueueItem[]) {
             : [],
       ),
     ).size,
-    saved: items.filter((item) => item.receipt && !item.receipt.duplicate)
+    saved: items.filter((item) => (item.totalInserted ?? item.receipt?.inserted ?? 0) > 0)
       .length,
     measurements: items.reduce(
-      (count, item) => count + (item.receipt?.inserted || 0),
+      (count, item) => count + (item.totalInserted ?? item.receipt?.inserted ?? 0),
       0,
     ),
     duplicates: items.filter(

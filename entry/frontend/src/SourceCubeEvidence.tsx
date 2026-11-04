@@ -29,12 +29,14 @@ export default function SourceCubeEvidence({
   view,
   initialFactId,
   onRefreshAnswer,
+  compact = false,
 }: {
   source: HistoryView["sources"][number];
   facts: HistoryFact[];
   view: HistoryView;
   initialFactId?: string;
   onRefreshAnswer?: () => void;
+  compact?: boolean;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(
     initialFactId || null,
@@ -125,9 +127,9 @@ export default function SourceCubeEvidence({
         No records from this document are available in the selected view.
       </p>}
       <div className="source-evidence-file-link">
-        {source.original_available ? <a className="text-button" href={originalDownloadUrl(source.id, view.scope)} download>
+        {source.original_available ? <DownloadOriginal className="text-button" href={originalDownloadUrl(source.id, view.scope)}>
           <ArrowDownToLine size={14} aria-hidden="true" /> Download original
-        </a> : <span className="source-evidence-original-missing">Original unavailable in this view</span>}
+        </DownloadOriginal> : <span className="source-evidence-original-missing">Original unavailable in this view</span>}
       </div>
       {selected && (
         <div className="source-evidence-proof" id={proofId}>
@@ -164,7 +166,8 @@ export default function SourceCubeEvidence({
               The excerpt retains the original wording.
             </p>
           )}
-          <LabContext fact={selected} />
+          {compact ? (!!selected.reference_range || !!selected.specimen || !!selected.test_method) &&
+            <details className="source-evidence-lab-context"><summary>Range, specimen &amp; method</summary><LabContext fact={selected} /></details> : <LabContext fact={selected} />}
           {conflict && (
             <div className="source-evidence-conflict">
               <div>
@@ -202,7 +205,9 @@ export default function SourceCubeEvidence({
               <span>{facilityLabel(selected.facility)}</span>
             )}
           </div>
-          <RecordCorrection key={`${selected.id}:${view.scope.scope_id}`} fact={selected} scope={view.scope} onRefreshAnswer={onRefreshAnswer} />
+          {compact ? <details className="source-evidence-corrections"><summary>Corrections & saved versions</summary>
+            <RecordCorrection key={`${selected.id}:${view.scope.scope_id}`} fact={selected} scope={view.scope} onRefreshAnswer={onRefreshAnswer} />
+          </details> : <RecordCorrection key={`${selected.id}:${view.scope.scope_id}`} fact={selected} scope={view.scope} onRefreshAnswer={onRefreshAnswer} />}
         </div>
       )}
       <footer className="source-evidence-footer">
@@ -262,3 +267,4 @@ export default function SourceCubeEvidence({
     </section>
   );
 }
+import DownloadOriginal from './DownloadOriginal';

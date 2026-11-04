@@ -10,18 +10,31 @@ export type HistoryAnswer = Omit<Answer, "scope" | "comparison"> & {
   scope: HistoryView["scope"];
   history_evidence: HistoryView;
   clarification?: {
-    kind: "blood_pressure_component" | "record_investigation" | "medical_term" | "history_followup";
+    kind: "blood_pressure_component" | "record_investigation" | "medical_term" | "history_followup" | "history_query";
     question: string;
     choices: { label: string; message: string }[];
   };
   terminology?: TermMapping[];
-  continuation?: {token: string; subject: string; before_date: string; suggested_question: string};
+  continuation?: {token: string; subject: string; before_date: string|null; suggested_question: string; supported_questions?:string[]};
   followup?: {subject: string; before_date: string};
+  query_result?: {status:"answered"|"no_match"|"insufficient_evidence"|"clarification"|"unsupported"|"not_understood"|"planner_unavailable"};
   history_comparison?: {
     before: HistoryView["scope"];
     after: HistoryView["scope"];
   } | null;
 };
+
+function answerHeading(answer:HistoryAnswer) {
+  switch(answer.query_result?.status) {
+    case 'no_match': return 'No matching record found';
+    case 'insufficient_evidence': return 'Not enough recorded evidence';
+    case 'clarification': return 'One detail before I look';
+    case 'unsupported': return 'This question is outside record search';
+    case 'not_understood': return 'Help me find the right record';
+    case 'planner_unavailable': return 'Record search is unavailable';
+    default: return answer.clarification?'One detail before I look':'From your history';
+  }
+}
 
 export function ScopeText({ scope }: { scope: HistoryView["scope"] }) {
   return <>{scope.as_of ? `Records through ${dateLabel(scope.as_of)}` : "All recorded dates"}
@@ -40,7 +53,7 @@ export default function HistoryAnswerView({ answer, pending, onClarify, onRefres
   const evidence = inspected ? historyClaimEvidence(answer.history_evidence, inspected.evidence_ids) : [];
   return <div className="history-question-answer" aria-label="History answer">
     <div className="history-answer-heading">
-      <h3>{answer.clarification ? "One detail before I look" : "From your history"}</h3>
+      <h3>{answerHeading(answer)}</h3>
       <span>{answer.mode === "meta" ? "Muse · record findings"
         : answer.mode === "offline" ? "Offline · no model called" : "No model called"}</span>
     </div>

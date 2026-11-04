@@ -115,8 +115,8 @@ export default function HomeSourceEvidence({
             focusable="false"
           />
         </button>
-        {source.original_available ? <a className="text-button home-proof-open"
-          href={originalDownloadUrl(source.id, view.scope)} download>Download original</a>
+        {source.original_available ? <DownloadOriginal className="text-button home-proof-open"
+          href={originalDownloadUrl(source.id, view.scope)}>Download original</DownloadOriginal>
           : <p>Original file unavailable in this view.</p>}
         <details className="home-proof-details">
           <summary>File details</summary>
@@ -131,3 +131,4 @@ export default function HomeSourceEvidence({
     </section>
   );
 }
+import DownloadOriginal from './DownloadOriginal';

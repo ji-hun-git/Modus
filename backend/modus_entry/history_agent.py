@@ -13,6 +13,8 @@ from .blood_pressure import parse_question, clarification
 from .investigation import investigate, offline_investigate, clarify_response
 from .investigation_policy import request_bounds, COMPOUND, LATEST
 from .medical_terms import ambiguous_request, mentions
+from .history_query import plan_for_chat, query_response
+from .history_query_muse import interpret_with_muse
 
 PROMPT = (Path(__file__).resolve().parents[2] / 'entry/prompts/history.md').read_text(encoding='utf-8')
 UNSUPPORTED = ('I can find recorded measurements, visits, prescriptions, vaccinations, procedures, '
@@ -200,6 +202,9 @@ def offline_chat(context, message):
     clarification_response = clarify_pressure(context, message) or clarify_term(context, message)
     if clarification_response:
         return clarification_response
+    plan = plan_for_chat(context, message)
+    if plan is not None:
+        return decorate(context, query_response(context, plan, question=message))
     candidate, bounds = investigation_bounds(context, message)
     if candidate:
         if bounds is None:
@@ -232,6 +237,14 @@ async def live_chat(context, message, telemetry, *, request=None):
     clarification_response = clarify_pressure(context, message) or clarify_term(context, message)
     if clarification_response:
         return clarification_response
+    plan = plan_for_chat(context, message)
+    if plan is not None:
+        if plan.intent == 'clarification' and plan.reason == 'unfamiliar_wording':
+            interpreted, execution, status = await interpret_with_muse(context, message, telemetry, request=request)
+            if interpreted is not None:
+                return decorate(context, query_response(context, interpreted, telemetry=telemetry,
+                    question=message, execution=execution, planner_status=status))
+        return decorate(context, query_response(context, plan, question=message))
     candidate, bounds = investigation_bounds(context, message)
     if candidate:
         if bounds is None:
@@ -255,7 +268,9 @@ async def live_chat(context, message, telemetry, *, request=None):
 
     response=await live_selection(context,message,telemetry,
         arguments={name:ARGUMENTS[name],'select_claims':SelectionArgs},
+        bound_arguments={name:bound_args},
         descriptions={**DESCRIPTIONS,'select_claims':'Finish with exact claim IDs returned by the bound record tool. Empty if unsupported.'},
         tool_dispatch=bound_dispatch,
-        prompt=PROMPT+'\nBound record request: '+json.dumps({'tool':name,'arguments':bound_args}),request=request)
+        prompt=PROMPT+'\nResolved record request: '+name+'. Invoke it with empty arguments {}. '
+            'The application already fixed all filters; do not resend them.',request=request)
     return decorate(context,response)

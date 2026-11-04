@@ -21,6 +21,7 @@ def initialize_history(db):
         'CREATE INDEX IF NOT EXISTS history_fact_scope ON history_facts(available_at,date,source_id)',
         'CREATE TABLE IF NOT EXISTS history_amendments (sequence INTEGER PRIMARY KEY, id TEXT UNIQUE NOT NULL, fact_id TEXT NOT NULL, source_id TEXT NOT NULL REFERENCES sources(id), available_at TEXT NOT NULL, data TEXT NOT NULL)',
         'CREATE INDEX IF NOT EXISTS history_amendment_scope ON history_amendments(fact_id,available_at)',
+        'CREATE TABLE IF NOT EXISTS history_omission_reviews (draft_id TEXT NOT NULL REFERENCES drafts(id), candidate_id TEXT NOT NULL, review_digest TEXT NOT NULL, fact_id TEXT NOT NULL REFERENCES history_facts(id), available_at TEXT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(draft_id,candidate_id))',
     ):
         db.execute(sql)
     # A transaction-owned cache generation, shared across processes. Audit logs
@@ -33,7 +34,7 @@ def initialize_history(db):
 
 
 def reset_history(db):
-    for table in ('history_amendments', 'history_commits', 'history_facts', 'history_profiles'):
+    for table in ('history_omission_reviews', 'history_amendments', 'history_commits', 'history_facts', 'history_profiles'):
         db.execute('DELETE FROM ' + table)
 
 
@@ -60,7 +61,7 @@ def _provenance(proposed, draft):
         'extractor': deepcopy(proposed.get('extractor') or draft.get('extraction_mode') or 'manual'),
         'source_proposal': {key: deepcopy(proposed.get(key)) for key in (
             'kind', 'label', 'value', 'unit', 'occurred_on', 'facility', 'reference_range', 'specimen', 'test_method')},
-    }
+    } | ({'row_inventory': deepcopy(proposed['row_inventory'])} if 'row_inventory' in proposed else {})
 
 
 def _bridge(fact, source_id):
@@ -81,7 +82,48 @@ def _bridge(fact, source_id):
     return Observation.model_validate(row).model_dump(mode='json')
 
 
-def commit_history(store, draft_id, reviewed_facts, *, reviewer='local-owner'):
+def build_reviewed_facts(draft, source, proposed, rows, now, reviewer, basis='review_commit'):
+    facts, observations = [], []
+    for reviewed in rows:
+        original = proposed[reviewed['id']]
+        identity = 'fact-' + sha256((source.get('sha256', source['id']) + ':' + reviewed['id']).encode()).hexdigest()[:32]
+        fact = {**reviewed, **_provenance(original, draft), **date_information(reviewed['occurred_on']),
+                'id': identity, 'proposal_id': reviewed['id'], 'source_id': source['id'],
+                'available_at': now, 'availability_basis': basis, 'reviewer': reviewer, 'reviewed_at': now,
+                'reviewed_fields': [key for key in reviewed if key != 'id' and reviewed[key] != original.get(key)]}
+        observation = _bridge(fact, source['id'])
+        fact['observation_id'] = observation['id'] if observation else None
+        facts.append(fact)
+        if observation:
+            observations.append({**observation, 'available_at': now, 'availability_basis': basis})
+    return facts, observations
+
+
+def write_reviewed_facts(store, db, draft_id, source, facts, observations, now):
+    for fact in facts:
+        db.execute('INSERT INTO history_facts VALUES(?,?,?,?,?,?)',
+                   (fact['id'], source['id'], fact['kind'], fact['date'], now, json.dumps(fact)))
+    for row in observations:
+        db.execute('INSERT INTO observations VALUES(?,?,?,?,?)',
+                   (row['id'], source['id'], row['metric'], row['date'], json.dumps(row)))
+    affected = []
+    for metric, day in sorted({(row['metric'], row['date']) for row in observations}):
+        affected.extend(json.loads(row[0]) for row in db.execute(
+            'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE o.metric=? AND o.date=? AND s.available_at<=?',
+            (metric, day, now)))
+    result = {'inserted': len(facts), 'duplicate': False, 'draft_id': draft_id, 'source_id': source['id'],
+              'available_at': now, 'fact_ids': [fact['id'] for fact in facts],
+              'observation_ids': [row['id'] for row in observations], 'affected_conflicts': conflicts(affected)}
+    if store._commit_event_factory is not None:
+        event = store._commit_event_factory(deepcopy(result))
+        if not isinstance(event, dict):
+            raise TypeError('A commit event factory must return an object')
+        db.execute('INSERT INTO runs(created_at,data) VALUES(?,?)', (now, json.dumps(event)))
+    return result
+
+
+def commit_history(store, draft_id, reviewed_facts, *, reviewer='local-owner', reviewed_omissions=None):
+    from .record_omissions import review_omissions, remember_review
     if not isinstance(reviewer, str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,80}', reviewer):
         raise ValueError('Invalid server review identity')
     with store.connect() as db:
@@ -90,10 +132,17 @@ def commit_history(store, draft_id, reviewed_facts, *, reviewer='local-owner'):
         if not saved:
             raise ValueError('Draft not found')
         draft = json.loads(saved['data'])
-        proposed, rows = _review_rows(draft, reviewed_facts)
+        omissions, omission_rows = review_omissions(draft, reviewed_omissions or [])
+        if reviewed_facts == [] and omission_rows:
+            proposed, rows = {}, []
+        else:
+            proposed, rows = _review_rows(draft, reviewed_facts)
         # Absent optional context preserves receipts from older clients/builds.
         digest_rows = [{k:v for k,v in row.items() if v is not None or k not in ('reference_range','specimen','test_method')} for row in rows]
-        digest = sha256(json.dumps(sorted(digest_rows, key=lambda row: row['id']), sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        digest_body = sorted(digest_rows, key=lambda row: row['id'])
+        if omission_rows:
+            digest_body = {'facts': digest_body, 'omissions': sorted(omission_rows, key=lambda row: row['id'])}
+        digest = sha256(json.dumps(digest_body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         receipt = db.execute('SELECT review_digest,data FROM history_commits WHERE draft_id=?', (draft_id,)).fetchone()
         if receipt:
             if receipt['review_digest'] != digest:
@@ -103,19 +152,9 @@ def commit_history(store, draft_id, reviewed_facts, *, reviewer='local-owner'):
         if saved['committed'] or db.execute('SELECT 1 FROM sources WHERE id=?', (source['id'],)).fetchone():
             raise ValueError('This source was already committed; an additional review cannot backdate facts')
         now = instant(store.clock())
-        facts, observations = [], []
-        for reviewed in rows:
-            original = proposed[reviewed['id']]
-            identity = 'fact-' + sha256((source.get('sha256', source['id']) + ':' + reviewed['id']).encode()).hexdigest()[:32]
-            fact = {**reviewed, **_provenance(original, draft), **date_information(reviewed['occurred_on']),
-                    'id': identity, 'proposal_id': reviewed['id'], 'source_id': source['id'],
-                    'available_at': now, 'availability_basis': 'review_commit', 'reviewer': reviewer, 'reviewed_at': now,
-                    'reviewed_fields': [key for key in reviewed if key != 'id' and reviewed[key] != original.get(key)]}
-            observation = _bridge(fact, source['id'])
-            fact['observation_id'] = observation['id'] if observation else None
-            facts.append(fact)
-            if observation:
-                observations.append(observation)
+        all_proposed = {**proposed, **omissions}
+        all_rows = rows + omission_rows
+        facts, observations = build_reviewed_facts(draft, source, all_proposed, all_rows, now, reviewer)
         dates = [fact['date'] for fact in facts]
         # Retain original proposal dates too: excluding/editing a future row does
         # not remove that row from the original uploaded bytes.
@@ -123,31 +162,16 @@ def commit_history(store, draft_id, reviewed_facts, *, reviewer='local-owner'):
         source.update(available_at=now, availability_basis='review_commit', committed_at=now,
                       date=max((day for day in dates if day), default=''), source_fact_dates=dates + proposal_dates,
                       original_date=max((day for day in dates + proposal_dates if day), default=''))
-        source['review'] = {'reviewed_at': now, 'reviewer': reviewer, 'accepted_ids': [row['id'] for row in rows],
+        source['review'] = {'reviewed_at': now, 'reviewer': reviewer, 'accepted_ids': [row['id'] for row in all_rows],
                             'excluded_ids': sorted(set(proposed) - {row['id'] for row in rows})}
         db.execute('INSERT INTO sources(id,data,available_at) VALUES(?,?,?)', (source['id'], json.dumps(source), now))
-        for fact in facts:
-            db.execute('INSERT INTO history_facts VALUES(?,?,?,?,?,?)',
-                       (fact['id'], source['id'], fact['kind'], fact['date'], now, json.dumps(fact)))
-        for row in observations:
-            db.execute('INSERT INTO observations VALUES(?,?,?,?,?)',
-                       (row['id'], source['id'], row['metric'], row['date'], json.dumps(row)))
-        affected = []
-        for metric, day in sorted({(row['metric'], row['date']) for row in observations}):
-            affected.extend(json.loads(row[0]) for row in db.execute(
-                'SELECT o.data FROM observations o JOIN sources s ON s.id=o.source_id WHERE o.metric=? AND o.date=? AND s.available_at<=?',
-                (metric, day, now)))
-        result = {'inserted': len(facts), 'duplicate': False, 'draft_id': draft_id, 'source_id': source['id'],
-                  'available_at': now, 'fact_ids': [fact['id'] for fact in facts],
-                  'observation_ids': [row['id'] for row in observations], 'affected_conflicts': conflicts(affected)}
+        result = write_reviewed_facts(store, db, draft_id, source, facts, observations, now)
+        if omission_rows:
+            result['omission_ids'] = [row['id'] for row in omission_rows]
+            remember_review(db, draft_id, omission_rows, facts, result)
         db.execute('UPDATE drafts SET committed=1 WHERE id=?', (draft_id,))
         db.execute('INSERT INTO history_commits VALUES(?,?,?)', (draft_id, digest, json.dumps(result)))
         db.execute('INSERT INTO record_commits VALUES(?,?)', (draft_id, json.dumps(result)))
-        if store._commit_event_factory is not None:
-            event = store._commit_event_factory(deepcopy(result))
-            if not isinstance(event, dict):
-                raise TypeError('A commit event factory must return an object')
-            db.execute('INSERT INTO runs(created_at,data) VALUES(?,?)', (now, json.dumps(event)))
         return result
 
 

@@ -14,10 +14,13 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   SunMoon,
+  LockKeyhole,
 } from "lucide-react";
 import { Brand } from "./ui";
 import AboutWorkspaceDialog from "./AboutWorkspaceDialog";
 import useAppearance, { type Appearance } from "./useAppearance";
+import useAmbientMotion, { AmbientMotionContext } from "./useAmbientMotion";
+import AmbientMotionControl from "./AmbientMotionControl";
 
 export type Page =
   | "Home"
@@ -34,7 +37,7 @@ const pages = [
 ];
 const moreTools = [
   { page: "Ask" as const, label: "Ask", icon: MessageCircle },
-  { page: "Brief" as const, label: "Brief", icon: FileText },
+  { page: "Brief" as const, label: "Summary", icon: FileText },
   { page: "Measurements" as const, label: "Trends", icon: ChartNoAxesCombined },
   { page: "Records" as const, label: "Documents", icon: Files },
   {
@@ -51,7 +54,7 @@ const pageTitle = {
   Measurements: "Your history over time",
   Replay: "Past records",
   Changes: "Activity",
-  Brief: "Prepare a brief",
+  Brief: "Prepare a summary",
   Ask: "Ask your history",
 };
 
@@ -60,17 +63,20 @@ export default function Shell({
   setPage,
   onImport,
   hasDraft,
+  onLock,
   children,
 }: {
   page: Page;
   setPage: (page: Page) => void;
   onImport: () => void;
   hasDraft: boolean;
+  onLock?: () => void;
   children: React.ReactNode;
 }) {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [appearance, setAppearance] = useAppearance();
+  const motion = useAmbientMotion();
   const toolsRef = useRef<HTMLDetailsElement>(null);
   const appearanceControl = (
     <label className="appearance-control">
@@ -114,7 +120,7 @@ export default function Shell({
           event.currentTarget.open = false;
       }}
     >
-      <summary aria-label="More: Ask, Brief, Trends, Documents, Replay, Changes">
+      <summary aria-label="More: Ask, Summary, Trends, Documents, Replay, Changes">
         <MoreHorizontal size={18} strokeWidth={1.5} aria-hidden="true" focusable="false" />
         <span>More</span>
       </summary>
@@ -135,11 +141,16 @@ export default function Shell({
             <span>{label}</span>
           </button>
         ))}
+        <AmbientMotionControl />
+        {onLock && <button onClick={() => {
+          if (hasDraft && !window.confirm('Lock your records? Unsaved reviews in this tab will close. Saved records stay intact.')) return;
+          onLock();
+        }}><LockKeyhole size={17} aria-hidden="true" /><span>Lock records</span></button>}
       </div>
     </details>
   );
   return (
-    <>
+    <AmbientMotionContext.Provider value={motion}>
       <div className={`app-layout mission-shell workspace-shell orbit-theme${sidebarCollapsed ? " sidebar-collapsed" : ""}${page === "Home" ? " orbit-home" : page === "Ask" ? " orbit-ask" : ""}`}>
         <a className="skip-link" href="#main-content">
           Skip to main content
@@ -205,6 +216,6 @@ export default function Shell({
         </div>
       </div>
       {aboutOpen && <AboutWorkspaceDialog onClose={() => setAboutOpen(false)} />}
-    </>
+    </AmbientMotionContext.Provider>
   );
 }

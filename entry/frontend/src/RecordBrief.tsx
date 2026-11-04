@@ -9,7 +9,7 @@ import {
   LoaderCircle,
   Search,
 } from "lucide-react";
-import { api } from "./api";
+import { api, localRequest } from "./api";
 import type { Scope } from "./types";
 import { recordLabel } from "./types";
 import type { FactKind, HistoryFact, HistoryView } from "./historyTypes";
@@ -82,14 +82,14 @@ export default function RecordBrief({
     return (
       <section className="panel loading" role="status">
         <LoaderCircle className="spin" size={24} /> Loading records for your
-        brief…
+        summary…
       </section>
     );
   // A new captured view starts a new selection and cancels the old draft.
   return (
-    <><label>Find records for your brief<input aria-label="Find records for your brief" value={find} onChange={e => setFind(e.target.value)} /></label>
+    <><label>Find records for your summary<input aria-label="Find records for your summary" value={find} onChange={e => setFind(e.target.value)} /></label>
       <RetrievalFeedback retrieval={loaded?.retrieval} onChoose={setFind} />
-      <label>Record type for brief<select aria-label="Record type for brief" value={recordKind} onChange={e => setRecordKind(e.target.value)}>
+      <label>Record type for summary<select aria-label="Record type for summary" value={recordKind} onChange={e => setRecordKind(e.target.value)}>
         <option value="all">All record types</option>{Object.entries(factKindLabels).map(([key,name]) => <option key={key} value={key}>{name}</option>)}
       </select></label>
       <HistoryPager view={view} onPage={setOffset} />
@@ -115,7 +115,7 @@ function BriefBuilder({
     sources: [...pageView.sources,...(prior?.sources || []).filter(s => !pageView.sources.some(row => row.id === s.id))] };
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<FactKind | "all">("all");
-  const [title, setTitle] = useState("Record brief");
+  const [title, setTitle] = useState("Record summary");
   const [ownerNote, setOwnerNote] = useState("");
   const [prepared, setPrepared] = useState<{
     key: string;
@@ -195,7 +195,7 @@ function BriefBuilder({
     for (const id of ids) keep ? next.add(id) : next.delete(id);
     if (next.size > MAX_BRIEF_SELECTION) {
       setError(
-        `Choose up to ${MAX_BRIEF_SELECTION} records for one brief. Your existing selection is unchanged.`,
+        `Choose up to ${MAX_BRIEF_SELECTION} records for one summary. Your existing selection is unchanged.`,
       );
       return;
     }
@@ -242,7 +242,7 @@ function BriefBuilder({
         return;
       if (!briefMatchesRequest(result, request))
         throw new Error(
-          "The brief did not match your selected records and dates. Please prepare it again.",
+          "The summary did not match your selected records and dates. Please prepare it again.",
         );
       setPrepared({ key: requestKey, request, brief: result });
     } catch (cause) {
@@ -252,7 +252,7 @@ function BriefBuilder({
         requestKey === latestKey.current
       )
         setError(
-          (cause as Error).message || "Your brief could not be prepared.",
+          (cause as Error).message || "Your summary could not be prepared.",
         );
     } finally {
       if (attempt === sequence.current && requestKey === latestKey.current)
@@ -278,7 +278,7 @@ function BriefBuilder({
     setError("");
     setNotice("");
     try {
-      const response = await fetch("/api/briefs/export", {
+      const response = await localRequest("/api/briefs/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -286,7 +286,7 @@ function BriefBuilder({
       });
       if (!response.ok) {
         let message =
-          "The brief could not be downloaded. Please prepare and review it again.";
+          "The summary could not be downloaded. Please prepare and review it again.";
         try {
           const value = await response.json();
           if (typeof value.detail === "string") message = value.detail;
@@ -320,7 +320,7 @@ function BriefBuilder({
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       setNotice(
         format === "html"
-          ? "Brief download started. Open the file in your browser to read or print it."
+          ? "Summary download started. Open the file in your browser to read or print it."
           : "Record data download started.",
       );
     } catch (cause) {
@@ -330,7 +330,7 @@ function BriefBuilder({
         requestKey === latestKey.current
       )
         setError(
-          (cause as Error).message || "Your brief could not be downloaded.",
+          (cause as Error).message || "Your summary could not be downloaded.",
         );
     } finally {
       if (attempt === sequence.current && requestKey === latestKey.current)
@@ -375,7 +375,7 @@ function BriefBuilder({
 
   return (
     <div className="record-brief-workspace">
-      <ol className="brief-progress" aria-label="Brief preparation steps">
+      <ol className="brief-progress" aria-label="Summary preparation steps">
         <li
           className={!preview ? "is-current" : "is-complete"}
           aria-current={!preview ? "step" : undefined}
@@ -386,7 +386,7 @@ function BriefBuilder({
           className={preview ? "is-current" : ""}
           aria-current={preview ? "step" : undefined}
         >
-          <span>2</span> Review brief
+          <span>2</span> Review summary
         </li>
         <li>
           <span>3</span> Download
@@ -409,7 +409,7 @@ function BriefBuilder({
               Choose what to take with you
             </h2>
             <p>
-              Select the records for your brief. Their dates, original wording
+              Select the records for your summary. Their dates, original wording
               and sources stay attached.
             </p>
             <p className="brief-scope">
@@ -419,12 +419,12 @@ function BriefBuilder({
           <div className="brief-compose-layout">
             <section
               className="brief-record-picker"
-              aria-label="Choose records for your brief"
+              aria-label="Choose records for your summary"
             >
               {!pageView.page && <div className="brief-filter-row">
                 <label className="brief-search">
                   <Search size={18} />
-                  <span className="sr-only">Find records for your brief</span>
+                  <span className="sr-only">Find records for your summary</span>
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
@@ -432,9 +432,9 @@ function BriefBuilder({
                   />
                 </label>
                 <label className="field">
-                  <span className="sr-only">Record type for brief</span>
+                  <span className="sr-only">Record type for summary</span>
                   <select
-                    aria-label="Record type for brief"
+                    aria-label="Record type for summary"
                     value={kind}
                     onChange={(event) =>
                       setKind(event.target.value as FactKind | "all")
@@ -477,7 +477,7 @@ function BriefBuilder({
                   <FileText size={28} />
                   <h3>No records to include in this view</h3>
                   <p>
-                    Add a document or choose different dates to prepare a brief.
+                    Add a document or choose different dates to prepare a summary.
                   </p>
                   <button className="secondary" onClick={onImport}>
                     Add records
@@ -572,17 +572,17 @@ function BriefBuilder({
                 ))
               )}
             </section>
-            <aside className="brief-setup" aria-label="Brief details">
+            <aside className="brief-setup" aria-label="Summary details">
               <span className="brief-sheet-icon" aria-hidden="true">
                 <FileText size={25} />
               </span>
-              <h2>Your record brief</h2>
+              <h2>Your record summary</h2>
               <p>
                 A dated collection you can review, download and take to an
                 appointment.
               </p>
               <label className="field">
-                Brief title
+                Summary title
                 <input
                   value={title}
                   maxLength={100}
@@ -630,7 +630,7 @@ function BriefBuilder({
                 ) : (
                   <ArrowRight size={18} />
                 )}{" "}
-                {busy === "preview" ? "Preparing brief…" : "Review brief"}
+                {busy === "preview" ? "Preparing summary…" : "Review summary"}
               </button>
               <small>
                 Choose up to {MAX_BRIEF_SELECTION} records. No records are
@@ -687,7 +687,7 @@ function BriefBuilder({
             )}
             <article
               className="brief-document"
-              aria-label="Record brief preview"
+              aria-label="Record summary preview"
             >
               <header className="brief-document-header">
                 <span className="brief-document-kicker">
@@ -789,13 +789,13 @@ function BriefBuilder({
                 </ol>
               </section>
               <footer>
-                This brief collects the selected records and your note. It does
+                This summary collects the selected records and your note. It does
                 not assess health or recommend care.
               </footer>
             </article>
             <section
               className="brief-download"
-              aria-label="Review and download your brief"
+              aria-label="Review and download your summary"
             >
               <div>
                 <h2>Ready to take with you</h2>
@@ -810,7 +810,7 @@ function BriefBuilder({
                     disabled={!!busy}
                     onChange={(event) => setReviewed(event.target.checked)}
                   />
-                  I have reviewed this brief and the records included.
+                  I have reviewed this summary and the records included.
                 </label>
               </div>
               <div className="brief-download-actions">
@@ -824,7 +824,7 @@ function BriefBuilder({
                   ) : (
                     <Download size={18} />
                   )}
-                  Download brief
+                  Download summary
                 </button>
                 <p>
                   HTML file. Open it in your browser; use Print to save as PDF.

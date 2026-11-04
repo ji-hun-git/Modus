@@ -18,6 +18,7 @@ PUBLIC_DOCS = frozenset({
     'entry/docs/DATA.md', 'entry/docs/CONTRIBUTIONS.md', 'entry/docs/VERIFICATION.md',
     'entry/docs/WHOLE_HISTORY_AGENT.md', 'entry/docs/TERMINOLOGY_RETRIEVAL.md',
     'entry/docs/RECORD_BRIEF.md', 'entry/docs/BENCHMARK.md',
+    'entry/docs/OPEN_SOURCE.md', 'backend/tests/fixtures/garak/NOTICE.md',
     'entry/frontend/README.md', 'data/synthetic/brief-demo/README.md',
     'entry/demo/longitudinal/README.md',
     'entry/prompts/records.md', 'entry/prompts/history.md', 'prompts/extract.md',
@@ -43,6 +44,8 @@ def protected(name):
 
 
 def path_problem(name):
+    if any(part in name.lower() for part in ('.modus-vault.json','.modus-lock','.encrypting-','.encrypted-backup-')):
+        return 'credential_or_runtime_file'
     normalized=name.replace('\\','/')
     path=PurePosixPath(normalized)
     lower=normalized.lower()
@@ -51,7 +54,7 @@ def path_problem(name):
     if any(p.lower() in PRIVATE_DIRS for p in path.parts) or path.name.lower() in PRIVATE_NAMES:
         return 'private_working_material'
     if (path.name.lower().startswith('.env') and path.name != '.env.example'
-            or path.suffix.lower() in {'.key','.pem','.p12','.pfx','.db','.sqlite','.sqlite3','.safetensors'}):
+            or path.suffix.lower() in {'.key','.pem','.p12','.pfx','.db','.sqlite','.sqlite3','.safetensors','.modus-access'}):
         return 'credential_or_runtime_file'
     if path.suffix.lower()=='.md' and normalized not in PUBLIC_DOCS:
         if not lower.startswith('data/licenses/'):
@@ -62,7 +65,8 @@ def path_problem(name):
 def content_findings(name, text):
     found=[]
     for number,line in enumerate(text.splitlines(),1):
-        if SECRET.search(line): found.append(Finding(name,'credential_pattern',number))
+        if SECRET.search(line) or re.search(r'modus_(?:local|session)_[A-Za-z0-9_-]{43}|modus_db_key_[0-9a-f]{64}', line):
+            found.append(Finding(name,'credential_pattern',number))
         if (name.endswith('.md') and not name.startswith(('data/licenses/','entry/prompts/','prompts/'))
                 and name not in {'SCOREBOARD.md','docs/ONTOLOGY_RAG_EVALUATION.md','entry/docs/BENCHMARK.md'}
                 and PERSONAL_DOC.search(line)):

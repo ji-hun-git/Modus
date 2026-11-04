@@ -90,12 +90,14 @@ def test_concurrent_lost_ack_retries_create_one_revision_and_preserve_evidence(s
 def test_external_database_lock_is_retryable_and_changes_nothing(service, monkeypatch):
     client, store, _, identity, _ = service
     body = prepare(client, identity, value='5.8')
-    connect = sqlite3.connect
+    import sqlcipher3
+    from modus.record_crypto import encrypted_connection
+    connect = sqlcipher3.connect
     def impatient(*args, **kwargs):
         return connect(*args, **{**kwargs, 'timeout': 0.02})
-    with connect(store.path) as holder:
+    with encrypted_connection(store.path, store._key) as holder:
         holder.execute('BEGIN IMMEDIATE')
-        monkeypatch.setattr(sqlite3, 'connect', impatient)
+        monkeypatch.setattr(sqlcipher3, 'connect', impatient)
         response = client.post('/api/history/amendments/commit', json=body)
         assert response.status_code == 503
         assert response.headers['retry-after'] == '1'

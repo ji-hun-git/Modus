@@ -70,6 +70,10 @@ class ArtificialReader:
         assert 'tools' not in payload
         if stage == 'ExtractRecordedFields':
             content = {'extraction': {'document_type': 'lab_report', 'fields': [fact(n) for n in numbers]}}
+        elif stage == 'InventoryReportRows':
+            content = {'pages': [{'page': n, 'readability': 'readable', 'truncated': False,
+                'rows': [{k: fact(n)[k] for k in ('label','value','unit','source_quote','bbox')}]}
+                for n in numbers]}
         else:
             content = {'checks': [{'field_id': field['id'], 'status': 'supported', 'reason': 'matches_source'}
                                   for field in checked_fields(payload)]}
@@ -98,8 +102,8 @@ def run(count, transport=None):
 
 def test_twelve_pages_are_read_once_in_isolated_groups_with_global_evidence():
     result, telemetry, transport, raw = run(12)
-    assert len(transport.calls) == MAX_PROVIDER_CALLS == 8
-    assert [pages_in(call) for call in transport.calls] == [[1,2,3]] * 2 + [[4,5,6]] * 2 + [[7,8,9]] * 2 + [[10,11,12]] * 2
+    assert len(transport.calls) == MAX_PROVIDER_CALLS == 12
+    assert [pages_in(call) for call in transport.calls] == [[1,2,3]] * 3 + [[4,5,6]] * 3 + [[7,8,9]] * 3 + [[10,11,12]] * 3
     assert [field['id'] for field in result['fields']] == [f'field-{n}' for n in range(1, 13)]
     assert [field['page'] for field in result['fields']] == list(range(1, 13))
     assert all(field['source_quote'] == quote(field['page']) for field in result['fields'])
@@ -109,10 +113,10 @@ def test_twelve_pages_are_read_once_in_isolated_groups_with_global_evidence():
     assert coverage == telemetry['report_coverage']
     assert coverage['processed_pages'] == coverage['page_count'] == 12
     assert coverage['completeness'] == 'not_established'
-    assert coverage['request_count'] == 8
+    assert coverage['request_count'] == 12
     assert all(page['status'] == 'processed' and page['field_count'] == 1 for page in coverage['pages'])
     assert all(page['readability'] == 'text_available' for page in coverage['pages'])
-    assert [call['page_group'] for call in telemetry['calls']] == [1,1,2,2,3,3,4,4]
+    assert [call['page_group'] for call in telemetry['calls']] == [1,1,1,2,2,2,3,3,3,4,4,4]
     assert [call['source_pages'] for call in telemetry['calls']] == [pages_in(call) for call in transport.calls]
     from hashlib import sha256
     assert result['extraction']['input_sha256'] == sha256(raw).hexdigest()
@@ -143,7 +147,8 @@ def test_empty_groups_keep_coverage_without_claiming_absence_or_repeating_calls(
         if stage == 'ExtractRecordedFields':
             content['extraction']['fields'] = []
     result, _, transport, _ = run(7, ArtificialReader(change))
-    assert len(transport.calls) == 3
+    assert len(transport.calls) == 6
+    assert len(result['completeness_check']['omissions']) == 7
     assert result['fields'] == result['observations'] == []
     assert result['verification']['status'] == 'not_run'
     assert result['coverage']['processed_pages'] == 7
@@ -172,7 +177,7 @@ def test_later_group_failure_aborts_draft_and_records_failed_and_unread_pages(pr
     transport, telemetry = ArtificialReader(change), {}
     with pytest.raises((ValueError, provider.MetaRequestError)):
         asyncio.run(reader.extract_record_document(pdf(7), 'failure.pdf', 'application/pdf', telemetry, request=transport))
-    assert len(transport.calls) == 3
+    assert len(transport.calls) == 4
     coverage = telemetry['report_coverage']
     assert coverage['status'] == 'failed' and coverage['processed_pages'] == 3
     assert [page['status'] for page in coverage['pages']] == ['processed'] * 3 + ['failed'] * 3 + ['not_run']
@@ -192,7 +197,7 @@ def test_group_verifier_failure_is_explicit_and_cannot_repair_or_hide_fields(pro
             return response('{')
         content['checks'][0]['field_id'] = 'field-1'
     result, _, transport, _ = run(4, ArtificialReader(change))
-    assert len(transport.calls) == 4
+    assert len(transport.calls) == 6
     assert result['verification']['status'] == 'unavailable'
     assert [field['verification']['status'] for field in result['fields']] == ['supported'] * 3 + ['unavailable']
     assert result['fields'][-1]['value'] == '74.00'
@@ -208,7 +213,7 @@ def test_total_field_limit_rejects_whole_report_instead_of_accepting_a_partial_h
     transport, telemetry = ArtificialReader(change), {}
     with pytest.raises(ValueError, match='200 fields'):
         asyncio.run(reader.extract_record_document(pdf(7), 'dense.pdf', 'application/pdf', telemetry, request=transport))
-    assert len(transport.calls) == 5  # The invalid third group is never verified or retried.
+    assert len(transport.calls) == 7  # The invalid third group is never verified, inventoried or retried.
     assert telemetry['report_coverage']['status'] == 'failed'
     assert telemetry['report_coverage']['groups'][-1]['extraction_status'] == 'failed'
 
@@ -223,3 +228,75 @@ def test_image_only_page_is_never_called_independently_readable():
     assert page['readability'] == 'image_only' and page['text_available'] is False and page['vision_supplied'] is True
     assert result['fields'][0]['local_support']['status'] == 'unavailable'
     assert result['coverage']['completeness'] == 'not_established'
+
+
+def test_failed_later_inventory_preserves_all_fields_and_an_explicit_partial_check():
+    def change(stage, numbers, content):
+        if stage == 'InventoryReportRows' and numbers == [4]:
+            raise TimeoutError('PRIVATE_INVENTORY_ERROR')
+    result, telemetry, transport, _ = run(4, ArtificialReader(change))
+    assert len(transport.calls) == 6 and len(result['fields']) == 4
+    check = result['completeness_check']
+    assert check['status'] == 'partial' and check['matched_rows'] == 3
+    assert [p['status'] for p in check['pages']] == ['checked']*3 + ['unavailable']
+    assert result['coverage']['processed_pages'] == 4
+    assert 'PRIVATE_INVENTORY_ERROR' not in json.dumps((result,telemetry))
+
+
+@pytest.mark.parametrize('truncated_stage', [None, 'ExtractRecordedFields', 'VerifyRecordedFields', 'InventoryReportRows'])
+def test_dense_contextual_report_keeps_rows_and_never_treats_token_exhaustion_as_complete(truncated_stage):
+    """Artificial transport, covering dense output and each failure boundary."""
+    from test_record_extraction import pdf as text_pdf
+    rows = []
+    for index in range(32):
+        label = f'Authored test {index + 1}'
+        value = f'{index + 10}.00'
+        span = f'{label}: {value} mg/L | Range: 1-100 mg/L | Specimen: Serum | Method: Photometry'
+        rows.append(fact(1, label=label, value=value, unit='mg/L', occurred_on='2024-03-12',
+            reference_range='1-100 mg/L', specimen='Serum', test_method='Photometry', source_quote=span,
+            date_evidence={'value':'2024-03-12', 'source_quote':'Collected: 2024-03-12', 'page':1, 'bbox':None}))
+    raw = text_pdf('Collected: 2024-03-12\n' + '\n'.join(row['source_quote'] for row in rows))
+    calls, telemetry = [], {}
+
+    async def transport(payload):
+        calls.append(payload)
+        stage = payload['response_format']['json_schema']['name']
+        if stage == 'ExtractRecordedFields':
+            content = {'extraction': {'document_type':'lab_report', 'fields':rows}}
+        elif stage == 'VerifyRecordedFields':
+            supplied = checked_fields(payload)
+            assert len(supplied) == 32 and supplied[-1]['source_quote'] == rows[-1]['source_quote']
+            content = {'checks':[{'field_id':r['id'], 'status':'supported', 'reason':'matches_source'} for r in supplied]}
+        else:
+            # Independent inventory receives the original only, never a proposal.
+            assert not any('UNTRUSTED PROPOSED FIELDS' in p.get('text','') for p in payload['messages'][1]['content'])
+            content = {'pages':[{'page':1, 'readability':'readable', 'truncated':False,
+                'rows':[{k:r[k] for k in ('label','value','unit','source_quote','bbox')} for r in rows]}]}
+        result = response(content)
+        if stage == truncated_stage:
+            # Even valid JSON is rejected when the provider says it is incomplete.
+            result['choices'][0]['finish_reason'] = 'length'
+        return result
+
+    if truncated_stage == 'ExtractRecordedFields':
+        with pytest.raises(provider.MetaRequestError) as failure:
+            asyncio.run(reader.extract_record_document(raw,'dense.pdf','application/pdf',telemetry,request=transport))
+        assert failure.value.error_kind == 'incomplete'
+        assert len(calls) == 1 and telemetry['report_coverage']['status'] == 'failed'
+        return
+    result = asyncio.run(reader.extract_record_document(raw,'dense.pdf','application/pdf',telemetry,request=transport))
+    assert len(calls) == 3  # No hidden retry or cap expansion.
+    assert len(result['fields']) == 32 and result['review_required'] is True
+    for actual, expected in zip(result['fields'], rows):
+        assert all(actual[k] == expected[k] for k in ('label','value','unit','source_quote','reference_range','specimen','test_method','occurred_on'))
+        assert actual['local_support']['status'] == 'review_required'
+    assert result['coverage']['completeness'] == 'not_established'
+    if truncated_stage == 'VerifyRecordedFields':
+        assert result['verification'] == {'status':'unavailable','error_kind':'incomplete'}
+        assert all(r['verification']['status'] == 'unavailable' for r in result['fields'])
+    elif truncated_stage == 'InventoryReportRows':
+        assert result['completeness_check']['status'] == 'unavailable'
+        assert all(r['inventory_check']['status'] == 'unavailable' for r in result['fields'])
+    else:
+        assert result['verification']['status'] == 'completed'
+        assert result['completeness_check']['matched_rows'] == 32

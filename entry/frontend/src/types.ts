@@ -11,8 +11,9 @@ export type ScopeRequest = {
   known_at: string;
   compare_from?: string | null;
 };
-// Compatibility projection for the original /records API. Active import,
-// review and Trends use DraftFact/HistoryFact with open-ended labels instead.
+// Compatibility projection for the original /records API, not the product's
+// record vocabulary. Home, import, review, Ask and Trends use DraftFact /
+// HistoryFact with open-ended labels. Keep this union aligned with /records.
 export type LegacyObservation = {
   id: string;
   metric: "hba1c" | "egfr" | "ldl";
@@ -67,6 +68,8 @@ export type Comparison = {
   new_conflicts: Conflict[];
 };
 export type Draft = {
+  omission_reviews?: { candidate_id: string; fact_id?: string; available_at: string }[];
+  saved_available_at?: string | null;
   id: string;
   source: Source;
   observations: Observation[];
@@ -94,6 +97,33 @@ export type ExtractionReview = {
   verification_status: string;
   facts: ExtractedFactReview[];
   coverage?: ReportCoverage;
+  completeness_check?: ReportCompleteness;
+};
+export type ReportCompleteness = {
+  version: 'report-row-inventory-v1';
+  status: 'completed' | 'partial' | 'unavailable';
+  completeness: 'not_established';
+  review_required: true;
+  inventory_rows: number;
+  matched_rows: number;
+  disagreements?: {
+    id: string; page: number; label: string; value: string; unit: string | null;
+    source_quote: string; bbox: number[] | null;
+    local_support: 'matched_text' | 'mismatch' | 'unavailable';
+    matched_field_id: null; related_field_id: string; reason: 'unit_disagreement';
+  }[];
+  omissions: {
+    id: string; page: number; label: string; value: string; unit: string | null;
+    source_quote: string; bbox: number[] | null;
+    local_support: 'matched_text' | 'mismatch' | 'unavailable';
+    matched_field_id: null;
+    reason: 'not_in_proposal' | 'source_unconfirmed';
+  }[];
+  pages: {
+    page: number; status: 'checked' | 'unavailable';
+    readability: 'readable' | 'limited' | 'unreadable' | null;
+    truncated: boolean; independent_text_available: boolean;
+  }[];
 };
 export type ReportCoverage = {
   version: "whole-report-v1";
@@ -118,6 +148,7 @@ export type Reviewed = Pick<
   "id" | "metric" | "value" | "unit" | "date"
 >;
 export type Commit = {
+  omission_ids?: string[];
   draft_id: string;
   source_id: string;
   inserted: number;

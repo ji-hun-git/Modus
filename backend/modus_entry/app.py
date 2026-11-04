@@ -3,23 +3,26 @@ import json
 import os
 import asyncio
 import sqlite3
+import sqlcipher3
+from starlette.formparsers import MultiPartParser
 from hashlib import sha256
 from datetime import date
 from pathlib import Path
 from urllib.parse import quote
 from dotenv import load_dotenv
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, Request
 from fastapi.responses import Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.exceptions import RequestValidationError
 from pydantic import AwareDatetime
 from modus.record_store import RecordStore
 from modus.ingest import make_draft, MAX_BYTES, NoObservationsError
 from modus.history_ingest import make_history_draft
 from modus.record_history import commit_history, history_view, get_profile, update_profile
 from modus.record_history_models import proposed_facts
+from modus.record_omissions import commit_omissions, omission_review_state, OmissionConflict
+from .models import OmissionCommitRequest
 from modus.record_amendments import (AmendmentRequest, AmendmentCommitRequest, AmendmentConflict,
                                     preview_amendment, commit_amendment, revision_history)
 from modus.provider import provider_status
@@ -33,6 +36,7 @@ from . import history_agent
 from .history_conversation import HistoryConversation
 from .history_pages import HistoryPages, SnapshotExpired
 from .report_summary import ReportSummaryRequest, build_report_summary
+from .longitudinal_series import SeriesResponse, build_series
 from .report_briefs import ReportBriefRequest, ReportBriefExportRequest, build_report_brief, validate_report_export
 from .history_tools import capture_history
 from .history_compare import HistoryCompareRequest, compare_history
@@ -41,6 +45,8 @@ from .briefs import (BriefRequest, BriefExportRequest, BriefChangedError,
 from .extraction_review import review_draft
 from .document_guard import screen_untrusted
 from .report_coverage import public_coverage, extraction_failure_detail
+from .local_security import LocalSecurityMiddleware
+from .local_access import LocalAccess, access_routes
 
 load_dotenv(ROOT / '.env')
 CHANGE_FIELDS = {'id', 'created_at', 'kind', 'status', 'draft_id', 'source_id', 'available_at',
@@ -107,23 +113,37 @@ def attachment(document):
         'Content-Security-Policy': "sandbox; default-src 'none'"})
 
 
-def preview_response(saved, *, reused=False):
+def preview_response(saved, *, reused=False, store=None):
     warnings = list(saved.get('warnings', []))
-    if reused:
+    if reused and saved.get('extraction_mode') != 'authored_seed':
         warnings.append('Existing review reopened. This file was not read again.')
     return {'id': saved['id'], 'source': source(saved['source']),
         'observations': [observation(o) for o in saved['observations']], 'warnings': warnings,
         'extraction_mode': saved['extraction_mode'], 'already_committed': saved['already_committed'],
         'facts': [] if saved.get('facts') == [] else list(proposed_facts(saved).values()),
         **({'document_guard': saved['document_guard']} if 'document_guard' in saved else {}),
-        **({'extraction_review': saved['extraction_review']} if 'extraction_review' in saved else {})}
+        **({'extraction_review': saved['extraction_review']} if 'extraction_review' in saved else {}),
+        **(omission_review_state(store, saved['id']) if store is not None else {})}
 
 
 def create_entry_app(database=None, clock=None):
-    app = FastAPI(title='Modus Records', version=RELEASE,
+    # The boundary rejects larger bodies before multipart parsing. Accepted
+    # uploads stay in memory instead of spooling originals to plaintext OS
+    # temporary files. This process serves only the bounded entry application.
+    from .local_security import MAX_REQUEST_BYTES
+    MultiPartParser.spool_max_size = MAX_REQUEST_BYTES
+    app = FastAPI(title='Modus Records', version=RELEASE, docs_url=None, redoc_url=None, openapi_url=None,
         description='Synthetic record reconciliation and availability replay. Contest eligibility remains unconfirmed.')
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1', 'localhost', 'testserver'])
-    app.add_middleware(CORSMiddleware, allow_origins=['http://127.0.0.1:5174', 'http://localhost:5174'], allow_methods=['GET', 'POST', 'PUT'], allow_headers=['Content-Type'])
+    app.state.local_access = LocalAccess()
+    app.add_middleware(LocalSecurityMiddleware, access=app.state.local_access)
+    app.include_router(access_routes(app.state.local_access))
+
+    @app.exception_handler(RequestValidationError)
+    async def private_validation_error(request, error):
+        # Input values, arbitrary extra-property names and validator context can
+        # contain record text or credentials. Return error categories only.
+        return JSONResponse(status_code=422, content={'detail': [
+            {'type': item['type'], 'msg': 'Invalid request field.'} for item in error.errors()[:10]]})
     def commit_event(receipt):
         return {'schema': 'modus-entry-change-v1', 'kind': 'import', 'status': 'completed', 'mode': 'deterministic',
             **{k: receipt[k] for k in ('draft_id', 'source_id', 'available_at', 'observation_ids')},
@@ -136,6 +156,7 @@ def create_entry_app(database=None, clock=None):
     preview_lock = asyncio.Lock()
 
     @app.exception_handler(sqlite3.OperationalError)
+    @app.exception_handler(sqlcipher3.OperationalError)
     async def database_busy(request, error):
         if getattr(error, 'sqlite_errorcode', 0) & 0xff in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
             return JSONResponse(status_code=503, headers={'Retry-After': '1'},
@@ -184,6 +205,24 @@ def create_entry_app(database=None, clock=None):
         except ValueError as error:
             raise HTTPException(422, str(error)) from None
 
+    @app.get('/api/history/series', response_model=SeriesResponse)
+    def longitudinal_series(web_request: Request,
+                            snapshot_id: str = Query(pattern=r'^[0-9a-f]{32}$'),
+                            fact_id: str = Query(min_length=1, max_length=160),
+                            offset: int = Query(0, ge=0, le=100000),
+                            limit: int = Query(50, ge=1, le=50)):
+        if len(web_request.query_params.multi_items()) != len(set(web_request.query_params)):
+            raise HTTPException(422, 'Each series parameter must be supplied once.')
+        if set(web_request.query_params) - {'snapshot_id', 'fact_id', 'offset', 'limit'}:
+            raise HTTPException(422, 'Series scope comes from the snapshot; unsupported parameters were supplied.')
+        try:
+            captured = store.history_pages.get(snapshot_id)
+            return build_series(captured['view'], snapshot_id, fact_id, offset, limit)
+        except SnapshotExpired as error:
+            raise HTTPException(409, str(error)) from None
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+
     @app.post('/api/history/report-summary')
     def report_summary(request: ReportSummaryRequest):
         try:
@@ -205,10 +244,20 @@ def create_entry_app(database=None, clock=None):
     def save_history(request: HistoryCommitRequest):
         try:
             receipt = commit_history(store, request.draft_id,
-                [row.model_dump(exclude_unset=True) for row in request.reviewed_facts])
+                [row.model_dump(exclude_unset=True) for row in request.reviewed_facts],
+                reviewed_omissions=[row.model_dump() for row in request.reviewed_omissions])
             return {**receipt, 'bundle_id': BUNDLE_ID}
         except ValueError as error:
             raise HTTPException(404 if str(error) == 'Draft not found' else 422, str(error)) from None
+
+    @app.post('/api/history/omissions/commit')
+    def save_omissions(request: OmissionCommitRequest):
+        try:
+            return {**commit_omissions(store, request.draft_id,
+                [row.model_dump() for row in request.reviewed_omissions]), 'bundle_id': BUNDLE_ID}
+        except ValueError as error:
+            status = 409 if isinstance(error, OmissionConflict) else 404 if str(error) == 'Draft not found' else 422
+            raise HTTPException(status, str(error)) from None
 
     @app.get('/api/history/sources/{source_id}/original')
     def history_original(source_id: str, known_at: AwareDatetime, as_of: date | None = None):
@@ -257,13 +306,13 @@ def create_entry_app(database=None, clock=None):
         return captured(request.as_of, request.after_known_at, request.before_known_at)['comparison']
 
     @app.post('/api/imports/preview')
-    async def preview(file: UploadFile = File(...), synthetic_confirmed: bool = Form(False), use_meta: bool = Form(False), use_local_ocr: bool = Form(False)):
+    async def preview(file: UploadFile = File(...), synthetic_confirmed: bool = Form(False), use_meta: bool = Form(False), use_local_ocr: bool = Form(False), reuse_only: bool = Form(False)):
         # A single local profile has one active reader. The content-hash check
         # below then prevents simultaneous duplicate requests spending twice.
         async with preview_lock:
-            return await read_preview(file, synthetic_confirmed, use_meta, use_local_ocr)
+            return await read_preview(file, synthetic_confirmed, use_meta, use_local_ocr, reuse_only)
 
-    async def read_preview(file, synthetic_confirmed, use_meta, use_local_ocr):
+    async def read_preview(file, synthetic_confirmed, use_meta, use_local_ocr, reuse_only):
         if not synthetic_confirmed:
             raise HTTPException(400, 'Confirm that this file contains only synthetic example data')
         if use_local_ocr:
@@ -280,7 +329,11 @@ def create_entry_app(database=None, clock=None):
         if existing is not None:
             # Existing review state wins; do not bill for an extraction whose
             # proposal INSERT OR IGNORE would silently discard.
-            return preview_response(existing, reused=True)
+            return preview_response(existing, reused=True, store=store)
+        if reuse_only:
+            # Explicitly bounded recovery: no parsing, provider check, model
+            # request, new draft, or fallback when these bytes have no draft.
+            raise HTTPException(404, 'No previous draft was found for this exact file. No reading was attempted.')
         telemetry = {}
         mode = 'meta' if use_meta else 'local'
         try:
@@ -313,7 +366,7 @@ def create_entry_app(database=None, clock=None):
                 recorded_run('extraction', status='review_required', draft_id=saved['id'], mode=mode,
                     message='A draft was read. No measurements were saved.',
                     execution=telemetry.get('execution'), telemetry=telemetry)
-            return preview_response(saved)
+            return preview_response(saved, store=store)
         except RuntimeError:
             recorded_run('extraction_failure', status='failed', mode=mode, error='Model extraction failed; no draft was accepted.', execution=telemetry.get('execution'), telemetry=telemetry)
             raise HTTPException(502, extraction_failure_detail('Model extraction failed; no draft was accepted. No local fallback was used.', telemetry)) from None

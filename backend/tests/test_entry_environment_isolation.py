@@ -12,7 +12,21 @@ from modus import provider
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts'))
-from offline_environment import MODEL_CREDENTIALS, offline_environment
+from offline_environment import MODEL_CREDENTIALS, offline_environment, local_connection
+
+
+def test_offline_boundary_allows_native_ipc_but_rejects_external_tcp():
+    from types import SimpleNamespace
+    import socket
+    inet = SimpleNamespace(family=socket.AF_INET)
+    assert local_connection(inet, ('127.0.0.1', 8031))
+    assert not local_connection(inet, ('192.0.2.1', 443))
+    assert not local_connection(inet, ('api.meta.ai', 443))
+    assert not local_connection(inet, '/run/user/1000/bus')
+    if hasattr(socket, 'AF_UNIX'):
+        native = SimpleNamespace(family=socket.AF_UNIX)
+        assert local_connection(native, '/run/user/1000/bus')
+        assert local_connection(native, b'\x00authored-session-bus')
 
 
 def test_test_collection_has_cleared_every_model_credential():
@@ -90,3 +104,31 @@ def test_evaluation_keys_never_enable_product_meta_provider(monkeypatch):
     assert provider.provider_status()['mode'] == 'offline'
     with pytest.raises(ValueError, match='not configured'):
         asyncio.run(provider.meta_request({'model': 'muse-spark-1.3'}))
+
+
+@pytest.mark.parametrize('status', [200, 301, 302, 307, 308])
+def test_meta_transport_never_inherits_proxy_settings_or_follows_redirects(monkeypatch, status):
+    monkeypatch.setenv('MODUS_META_KEY', 'artificial-transport-canary')
+    monkeypatch.setenv('HTTPS_PROXY', 'http://untrusted.invalid:8080')
+    calls, options = [], []
+    class Response:
+        status_code = status
+        headers = {'location': 'https://untrusted.invalid/collect'}
+        def json(self): return {'choices': []}
+    class Client:
+        def __init__(self, **kwargs): options.append(kwargs)
+        async def __aenter__(self): return self
+        async def __aexit__(self, *args): pass
+        async def post(self, url, **kwargs):
+            calls.append(url)
+            return Response()
+    monkeypatch.setattr(provider.httpx, 'AsyncClient', Client)
+    if status == 200:
+        asyncio.run(provider.meta_request({'model': 'muse-spark-1.3'}))
+    else:
+        with pytest.raises(provider.MetaRequestError) as failure:
+            asyncio.run(provider.meta_request({'model': 'muse-spark-1.3'}))
+        assert failure.value.http_status == status
+    assert calls == ['https://api.meta.ai/v1/chat/completions']
+    assert options[0]['trust_env'] is False and options[0]['follow_redirects'] is False
+    assert options[0]['verify'].check_hostname

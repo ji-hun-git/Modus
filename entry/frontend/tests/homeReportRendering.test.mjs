@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
+import { readFile } from 'node:fs/promises';
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { build } from "esbuild";
@@ -17,6 +18,7 @@ const result = await build({
       'export { default as HomeIntegrityTools } from "./HomeIntegrityTools";',
       'export { default as OrbitMap } from "./OrbitMap";',
       'export { default as HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts } from "./HomeReportReadings";',
+      'export { default as HomeReportEvidence } from "./HomeReportEvidence";',
       'export { default as MedicalTestReference } from "./MedicalTestReference";',
       'export { default as LabContext, LabContextReview } from "./LabContext";',
       'export { default as CheckupComparison } from "./CheckupComparison";',
@@ -31,8 +33,9 @@ const result = await build({
       'export { default as GenericFactReview } from "./GenericFactReview";',
       'export { default as ReportCoverageSummary } from "./ReportCoverageSummary";',
       'export { default as ExtractionReviewSummary } from "./ExtractionReviewSummary";',
+      'export { default as ReportCompletenessReview } from "./ReportCompletenessReview";',
       'export { default as HistoryAnswerView } from "./HistoryAnswerView";',
-      'export { default as HistoryQuestionPanel, historySuggestions } from "./HistoryQuestionPanel";',
+      'export { default as HistoryQuestionPanel, historySuggestions, continuationLabel } from "./HistoryQuestionPanel";',
     ].join("\n"),
     resolveDir: fileURLToPath(new URL("../src/", import.meta.url)),
     sourcefile: "home-rendering-test.ts",
@@ -57,7 +60,7 @@ const result = await build({
     },
   ],
 });
-const { ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions } =
+const { ReportCompletenessReview, HomeReportEvidence, ReportBriefReview, ReportBriefContents, reportBriefMatches, ReportComparisonRows, matchesReportSummary, SourceCubeEvidence, HealthRecordOverview, HomeReportComparison, HomeHistoryTrail, HomeSourceEvidence, HomeIntegrityTools, OrbitMap, HomeReportReadings, friendlyRecordName, readingChoices, groupReportFacts, HomeAskBar, LabContext, LabContextReview, CheckupComparison, MedicalTestReference, historyFields, HistoryTrends, GenericFactReview, ReportCoverageSummary, ExtractionReviewSummary, HistoryAnswerView, HistoryQuestionPanel, historySuggestions, continuationLabel } =
   await import(
     "data:text/javascript;base64," +
       Buffer.from(result.outputFiles[0].text).toString("base64")
@@ -77,6 +80,36 @@ const row = (id, date, extra = {}) => ({
   source_quote: "HbA1c 5.7 %",
   page: 1,
   ...extra,
+});
+
+test('flagged rows expose review actions and retain original proposals after edits', () => {
+  const candidate = {id:'inventory-1-1',label:'Ferritin',value:'29.40',unit:'ng/mL',page:1,
+    source_quote:'Ferritin 29.40 ng/mL',bbox:null,local_support:'matched_text'};
+  const check = {status:'completed',omissions:[candidate],pages:[]};
+  const active = render(ReportCompletenessReview,{check,onReviewRow:noop,rowStates:{}});
+  assert.match(active,/Review Ferritin/);
+  const saved = render(ReportCompletenessReview,{check,onReviewRow:noop,rowStates:{'inventory-1-1':'saved'}});
+  assert.match(saved,/Saved after your review/);
+  assert.doesNotMatch(saved,/Review Ferritin<\/button>/);
+  const fact = {...candidate,kind:'measurement',occurred_on:null,facility:null,keep:true,value:'30.00'};
+  const html = render(GenericFactReview,{draft:{id:'d',facts:[],source:{},extraction_review:{facts:[],completeness_check:check}},
+    rows:[fact],locked:false,busy:false,uncertain:false,onChange:noop,onSave:noop,onSkip:noop});
+  assert.match(html,/Original proposal: Ferritin/);
+  assert.match(html,/29.40/);
+  assert.match(html,/>30.00<\/textarea>/);
+  assert.match(html,/A blank date stays unknown/);
+  assert.match(html,/Save 1 reviewed field/);
+});
+
+test('NVIDIA garak browser-script payloads remain escaped text in omission review', async () => {
+  const fixture = JSON.parse(await readFile(new URL('../../../backend/tests/fixtures/garak/markdown_js.json',import.meta.url),'utf8'));
+  for (const payload of fixture.payloads) {
+    const check = {status:'completed', pages:[], omissions:[{id:'inventory-1-1',label:payload,
+      value:payload,unit:null,page:1,source_quote:payload,bbox:null,local_support:'unavailable'}]};
+    const html=render(ReportCompletenessReview,{check,onReviewRow:noop});
+    assert.doesNotMatch(html,/<script\b|<iframe\b|<img\b|href="(?:javascript:|data:)| onerror=/i);
+    assert.match(html,/No independent text check/);
+  }
 });
 const viewOf = (facts) => ({
   facts,
@@ -99,7 +132,7 @@ const viewOf = (facts) => ({
 });
 const noop = () => {};
 
-test('Home starts with readings and orbit while history details stay opt-in', () => {
+test('Home exposes both clocks and the scrubber while advanced history tools stay opt-in', () => {
   const html=renderToStaticMarkup(createElement(HealthRecordOverview,{
     view:viewOf([row('a','2026-10-20')]), hasDraft:false, onImport:noop, onNavigate:noop,
     dates:['2026-10-20'], currentDay:'2026-11-02', knowledge:'now', pendingCount:0, onDate:noop,
@@ -107,7 +140,12 @@ test('Home starts with readings and orbit while history details stay opt-in', ()
   assert.match(html,/Readings in this report/);
   assert.match(html,/Your source files in orbit/);
   assert.match(html,/Ask about your medical history/);
-  assert.match(html,/<details class="home-timeline-disclosure"><summary>View history by date/);
+  assert.doesNotMatch(html,/home-timeline-disclosure/);
+  assert.match(html,/Files available through<\/span><strong><time dateTime="2026-10-29T00:00:00Z"/);
+  const tools=html.indexOf('<details class="orbit-history-options"');
+  assert.ok(html.indexOf('aria-label="Scrub recorded history"')<tools);
+  assert.ok(html.indexOf('aria-label="Home file availability"')>tools); // Precise inputs stay available without crowding the orbit.
+  assert.ok(tools<html.indexOf('class="orbit-workspace"'));
   assert.doesNotMatch(html,/This reading across your history|Compare with previous checkup|Close history/);
 });
 
@@ -117,6 +155,85 @@ test('Home names use exact catalog aliases and preserve qualified or unfamiliar 
   assert.equal(friendlyRecordName('eGFR'),'Kidney filtering estimate (eGFR)');
   assert.equal(friendlyRecordName('HbA1c pending'),'HbA1c pending');
   assert.equal(friendlyRecordName('Custom assay'),'Custom assay');
+});
+
+test('Home puts the file orbit before its report with direct original evidence and one Ask bar',()=>{
+  const fact=row('a','2026-10-20');
+  const html=render(HealthRecordOverview,{view:viewOf([fact]),hasDraft:false,onImport:noop,onNavigate:noop,
+    dates:['2026-10-20'],currentDay:'2026-11-03',knowledge:'latest',pendingCount:0,onDate:noop});
+  assert.ok(html.indexOf('class="home-orbit-stage"')<html.indexOf('id="home-selected-report"'));
+  assert.match(html,/orbit-map-prominent/);
+  assert.match(html,/aria-controls="home-selected-report"/);
+  assert.match(html,/Open evidence/);
+  assert.match(html,/<blockquote>HbA1c 5.7 %<\/blockquote>/);
+  assert.equal((html.match(/name="history-question"/g)||[]).length,1);
+});
+
+test('Home actions expose scoped differences and summary while one header action owns the review queue',()=>{
+  const view=viewOf([row('a','2026-10-20'),row('b','2026-10-20',{value:'5.9'})]);
+  view.conflicts=[{id:'difference-a',fact_ids:['a','b'],reason:'different_numeric_values'}];
+  const html=render(HealthRecordOverview,{view,hasDraft:true,pendingCount:2,onImport:noop,onNavigate:noop,
+    dates:['2026-10-20'],currentDay:'2026-11-03',knowledge:'latest',onDate:noop});
+  assert.equal((html.match(/aria-label="Continue review, 2 files"/g)||[]).length,1);
+  assert.match(html,/aria-label="Review 1 recorded difference"/);
+  assert.equal((html.match(/Prepare a summary/g)||[]).length,1);
+  assert.doesNotMatch(html,/overview-conflict-banner|Prepare a brief|Unsaved reviews stay/);
+  const disclosure=html.match(/<details class="orbit-history-options">([\s\S]*?)<\/details>/)?.[1] || '';
+  assert.doesNotMatch(disclosure,/Continue review|Prepare a summary/);
+  assert.match(disclosure,/Compare past views/);
+  assert.ok(html.indexOf('Actions for your history')<html.indexOf('class="orbit-workspace"'));
+});
+
+test('Empty Home keeps summary access honest without fabricated conflict or review counts',()=>{
+  const html=render(HealthRecordOverview,{view:viewOf([]),hasDraft:false,pendingCount:0,onImport:noop,onNavigate:noop,
+    dates:[],currentDay:'2026-11-03',knowledge:'latest',onDate:noop});
+  assert.match(html,/Add records/);
+  assert.match(html,/Prepare a summary/);
+  assert.doesNotMatch(html,/Review differences|Continue review|home-review-count|No conflicts|All clear/);
+});
+
+test('A pending scrub keeps its live date control usable and retained evidence inert',()=>{
+  const html=render(HealthRecordOverview,{view:viewOf([row('a','2026-10-20')]),hasDraft:false,pendingCount:0,
+    onImport:noop,onNavigate:noop,dates:['2010-04-12','2026-10-20'],currentDay:'2026-11-03',
+    knowledge:'latest',onDate:noop,requestedDate:'2013-12-31',updating:true,onCurrent:noop});
+  assert.match(html,/aria-label="Selected history date">Through 31 Dec 2013/);
+  assert.match(html,/Updating records/);
+  assert.match(html,/home-evidence-surface is-time-updating" aria-busy="true" inert=""/);
+  assert.ok(html.indexOf('aria-label="Scrub recorded history"')<html.indexOf('inert=""'));
+  assert.match(html,/>Today<\/button>/);
+});
+
+test('Home evidence resolves the current source and preserves corrections without trusting a stale selection',()=>{
+  const original=row('a','2026-10-20');
+  const corrected={...original,value:'5.9',previous_revision_id:'revision-1',reviewed_fields:['value']};
+  const html=render(HomeReportEvidence,{fact:{...corrected,source_quote:'Stale fabricated quote'},view:viewOf([corrected]),onOpen:noop});
+  assert.match(html,/<blockquote>HbA1c 5.7 %<\/blockquote>/);
+  assert.match(html,/Corrected after saving/);
+  assert.doesNotMatch(html,/Stale fabricated quote/);
+  assert.equal(render(HomeReportEvidence,{fact:corrected,view:viewOf([]),onOpen:noop}),'');
+  assert.equal(render(HomeReportEvidence,{fact:{...corrected,source_id:'other'},view:viewOf([corrected]),onOpen:noop}),'');
+});
+
+test('Home evidence hides original passages under either date-withholding flag and escapes document text',()=>{
+  for(const flag of ['value_withheld','source_quote_withheld']) {
+    const fact=row('a','2026-10-20',{source_quote:'PRIVATE EXCERPT',[flag]:true});
+    const html=render(HomeReportEvidence,{fact,view:viewOf([fact]),onOpen:noop});
+    assert.doesNotMatch(html,/PRIVATE EXCERPT/);
+    assert.match(html,/hidden in this date view/);
+  }
+  const fact=row('a','2026-10-20',{source_quote:'<script>untrusted</script>'});
+  assert.match(render(HomeReportEvidence,{fact,view:viewOf([fact]),onOpen:noop}),/&lt;script&gt;untrusted&lt;\/script&gt;/);
+});
+
+test('Prominent orbit retains native file selection, honest pagination and unknown dates',()=>{
+  const fact=row('a',null,{occurred_on:'2016'}),view=viewOf([fact]);
+  const html=render(OrbitMap,{reports:[{source:view.sources[0],facts:[fact],latestDate:null}],selectedId:fact.source_id,
+    onSelect:noop,total:80,prominent:true,onOpenAll:noop});
+  assert.match(html,/1 of 80/);
+  assert.match(html,/<label class="orbit-file-picker">Open a report<select/);
+  assert.match(html,/All files/);
+  assert.match(html,/Undated/);
+  assert.doesNotMatch(html,/2016-01-01/);
 });
 
 test('Home choices are bounded and keep a selected extra field without changing any record',()=>{
@@ -137,6 +254,31 @@ test('Home reading tiles never reveal withheld values or units and escape record
   assert.doesNotMatch(html,/PRIVATE-VALUE|PRIVATE-UNIT|<script>|<b>/);
   assert.match(html,/Hidden by date filter/);
   assert.match(html,/&lt;script&gt;/);
+});
+
+test('Home exposes every open-label checkup reading on request without changing saved names',()=>{
+  const labels=['Glucose','Hemoglobin','White blood cells','Platelets','Ferritin','TSH','Vitamin D','ALT'];
+  const facts=labels.map((label,i)=>row(`lab${i}`,'2026-10-22',{label}));
+  const before=structuredClone(facts);
+  const collapsed=render(HomeReportReadings,{facts,onSelect:noop,onToggle:noop});
+  assert.match(collapsed,/Show all 8 entries/);
+  assert.match(collapsed,/aria-expanded="false"/);
+  assert.equal((collapsed.match(/class="report-reading-choice"/g)||[]).length,4);
+  const expanded=render(HomeReportReadings,{facts,onSelect:noop,onToggle:noop,expanded:true});
+  assert.equal((expanded.match(/class="report-reading-choice"/g)||[]).length,8);
+  for(const label of labels) assert.ok(expanded.includes(friendlyRecordName(label)));
+  assert.match(expanded,/aria-expanded="true"/);
+  assert.match(expanded,/Show fewer entries/);
+  assert.deepEqual(facts,before);
+});
+
+test('Expanded report readings remain bounded and distinguish a page from the whole report',()=>{
+  const facts=Array.from({length:120},(_,i)=>row(`f${i}`,'2026-10-22',{label:`Uncatalogued test ${i}`}));
+  assert.equal(readingChoices(facts,'f119',true).length,50);
+  assert.ok(readingChoices(facts,'f119',true).some(f=>f.id==='f119'));
+  const html=render(HomeReportReadings,{facts:facts.slice(0,50),onSelect:noop,onToggle:noop,paged:true});
+  assert.match(html,/Show 50 entries on this page/);
+  assert.doesNotMatch(html,/Show all/);
 });
 
 test('Home asks for missing units only on measurements, retaining printed units on other record kinds',()=>{
@@ -191,6 +333,61 @@ test("whole-report coverage distinguishes processing, failed pages and unproven 
   assert.doesNotMatch(html,/100%|all facts|clinically verified|complete history/i);
 });
 
+const completeness = (overrides={}) => ({version:'report-row-inventory-v1',status:'completed',
+  completeness:'not_established',review_required:true,inventory_rows:2,matched_rows:1,
+  pages:[{page:1,status:'checked',readability:'readable',truncated:false,independent_text_available:true}],
+  omissions:[{id:'inventory-1-2',page:1,label:'Ferritin',value:'29.40',unit:'ng/mL',
+    source_quote:'Ferritin 29.40 ng/mL 2024-02-03',bbox:null,local_support:'matched_text',
+    matched_field_id:null,reason:'not_in_proposal'}],...overrides});
+
+test('omitted row review remains visible even when extraction found no editable fields', () => {
+  const html=render(ExtractionReviewSummary,{review:{document_type:'lab_report',verification_status:'not_run',
+    facts:[],completeness_check:completeness()},originalHref:'/api/drafts/authored/original'});
+  assert.match(html,/No fields found/); assert.match(html,/1 possible missing row/);
+  assert.match(html,/Ferritin 29.40 ng\/mL 2024-02-03/);
+  assert.match(html,/Page 1/); assert.match(html,/not included when you save/);
+  assert.match(html,/<button[^>]*>Download original/);
+  assert.doesNotMatch(html,/href="\/api\/drafts\//);
+  assert.doesNotMatch(html,/<input|<textarea/); // A flag cannot become a selectable field.
+});
+
+test('failed or limited inventory is never presented as zero omissions or complete reading', () => {
+  for(const status of ['unavailable','partial']) {
+    const html=render(ExtractionReviewSummary,{review:{document_type:'lab_report',verification_status:'completed',
+      facts:[],completeness_check:completeness({status,omissions:[],pages:[{page:2,status:'unavailable',readability:null,
+        truncated:false,independent_text_available:false}]})}});
+    assert.match(html,/Check page 2 directly/);
+    assert.doesNotMatch(html,/No additional rows flagged|100%|all rows found/);
+  }
+});
+
+test('omission list is bounded and untrusted labels or excerpts cannot inject markup', () => {
+  const row=completeness().omissions[0];
+  const omissions=Array.from({length:20},(_,i)=>({...row,id:`inventory-1-${i+1}`,
+    label:`<script>bad${i}</script>`,source_quote:'<img src=x onerror=alert(1)>'}));
+  const html=render(ExtractionReviewSummary,{review:{document_type:'other',verification_status:'completed',facts:[],
+    completeness_check:completeness({omissions,inventory_rows:20,matched_rows:0})}});
+  assert.match(html,/20 possible missing rows/); assert.match(html,/1–6 of 20/);
+  assert.match(html,/Next rows/); assert.match(html,/Previous rows/);
+  assert.doesNotMatch(html,/<script|<img|bad6/); assert.match(html,/&lt;script&gt;bad5/);
+});
+
+test('a zero-flag result still says the check can miss rows', () => {
+  const html=render(ExtractionReviewSummary,{review:{document_type:'lab_report',verification_status:'completed',
+    facts:[],completeness_check:completeness({omissions:[]})}});
+  assert.match(html,/No additional rows flagged/); assert.match(html,/This check can miss rows/);
+  assert.doesNotMatch(html,/100%|all rows found/);
+});
+
+test('saved omission warnings retain evidence without pretending fields are still editable', () => {
+  const html=render(ReportCompletenessReview,{check:completeness(),saved:true,
+    originalHref:'/api/history/sources/authored/original?known_at=2026-11-03T09%3A00%3A00Z'});
+  assert.match(html,/These rows were not included in the saved fields/);
+  assert.match(html,/Ferritin 29.40 ng\/mL 2024-02-03/);
+  assert.match(html,/Download original to review/);
+  assert.doesNotMatch(html,/before saving|editable fields|when you save/);
+});
+
 test("flagged fields show their source concern in the actual review, without duplicate expanded summaries", () => {
   const field={...row('flagged','2024-02-03',{label:'Pulse',value:'72.00'}),keep:true};
   const check={...field,commit_supported:true,review_reasons:['The second reading disagrees with this field.']};
@@ -210,7 +407,7 @@ test("orbit keeps core actions visible and puts secondary history controls in a 
   const html=render(HomeIntegrityTools,{scope:viewOf([]).scope,dates:['2012-01-01'],currentDay:'2026-10-29',
     knowledge:'latest',pendingCount:0,onDate:noop,onNavigate:noop,onReview:noop,orbit:true});
   assert.doesNotMatch(html,/Ask about your history/); // One Home composer owns this action.
-  assert.match(html,/<details class="orbit-history-options"><summary>History options/);
+  assert.match(html,/<details class="orbit-history-options"><summary>More history tools/);
   assert.doesNotMatch(html,/Review queue|Continue review|T\+/);
   assert.match(html,/aria-label="Home file availability"/);
 });
@@ -284,8 +481,8 @@ test("orbit buttons preserve original file identity, keyboard access and indepen
   assert.equal((html.match(/tabindex="0"/g) || []).length, 3);
   assert.equal((html.match(/aria-pressed="true"/g) || []).length, 1);
   for (const title of ['Original a.png', 'Original b.png', 'Undated note.txt']) assert.ok(html.includes(`Open source file: ${title}`));
-  assert.match(html, />YOU<\/text>/);
-  assert.match(html, />UNDATED<\/text>/);
+  assert.match(html, />You<\/text>/);
+  assert.match(html, />Undated<\/text>/);
   assert.doesNotMatch(html, /health score|normal range/i);
 });
 
@@ -487,6 +684,24 @@ test("Ask keeps every exact claim and time bound with source controls only for a
   assert.ok(!html.includes("View supporting records"));
 });
 
+test('Ask distinguishes typed no-match, insufficient evidence, clarification and unavailable search',()=>{
+  const view=viewOf([]);
+  for(const [status,heading] of Object.entries({answered:'From your history',no_match:'No matching record found',
+    insufficient_evidence:'Not enough recorded evidence',clarification:'One detail before I look',
+    unsupported:'This question is outside record search',not_understood:'Help me find the right record',planner_unavailable:'Record search is unavailable'})) {
+    const html=render(HistoryAnswerView,{answer:{mode:'offline',scope:view.scope,claims:[],trace:[],history_evidence:view,
+      answer:'The exact recorded response.',query_result:{status}},pending:false,onClarify:noop});
+    assert.ok(html.includes(`<h3>${heading}</h3>`),status);
+    assert.match(html,/The exact recorded response/);assert.doesNotMatch(html,/history-citation/);
+  }
+});
+
+test('the single followup action describes history and source requests without promising an earlier record',()=>{
+  assert.equal(continuationLabel('What about the one before that?'),'Show the earlier record');
+  for(const question of ['Show matching history','Show its history','Where did this value come from?','Name a result to inspect its source.'])
+    assert.equal(continuationLabel(question),question);
+});
+
 test("Ask clarification keeps both explicit choices and never labels a guard as Muse", () => {
   const view = viewOf([]);
   const html = render(HistoryAnswerView, { answer: { mode: "request_guard", scope: view.scope, claims: [], trace: [], history_evidence: view,
@@ -564,12 +779,13 @@ function sourceEvidence(facts, extra = {}) {
   return render(SourceCubeEvidence,{source:view.sources[0],facts,view,initialFactId:facts[0]?.id,...extra});
 }
 
-test('single evidence shows one result heading and a direct scoped original link before the excerpt', () => {
+test('single evidence shows one result heading and an authenticated original action before the excerpt', () => {
   const html = sourceEvidence([row('bp','2025-01-01',{label:'Blood pressure',value:'100/70',unit:'mmHg',source_quote:'Printed: 100/70 mmHg'})]);
   assert.equal((html.match(/<h3>Blood pressure<\/h3>/g)||[]).length,1);
   assert.doesNotMatch(html,/Choose a record|aria-label="Select a record"|Specimen|Not recorded/);
   assert.match(html,/<blockquote>Printed: 100\/70 mmHg<\/blockquote>/);
-  assert.match(html,/known_at=2026-10-29T00%3A00%3A00Z&amp;as_of=2026-10-20/);
+  assert.match(html,/<button[^>]*class="text-button"[^>]*>[\s\S]*Download original<\/button>/);
+  assert.doesNotMatch(html,/href="\/api\//);
   assert.ok(html.indexOf('Download original') < html.indexOf('<blockquote>'));
   assert.match(html,/Correct saved record/);
   assert.match(html,/View saved versions/);
@@ -751,4 +967,76 @@ test('hidden evidence cannot leak its date passage through either inspector',()=
     render(HomeSourceEvidence,{fact,view,onOpen:noop})]) {
     assert.doesNotMatch(html,/Date in the original|Collected:|untrusted/);
   }
+});
+
+
+test('Orbit retains source formats in accessible descriptions without adding format or axis clutter',()=>{
+  const formats=[['pdf','Review.pdf','PDF'],['image/png','Scan.png','IMG'],['text/csv','Labs.csv','CSV'],['text/plain','Note.txt','TXT']];
+  const reports=formats.map(([type,title],i)=>({source:{id:'format-'+i,type,title},latestDate:'2024-02-20',
+    facts:[row('format-'+i,'2024-02-20')]}));
+  const original=structuredClone(reports);
+  const html=render(OrbitMap,{reports,selectedId:'format-2',onSelect:noop,prominent:true});
+  for(const [,title,format] of formats) {
+    assert.ok(html.includes(`Open source file: ${title}; ${format};`));
+    assert.ok(!html.includes(`>${format}</text>`));
+  }
+  assert.match(html,/orbit-file-relations/);
+  assert.match(html,/orbit-connection/);
+  assert.doesNotMatch(html,/orbit-crosshair|2020–2024|M300 18V426|Rings group recorded years/);
+  assert.deepEqual(reports,original);
+});
+
+test('Twelve relational orbit files retain separate actions, the selected source and unknown precision',()=>{
+  const reports=Array.from({length:12},(_,i)=>({source:{id:'same-'+i,type:'text/csv',title:'Same filename.csv'},
+    latestDate:i===11?null:'2024-02-20',facts:[row('same-'+i,i===11?null:'2024-02-20')]}));
+  const html=render(OrbitMap,{reports,selectedId:'same-8',total:198,onSelect:noop,onOpenAll:noop,prominent:true});
+  assert.equal((html.match(/role="button"/g)||[]).length,12);
+  assert.equal((html.match(/aria-pressed="true"/g)||[]).length,1);
+  assert.equal((html.match(/<option value="same-/g)||[]).length,12);
+  assert.match(html,/12 of 198/);
+  assert.match(html,/>Undated<\/text>/);
+  assert.match(html,/All files/);
+  assert.doesNotMatch(html,/clinical relationship|health score|risk score/i);
+});
+
+test('Report picker distinguishes repeated filenames without renaming their sources',()=>{
+  const reports = ['2024-02-03','2025-05-20','2025-05-20',null].map((date,index)=>({
+    source:{id:`repeat-${index}`,title:'checkup.csv',type:'csv'},latestDate:date,
+    facts:[row(`repeat-${index}`,date)],
+  }));
+  reports.push({source:{id:'unique',title:'unique.csv',type:'csv'},latestDate:null,facts:[]});
+  const original = structuredClone(reports);
+  const html = render(OrbitMap,{reports,selectedId:'repeat-2',onSelect:noop,prominent:true});
+  const options = [...html.matchAll(/<option[^>]*>([^<]*)<\/option>/g)].map(match=>match[1]);
+  assert.equal(new Set(options).size,5);
+  assert.ok(options.includes('checkup.csv · 3 Feb 2024'));
+  assert.ok(options.includes('checkup.csv · 20 May 2025 · file 1'));
+  assert.ok(options.includes('checkup.csv · 20 May 2025 · file 2'));
+  assert.ok(options.includes('checkup.csv · Date not recorded'));
+  assert.ok(options.includes('unique.csv'));
+  assert.match(html,/<option value="repeat-2" selected="">/);
+  assert.deepEqual(reports,original);
+});
+
+test('Twelve same-era orbit targets have mobile touch clearance and outward date labels',()=>{
+  const reports=Array.from({length:12},(_,i)=>({source:{id:'dense-'+i,type:'text/csv',title:'Same filename.csv'},
+    latestDate:i===11?null:'2026-10-20',facts:[row('dense-'+i,i===11?null:'2026-10-20')]}));
+  const html=render(OrbitMap,{reports,selectedId:'dense-0',onSelect:noop,prominent:true});
+  const positions=[...html.matchAll(/class="orbit-satellite[^"]*" transform="translate\(([^)]+)\)"/g)]
+    .map(match=>match[1].split(' ').map(Number));
+  assert.equal(positions.length,12);
+  for(let i=0;i<positions.length;i++) for(let j=i+1;j<positions.length;j++) {
+    const distance=Math.hypot(positions[i][0]-positions[j][0],positions[i][1]-positions[j][1]);
+    assert.ok(distance>76,'38-unit mobile hit areas must not overlap');
+    assert.ok(distance*358/600>44,'Targets remain separately reachable in the 390px viewport');
+  }
+  const labels=[...html.matchAll(/class="orbit-node-date" x="([^"]+)" y="([^"]+)"/g)]
+    .map(match=>[Number(match[1]),Number(match[2])]);
+  assert.equal(labels.length,12);
+  labels.forEach(([x,y],index)=>{
+    const [nodeX,nodeY]=positions[index];
+    assert.ok(x*(nodeX-300)+y*(nodeY-222)>0,'Year labels extend away from the owner and other nodes');
+    assert.ok(nodeX+x>15 && nodeX+x<585 && nodeY+y>10 && nodeY+y<450);
+  });
+  assert.match(html,/>Undated<\/text>/);
 });

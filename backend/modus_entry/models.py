@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field, AwareDatetime
+from pydantic import BaseModel, ConfigDict, Field, AwareDatetime, model_validator
 from modus.record_models import ReviewedObservation
 from modus.record_history_models import ReviewedFact
 
@@ -48,7 +48,20 @@ class CommitRequest(Strict):
 class HistoryCommitRequest(Strict):
     draft_id: str = Field(min_length=1, max_length=160)
     synthetic_confirmed: Literal[True]
-    reviewed_facts: list[ReviewedFact] = Field(min_length=1, max_length=1000)
+    reviewed_facts: list[ReviewedFact] = Field(max_length=1000)
+    reviewed_omissions: list[ReviewedFact] = Field(default_factory=list, max_length=400)
+
+    @model_validator(mode='after')
+    def selected_rows(self):
+        if not self.reviewed_facts and not self.reviewed_omissions:
+            raise ValueError('Select at least one reviewed field or flagged row')
+        return self
+
+
+class OmissionCommitRequest(Strict):
+    draft_id: str = Field(min_length=1, max_length=160, strict=True)
+    synthetic_confirmed: Literal[True]
+    reviewed_omissions: list[ReviewedFact] = Field(min_length=1, max_length=400)
 
 
 class ProfileRequest(Strict):

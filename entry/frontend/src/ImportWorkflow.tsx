@@ -14,6 +14,7 @@ import {
   appendFiles,
   acceptDraft,
   beginFactCommit,
+  addOmissionToReview,
   failCommit,
   finishCommit,
   navigationLocked,
@@ -29,6 +30,7 @@ import {
 } from "./importQueue";
 import "./import-queue.css";
 import ExtractionReviewSummary from "./ExtractionReviewSummary";
+import ReportCompletenessReview from './ReportCompletenessReview';
 import GenericFactReview from "./GenericFactReview";
 import type { FactReviewRow } from "./historyTypes";
 
@@ -69,7 +71,7 @@ export default function ImportWorkflow({
   const referenceOnly =
     draft?.extraction_review?.facts.filter((fact) => !fact.commit_supported)
       .length || 0;
-  const locked = busy || !!attempt || !!draft?.already_committed;
+  const locked = busy || !!attempt;
   const queueLocked = navigationLocked(queue);
   const totals = summary(queue);
   const unconfirmedSaves = queue.filter(
@@ -82,6 +84,7 @@ export default function ImportWorkflow({
     !!current && ["csv", "txt"].includes(extension(current.file));
   const imageFile =
     !!current && ["png", "jpg", "jpeg"].includes(extension(current.file));
+  const reuseOnly = imageFile && !metaAvailable;
   const readers = current ? readingOptions(current.file, metaAvailable) : [];
   const extractionAvailable = readers.some(
     (reader) => reader.value === extraction && reader.available,
@@ -90,6 +93,18 @@ export default function ImportWorkflow({
     setQueue((items) =>
       items.map((item) => (item.id === id ? { ...item, ...value } : item)),
     );
+  const reviewOmission = (id: string) => {
+    if (!current || locked) return;
+    setQueue(items => items.map(item => item.id === current.id ? addOmissionToReview(item, id) : item));
+  };
+  const rowStates: Record<string, 'reviewing' | 'saved'> = {};
+  factRows.filter(row => row.keep).forEach(row => { rowStates[row.id] = 'reviewing'; });
+  draft?.omission_reviews?.forEach(row => { rowStates[row.candidate_id] = 'saved'; });
+  const omissionActions = { onReviewRow: reviewOmission, rowStates, disabled: locked };
+  const originalTime = current?.receipt?.available_at || draft?.saved_available_at;
+  const originalHref = draft?.source.original_available ? draft.already_committed
+    ? originalTime ? `/api/history/sources/${encodeURIComponent(draft.source.id)}/original?known_at=${encodeURIComponent(originalTime)}` : undefined
+    : `/api/drafts/${encodeURIComponent(draft.id)}/original` : undefined;
   useEffect(() => {
     onDraftChange(totals.pending > 0, totals.pending);
   }, [totals.pending, onDraftChange]);
@@ -124,7 +139,7 @@ export default function ImportWorkflow({
   async function upload() {
     if (!current || inFlight.current || queueLocked) return;
     const invalid = fileError(current.file);
-    if (invalid || !confirmed || !extractionAvailable) {
+    if (invalid || !confirmed || (!extractionAvailable && !reuseOnly)) {
       patch(current.id, {
         status: "error",
         error:
@@ -144,8 +159,10 @@ export default function ImportWorkflow({
         item.file,
         item.extraction,
         metaAvailable,
+        reuseOnly,
       );
       body.append("use_meta", readerFields.use_meta);
+      if (readerFields.reuse_only) body.append("reuse_only", readerFields.reuse_only);
       const result = await api<Draft>("/imports/preview", {
         method: "POST",
         body,
@@ -160,7 +177,7 @@ export default function ImportWorkflow({
         status: "error",
         reportCoverage:
           failure instanceof ApiError ? failure.reportCoverage : undefined,
-        error: `This file could not be read. No records were saved. Retry this file or skip it to continue. ${(failure as Error).message}`,
+        error: `${reuseOnly ? "The previous draft could not be reopened. No records were saved." : "This file could not be read. No records were saved. Retry this file or skip it to continue."} ${(failure as Error).message}`,
       });
     } finally {
       inFlight.current = false;
@@ -171,8 +188,7 @@ export default function ImportWorkflow({
       !current ||
       !draft ||
       inFlight.current ||
-      !includedCount ||
-      draft.already_committed
+      !includedCount
     )
       return;
     let submitting: QueueItem;
@@ -186,10 +202,11 @@ export default function ImportWorkflow({
     inFlight.current = true;
     patch(current.id, submitting);
     try {
-      const result = await post<Commit>("/history/commit", {
+      const result = await post<Commit>(draft.already_committed ? "/history/omissions/commit" : "/history/commit", {
         draft_id: draft.id,
         synthetic_confirmed: true,
-        reviewed_facts: submitting.factAttempt,
+        ...(!draft.already_committed ? { reviewed_facts: submitting.factAttempt } : {}),
+        reviewed_omissions: submitting.omissionAttempt || [],
       });
       setQueue((items) =>
         items.map((item) =>
@@ -199,7 +216,7 @@ export default function ImportWorkflow({
       onCommitted(result);
     } catch (failure) {
       const definitive =
-        failure instanceof ApiError && [400, 404, 422].includes(failure.status);
+        failure instanceof ApiError && [400, 404, 409, 422].includes(failure.status);
       const message =
         definitive && !wasUncertain
           ? `The review was not accepted. No records were saved by this request. Correct the fields or skip this file. ${(failure as Error).message}`
@@ -357,6 +374,7 @@ export default function ImportWorkflow({
             </p>
             <details className="import-examples">
               <summary>Try an example report</summary>
+              <a href="/examples/checkup-october-2026.csv" download>Checkup · 8 tests with lab details</a>
               <div className="table-footer">
                 <a href="/examples/whole-history.csv" download>
                   Mixed history <ArrowUpRight size={13} />
@@ -383,7 +401,7 @@ export default function ImportWorkflow({
               {current.status === "skipped"
                 ? "Nothing from this file was added. Its review stays here if you return to it."
                 : current.status === "duplicate" || current.receipt?.duplicate
-                  ? "No records were added again. Your existing review is unchanged."
+                  ? "No records were added again. This file is already in your history."
                   : `${current.receipt?.inserted || 0} reviewed ${current.receipt?.fact_ids ? "field" : "measurement"}${current.receipt?.inserted === 1 ? "" : "s"} added. Your selected history view is unchanged.`}
             </p>
             {referenceOnly > 0 && current.status !== "skipped" && (
@@ -396,6 +414,10 @@ export default function ImportWorkflow({
             {draft?.extraction_review && referenceOnly > 0 && (
               <ExtractionReviewSummary review={draft.extraction_review} />
             )}
+            {draft?.extraction_review?.completeness_check && <ReportCompletenessReview
+              key={draft.id} check={draft.extraction_review.completeness_check}
+              saved={current.status !== 'skipped'}
+              originalHref={originalHref} {...omissionActions} />}
             <div className="import-queue-actions">
               {current.status === "skipped" && (
                 <button
@@ -470,7 +492,7 @@ export default function ImportWorkflow({
               <p className="safe-note">
                 CSV and text are read on this computer. No model is called.
               </p>
-            ) : (
+            ) : !reuseOnly ? (
               <details open={imageFile || extraction !== "local"}>
                 <summary>
                   {imageFile
@@ -504,22 +526,22 @@ export default function ImportWorkflow({
                 </label>
                 <p className="safe-note">
                   {extraction === "meta"
-                    ? "Meta reads up to 12 pages in groups, then checks the proposed fields. At most 8 model requests per file. Page details show what was processed; you review before saving."
+                    ? "Meta reads up to 12 pages in groups, checks the fields, and separately looks for missed rows. At most 12 model requests per file. You review before saving."
                     : "Structured CSV keeps named fields. Unrecognized prose stays editable source text. Up to 30 PDF pages; scanned pages require Meta."}
                 </p>
               </details>
-            )}
+            ) : null}
             {imageFile && !extractionAvailable && (
               <p className="safe-note">
                 {metaAvailable
                   ? "Choose Meta to read this image, or skip it and continue."
-                  : "Meta must be configured to read this image. You can skip it and continue."}
+                  : "Already read this file? Reopen its previous draft without a model call. Reading a new image requires Meta."}
               </p>
             )}
             <p className="progress-note" role="status">
               {phase === "reading"
-                ? "Reading this file… No records have been saved."
-                : "Reading creates a draft. You decide what to save."}
+                ? reuseOnly ? "Reopening the previous draft… No records have been saved." : "Reading this file… No records have been saved."
+                : reuseOnly ? "You review before saving." : "Reading creates a draft. You decide what to save."}
             </p>
             <div className="import-queue-actions">
               <button
@@ -536,15 +558,17 @@ export default function ImportWorkflow({
                 disabled={
                   !confirmed ||
                   busy ||
-                  !extractionAvailable ||
+                  (!extractionAvailable && !reuseOnly) ||
                   !!fileError(current.file)
                 }
                 onClick={() => void upload()}
               >
                 {busy ? (
                   <>
-                    <LoaderCircle className="spin" size={16} /> Reading…
+                    <LoaderCircle className="spin" size={16} /> {reuseOnly ? "Reopening…" : "Reading…"}
                   </>
+                ) : reuseOnly ? (
+                  "Reopen previous draft"
                 ) : current.status === "error" ? (
                   "Retry reading this file"
                 ) : (
@@ -563,7 +587,9 @@ export default function ImportWorkflow({
                     ? "Save unconfirmed · Retry the same fields."
                     : factRows.length
                       ? "Check these against your report."
-                      : "No fields are available to save. Review the source below."}
+                      : draft.extraction_review?.completeness_check?.omissions.length
+                        ? "Choose a flagged row below to review."
+                        : "No fields are available to save. Review the source below."}
               </strong>
               <span>
                 {draft.extraction_mode === "local-teleocr"
@@ -582,8 +608,13 @@ export default function ImportWorkflow({
                 <AlertCircle size={13} /> {warning}
               </p>
             ))}
-            {draft.extraction_review && (
-              <ExtractionReviewSummary review={draft.extraction_review} />
+            {draft.extraction_review && !draft.already_committed && (
+              <ExtractionReviewSummary review={draft.extraction_review}
+                originalHref={originalHref} omissionActions={omissionActions} />
+            )}
+            {draft.already_committed && draft.extraction_review?.completeness_check && (
+              <ReportCompletenessReview check={draft.extraction_review.completeness_check}
+                originalHref={originalHref} saved {...omissionActions} />
             )}
             {generic ? (
               <GenericFactReview

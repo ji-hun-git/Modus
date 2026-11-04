@@ -19,4 +19,4 @@ npm = shutil.which('npm.cmd' if os.name == 'nt' else 'npm')
 if not npm:
     sys.exit('Install Node.js with npm, then rerun setup.')
 subprocess.run([npm, 'ci'], cwd=root / 'entry/frontend', check=True, env=env)
-print('Ready. Run python scripts/check_entry.py, then python scripts/serve_entry.py')
+print('Ready. Run python scripts/check_service.py, then python scripts/serve_service.py --port 8011')

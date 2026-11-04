@@ -98,12 +98,14 @@ def test_local_text_is_default_and_image_needs_explicit_model(ocr_api):
 def test_local_ocr_preview_is_rejected_without_draft_or_commit(ocr_api):
     client, store, _, calls, _ = ocr_api
     before = records(client)
+    with store.connect() as db:
+        before_drafts = db.execute('SELECT id,data,committed FROM drafts ORDER BY id').fetchall()
     response = preview(client, use_local_ocr='true')
     assert response.status_code == 422
     assert calls == []
     assert records(client)['observations'] == before['observations']
     with store.connect() as db:
-        assert db.execute('SELECT count(*) FROM drafts').fetchone()[0] == 0
+        assert db.execute('SELECT id,data,committed FROM drafts ORDER BY id').fetchall() == before_drafts
 
 
 @pytest.mark.parametrize('error_class', ['LocalOCRError', 'RuntimeError', 'ValueError'])

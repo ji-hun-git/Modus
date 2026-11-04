@@ -1,6 +1,310 @@
 # Modus Records API v1
 
+## Local privacy boundary — 3 November 2026
+
+The API accepts only loopback peers and a `127.0.0.1`, `localhost` or `[::1]`
+Host. Forwarded headers do not establish client identity. Browser Origin and
+Referer must match the exact scheme, host and port. Cross-site and same-site
+requests from other ports are rejected; an explicitly clicked link may open
+only the static `/` shell. No cross-origin API access or preflight is granted.
+
+Every POST, PUT, PATCH or DELETE requires `X-Modus-Request: 1`, including local
+scripts. The frontend adds this through `localRequest`, including multipart
+imports and summary exports. It is a request-intent header, **not a password or
+authentication token**. The session below is required in addition to this header.
+Vite development uses the existing same-origin `/api` proxy and the launcher's
+explicit `--ui-port 5174`; open `http://127.0.0.1:5174`, not a hostname alias.
+
+### Local access sessions
+
+`create_entry_app` starts unconfigured and private routes fail closed. The
+checked launcher writes an owner-only `Modus-<port>.modus-access` file containing
+a random 256-bit bootstrap credential and its exact loopback origin. A restart
+replaces that credential and invalidates sessions. The browser reads the chosen
+file, validates the origin before transmission, and sends it only to the local
+unlock endpoint. Provider keys are unrelated and never enter this flow.
+
+- `GET /api/access/status` returns `{configured, authenticated}` without records
+  or extending idle time. This and unlock are the only public API endpoints.
+- `POST /api/access/unlock` accepts `{token}` and returns a separate random
+  `{access_token, idle_seconds:1800, expires_in:28800}`. Five failed attempts
+  within a minute throttle further attempts with 429 and `Retry-After`.
+- All other APIs and private routes require `Authorization: Bearer <access_token>`.
+  This includes health, originals, exports and unknown API paths. Missing,
+  expired or revoked sessions return 401 before request parsing or record access.
+  Cookies and URL parameters cannot authenticate. Access request bodies are
+  limited to 1024 bytes, and validation errors omit supplied credentials.
+- `POST /api/access/touch` renews idle activity. The UI sends this for user input
+  at most once a minute. Other authenticated requests also renew idle activity.
+- `POST /api/access/lock` revokes **all** sessions. Idle sessions expire after
+  30 minutes; all sessions expire after 8 hours regardless of activity. At most
+  eight exist; issuing another evicts the least recently used. Only token hashes
+  are held on the server. No authentication state is written into history.
+
+The UI retains its session only in module memory. Reload locks the window.
+Lock unmounts the record workspace; other windows detect revocation on the next
+request or a 15-second status poll. Already accepted server operations may finish.
+Unsaved reviews close; saved records and original bytes remain unchanged. Original
+downloads and exports use authenticated fetches, then a temporary Blob URL without
+credentials. The static shell, bundled assets and authored examples remain public.
+
+This follows the random-token, server-expiry and logout principles in the
+[OWASP session guidance](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html).
+The memory-only bearer transport is a local design choice: cookies are not isolated
+by port. Loopback HTTP and an owner-only access file are **not** production accounts,
+TLS, encryption at rest or protection from software running with the same OS user's
+permissions. Such software or an administrator can read the access file. Sharing
+the file grants access until restart. The launcher must remain bound to loopback.
+
+The older `scripts/serve_entry.py` launcher also publishes an access file under
+`release/entry-service-access`. It retains its existing database selection and
+full release-gate requirement; the offline service check does not replace or
+authorize that gate. Use the checked offline launcher described in the README
+for this development build.
+
+The checked offline launcher accepts `--rehearsal NAME` for a separate persistent
+workspace at `release/rehearsal-NAME`. Names contain 1–48 lowercase letters,
+digits or hyphens and begin with a letter or digit; paths are not accepted.
+Without this flag the existing `release/offline-service` location is unchanged.
+Each workspace retains its own encrypted database and native credential entry.
+An exclusive service-lifetime lease prevents a second checked launcher from
+replacing the access file while that workspace runs. Database read/write leases
+remain separate. Restart resumes stored history; there is no reset/delete action.
+The launcher strips provider credentials and rejects stale source/build checks
+in both normal and rehearsal modes. No API schema or model authority changes.
+
+Request bodies are limited to 8 MiB plus 128 KiB of multipart overhead before
+parsing; each file still has its separate 8 MiB limit. Chunking cannot evade
+the total limit. Incomplete uploads time out after 30 seconds without invoking
+a reader. Boundary failures return 403, oversized requests 413 and timeouts 408.
+Validation failures remain 422 but omit raw input, field locations and exception
+context that could echo private content. Unexpected failures return a generic
+500 and log only their exception class. Existing explicit domain errors remain.
+
+All responses, including originals and errors, use `Cache-Control: no-store`,
+`Referrer-Policy: no-referrer`, `nosniff`, frame denial and a self-only content
+security policy. Original downloads keep their stricter sandbox policy and
+attachment disposition. The browser request helper rejects external endpoints
+and redirects. The checked launcher disables URL access logs and proxy-header
+trust. Meta transport uses verified TLS to its fixed official endpoint, ignores
+environment proxy settings and rejects redirects before accepting a response.
+
+Before SQLite opens, the checked launcher restricts its dedicated
+`release/offline-service` directory and existing files to the current OS user
+(and Windows SYSTEM). New Windows files inherit that ACL; POSIX startup uses
+0700 directories, 0600 files and umask 0077. Links and unexpected nested runtime
+directories fail closed. No original bytes, record versions or dates are erased
+or rewritten by this protection. Other custom launchers must provide equivalent
+file protections themselves.
+
+These are local boundary protections, **not encryption, separate user accounts,
+de-identification or protection from the same OS user or an administrator**.
+Browser no-store also cannot promise erasure of screenshots, manually downloaded
+files, memory, OS backups or third-party model retention. Production privacy
+qualification remains unfinished.
+
+The browser boundary follows the custom-header, exact-origin and Fetch Metadata
+patterns in [OWASP's CSRF guidance](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html).
+Windows restrictions use the native [protected DACL API](https://learn.microsoft.com/en-us/windows/win32/api/aclapi/nf-aclapi-setnamedsecurityinfow).
+
+## Scan review and offline recovery — 3 November 2026
+
+`POST /api/imports/preview` accepts optional `reuse_only=true`. After the usual
+confirmation, size and extension checks, it returns only an existing draft for
+those exact bytes. A cache miss returns 404 without parsing, provider access,
+new model requests or writes. The UI offers **Reopen previous draft** for images
+when Meta is unavailable. Original proposals, review warnings and commit state
+are retained; reopening neither re-extracts nor saves records.
+
+Local extraction checks compare populated fields with their proposed excerpt
+even when the page has no text layer. A contradiction, including a changed range
+unit or dropped qualifier, gets a specific review warning. A consistent excerpt
+still has `local_support.status:unavailable`; it is not independently verified.
+`no_independent_page_text` remains visible alongside any mismatch. Inequalities
+in a following history-table cell do not qualify the preceding value. Actual
+censored values and interval/uncertainty expressions remain subject to review.
+Neither the original proposal nor file bytes are repaired automatically, and
+existing saved drafts retain their original checks.
+
+## Literal-value history questions — 3 November 2026
+
+For an already resolved history request, its hosted read tool accepts only `{}`.
+The server inserts its previously validated filters; the model selects the
+permitted operation and returned claim IDs without retyping fixed arguments.
+The entire returned batch is checked before any read executes. Any model-supplied
+filter is rejected, including the string `"null"`. No coercion, fallback answer,
+new tool, additional request or record-write authority is introduced. Unresolved
+investigations retain their separately bounded planning protocol.
+
+`POST /api/history/chat` recognizes questions such as “When was my Ferritin
+30 ng/mL?” as exact numerical equality without requiring the word “exactly”.
+This shorthand requires one resolved test, an adjacent literal value and an
+explicit unit. Unqualified numbers, extra conditions, negation and unsupported
+source/method restrictions still require clarification. Recorded-date bounds,
+earliest/latest selection and captured availability remain binding; units are
+not converted. The same anchored plan is required of any optional Muse planner.
+No endpoint, authority or model call is added.
+
+Literal blood-count units `fL`, `pg`, `10^9/L` and `10^12/L` are recognized in
+that same condition parser. For example, “When was my MPV 9.8 fL?” uses the saved
+test label and exact printed unit. Another unit is not interchangeable; extra
+wording such as “after fasting” still requires clarification.
+
+## Report row inventory — 3 November 2026
+
+Historical tables inventory each result cell with its unchanged printed test
+name. Dates and column headings may not be appended to labels. All duplicate
+entries retain the existing literal, one-to-one matching requirements.
+
+`completeness_check.disagreements` additionally retains a unit disagreement
+when exactly one unmatched inventory row and one unmatched field have the same
+page, literal label/value and entire whitespace-normalized source passage, and
+exactly one reading omitted the unit. Two different non-empty units are never
+paired: they may represent separate printed results, even with a shared passage.
+Exact matches take priority; ambiguous repeats and different passages remain
+possible omissions. Neither value nor unit is converted or overwritten. The
+inventory row retains `matched_field_id:null`, `related_field_id` and
+`reason:unit_disagreement`; it cannot be submitted as a reviewed omission.
+The existing field gets `inventory_check.status:unit_disagreement` with
+`proposed_unit` and a visible review reason. The owner corrects that field using
+the existing review editor. Disagreements continue to restrict dated source
+disclosure, and both original proposals remain immutable. Older drafts are not
+rewritten or re-extracted automatically. This adds no model call or write authority.
+
+The separate reading now checks disagreement in both directions. An extracted
+field absent from a readable, non-truncated inventory page gains a visible
+review reason; it is never silently removed. The immutable extraction proposal
+retains `inventory_check.status: matched|unmatched|unavailable` per field.
+Failed, limited or truncated inventory pages cannot establish an unmatched
+field. Matching is still literal, page-scoped and one-to-one. No additional
+provider call or commit authority is introduced. Prompts distinguish report
+boilerplate from person-specific recorded statements, including negative findings.
+
+Explicit Meta PDF/image reading adds a third, source-only `InventoryReportRows`
+request for each page group. It receives the same original pages without the
+extracted fields or verifier results. Each response must cover exactly that
+group's original page numbers, with bounded verbatim rows, proposed regions,
+readability and truncation flags. The extraction/source-check passes are unchanged.
+The maximum is now 12 provider requests for 12 pages (three per group); an empty
+extraction skips field verification but still runs the inventory. No automatic
+retry, repair, alternative provider or model-authorized write is added.
+
+`extraction_review.completeness_check` is additive: version
+`report-row-inventory-v1`, `status:completed|partial|unavailable`, fixed
+`completeness:not_established`, `review_required:true`, `inventory_rows`,
+`matched_rows`, `pages` and `omissions`. Every omission includes a server ID,
+original page, literal label/value/unit, excerpt, proposed bbox,
+`local_support:matched_text|mismatch|unavailable`, null `matched_field_id` and
+`reason:not_in_proposal|source_unconfirmed`. Page entries retain checked/unavailable
+status, model readability, truncation and independent text availability.
+
+Code compares rows one-to-one using the same original page, exact label/value/unit
+and overlapping contiguous excerpts. It does not merge aliases, convert units,
+coerce numerical spelling or drop repeated rows. Unsupported text remains a
+flag requiring source review. Image/OCR agreement never becomes independent text
+support. Inventory failure preserves the extracted draft with an unavailable
+check; partial/unreadable/truncated pages remain visible. Zero flags never prove
+complete extraction. This is a same-model second reading, not an independent
+model-quality measurement.
+
+Inventory candidates never become facts automatically. The owner can explicitly
+select a flagged row, edit its fields, and save through the separate reviewed
+omission contract below. A candidate ID is still invalid in `reviewed_facts`.
+Flags remain unchanged in the stored draft and on re-opening, without
+re-extraction or extra calls. Original bytes and page evidence remain unchanged.
+The review UI shows at most six flagged rows at once, with paging and an original
+download. Existing cached drafts are not retroactively inventoried. Offline
+readers do not claim to run this model check.
+Possible omissions and unavailable/partial inventories have unreviewed dates.
+After commit, the full original remains available in the unbounded recorded-date
+view, but a dated view withholds the whole document/excerpts using the existing
+partial-source rules. Extracted dates cannot authorize disclosure of omitted rows.
+
+### Explicit review of flagged rows
+
+`POST /api/history/commit` adds optional `reviewed_omissions: ReviewedFact[]`
+(maximum 400). `reviewed_facts` may be empty only when omissions are selected.
+The initial import saves both selections atomically. Omission IDs must come from
+this stored draft's immutable inventory; duplicates, foreign IDs and client
+source/provenance/timestamp fields are rejected. There is no automatic date,
+facility, test-kind or lab-context inference. The editor begins with recorded
+text and unknown date; the owner supplies corrections and confirms by saving.
+
+`POST /api/history/omissions/commit` accepts `{draft_id,synthetic_confirmed:true,
+reviewed_omissions:[ReviewedFact]}` for an already saved report. It appends new
+facts with server-owned availability and `availability_basis:reviewed_row_addition`.
+It preserves the original source, draft, extraction proposal, bytes, initial
+commit receipt and earlier facts. Original inventory label/value/unit remain in
+`source_proposal`; `row_inventory` retains candidate identity/support/reason.
+The source quote/page/proposed region are copied only from the stored candidate.
+Saved entries use the existing correction/version mechanism thereafter.
+
+Identical batches return their original receipt with `duplicate:true,inserted:0`.
+A changed batch containing a previously saved candidate returns 409; duplicates
+are never silently overwritten or partially accepted. Original receipt fields
+are retained, with additive `omission_ids`. Row inserts, audit and receipts share
+one transaction. Initial upload review remains the route for unsaved sources.
+Preview re-opening adds `omission_reviews:[{candidate_id,fact_id,available_at}]`
+and nullable `saved_available_at` without another model call. UI saves preserve
+an uncertain payload in tab memory for exact retry; reloading loses unsaved edits.
+
+Both generic history and legacy measurement snapshots filter individual added
+rows by availability. Existing captured views stay unchanged. Saving flagged
+rows does not certify that the inventory is complete or remove dated-document
+restrictions: unreadable, missed or undated source material can still exist.
+
+Fresh demo stores include an authored open-label checkup. Re-uploading that
+exact file returns its existing proposal with `already_committed:true` and
+`extraction_mode:"authored_seed"`, even if Meta reading was requested. No model
+request or owner review is implied; the warning identifies authored demo data.
+Existing stores are not reseeded. All uploaded additions still require review.
+Fresh stores also include seven authored archive checkups (56 fields across
+12 test labels). Their recorded dates span 2010–2025; their explicitly authored
+archive availability is 2026-11-02T12:00:00Z. Ordinary reviewed uploads always use
+actual server commit availability. The supplied archive files never alter an
+existing store merely because the application restarts.
+
+## Longitudinal evidence series
+
+`GET /api/history/series?snapshot_id=<capture>&fact_id=<measurement>&offset=0&limit=50`
+returns the selected test across a captured history. `snapshot_id` is the existing
+32-character lower-case hexadecimal history capture; `fact_id` is a visible
+measurement (1–160 characters). Offset is 0–100000; limit is 1–50. Unknown or
+repeated parameters are rejected with 422. Missing/out-of-scope anchors return
+422; expired captures, including tokens from a previous process, return 409.
+
+The response format is `modus-longitudinal-series-v1`: `scope`, `policy_version`,
+`anchor_id`, `label`, chronological `observations` with date precision,
+`plot_points`, `observation_notes`, `edges`, `history_evidence`, `page`, `counts`
+and `limitations`. Dates, units, excerpts and revision identities remain literal.
+Matching uses existing exact test aliases, never fuzzy assay-name merging.
+
+Plot only returned points, separated by their exact units. A point contains
+`fact_id`, a full `date`, finite `value` and `unit`; values that would lose
+recorded precision remain in the evidence list. Connect only edges whose
+`connectable` is true. Edges bind adjacent dated observations on this page and
+return comparison status, exact-string difference (later minus earlier),
+reason codes and notes. Neither pagination nor the chart may invent a connection
+across pages or a missing observation.
+
+`history_evidence` includes the page, its anchor and complete related conflict
+companions. It is limited to 120 facts and the whole response to 2 MB; overflow
+returns 422 with a smaller-page instruction instead of silently truncating.
+An offset beyond the last row returns an empty observation/plot/edge page with
+anchor evidence. Counts describe the whole matching series in the capture.
+
+Existing captures retain their reviewed versions after a correction or late
+upload. Obtain a new history capture for current values; after restart obtain
+a new capture before requesting the series. This operation is read-only and
+uses no model calls or unit conversion. Source download and correction continue
+through the existing scoped endpoints.
+
 ## Reviewed two-report export — 2 November 2026 (T28)
+
+Comparison policy `record-comparison-2026-11-03.1` compares narrative rows only
+as literal recorded wording. These rows have no numerical difference and no
+missing lab-unit/specimen/method warnings. Scope, date, ties and facility notes
+remain visible. Measurement comparisons retain all existing lab-context checks.
 
 `POST /api/briefs/report-preview` accepts `{snapshot_id,selected_source_id,
 comparison_source_id,title?,owner_note?}`. It compiles the two-report summary and
@@ -54,7 +358,9 @@ records without it remain readable and are not rewritten or silently re-extracte
 
 ## Conversation continuations — 2 November 2026
 
-`POST /api/history/chat` adds optional `continuation_token` (strict string, 1–100 characters). A supported single latest-record answer may return `continuation:{token,subject,before_date,expires_in_seconds,suggested_question}`. “What about the one before that?” and a small set of exact equivalent follow-ups use the stored original query and a strict earlier-date boundary. This navigates dated groups, not an arbitrary order within a day. Same-day ties and incomplete-date limitations remain visible.
+`POST /api/history/chat` adds optional `continuation_token` (strict string, 1–100 characters). A supported answer may return `continuation:{token,subject,before_date,expires_in_seconds,suggested_question,supported_questions}`. `before_date` is null unless the answer identifies one fully dated result group. `supported_questions` lists the supported follow-ups for that answer; it does not grant new tool permissions.
+
+“What about the one before that?” retains the original metric, numerical condition, exact unit and date restrictions, adding a strict earlier-date boundary. It returns the previous matching dated group, not the previous overall value or an arbitrary record within a day. Same-day ties, conflicts and incomplete-date limitations remain visible. “Show matching history” (or “Show its history”) retains the same predicate and original bounds while removing the navigation-only cutoff. A source follow-up, “Where did this value come from?”, requires exactly one unambiguous selected fact; otherwise it clarifies instead of choosing between tied or conflicting evidence. A source answer retains the original navigation context. These responses add `followup.operation: previous|source|history`.
 
 Context is opaque, random, app-local memory: at most 256 entries, 30-minute TTL, lost on restart. It is bound to exact occurrence/availability scope and cannot change record kinds, quoted/source qualifiers or the captured history. It is not authentication or durable personal memory. Missing, expired, changed-scope or modified follow-ups return a fixed `history_followup` clarification without a model/read call. New full questions are independent. Continuations execute the existing typed read in deterministic mode even if the initial answer used Meta; execution labels reflect that.
 
@@ -62,7 +368,7 @@ An explicit correction action can reopen current history and rerun the original 
 
 ## T9 natural whole-history retrieval — 30 October
 
-`POST /api/history/chat` accepts bounded conversational openings and latest-by-kind questions across eight kinds. `latest_history_match` retains `{query,kind?,limit?:1..8}`: a grammar-only query requires an explicitly owner-requested kind; otherwise named/literal constraints remain mandatory. Quoted/source restrictions stay binding. Latest-by-numeric/date filtering remains unsupported except the existing typed BP route. Ordinary offline answers now explicitly include `provider_requests_made:0`.
+`POST /api/history/chat` accepts bounded conversational openings and latest-by-kind questions across eight kinds. `latest_history_match` retains `{query,kind?,limit?:1..8}`: a grammar-only query requires an explicitly owner-requested kind; otherwise named/literal constraints remain mandatory. Quoted/source restrictions stay binding. Numerical/date conditions use the typed query contract below; they are not silently discarded by the legacy matcher. Ordinary offline answers explicitly include `provider_requests_made:0`.
 
 `search_history_evidence` and recognized-topic paged searches add influenza-vaccine, MRI, CT, X-ray and ECG topics matched on eligible saved labels/kinds. Retrieval method is `literal_medical_aliases_and_record_topics_v3`; additive mapping metadata includes `concept_id:"topic:<id>"`, `match_scope:"saved_label_and_kind"`, `record_kinds`, `requested_terms`, `matched_labels`, `catalog_version` and the existing static reference fields. Measurement aliases retain their prior exact-label contracts. A narrative mention alone cannot satisfy a new topic. Source values such as declined/planned remain verbatim; existence is not inferred. Links explain names, not personal findings. No new endpoint, database mutation or model permission is introduced.
 
@@ -76,7 +382,7 @@ Whole-history search uses `literal_and_medical_aliases_v2`, with the code-owned 
 
 `GET /api/history/page` also returns optional `retrieval` metadata for search. Recognized concepts use the same matcher before paging; fields retain their original names and are not merged. A query requiring clarification has zero matching rows and `retrieval.status: "clarify"` with `retrieval.clarification`. Unrecognized queries keep existing substring behavior. Literal/unknown modifiers never acquire clinical semantics. Complete captured counts remain separate from query/page counts.
 
-Reference links are fixed server-owned HTTPS addresses on NIDDK/MedlinePlus, contain no owner data and are not fetched automatically. UI links suppress referrers and reject unexpected origins/credentials/query strings. Source buttons/downloads remain separate and preserve existing availability/partial-document restrictions. No new write tool, external-reference API or medical-advice route is added. See [verification boundaries](VERIFICATION.md).
+Reference links are fixed server-owned HTTPS addresses on NIDDK/MedlinePlus, contain no owner data and are not fetched automatically. UI links suppress referrers and reject unexpected origins/credentials/query strings. Source buttons/downloads remain separate and preserve existing availability/partial-document restrictions. No new write tool, external-reference API or medical-advice route is added. See [scope and offline verification](VERIFICATION.md).
 
 ## Paginated whole history — 30 October 2026
 
@@ -102,19 +408,21 @@ Response retains `scope`, full-capture `counts` and `profile`. `facts` plus `und
 
 Snapshots are process-local and immutable, with a 600-second lifetime, at most four captures and an approximate 48 MiB encoded-record budget (not a resident-memory guarantee). Unknown/expired/evicted tokens return `410` with an explicit refresh message. Reconstruct from the displayed bounds when reopening a historical view; do not silently replace it with latest history. A single capture exceeding the budget returns `422` asking for an earlier date cutoff. Initial projection/filtering is still whole-capture work; this is not SQL keyset pagination.
 
-History writes increment a transactional generation counter; new lookups see committed changes, while existing tokens retain their captured versions. Audit writes do not invalidate history. Original downloads continue to require the captured temporal bounds and existing partial-document restrictions. The model gains no write tool. See [verification boundaries](VERIFICATION.md).
+History writes increment a transactional generation counter; new lookups see committed changes, while existing tokens retain their captured versions. Audit writes do not invalidate history. Original downloads continue to require the captured temporal bounds and existing partial-document restrictions. The model gains no write tool. See [verification and limits](VERIFICATION.md).
 
 ## Correction recovery and contention — 30 October 2026
 
 Amendment requests/receipts retain their schema and idempotency. The frontend keeps the exact reviewed pending request in tab memory across evidence-dialog unmounts and workspace navigation; checking an uncertain result resends that identical request. It never automatically retries or persists medical text to browser storage. Reload/crash recovery is not provided. Read-only revision lists remain scope-bound; resuming a latest-version edit from another historical scope requires explicit owner action.
 
-SQLite BUSY/LOCKED errors return HTTP `503`, `Retry-After: 1`, and `{"detail":"Your records are busy. Please try again shortly."}`. A correction client must retain the identical pending body on this response, as it does for other uncertain outcomes. Definitive non-timeout/non-rate-limit 4xx rejections invalidate the preview and require review again. History snapshots still capture clock/rows in one transaction; decoding/projection and offline Ask work run outside database locks/event-loop work respectively. See the [verification contract](VERIFICATION.md).
+SQLite BUSY/LOCKED errors return HTTP `503`, `Retry-After: 1`, and `{"detail":"Your records are busy. Please try again shortly."}`. A correction client must retain the identical pending body on this response, as it does for other uncertain outcomes. Definitive non-timeout/non-rate-limit 4xx rejections invalidate the preview and require review again. History snapshots still capture clock/rows in one transaction; decoding/projection and offline Ask work run outside database locks/event-loop work respectively. See the [verification report](VERIFICATION.md).
 
 Implementation contract for the independent entry. All dates/times are strings; instants require a timezone. JSON requests forbid extra fields. No broad assessment, medication, genetics or reference routes exist.
 
 The product's only remote provider is Meta. Server configuration prefers `MODUS_META_KEY`, falling back to `MODEL_API_KEY` only when the preferred variable is empty. `/api/health` exposes only whether a Meta credential is configured, never its value. Evaluation-only provider credentials do not activate the product or provide a fallback. Ordinary pytest, offline check/build subprocesses and CI clear model credentials and disable dotenv loading; explicitly authorized live evaluation is separate.
 
-The current schema extractor and bounded entry tool/claim selector explicitly request `reasoning_effort:"minimal"`. Extraction keeps a 4,000-token completion cap per pass; tool selection keeps the 1,600-token policy cap per request. This is the 29 October candidate configuration after a capped live extraction ended with `finish_reason:length`; it is not evidence of improved quality or a reason to discard that failure. There is no automatic retry, cap expansion or model substitution. The preserved legacy extraction comparator retains its original request settings.
+The current schema extractor and bounded entry tool/claim selector explicitly request `reasoning_effort:"minimal"`. Report reading has fixed completion ceilings of 16,000 tokens for extraction, 6,000 for verification and 12,000 for the independent row inventory, per page group. Each call's internal telemetry records its requested ceiling alongside usage and finish reason. These replace the earlier 4,000-token ceiling, which truncated a live 32-row contextual report. Tool selection keeps the 1,600-token policy cap per request. There is no automatic retry, dynamic cap expansion or model substitution. The existing 12-page, 200-field and 12-call report bounds remain. A `length` finish rejects the entire extraction draft; a truncated verifier or inventory remains explicitly unavailable and cannot certify completeness. Reports can still exceed these bounds. The preserved legacy extraction comparator retains its original request settings.
+
+Local PDF evidence checks retain layout and content-stream text order from the same original bytes. A whitespace-normalized excerpt must occur wholly in one representation on its cited page; the checker never concatenates representations or searches another page to rescue a quote. This supports multiline result/context blocks in separate columns. Both representations count toward the existing page/document text bounds. OCR remains unverified, date linkage still requires review, and exact text occurrence does not establish clinical meaning or visual geometry. The model still receives the existing layout transcription; the extra ordering is local evidence-checking data only.
 
 `ScopeRequest = {as_of: YYYY-MM-DD, known_at?: timestamp|null, compare_from?: timestamp|null}`. Null/omitted known_at captures current server time. A non-null compare_from requests a comparison from that availability bound to known_at, keeping as_of fixed. Both views derive from one frozen capture. Future instants are capped at that capture; reversed resolved comparison bounds are rejected.
 
@@ -201,7 +509,7 @@ Current facts retain their stable `id`, a `revision_id`, `previous_revision_id` 
 
 History comparison now includes `updated:[{before,after}]` and `removed_from_scope:[fact]`; `unchanged_count` excludes corrected records. A corrected occurrence date can move a record outside the selected scope without deleting it. Briefs and Ask use the same versioned projection. Historical briefs remain valid for their original bounds. Correction reasons and reviewer identities do not enter model tools. The model has no amendment tool.
 
-Source details offers latest-version editing, a required reason, before/after review and explicit save. Choosing to edit latest is separate from inspecting a historical version. Saving preserves the open historical view; **Open updated history** explicitly loads current records. An unconfirmed save retries the exact body. General retractions, erasure, authentication and production privacy remain unimplemented.
+Source details offers latest-version editing, a required reason, before/after review and explicit save. Choosing to edit latest is separate from inspecting a historical version. Saving preserves the open historical view; **Open updated history** explicitly loads current records. An unconfirmed save retries the exact body. General retractions, erasure, production accounts and production privacy remain unimplemented; the local session boundary above protects access to this prototype.
 
 ## Whole-history questions
 
@@ -227,7 +535,7 @@ Home, Records and Documents send their displayed history bounds to this route. E
 
 ## T3 whole-report reading and investigation (29 October)
 
-Explicit Meta extraction groups up to 12 prepared PDF pages into consecutive groups of three. Each group receives schema-constrained extraction and, when fields exist, a separate source-check pass. The hard ceiling is eight provider requests, 100 fields per group and 200 fields per report. Existing 8 MB input, text/image preparation and per-pass token limits remain. No automatic retry occurs. Global page numbers, original bytes, original quotations and numeric spelling are preserved. Failure of any extraction group rejects the entire proposal; successful earlier groups are not silently accepted. A failed verification pass leaves its fields unconfirmed for owner review.
+Explicit Meta extraction groups up to 12 prepared PDF pages into consecutive groups of three. Each group receives schema-constrained extraction, a source-check pass when fields exist, and a source-only row inventory. The hard ceiling is twelve provider requests, 100 extracted fields per group and 200 extracted fields per report. Inventory is separately bounded to 100 rows per group. Existing 8 MB input, text/image preparation and per-pass token limits remain. No automatic retry occurs. Global page numbers, original bytes, original quotations and numeric spelling are preserved. Failure of any extraction group rejects the entire proposal; successful earlier groups are not silently accepted. A failed verification pass leaves its fields unconfirmed for owner review; a failed inventory keeps an explicit unavailable completeness check.
 
 Successful previews add `extraction_review.coverage:{version:"whole-report-v1",status:"completed",completeness:"not_established",page_count,processed_pages,pages_per_group:3,max_provider_calls:8,request_count,pages}`. Each page has `{page,status:"not_run"|"processed"|"no_fields"|"failed",field_count,verification_status:"not_run"|"completed"|"unavailable",readability:"text_available"|"image_only"|"unreadable",text_available,vision_supplied}`. This records processing, not extraction recall or medical completeness. A report with no fields retains its original and page ledger in review but cannot save an empty history transaction.
 
@@ -270,4 +578,105 @@ Numerical differences require unique, fully dated, chronologically ordered measu
 Claims bind exact captured facts, revisions, source IDs/excerpts/page/geometry, saved values/context and scope. The verifier regenerates record statements and independently recalculates proposed differences from the captured view. It reports `SUPPORTED`, `CONTRADICTED`, `INSUFFICIENT_EVIDENCE` or `OUT_OF_SCOPE`. A source ID or content hash alone cannot establish support. Missing/withheld excerpts suppress generated claims and differences. Reviewed corrections may differ from the original excerpt; support means consistency with the reviewed version, not a claim that the original printed the corrected value or that the medical finding is true.
 
 Limits: 120 records total across both source files before filtering and 2 MB serialized response. Limits reject the complete request rather than silently truncate. UI renders ten groups at a time, hides stale results on selection changes, rejects mismatched response identities, and invalidates the displayed summary after a confirmed correction. Existing captured views remain reproducible; opening updated history creates the revised comparison. No model call, export, save, appointment action or clinical interpretation is introduced by this endpoint.
+
+# Typed Ask queries — 3 November 2026
+
+`POST /api/history/chat` keeps its existing request schema. Clients cannot submit
+plans, provider routes, SQL, code, subject IDs or scope overrides. The server's
+captured occurrence/availability view remains the authority.
+
+New numerical/history responses add:
+
+- `query_plan`: strict `record-query-plan-v1` operation, resolved measurement
+  token, optional `{operator: lt|lte|gt|gte|eq, value: decimal-string, unit}`,
+  `selection: latest|earliest|count|all`, optional inclusive start/end dates or
+  exclusive before/after dates, and `evidence_required: true`.
+- `query_result`: `answered`, `no_match`, `insufficient_evidence`,
+  `clarification`, `not_understood`, `unsupported` or `planner_unavailable`;
+  selected observations, match count, exclusions, material limitations, and
+  checked first-to-last comparison when supported. A no-match result concerns
+  available reviewed records; it does not establish that an event never happened.
+- `planner`: version, deterministic/validated/failure status, actual model-call
+  count and `answer_composition: deterministic_verified_records`.
+
+Supported operations include threshold searches, first/latest matching results,
+counts, ordered history, first/last differences, explicit two-file comparison and
+source inspection. The existing latest/follow-up and literal/alias search paths
+retain their contracts. Full dates or `in YYYY` narrow occurrence scope; they
+cannot widen the captured availability. Relative/ambiguous dates, multiple
+selectors, unknown source/method filters and unresolved tests clarify instead of
+silently dropping conditions. Generic glucose and fasting glucose are not merged.
+
+Thresholds use exact Decimal values and literal units. An omitted unit can be
+resolved only when the eligible test records share one explicit unit. There is
+no unit conversion or clinical threshold knowledge. Qualified/text values,
+unknown dates and conflicts remain evidence and may prevent definitive ordering.
+Complete selected evidence plus conflict companions is bounded to 48 records and
+200 KB; exceeding the bound asks for narrower dates, without a partial count.
+
+Recorded facts and differences pass the existing exact proof verifier.
+Comparators and aggregate selections are calculated by the read-only executor,
+never generated by a model. Ask now retains printed lab ranges, specimen and
+method; these were previously lost from its safe projection. Original bytes,
+amendments and source-download scope rules are unchanged.
+
+If explicitly running in Meta mode, one optional Muse `plan_history_query` call
+can confirm a safely anchored conversational paraphrase or abstain. It receives
+the question and code-owned plan, not original documents or recorded values.
+Every returned field must equal the validated anchors before execution; arbitrary
+model prose is ignored. Timeouts, refusals, malformed or changed plans return a
+fixed failure/clarification response and execute no record tools. The new model
+path is verified with injected transports only in this sprint, not live calls.
+
+# Encrypted local storage — 4 November 2026
+
+All record-store connections use SQLCipher 4 through pinned `sqlcipher3` wheels.
+The database, saved original BLOBs, drafts, corrections, receipts and run history
+use page encryption and authentication. Database temporary storage stays in
+memory. The bounded multipart parser keeps accepted upload parts in memory,
+including files above the previous one-megabyte spooling threshold. Existing
+upload limits, review requirements and HTTP schemas are unchanged.
+
+Each database has a random 256-bit raw key in an explicitly selected native
+credential backend: Windows Credential Manager, macOS Keychain or Linux Secret
+Service. No configurable plaintext keyring fallback is accepted. Adjacent
+`<database>.modus-vault.json` stores only a format identifier and opaque key ID;
+it must accompany the encrypted database. The key is never returned by HTTP,
+placed in the access file or accepted from a model. Browser access credentials
+rotate independently on restart. The key remains stable across restarts.
+
+An existing plaintext store requires explicit stopped-service migration:
+`python scripts/encrypt_records.py PATH --execute`. Only the identified Modus
+Records schema is accepted. Migration holds an exclusive interprocess lease and
+SQLite lock, refuses outstanding WAL/journal files, exports to an encrypted
+staging file, verifies authenticated pages, foreign keys, schema, every typed
+row, original BLOB bytes and version pragmas, and checks an independent encrypted
+recovery copy before atomic replacement. It does not create a plaintext backup.
+On failure the source is retained; a completed encrypted recovery copy is also
+retained. A repeat on an encrypted store verifies it without replacing it.
+
+Normal connections hold shared leases; migration/startup require an exclusive
+lease. Native SQLite busy/locked errors retain the existing retryable HTTP 503
+contract. Missing metadata, missing or wrong keys, damaged encrypted pages and
+a missing database with existing metadata stop startup before schema writes or
+seeding. They never trigger automatic recovery, key rotation or plaintext access.
+
+Recovery: stop Modus; preserve the current damaged file separately; restore a
+verified encrypted database and its matching metadata to the intended path;
+retain or restore the corresponding native OS credential entry; then restart.
+Do not delete journals or invent a replacement key. A lost key cannot be
+reconstructed from database metadata. A portable password-protected key export
+and cross-device recovery workflow are not implemented.
+
+Scope: this protects stored database pages and saved originals, not records in
+process memory, OS swap/crash dumps, user-selected originals elsewhere, downloaded
+exports, external backups or prior plaintext disk blocks. Same-user software
+and OS administrators may access the native credential store. Encryption is
+not secure erasure, endpoint isolation, multi-user authentication or production
+privacy qualification. Native credential integration requires a functioning
+desktop key store; headless Linux must not silently fall back to a file key.
+
+Offline tests inject a disposable in-memory credential backend before app
+imports and use actual SQLCipher databases. They neither read the owner's native
+key store nor receive live provider credentials.
 

@@ -133,12 +133,11 @@ function ComparisonBody({
                   <div className="record-comparison-source">
                     <strong>{title}</strong>
                     {source?.original_available ? (
-                      <a
+                      <DownloadOriginal
                         href={originalDownloadUrl(source.id, view.scope)}
-                        download
                       >
                         <ArrowDownToLine size={14} /> Download original
-                      </a>
+                      </DownloadOriginal>
                     ) : (
                       <span>Original unavailable in this view</span>
                     )}
@@ -197,3 +196,4 @@ function ComparisonBody({
     </section>
   );
 }
+import DownloadOriginal from './DownloadOriginal';

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FileText, History, Inbox, MessageSquare } from "lucide-react";
 import type { HistoryView } from "./historyTypes";
 import type { Page } from "./Shell";
@@ -9,7 +9,7 @@ export type KnowledgeMode = "latest" | "then" | "custom";
 
 export default function HomeIntegrityTools({
   scope, dates, currentDay, knowledge, pendingCount, onDate, onNavigate, onReview,
-  orbit = false,
+  orbit = false, requestedDate, updating = false, onCurrent, onPreview,
 }: {
   scope: HistoryView["scope"];
   dates: string[];
@@ -20,23 +20,67 @@ export default function HomeIntegrityTools({
   onNavigate: (page: Page) => void;
   onReview: () => void;
   orbit?: boolean;
+  requestedDate?: string;
+  updating?: boolean;
+  onCurrent?: () => void;
+  onPreview?: (date: string) => void;
 }) {
-  const [date, setDate] = useState(scope.as_of || currentDay);
+  const [date, setDate] = useState(requestedDate || scope.as_of || currentDay);
   const [mode, setMode] = useState(knowledge);
+  const dragging = useRef(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queued = useRef<{ day: string; mode: KnowledgeMode } | null>(null);
+  const last = useRef({ at: 0, day: requestedDate || scope.as_of || currentDay, mode: knowledge });
+  const send = useRef(onDate);
+  send.current = onDate;
+  useEffect(() => {
+    if (!dragging.current) {
+      const next = requestedDate || scope.as_of || currentDay;
+      setDate(next);
+      last.current = { ...last.current, day: next, mode: knowledge };
+    }
+    setMode(knowledge);
+  }, [requestedDate, scope.as_of, currentDay, knowledge]);
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
   const dated = [...new Set(dates.filter((day) => dateDay(day) !== null && day <= currentDay))].sort();
   const points = [...new Set([...dated, currentDay])].sort();
   const min = dateDay(points[0])!, max = dateDay(currentDay)!;
   const position = Math.max(min, Math.min(max, dateDay(date) ?? max));
   const apply = (day = date, nextMode = mode) => {
-    if (dateDay(day) !== null && day <= currentDay) onDate(day, nextMode);
+    if (dateDay(day) !== null && day <= currentDay) {
+      onPreview?.(day);
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = null; queued.current = null;
+      last.current = { at: Date.now(), day, mode: nextMode };
+      send.current(day, nextMode);
+    }
+  };
+  const flush = () => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    const next = queued.current;
+    queued.current = null;
+    if (next && (last.current.day !== next.day || last.current.mode !== next.mode)) apply(next.day, next.mode);
+  };
+  const scrub = (day: string) => {
+    setDate(day);
+    onPreview?.(day);
+    queued.current = { day, mode };
+    const remaining = 120 - (Date.now() - last.current.at);
+    if (remaining <= 0) flush();
+    else if (!timer.current) timer.current = setTimeout(flush, remaining);
   };
   const timeline = <div className="home-replay-track">
     <input type="range" aria-label="Scrub recorded history" min={min} max={max}
       step={1} value={position} disabled={points.length < 2}
       aria-valuetext={dateLabel(date)}
-      onChange={(event) => setDate(dayDate(Number(event.target.value)))}
-      onPointerUp={(event) => apply(dayDate(Number(event.currentTarget.value)))}
-      onKeyUp={(event) => { if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "PageUp", "PageDown"].includes(event.key)) apply(dayDate(Number(event.currentTarget.value))); }} />
+      onPointerDown={() => { dragging.current = true; }}
+      onChange={(event) => scrub(dayDate(Number(event.target.value)))}
+      onPointerUp={() => { dragging.current = false; flush(); }}
+      onPointerCancel={() => { dragging.current = false; flush(); }}
+      onBlur={() => { dragging.current = false; flush(); }}
+      onKeyDown={() => { dragging.current = true; }}
+      onKeyUp={() => { dragging.current = false; flush(); }} />
     {orbit && <div className="orbit-time-ticks" aria-hidden="true">{points.map((day) => <i key={day} style={{left:`${max === min ? 0 : (dateDay(day)! - min) / (max - min) * 100}%`}} />)}</div>}
     <div><span>{dated.length ? dateLabel(points[0]) : "No dated records"}</span><span>{dateLabel(currentDay)}</span></div>
   </div>;
@@ -56,24 +100,21 @@ export default function HomeIntegrityTools({
   </>;
   if (orbit) return <section className="home-integrity-tools orbit-telemetry" aria-label="History controls">
     <header className="orbit-timeline-heading">
-      <div><span>Your timeline</span><strong>{scope.as_of ? `Through ${dateLabel(scope.as_of)}` : 'All recorded dates'}</strong></div>
+      <div><span>Recorded dates</span><strong><output aria-label="Selected history date">{date !== currentDay || scope.as_of ? `Through ${dateLabel(date)}` : 'All recorded dates'}</output></strong></div>
+      <div><span>Files available through</span><strong><time dateTime={scope.known_at}>{timeLabel(scope.known_at)}</time></strong></div>
+      <div className="home-time-feedback"><span role="status">{updating ? 'Updating records…' : ''}</span>
+        {onCurrent && <button type="button" className="text-button" onClick={() => { dragging.current = false; if (timer.current) clearTimeout(timer.current); timer.current = null; queued.current = null; setDate(currentDay); setMode('latest'); onPreview?.(currentDay); onCurrent(); }} disabled={date === currentDay && knowledge === 'latest'}>Today</button>}
+      </div>
     </header>
     {timeline}
     <details className="orbit-history-options">
-      <summary>History options <span>{knowledge === 'latest' ? 'Files available now' : `Files available ${dateLabel(scope.known_at.slice(0, 10))}`}</span></summary>
+      <summary>More history tools</summary>
       <div className="home-replay-controls">{dateControls}</div>
       <div className="home-integrity-actions">
-        {pendingCount > 0 && <button type="button" className="secondary" onClick={onReview}>
-          <Inbox size={15} aria-hidden="true" /> Continue review <span>{pendingCount}</span>
-        </button>}
         <button type="button" className="secondary" onClick={() => onNavigate("Replay")}>
           <History size={15} aria-hidden="true" /> Compare past views
         </button>
-        <button type="button" className="secondary" onClick={() => onNavigate("Brief")}>
-          <FileText size={15} aria-hidden="true" /> Prepare a brief
-        </button>
       </div>
-      <p className="home-integrity-notes">Files available through {timeLabel(scope.known_at)}.{pendingCount > 0 && ' Unsaved reviews stay in this tab.'}</p>
     </details>
   </section>;
   return (

@@ -1,0 +1,67 @@
+/* Ambient motion is decorative. Values, text and interactive positions stay still. */
+.orbit-map-tools { display: flex; align-items: center; gap: 8px; }
+.orbit-map-heading { align-items: center; }
+.ambient-motion-toggle {
+  display: grid; place-items: center; flex: 0 0 auto;
+  width: 44px; min-height: 44px; padding: 10px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--muted);
+}
+.ambient-motion-toggle:hover:not(:disabled) { color: var(--ink); background: var(--hover); }
+.ambient-motion-toggle:disabled { opacity: .6; cursor: default; }
+.orbit-presence, .orbit-node-presence { pointer-events: none; fill: none; stroke: var(--orbit-muted); }
+.orbit-presence {
+  transform-box: fill-box; transform-origin: center;
+  opacity: .25; animation: orbit-breathe 9s ease-in-out infinite;
+}
+.orbit-presence circle { stroke-width: 1; }
+.orbit-node-presence {
+  transform-box: fill-box; transform-origin: center;
+  opacity: .3; stroke-width: 1; animation: orbit-file-breathe 8s ease-in-out infinite;
+}
+.orbit-satellite.is-selected .orbit-node-presence { stroke: var(--star); }
+.orbit-map .orbit-file-relations { pointer-events: none; }
+.orbit-map .orbit-file-relations path {
+  fill: none; stroke: var(--orbit-muted); stroke-width: 1; opacity: .16;
+  vector-effect: non-scaling-stroke;
+}
+.orbit-map .orbit-guides .orbit-ring {
+  animation: orbit-line-breathe 12s ease-in-out infinite;
+  opacity: .35; stroke-dasharray: none;
+}
+.orbit-map .orbit-connection {
+  animation: orbit-selected-breathe 11s ease-in-out infinite;
+  stroke-dasharray: none; opacity: .7;
+}
+.mission-shell .brand::after { animation: orbit-brand-breathe 9s ease-in-out infinite; }
+.orbit-presence, .orbit-node-presence, .mission-shell .brand::after,
+.orbit-map .orbit-guides .orbit-ring, .orbit-map .orbit-connection {
+  animation-play-state: paused;
+}
+:root[data-ambient-motion="running"] :is(.orbit-presence, .orbit-node-presence),
+:root[data-ambient-motion="running"] .orbit-map :is(.orbit-ring, .orbit-connection),
+:root[data-ambient-motion="running"] .mission-shell .brand::after { animation-play-state: running; }
+.orbit-satellite:is(:hover, :focus-visible) .orbit-node-presence { animation-play-state: paused; }
+@keyframes orbit-breathe {
+  0%, 100% { opacity: .25; }
+  50% { opacity: .65; }
+}
+@keyframes orbit-file-breathe {
+  0%, 100% { opacity: .18; }
+  50% { opacity: .6; }
+}
+@keyframes orbit-brand-breathe { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes orbit-line-breathe { 0%, 100% { opacity: .28; } 50% { opacity: .65; } }
+@keyframes orbit-selected-breathe { 0%, 100% { opacity: .45; } 50% { opacity: .95; } }
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-ambient-motion="running"]) :is(.orbit-presence, .orbit-node-presence),
+  :root:not([data-ambient-motion="running"]) .mission-shell .brand::after,
+  :root:not([data-ambient-motion="running"]) .orbit-map .orbit-guides .orbit-ring,
+  :root:not([data-ambient-motion="running"]) .orbit-map .orbit-connection { animation: none !important; }
+  /* Explicit gentle-motion consent overrides only these opacity animations.
+     The application's global reduced-motion rule still governs everything else. */
+  :root[data-ambient-motion="running"] .orbit-map .orbit-presence { animation: orbit-breathe 9s ease-in-out infinite !important; }
+  :root[data-ambient-motion="running"] .orbit-map .orbit-node-presence { animation: orbit-file-breathe 8s ease-in-out infinite !important; }
+  :root[data-ambient-motion="running"] .orbit-map .orbit-guides .orbit-ring { animation: orbit-line-breathe 12s ease-in-out infinite !important; }
+  :root[data-ambient-motion="running"] .orbit-map .orbit-connection { animation: orbit-selected-breathe 11s ease-in-out infinite !important; }
+  :root[data-ambient-motion="running"] .mission-shell .brand::after { animation: orbit-brand-breathe 9s ease-in-out infinite !important; }
+}

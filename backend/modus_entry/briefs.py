@@ -29,6 +29,11 @@ KIND_LABELS = {
     'prescription': 'Historical prescription', 'vaccination': 'Vaccination',
     'imaging_text': 'Imaging report text', 'recorded_text': 'Other recorded text',
 }
+REVIEW_FIELD_LABELS = {
+    'kind': 'record type', 'label': 'name', 'value': 'value', 'unit': 'unit',
+    'occurred_on': 'recorded date', 'facility': 'facility',
+    'reference_range': 'lab reference range', 'specimen': 'specimen', 'test_method': 'test method',
+}
 
 
 class BriefRequest(Strict):
@@ -242,7 +247,7 @@ def render_html(brief):
             value = e(row['value']) + (f' {e(row["unit"])}' if row.get('unit') else '')
             parts.append(f'<p class="value">{value}</p>')
             if row.get('reviewed_fields'):
-                fields = ', '.join(row['reviewed_fields'])
+                fields = ', '.join(REVIEW_FIELD_LABELS.get(field, field) for field in row['reviewed_fields'])
                 parts.append(f'<p class="meta">Fields edited during record review: {e(fields)}. The excerpt preserves the original wording.</p>')
             if row.get('source_quote_withheld'):
                 parts.append('<p class="meta">Original excerpt withheld by the selected date scope.</p>')

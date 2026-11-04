@@ -137,7 +137,7 @@ def test_mock_live_selection_cannot_omit_answer_conflict_or_correction(memory):
     async def transport(payload):
         calls.append(payload)
         if len(calls) == 1:
-            name, args = 'last_recorded_blood_pressure', {'component': 'systolic', 'value': '100'}
+            name, args = 'last_recorded_blood_pressure', {}
         else:
             output = json.loads(payload['messages'][-1]['content'])
             name, args = 'select_claims', {'claim_ids': [output['claims'][1]['id']]}
